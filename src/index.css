@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@theme {
+  /* --- Couleurs Design System --- */
+  --color-primary: #0059b6;
+  --color-primary-container: #68a0ff;
+  --color-primary-dim: #004da0;
+  --color-primary-fixed: #68a0ff;
+  --color-primary-fixed-dim: #4b92ff;
+  --color-on-primary: #eff2ff;
+  --color-on-primary-container: #00224d;
+  --color-on-primary-fixed: #000000;
+  --color-on-primary-fixed-variant: #002b5e;
+
+  --color-secondary: #705900;
+  --color-secondary-container: #fecb00;
+  --color-secondary-dim: #624d00;
+  --color-secondary-fixed: #fecb00;
+  --color-secondary-fixed-dim: #eebe00;
+  --color-on-secondary: #fff1d5;
+  --color-on-secondary-container: #584500;
+  --color-on-secondary-fixed: #413200;
+  --color-on-secondary-fixed-variant: #634e00;
+
+  --color-tertiary: #00694b;
+  --color-tertiary-container: #8cfece;
+  --color-tertiary-dim: #005b41;
+  --color-tertiary-fixed: #8cfece;
+  --color-tertiary-fixed-dim: #7eefc0;
+  --color-on-tertiary: #c7ffe3;
+  --color-on-tertiary-container: #006145;
+  --color-on-tertiary-fixed: #004d36;
+  --color-on-tertiary-fixed-variant: #006d4e;
+
+  --color-error: #b31b25;
+  --color-error-container: #fb5151;
+  --color-error-dim: #9f0519;
+  --color-on-error: #ffefee;
+  --color-on-error-container: #570008;
+
+  --color-background: #f7f5ff;
+  --color-on-background: #222d51;
+  --color-surface: #f7f5ff;
+  --color-surface-dim: #c9d3ff;
+  --color-surface-bright: #f7f5ff;
+  --color-surface-tint: #0059b6;
+  --color-surface-variant: #d4dbff;
+  --color-surface-container: #e4e7ff;
+  --color-surface-container-low: #eff0ff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-high: #dce1ff;
+  --color-surface-container-highest: #d4dbff;
+  --color-on-surface: #222d51;
+  --color-on-surface-variant: #505a81;
+  --color-outline: #6b759e;
+  --color-outline-variant: #a1abd7;
+  --color-inverse-surface: #010b2f;
+  --color-inverse-on-surface: #919bc6;
+  --color-inverse-primary: #448fff;
+
+  /* --- Typographie --- */
+  --font-headline: "Plus Jakarta Sans", sans-serif;
+  --font-body: "Be Vietnam Pro", sans-serif;
+  --font-label: "Plus Jakarta Sans", sans-serif;
+
+  /* --- Rayons de coins --- */
+  --radius-DEFAULT: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+}

@@ -5,6 +5,12 @@ description = "PedagogIA backend — adaptive math learning for FWB students"
 requires-python = ">=3.12"
 dependencies = [
     "pyyaml>=6.0",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.34",
+    "sqlalchemy>=2.0",
+    "psycopg2-binary>=2.9",
+    "alembic>=1.15",
+    "pydantic-settings>=2.8",
 ]
 
 [tool.ruff]
@@ -20,4 +26,6 @@ testpaths = ["tests"]
 [dependency-groups]
 dev = [
     "pytest>=9.0.3",
+    "httpx>=0.28",
+    "ruff>=0.11",
 ]

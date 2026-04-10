@@ -7,7 +7,6 @@ from typing import Any
 
 import yaml
 
-
 SKILLS_PATH = Path(__file__).parent / "skills.yaml"
 
 

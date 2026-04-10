@@ -26,7 +26,7 @@ def test_single_root():
     skills = load_skills()
     roots = [s for s in skills if not s.get("prerequisites")]
     assert len(roots) == 1
-    assert roots[0]["id"] == "num_compter_20"
+    assert roots[0]["id"] == "num_compter_39"
 
 
 def test_all_grades_present():
@@ -47,7 +47,7 @@ def test_get_ancestors():
     dag = build_dag(skills)
     # add_avec_retenue_100 should have num_compter_20 as an ancestor
     ancestors = get_all_ancestors(dag, "add_avec_retenue_100")
-    assert "num_compter_20" in ancestors
+    assert "num_compter_39" in ancestors
     assert "add_complements_10" in ancestors
 
 
@@ -55,14 +55,14 @@ def test_frontier_from_empty():
     skills = load_skills()
     dag = build_dag(skills)
     frontier = get_frontier(dag, mastered=set())
-    assert frontier == ["num_compter_20"]
+    assert frontier == ["num_compter_39"]
 
 
 def test_frontier_after_p1_basics():
     skills = load_skills()
     dag = build_dag(skills)
     # After mastering counting and reading numbers
-    mastered = {"num_compter_20", "num_lire_ecrire_20"}
+    mastered = {"num_compter_39", "num_lire_ecrire_20"}
     frontier = get_frontier(dag, mastered)
     # Should include next numeration + operation sense skills
     assert "num_dizaines_unites_20" in frontier

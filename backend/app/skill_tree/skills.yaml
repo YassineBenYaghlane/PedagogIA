@@ -10,14 +10,14 @@
 #   mastery_threshold: consecutive correct answers needed
 
 # =============================================================================
-# P1 — 1re PRIMAIRE (nombres jusqu'à 20, addition et soustraction)
+# P1 — 1re PRIMAIRE (nombres jusqu'à 39, addition et soustraction jusqu'à 20)
 # =============================================================================
 
 # --- Numération P1 ---
-- id: num_compter_20
-  label: "Compter jusqu'à 20"
+- id: num_compter_39
+  label: "Compter jusqu'à 39"
   grade: P1
-  description: "Dire les nombres dans l'ordre stable jusqu'à 20, compter par 2 et par 5"
+  description: "Dire les nombres dans l'ordre stable jusqu'à minima 39, compter par 2 et par 5 jusqu'à 20"
   prerequisites: []
   mastery_threshold: 3
 
@@ -25,7 +25,7 @@
   label: "Lire et écrire les nombres jusqu'à 20"
   grade: P1
   description: "Dire, lire les nombres jusqu'à 20 et les écrire en chiffres"
-  prerequisites: [num_compter_20]
+  prerequisites: [num_compter_39]
   mastery_threshold: 3
 
 - id: num_dizaines_unites_20
@@ -45,7 +45,7 @@
 - id: num_decomposer_20
   label: "Décomposer les nombres jusqu'à 20"
   grade: P1
-  description: "Décomposer et recomposer en deux termes (ex: 15 = 8 + 7)"
+  description: "Décomposer additivement et multiplicativement (paquets de) les nombres jusqu'à 20"
   prerequisites: [num_dizaines_unites_20]
   mastery_threshold: 3
 
@@ -54,7 +54,7 @@
   label: "Sens de l'addition"
   grade: P1
   description: "Comprendre que l'addition c'est ajouter, mettre ensemble"
-  prerequisites: [num_compter_20]
+  prerequisites: [num_compter_39]
   mastery_threshold: 3
 
 - id: add_complements_10
@@ -90,7 +90,7 @@
   label: "Sens de la soustraction"
   grade: P1
   description: "Comprendre que la soustraction c'est enlever, reculer, trouver la différence"
-  prerequisites: [num_compter_20]
+  prerequisites: [num_compter_39]
   mastery_threshold: 3
 
 - id: soustr_faits_10
@@ -123,8 +123,8 @@
 - id: num_compter_100
   label: "Compter jusqu'à 100"
   grade: P2
-  description: "Dire les nombres dans l'ordre stable jusqu'à 100, compter par 2, 5, 10"
-  prerequisites: [num_compter_20]
+  description: "Dire les nombres dans l'ordre stable jusqu'à 100, compter par 2 jusqu'à 20, par 5 jusqu'à 50, par 10 jusqu'à 100"
+  prerequisites: [num_compter_39]
   mastery_threshold: 3
 
 - id: num_lire_ecrire_100
@@ -327,6 +327,13 @@
   prerequisites: [num_centaines_1000, num_decomposer_100_cle]
   mastery_threshold: 3
 
+- id: num_suites_regularites
+  label: "Suites de nombres et régularités"
+  grade: P3
+  description: "Déterminer la régularité dans une suite de nombres et ajouter des éléments"
+  prerequisites: [num_comparer_ordonner_1000]
+  mastery_threshold: 3
+
 # --- Tables de multiplication P3 ---
 - id: mult_T3
   label: "Table de 3"
@@ -408,7 +415,7 @@
   prerequisites: [soustr_avec_emprunt_1000]
   mastery_threshold: 3
 
-# --- Calcul mental P3 ---
+# --- Calcul mental P3 (incl. distributivité, compensation, ×4/×8) ---
 - id: cm_decomposition_add_1000
   label: "Calcul mental: décomposition (jusqu'à 1 000)"
   grade: P3
@@ -430,6 +437,34 @@
   prerequisites: [div_par_2_5_10, cm_mult_par_10]
   mastery_threshold: 3
 
+- id: cm_distributivite
+  label: "Calcul mental: distributivité"
+  grade: P3
+  description: "Utiliser la distributivité (ex: 6 × 14 = 6 × 10 + 6 × 4)"
+  prerequisites: [mult_T6, cm_decomposition_add_1000, prop_commutativite_mult]
+  mastery_threshold: 3
+
+- id: cm_compensation
+  label: "Calcul mental: compensation"
+  grade: P3
+  description: "Utiliser la compensation (ex: 48 + 29 = 48 + 30 − 1)"
+  prerequisites: [add_avec_retenue_1000, soustr_avec_emprunt_1000]
+  mastery_threshold: 3
+
+- id: cm_mult_par_4_8
+  label: "Multiplier par 4, par 8 et par 20"
+  grade: P3
+  description: "Effectuer des multiplications spécifiques par 10, par 100, par 20, par 4 et par 8"
+  prerequisites: [mult_T4, cm_mult_par_10, cm_mult_par_20]
+  mastery_threshold: 3
+
+- id: cm_div_par_4
+  label: "Diviser par 4"
+  grade: P3
+  description: "Effectuer des divisions spécifiques par 4"
+  prerequisites: [div_par_2_5_10, mult_T4]
+  mastery_threshold: 3
+
 # --- Propriétés P3 ---
 - id: prop_parentheses
   label: "Utilisation des parenthèses"
@@ -439,7 +474,7 @@
   mastery_threshold: 3
 
 # =============================================================================
-# P4 — 4e PRIMAIRE (jusqu'à 100 000, décimaux, toutes les tables, × écrite)
+# P4 — 4e PRIMAIRE (jusqu'à 100 000, décimaux, toutes les tables)
 # =============================================================================
 
 # --- Numération P4 ---
@@ -493,14 +528,7 @@
   prerequisites: [mult_T2, mult_T3, mult_T4, mult_T5, mult_T6, mult_T7, mult_T8, mult_T9, mult_T10]
   mastery_threshold: 5
 
-# --- Multiplication/division P4 ---
-- id: mult_deux_chiffres
-  label: "Multiplication par un nombre à 2 chiffres"
-  grade: P4
-  description: "Multiplier un nombre par un nombre à deux chiffres"
-  prerequisites: [mult_toutes_tables, add_avec_retenue_1000]
-  mastery_threshold: 3
-
+# --- Division P4 ---
 - id: div_par_1_chiffre
   label: "Division par un nombre à 1 chiffre"
   grade: P4
@@ -508,48 +536,41 @@
   prerequisites: [div_sens, mult_toutes_tables]
   mastery_threshold: 3
 
-# --- Calcul écrit P4 ---
+# --- Calcul écrit P4 (multiplication: multiplicateur 1 chiffre) ---
 - id: ce_multiplication
-  label: "Multiplication écrite (algorithme)"
+  label: "Multiplication écrite (multiplicateur 1 chiffre)"
   grade: P4
-  description: "Effectuer des multiplications posées (multiplicateur à 2 chiffres)"
-  prerequisites: [mult_deux_chiffres]
+  description: "Effectuer des multiplications posées avec multiplicateur limité à 1 chiffre"
+  prerequisites: [mult_toutes_tables, add_avec_retenue_1000]
   mastery_threshold: 3
 
-# --- Calcul mental P4 ---
-- id: cm_mult_par_4
-  label: "Multiplier par 4 et par 8"
+# --- Calcul mental P4 (×5, ×9, ×11, ×50, ÷5, ÷8, ÷100) ---
+- id: cm_mult_par_5
+  label: "Multiplier par 5 et par 50"
   grade: P4
-  description: "Effectuer des multiplications spécifiques par 4 et par 8"
-  prerequisites: [mult_T4, mult_T8, cm_mult_par_10]
+  description: "Effectuer des multiplications spécifiques par 5 et par 50"
+  prerequisites: [mult_T5, cm_mult_par_10, cm_mult_par_100]
   mastery_threshold: 3
 
-- id: cm_mult_par_20_avance
-  label: "Multiplier par 20, par 100"
+- id: cm_mult_par_9
+  label: "Multiplier par 9"
   grade: P4
-  description: "Effectuer des multiplications spécifiques par 20 et par 100"
-  prerequisites: [cm_mult_par_20, cm_mult_par_100]
+  description: "Effectuer des multiplications par 9 (× 10 − 1)"
+  prerequisites: [mult_T9, cm_mult_par_10, cm_compensation]
   mastery_threshold: 3
 
-- id: cm_div_par_4
-  label: "Diviser par 4 et par 10"
+- id: cm_mult_par_11
+  label: "Multiplier par 11"
   grade: P4
-  description: "Effectuer des divisions spécifiques par 4 et par 10"
-  prerequisites: [div_par_1_chiffre, cm_div_par_10]
+  description: "Effectuer des multiplications par 11 (× 10 + 1)"
+  prerequisites: [cm_mult_par_10, add_avec_retenue_1000]
   mastery_threshold: 3
 
-- id: cm_distributivite
-  label: "Calcul mental: distributivité"
+- id: cm_div_par_5_8_100
+  label: "Diviser par 5, par 8 et par 100"
   grade: P4
-  description: "Utiliser la distributivité (ex: 6 × 14 = 6 × 10 + 6 × 4)"
-  prerequisites: [mult_toutes_tables, cm_decomposition_add_1000, prop_commutativite_mult]
-  mastery_threshold: 3
-
-- id: cm_compensation
-  label: "Calcul mental: compensation"
-  grade: P4
-  description: "Utiliser la compensation (ex: 48 + 29 = 48 + 30 − 1)"
-  prerequisites: [add_avec_retenue_1000, soustr_avec_emprunt_1000]
+  description: "Effectuer des divisions spécifiques par 5, par 8 et par 100"
+  prerequisites: [div_par_1_chiffre, cm_div_par_4, cm_mult_par_100]
   mastery_threshold: 3
 
 # --- Opérations avec décimaux P4 ---
@@ -565,6 +586,14 @@
   grade: P4
   description: "Soustraire des nombres décimaux limités au dixième"
   prerequisites: [num_decimaux_intro, soustr_avec_emprunt_1000]
+  mastery_threshold: 3
+
+# --- Estimation P4 ---
+- id: estimation_resultat
+  label: "Estimer l'ordre de grandeur d'un résultat"
+  grade: P4
+  description: "Estimer le résultat d'une opération (+, −) avant de calculer précisément"
+  prerequisites: [add_avec_retenue_1000, soustr_avec_emprunt_1000]
   mastery_threshold: 3
 
 # =============================================================================
@@ -600,6 +629,14 @@
   prerequisites: [num_decimaux_milliemes]
   mastery_threshold: 3
 
+# --- Multiplication par 2 chiffres (mental, P5 pour écrit) ---
+- id: mult_deux_chiffres
+  label: "Multiplication par un nombre à 2 chiffres"
+  grade: P5
+  description: "Multiplier un nombre par un nombre à deux chiffres"
+  prerequisites: [ce_multiplication, cm_distributivite]
+  mastery_threshold: 3
+
 # --- 4 opérations sur décimaux P5 ---
 - id: add_decimaux_milliemes
   label: "Addition de nombres décimaux (millièmes)"
@@ -633,14 +670,14 @@
 - id: ce_addition_decimaux
   label: "Addition écrite (décimaux)"
   grade: P5
-  description: "Effectuer des additions posées avec nombres décimaux (max 3 termes)"
+  description: "Effectuer des additions posées avec nombres décimaux (max 3 termes, millièmes)"
   prerequisites: [ce_addition, add_decimaux_milliemes]
   mastery_threshold: 3
 
 - id: ce_soustraction_decimaux
   label: "Soustraction écrite (décimaux)"
   grade: P5
-  description: "Effectuer des soustractions posées avec nombres décimaux"
+  description: "Effectuer des soustractions posées avec nombres décimaux (millièmes)"
   prerequisites: [ce_soustraction, soustr_decimaux_milliemes]
   mastery_threshold: 3
 
@@ -648,7 +685,7 @@
   label: "Multiplication écrite (multiplicateur 2 chiffres)"
   grade: P5
   description: "Effectuer des multiplications posées de nombres naturels (multiplicateur à 2 chiffres)"
-  prerequisites: [ce_multiplication]
+  prerequisites: [mult_deux_chiffres]
   mastery_threshold: 3
 
 - id: ce_division
@@ -658,7 +695,7 @@
   prerequisites: [div_par_1_chiffre]
   mastery_threshold: 3
 
-# --- Calcul mental P5 ---
+# --- Calcul mental P5 (×0.1, ×0.25, ×99, ×101, ×25, ÷50, ÷25) ---
 - id: cm_mult_par_01
   label: "Multiplier par 0,1 et 0,5"
   grade: P5
@@ -673,18 +710,18 @@
   prerequisites: [cm_mult_par_01, cm_div_par_4]
   mastery_threshold: 3
 
-- id: cm_mult_par_9_99
-  label: "Multiplier par 9 et par 99"
+- id: cm_mult_par_99
+  label: "Multiplier par 99"
   grade: P5
-  description: "Effectuer des multiplications par 9 (× 10 − 1) et par 99 (× 100 − 1)"
-  prerequisites: [cm_mult_par_10, cm_mult_par_100, cm_compensation]
+  description: "Effectuer des multiplications par 99 (× 100 − 1)"
+  prerequisites: [cm_mult_par_9, cm_mult_par_100]
   mastery_threshold: 3
 
-- id: cm_mult_par_11_101
-  label: "Multiplier par 11 et par 101"
+- id: cm_mult_par_101
+  label: "Multiplier par 101 et par 110"
   grade: P5
-  description: "Effectuer des multiplications par 11 (× 10 + 1) et par 101 (× 100 + 1)"
-  prerequisites: [cm_mult_par_10, cm_mult_par_100]
+  description: "Effectuer des multiplications par 101 (× 100 + 1) et par 110"
+  prerequisites: [cm_mult_par_11, cm_mult_par_100]
   mastery_threshold: 3
 
 - id: cm_mult_par_25
@@ -701,16 +738,15 @@
   prerequisites: [div_decimaux, cm_mult_par_025]
   mastery_threshold: 3
 
-# --- Estimation P5 ---
-- id: estimation_resultat
-  label: "Estimer l'ordre de grandeur d'un résultat"
+- id: estimation_resultat_complet
+  label: "Estimer tous types d'opérations"
   grade: P5
-  description: "Estimer le résultat d'une opération avant de calculer précisément"
-  prerequisites: [add_avec_retenue_1000, mult_deux_chiffres]
+  description: "Estimer le résultat des 4 opérations (+, −, ×, ÷) avant de calculer"
+  prerequisites: [estimation_resultat, mult_deux_chiffres, div_par_1_chiffre]
   mastery_threshold: 3
 
 # =============================================================================
-# P6 — 6e PRIMAIRE (milliards, maitrise complète, division écrite)
+# P6 — 6e PRIMAIRE (milliards, maitrise complète, division écrite avancée)
 # =============================================================================
 
 # --- Numération P6 ---
@@ -723,32 +759,54 @@
 
 # --- Calcul écrit P6 ---
 - id: ce_division_avance
-  label: "Division écrite (diviseur 2 chiffres)"
+  label: "Division écrite (diviseur jusqu'à 20)"
   grade: P6
-  description: "Effectuer des divisions posées avec diviseur à 2 chiffres"
+  description: "Effectuer des divisions posées avec diviseur limité à 20, quotient à 1 chiffre après la virgule"
   prerequisites: [ce_division, mult_toutes_tables]
+  mastery_threshold: 3
+
+- id: ce_multiplication_decimaux
+  label: "Multiplication écrite (décimaux)"
+  grade: P6
+  description: "Effectuer des multiplications posées avec produit limité à 2 chiffres après la virgule"
+  prerequisites: [ce_multiplication_avance, mult_decimaux]
+  mastery_threshold: 3
+
+# --- Calcul mental P6 (×250, ÷0.1, ÷0.5, ÷0.25) ---
+- id: cm_mult_par_250
+  label: "Multiplier par 250"
+  grade: P6
+  description: "Effectuer des multiplications par 250"
+  prerequisites: [cm_mult_par_25, cm_mult_par_10]
+  mastery_threshold: 3
+
+- id: cm_div_par_01_05_025
+  label: "Diviser par 0,1 ; 0,5 et 0,25"
+  grade: P6
+  description: "Effectuer des divisions par 0,1 ; 0,5 et 0,25"
+  prerequisites: [div_decimaux, cm_mult_par_01, cm_mult_par_025]
   mastery_threshold: 3
 
 # --- Maitrise globale P6 ---
 - id: maitrise_add_soustr
   label: "Maitrise addition et soustraction"
   grade: P6
-  description: "Maitriser les 4 opérations sur tous types de nombres, estimer et vérifier"
-  prerequisites: [ce_addition_decimaux, ce_soustraction_decimaux, estimation_resultat]
+  description: "Maitriser addition et soustraction sur tous types de nombres, estimer et vérifier"
+  prerequisites: [ce_addition_decimaux, ce_soustraction_decimaux, estimation_resultat_complet]
   mastery_threshold: 3
 
 - id: maitrise_mult_div
   label: "Maitrise multiplication et division"
   grade: P6
   description: "Maitriser multiplication et division sur tous types de nombres"
-  prerequisites: [ce_multiplication_avance, ce_division_avance, mult_decimaux, div_decimaux]
+  prerequisites: [ce_multiplication_decimaux, ce_division_avance, mult_decimaux, div_decimaux]
   mastery_threshold: 3
 
 - id: maitrise_calcul_mental
   label: "Maitrise du calcul mental"
   grade: P6
-  description: "Maitriser toutes les procédures de calcul mental (décomposition, distributivité, compensation)"
-  prerequisites: [cm_distributivite, cm_compensation, cm_mult_par_9_99, cm_mult_par_11_101, cm_mult_par_25, cm_div_par_50_25]
+  description: "Maitriser toutes les procédures de calcul mental"
+  prerequisites: [cm_distributivite, cm_compensation, cm_mult_par_99, cm_mult_par_101, cm_mult_par_25, cm_mult_par_250, cm_div_par_50_25, cm_div_par_01_05_025]
   mastery_threshold: 3
 
 # --- Résolution de problèmes P6 ---

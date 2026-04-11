@@ -5,8 +5,8 @@ from collections import Counter
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
-from app.models.skill import Skill, SkillPrerequisite
-from app.skill_tree.tree import build_dag, get_frontier, load_skills, validate_dag
+from app.models.skill import ExerciseTemplate, Skill, SkillPrerequisite
+from app.skill_tree.tree import build_dag, get_frontier, load_skills, load_templates, validate_dag
 
 
 def seed_skills(db: Session) -> None:
@@ -49,6 +49,30 @@ def seed_skills(db: Session) -> None:
     print(f"✅ Seeded {len(skills)} skills into database")
 
 
+def seed_templates(db: Session) -> None:
+    """Upsert all exercise templates from YAML into the database."""
+    templates = load_templates()
+
+    for t in templates:
+        existing = db.get(ExerciseTemplate, t["id"])
+        if existing:
+            existing.skill_id = t["skill_id"]
+            existing.difficulty = t.get("difficulty", 1)
+            existing.template = t["template"]
+        else:
+            db.add(
+                ExerciseTemplate(
+                    id=t["id"],
+                    skill_id=t["skill_id"],
+                    difficulty=t.get("difficulty", 1),
+                    template=t["template"],
+                )
+            )
+
+    db.commit()
+    print(f"✅ Seeded {len(templates)} exercise templates into database")
+
+
 def print_stats(skills: list[dict]) -> None:
     """Print skill tree statistics."""
     dag = build_dag(skills)
@@ -82,6 +106,10 @@ def print_stats(skills: list[dict]) -> None:
     for f in frontier:
         print(f"    - {f}: {dag[f]['label']}")
 
+    templates = load_templates()
+    skills_with_templates = len({t["skill_id"] for t in templates})
+    print(f"\n  Exercise templates: {len(templates)} (covering {skills_with_templates} skills)")
+
     print()
 
 
@@ -100,6 +128,7 @@ def main() -> None:
     db = SessionLocal()
     try:
         seed_skills(db)
+        seed_templates(db)
     finally:
         db.close()
 

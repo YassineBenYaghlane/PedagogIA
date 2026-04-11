@@ -1,0 +1,418 @@
+# Exercise templates — P3 (3e primaire)
+# 26 skills: nombres jusqu'à 1000, tables T3-T6, division, calcul écrit
+
+# --- Numération P3 ---
+
+- id: num_lire_ecrire_1000__decomposition_1
+  skill_id: num_lire_ecrire_1000
+  difficulty: 1
+  template:
+    type: decomposition
+    operation: null
+    params:
+      target_min: 100
+      target_max: 999
+      places: ["centaines", "dizaines", "unités"]
+    prompt_template: "Combien font {parts} ?"
+    answer_key: target
+
+- id: num_centaines_1000__decomposition_1
+  skill_id: num_centaines_1000
+  difficulty: 1
+  template:
+    type: decomposition
+    operation: null
+    params:
+      target_min: 100
+      target_max: 999
+      places: ["centaines", "dizaines", "unités"]
+    prompt_template: "{n} = ?C ?D ?U"
+    answer_key: parts
+
+- id: num_comparer_ordonner_1000__comparison_1
+  skill_id: num_comparer_ordonner_1000
+  difficulty: 1
+  template:
+    type: comparison
+    operation: null
+    params:
+      a_min: 100
+      a_max: 999
+      b_min: 100
+      b_max: 999
+    prompt_template: "{a} … {b} (écris <, > ou =)"
+    answer_key: symbol
+
+- id: num_decomposer_1000__fill_blank_1
+  skill_id: num_decomposer_1000
+  difficulty: 1
+  template:
+    type: fill_blank
+    operation: add
+    params:
+      a_min: 100
+      a_max: 800
+      b_min: 50
+      b_max: 400
+      result_max: 1000
+      blank_position: b
+    prompt_template: "{a} + ? = {result}"
+    answer_key: b
+
+- id: num_suites_regularites__fill_blank_1
+  skill_id: num_suites_regularites
+  difficulty: 1
+  template:
+    type: fill_blank
+    operation: null
+    params:
+      mode: sequence
+      start_min: 10
+      start_max: 100
+      step: 7
+      length: 6
+    prompt_template: "Complète la suite : {sequence}"
+    answer_key: missing_value
+
+- id: num_suites_regularites__fill_blank_2
+  skill_id: num_suites_regularites
+  difficulty: 2
+  template:
+    type: fill_blank
+    operation: null
+    params:
+      mode: sequence
+      start_min: 100
+      start_max: 500
+      step: 25
+      length: 6
+    prompt_template: "Complète la suite : {sequence}"
+    answer_key: missing_value
+
+# --- Tables de multiplication P3 ---
+
+- id: mult_T3__computation_1
+  skill_id: mult_T3
+  difficulty: 1
+  template:
+    type: computation
+    operation: multiply
+    params:
+      fixed_a: [3]
+      b_min: 1
+      b_max: 10
+    prompt_template: "3 × {b} = ?"
+    answer_key: result
+
+- id: mult_T4__computation_1
+  skill_id: mult_T4
+  difficulty: 1
+  template:
+    type: computation
+    operation: multiply
+    params:
+      fixed_a: [4]
+      b_min: 1
+      b_max: 10
+    prompt_template: "4 × {b} = ?"
+    answer_key: result
+
+- id: mult_T6__computation_1
+  skill_id: mult_T6
+  difficulty: 1
+  template:
+    type: computation
+    operation: multiply
+    params:
+      fixed_a: [6]
+      b_min: 1
+      b_max: 10
+    prompt_template: "6 × {b} = ?"
+    answer_key: result
+
+# --- Division P3 ---
+
+- id: div_sens__computation_1
+  skill_id: div_sens
+  difficulty: 1
+  template:
+    type: computation
+    operation: divide
+    params:
+      a_min: 2
+      a_max: 5
+      b_min: 2
+      b_max: 5
+      exact_division: true
+    prompt_template: "{a} ÷ {b} = ?"
+    answer_key: result
+
+- id: div_par_2_5_10__computation_1
+  skill_id: div_par_2_5_10
+  difficulty: 1
+  template:
+    type: computation
+    operation: divide
+    params:
+      fixed_b: [2, 5, 10]
+      a_min: 2
+      a_max: 10
+      b_min: 2
+      b_max: 10
+      exact_division: true
+    prompt_template: "{a} ÷ {b} = ?"
+    answer_key: result
+
+# --- Addition/soustraction P3 ---
+
+- id: add_sans_retenue_1000__computation_1
+  skill_id: add_sans_retenue_1000
+  difficulty: 1
+  template:
+    type: computation
+    operation: add
+    params:
+      a_min: 100
+      a_max: 500
+      b_min: 100
+      b_max: 400
+      no_carry: true
+    prompt_template: "{a} + {b} = ?"
+    answer_key: result
+
+- id: add_avec_retenue_1000__computation_1
+  skill_id: add_avec_retenue_1000
+  difficulty: 1
+  template:
+    type: computation
+    operation: add
+    params:
+      a_min: 100
+      a_max: 600
+      b_min: 100
+      b_max: 500
+      requires_carry: true
+      result_max: 999
+    prompt_template: "{a} + {b} = ?"
+    answer_key: result
+
+- id: soustr_sans_emprunt_1000__computation_1
+  skill_id: soustr_sans_emprunt_1000
+  difficulty: 1
+  template:
+    type: computation
+    operation: subtract
+    params:
+      a_min: 200
+      a_max: 999
+      b_min: 100
+      b_max: 500
+      no_borrow: true
+      result_non_negative: true
+    prompt_template: "{a} − {b} = ?"
+    answer_key: result
+
+- id: soustr_avec_emprunt_1000__computation_1
+  skill_id: soustr_avec_emprunt_1000
+  difficulty: 1
+  template:
+    type: computation
+    operation: subtract
+    params:
+      a_min: 200
+      a_max: 999
+      b_min: 100
+      b_max: 500
+      requires_borrow: true
+      result_non_negative: true
+    prompt_template: "{a} − {b} = ?"
+    answer_key: result
+
+# --- Calcul écrit P3 ---
+
+- id: ce_addition__computation_1
+  skill_id: ce_addition
+  difficulty: 1
+  template:
+    type: computation
+    operation: add
+    params:
+      a_min: 100
+      a_max: 999
+      b_min: 100
+      b_max: 999
+      requires_carry: true
+    prompt_template: "Pose et calcule : {a} + {b} = ?"
+    answer_key: result
+
+- id: ce_soustraction__computation_1
+  skill_id: ce_soustraction
+  difficulty: 1
+  template:
+    type: computation
+    operation: subtract
+    params:
+      a_min: 200
+      a_max: 999
+      b_min: 100
+      b_max: 500
+      requires_borrow: true
+      result_non_negative: true
+    prompt_template: "Pose et calcule : {a} − {b} = ?"
+    answer_key: result
+
+# --- Calcul mental P3 ---
+
+- id: cm_decomposition_add_1000__computation_1
+  skill_id: cm_decomposition_add_1000
+  difficulty: 1
+  template:
+    type: computation
+    operation: add
+    params:
+      a_min: 100
+      a_max: 500
+      b_min: 100
+      b_max: 400
+      result_max: 999
+    prompt_template: "{a} + {b} = ?"
+    answer_key: result
+
+- id: cm_mult_par_100__computation_1
+  skill_id: cm_mult_par_100
+  difficulty: 1
+  template:
+    type: computation
+    operation: multiply
+    params:
+      a_min: 2
+      a_max: 20
+      fixed_b: [100]
+      b_min: 100
+      b_max: 100
+    prompt_template: "{a} × 100 = ?"
+    answer_key: result
+
+- id: cm_div_par_10__computation_1
+  skill_id: cm_div_par_10
+  difficulty: 1
+  template:
+    type: computation
+    operation: divide
+    params:
+      fixed_a: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 500]
+      fixed_b: [10]
+      b_min: 10
+      b_max: 10
+      exact_division: true
+    prompt_template: "{a} ÷ 10 = ?"
+    answer_key: result
+
+- id: cm_distributivite__computation_1
+  skill_id: cm_distributivite
+  difficulty: 1
+  template:
+    type: computation
+    operation: multiply
+    params:
+      a_min: 2
+      a_max: 6
+      b_min: 11
+      b_max: 19
+    prompt_template: "{a} × {b} = ?"
+    answer_key: result
+
+- id: cm_compensation__computation_1
+  skill_id: cm_compensation
+  difficulty: 1
+  template:
+    type: computation
+    operation: add
+    params:
+      a_min: 20
+      a_max: 80
+      fixed_b: [9, 19, 29, 39, 49]
+      b_min: 9
+      b_max: 49
+      result_max: 999
+    prompt_template: "{a} + {b} = ?"
+    answer_key: result
+
+- id: cm_mult_par_4_8__computation_1
+  skill_id: cm_mult_par_4_8
+  difficulty: 1
+  template:
+    type: computation
+    operation: multiply
+    params:
+      a_min: 2
+      a_max: 25
+      fixed_b: [4, 8]
+      b_min: 4
+      b_max: 8
+    prompt_template: "{a} × {b} = ?"
+    answer_key: result
+
+- id: cm_div_par_4__computation_1
+  skill_id: cm_div_par_4
+  difficulty: 1
+  template:
+    type: computation
+    operation: divide
+    params:
+      a_min: 2
+      a_max: 10
+      b_min: 2
+      b_max: 10
+      fixed_b: [4]
+      exact_division: true
+    prompt_template: "{a} ÷ 4 = ?"
+    answer_key: result
+
+# --- Propriétés P3 ---
+
+- id: prop_associativite_mult__computation_1
+  skill_id: prop_associativite_mult
+  difficulty: 1
+  template:
+    type: computation
+    operation: multiply
+    params:
+      a_min: 2
+      a_max: 5
+      b_min: 2
+      b_max: 5
+    prompt_template: "{a} × {b} = ?"
+    answer_key: result
+
+- id: prop_parentheses__computation_1
+  skill_id: prop_parentheses
+  difficulty: 1
+  template:
+    type: computation
+    operation: add
+    params:
+      a_min: 10
+      a_max: 50
+      b_min: 10
+      b_max: 50
+      result_max: 100
+    prompt_template: "({a} + {b}) = ?"
+    answer_key: result
+
+# --- Estimation P3 ---
+
+- id: estimation_resultat__estimation_1
+  skill_id: estimation_resultat
+  difficulty: 1
+  template:
+    type: estimation
+    operation: add
+    params:
+      a_min: 10
+      a_max: 99
+      b_min: 10
+      b_max: 99
+      round_to: 10
+    prompt_template: "Estime le résultat : {a} + {b} ≈ ?"
+    answer_key: estimate

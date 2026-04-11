@@ -242,6 +242,14 @@
   prerequisites: [mult_sens, num_dizaines_unites_100]
   mastery_threshold: 5
 
+# --- Division (vocabulaire) P2 ---
+- id: div_vocabulaire
+  label: "Vocabulaire de la division"
+  grade: P2
+  description: "Utiliser le vocabulaire familier lié à la division: partager, répartir, distribuer"
+  prerequisites: [mult_sens]
+  mastery_threshold: 3
+
 # --- Propriétés P2 ---
 - id: prop_commutativite_mult
   label: "Commutativité de la multiplication"
@@ -361,7 +369,7 @@
   label: "Sens de la division"
   grade: P3
   description: "Comprendre la division comme partage ou groupement"
-  prerequisites: [mult_sens]
+  prerequisites: [mult_sens, div_vocabulaire]
   mastery_threshold: 3
 
 - id: div_par_2_5_10
@@ -466,11 +474,26 @@
   mastery_threshold: 3
 
 # --- Propriétés P3 ---
+- id: prop_associativite_mult
+  label: "Associativité de la multiplication"
+  grade: P3
+  description: "Savoir que (a × b) × c = a × (b × c) et l'utiliser pour simplifier des calculs"
+  prerequisites: [prop_commutativite_mult, mult_T4]
+  mastery_threshold: 3
+
 - id: prop_parentheses
   label: "Utilisation des parenthèses"
   grade: P3
   description: "Reconnaitre les parenthèses et les utiliser dans des calculs"
   prerequisites: [add_avec_retenue_1000]
+  mastery_threshold: 3
+
+# --- Estimation P3 ---
+- id: estimation_resultat
+  label: "Estimer l'ordre de grandeur d'un résultat"
+  grade: P3
+  description: "Estimer le résultat d'une opération (+, −) avant de calculer précisément"
+  prerequisites: [add_avec_retenue_1000, soustr_avec_emprunt_1000]
   mastery_threshold: 3
 
 # =============================================================================
@@ -483,6 +506,13 @@
   grade: P4
   description: "Dire, lire et écrire des nombres jusqu'à 100 000"
   prerequisites: [num_lire_ecrire_1000]
+  mastery_threshold: 3
+
+- id: num_decomposer_100000
+  label: "Décomposer les nombres jusqu'à 100 000"
+  grade: P4
+  description: "Décomposer et recomposer des nombres de 3 à 6 chiffres en lien avec la numération décimale"
+  prerequisites: [num_lire_ecrire_100000, num_decomposer_1000]
   mastery_threshold: 3
 
 - id: num_decimaux_intro
@@ -588,14 +618,6 @@
   prerequisites: [num_decimaux_intro, soustr_avec_emprunt_1000]
   mastery_threshold: 3
 
-# --- Estimation P4 ---
-- id: estimation_resultat
-  label: "Estimer l'ordre de grandeur d'un résultat"
-  grade: P4
-  description: "Estimer le résultat d'une opération (+, −) avant de calculer précisément"
-  prerequisites: [add_avec_retenue_1000, soustr_avec_emprunt_1000]
-  mastery_threshold: 3
-
 # =============================================================================
 # P5 — 5e PRIMAIRE (millions, décimaux complets, 4 opérations sur décimaux)
 # =============================================================================
@@ -610,9 +632,9 @@
 
 - id: num_decimaux_milliemes
   label: "Nombres décimaux (jusqu'aux millièmes)"
-  grade: P5
+  grade: P4
   description: "Lire, écrire et représenter des nombres décimaux jusqu'aux millièmes"
-  prerequisites: [num_decimaux_intro, num_lire_ecrire_million]
+  prerequisites: [num_decimaux_intro, num_lire_ecrire_100000]
   mastery_threshold: 3
 
 - id: num_decomposer_1

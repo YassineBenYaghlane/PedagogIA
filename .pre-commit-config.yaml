@@ -8,12 +8,11 @@ repos:
       - id: ruff-format
         files: ^backend/
 
-  # TODO: uncomment after App.jsx refactor (see issue #4)
-  # - repo: local
-  #   hooks:
-  #     - id: eslint
-  #       name: eslint
-  #       entry: npx eslint --fix
-  #       language: system
-  #       files: \.(js|jsx)$
-  #       exclude: ^(dist|node_modules)/
+  - repo: local
+    hooks:
+      - id: eslint
+        name: eslint
+        entry: npx eslint --fix
+        language: system
+        files: \.(js|jsx)$
+        exclude: ^(dist|node_modules)/

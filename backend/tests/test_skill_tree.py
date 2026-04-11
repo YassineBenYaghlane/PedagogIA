@@ -1,5 +1,3 @@
-"""Tests for the skill tree DAG."""
-
 from app.skill_tree.tree import (
     build_dag,
     get_all_ancestors,

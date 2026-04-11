@@ -6,12 +6,22 @@ from typing import Any
 import yaml
 
 SKILLS_PATH = Path(__file__).parent / "skills.yaml"
+TEMPLATES_DIR = Path(__file__).parent
 
 
 def load_skills(path: Path = SKILLS_PATH) -> list[dict[str, Any]]:
     """Load skills from YAML file."""
     with open(path) as f:
         return yaml.safe_load(f)
+
+
+def load_templates() -> list[dict[str, Any]]:
+    """Load exercise templates from all per-grade YAML files."""
+    templates = []
+    for path in sorted(TEMPLATES_DIR.glob("exercise_templates_*.yaml")):
+        with open(path) as f:
+            templates.extend(yaml.safe_load(f))
+    return templates
 
 
 def build_dag(skills: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:

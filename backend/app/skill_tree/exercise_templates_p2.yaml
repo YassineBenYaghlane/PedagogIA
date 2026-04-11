@@ -1,0 +1,397 @@
+# Exercise templates — P2 (2e primaire)
+# 25 skills: nombres jusqu'à 100, multiplication introduite
+
+# --- Numération P2 ---
+
+- id: num_compter_100__fill_blank_1
+  skill_id: num_compter_100
+  difficulty: 1
+  template:
+    type: fill_blank
+    operation: null
+    params:
+      mode: sequence
+      start_min: 10
+      start_max: 90
+      step: 1
+      length: 5
+    prompt_template: "Complète la suite : {sequence}"
+    answer_key: missing_value
+
+- id: num_compter_100__fill_blank_2
+  skill_id: num_compter_100
+  difficulty: 2
+  template:
+    type: fill_blank
+    operation: null
+    params:
+      mode: sequence
+      start_min: 10
+      start_max: 60
+      step: 5
+      length: 5
+    prompt_template: "Complète la suite : {sequence}"
+    answer_key: missing_value
+
+- id: num_lire_ecrire_100__decomposition_1
+  skill_id: num_lire_ecrire_100
+  difficulty: 1
+  template:
+    type: decomposition
+    operation: null
+    params:
+      target_min: 20
+      target_max: 99
+      places: ["dizaines", "unités"]
+    prompt_template: "Combien font {parts} ?"
+    answer_key: target
+
+- id: num_dizaines_unites_100__decomposition_1
+  skill_id: num_dizaines_unites_100
+  difficulty: 1
+  template:
+    type: decomposition
+    operation: null
+    params:
+      target_min: 20
+      target_max: 99
+      places: ["dizaines", "unités"]
+    prompt_template: "{n} = ? dizaines et ? unités"
+    answer_key: parts
+
+- id: num_comparer_ordonner_100__comparison_1
+  skill_id: num_comparer_ordonner_100
+  difficulty: 1
+  template:
+    type: comparison
+    operation: null
+    params:
+      a_min: 1
+      a_max: 100
+      b_min: 1
+      b_max: 100
+    prompt_template: "{a} … {b} (écris <, > ou =)"
+    answer_key: symbol
+
+- id: num_decomposer_100__fill_blank_1
+  skill_id: num_decomposer_100
+  difficulty: 1
+  template:
+    type: fill_blank
+    operation: add
+    params:
+      a_min: 10
+      a_max: 90
+      b_min: 5
+      b_max: 50
+      result_max: 100
+      blank_position: b
+    prompt_template: "{a} + ? = {result}"
+    answer_key: b
+
+- id: num_pair_impair__fill_blank_1
+  skill_id: num_pair_impair
+  difficulty: 1
+  template:
+    type: comparison
+    operation: null
+    params:
+      a_min: 2
+      a_max: 100
+      b_min: 2
+      b_max: 100
+    prompt_template: "{a} … {b} (écris <, > ou =)"
+    answer_key: symbol
+
+# --- Addition P2 ---
+
+- id: add_tables_10__computation_1
+  skill_id: add_tables_10
+  difficulty: 1
+  template:
+    type: computation
+    operation: add
+    params:
+      a_min: 1
+      a_max: 10
+      b_min: 1
+      b_max: 10
+    prompt_template: "{a} + {b} = ?"
+    answer_key: result
+
+- id: add_doubles_20__computation_1
+  skill_id: add_doubles_20
+  difficulty: 1
+  template:
+    type: computation
+    operation: add
+    params:
+      a_min: 1
+      a_max: 10
+      fixed_b_equals_a: true
+      b_min: 1
+      b_max: 10
+    prompt_template: "{a} + {a} = ?"
+    answer_key: result
+
+- id: add_sans_retenue_100__computation_1
+  skill_id: add_sans_retenue_100
+  difficulty: 1
+  template:
+    type: computation
+    operation: add
+    params:
+      a_min: 10
+      a_max: 60
+      b_min: 10
+      b_max: 39
+      no_carry: true
+    prompt_template: "{a} + {b} = ?"
+    answer_key: result
+
+- id: add_avec_retenue_100__computation_1
+  skill_id: add_avec_retenue_100
+  difficulty: 1
+  template:
+    type: computation
+    operation: add
+    params:
+      a_min: 15
+      a_max: 60
+      b_min: 15
+      b_max: 50
+      requires_carry: true
+      result_max: 100
+    prompt_template: "{a} + {b} = ?"
+    answer_key: result
+
+# --- Soustraction P2 ---
+
+- id: soustr_sans_emprunt_100__computation_1
+  skill_id: soustr_sans_emprunt_100
+  difficulty: 1
+  template:
+    type: computation
+    operation: subtract
+    params:
+      a_min: 20
+      a_max: 99
+      b_min: 10
+      b_max: 50
+      no_borrow: true
+      result_non_negative: true
+    prompt_template: "{a} − {b} = ?"
+    answer_key: result
+
+- id: soustr_avec_emprunt_100__computation_1
+  skill_id: soustr_avec_emprunt_100
+  difficulty: 1
+  template:
+    type: computation
+    operation: subtract
+    params:
+      a_min: 30
+      a_max: 99
+      b_min: 10
+      b_max: 50
+      requires_borrow: true
+      result_non_negative: true
+    prompt_template: "{a} − {b} = ?"
+    answer_key: result
+
+- id: soustr_moities_20__computation_1
+  skill_id: soustr_moities_20
+  difficulty: 1
+  template:
+    type: computation
+    operation: divide
+    params:
+      fixed_a: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+      b_min: 2
+      b_max: 2
+      fixed_b: [2]
+      exact_division: true
+    prompt_template: "La moitié de {a} = ?"
+    answer_key: result
+
+# --- Multiplication P2 ---
+
+- id: mult_sens__computation_1
+  skill_id: mult_sens
+  difficulty: 1
+  template:
+    type: computation
+    operation: multiply
+    params:
+      a_min: 2
+      a_max: 5
+      b_min: 2
+      b_max: 5
+    prompt_template: "{a} × {b} = ?"
+    answer_key: result
+
+- id: mult_T2__computation_1
+  skill_id: mult_T2
+  difficulty: 1
+  template:
+    type: computation
+    operation: multiply
+    params:
+      fixed_a: [2]
+      b_min: 1
+      b_max: 10
+    prompt_template: "2 × {b} = ?"
+    answer_key: result
+
+- id: mult_T5__computation_1
+  skill_id: mult_T5
+  difficulty: 1
+  template:
+    type: computation
+    operation: multiply
+    params:
+      fixed_a: [5]
+      b_min: 1
+      b_max: 10
+    prompt_template: "5 × {b} = ?"
+    answer_key: result
+
+- id: mult_T10__computation_1
+  skill_id: mult_T10
+  difficulty: 1
+  template:
+    type: computation
+    operation: multiply
+    params:
+      fixed_a: [10]
+      b_min: 1
+      b_max: 10
+    prompt_template: "10 × {b} = ?"
+    answer_key: result
+
+# --- Division vocabulaire P2 ---
+
+- id: div_vocabulaire__computation_1
+  skill_id: div_vocabulaire
+  difficulty: 1
+  template:
+    type: computation
+    operation: divide
+    params:
+      fixed_a: [4, 6, 8, 10, 12, 14, 16, 18, 20]
+      fixed_b: [2]
+      exact_division: true
+    prompt_template: "Partage {a} en {b} parts égales = ?"
+    answer_key: result
+
+# --- Propriétés P2 ---
+
+- id: prop_commutativite_mult__fill_blank_1
+  skill_id: prop_commutativite_mult
+  difficulty: 1
+  template:
+    type: fill_blank
+    operation: multiply
+    params:
+      a_min: 2
+      a_max: 10
+      b_min: 2
+      b_max: 10
+      blank_position: a
+    prompt_template: "{b} × ? = {result}  (aide : ? × {b} = {result})"
+    answer_key: a
+
+- id: prop_associativite_add__computation_1
+  skill_id: prop_associativite_add
+  difficulty: 1
+  template:
+    type: computation
+    operation: add
+    params:
+      a_min: 10
+      a_max: 50
+      b_min: 10
+      b_max: 50
+      result_max: 100
+    prompt_template: "{a} + {b} = ?"
+    answer_key: result
+
+# --- Calcul mental P2 ---
+
+- id: cm_decomposition_add_100__computation_1
+  skill_id: cm_decomposition_add_100
+  difficulty: 1
+  template:
+    type: computation
+    operation: add
+    params:
+      a_min: 20
+      a_max: 60
+      b_min: 15
+      b_max: 45
+      result_max: 100
+    prompt_template: "{a} + {b} = ?"
+    answer_key: result
+
+- id: cm_decomposition_soustr_100__computation_1
+  skill_id: cm_decomposition_soustr_100
+  difficulty: 1
+  template:
+    type: computation
+    operation: subtract
+    params:
+      a_min: 30
+      a_max: 99
+      b_min: 10
+      b_max: 40
+      result_non_negative: true
+    prompt_template: "{a} − {b} = ?"
+    answer_key: result
+
+- id: cm_mult_par_10__computation_1
+  skill_id: cm_mult_par_10
+  difficulty: 1
+  template:
+    type: computation
+    operation: multiply
+    params:
+      a_min: 1
+      a_max: 20
+      fixed_b: [10]
+      b_min: 10
+      b_max: 10
+    prompt_template: "{a} × 10 = ?"
+    answer_key: result
+
+- id: cm_mult_par_20__computation_1
+  skill_id: cm_mult_par_20
+  difficulty: 1
+  template:
+    type: computation
+    operation: multiply
+    params:
+      a_min: 2
+      a_max: 10
+      fixed_b: [20]
+      b_min: 20
+      b_max: 20
+    prompt_template: "{a} × 20 = ?"
+    answer_key: result
+
+# --- Décompositions clés P2 ---
+
+- id: num_decomposer_100_cle__fill_blank_1
+  skill_id: num_decomposer_100_cle
+  difficulty: 1
+  template:
+    type: fill_blank
+    operation: add
+    params:
+      fixed_a: [10, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90]
+      b_min: 10
+      b_max: 90
+      result_max: 100
+      result_min: 100
+      blank_position: b
+    prompt_template: "{a} + ? = 100"
+    answer_key: b

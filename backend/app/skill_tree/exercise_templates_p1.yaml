@@ -1,0 +1,236 @@
+# Exercise templates — P1 (1re primaire)
+# 14 skills: numération jusqu'à 39, addition/soustraction jusqu'à 20
+
+# --- Numération P1 ---
+
+- id: num_compter_39__fill_blank_1
+  skill_id: num_compter_39
+  difficulty: 1
+  template:
+    type: fill_blank
+    operation: null
+    params:
+      mode: sequence
+      start_min: 1
+      start_max: 30
+      step: 1
+      length: 5
+    prompt_template: "Complète la suite : {sequence}"
+    answer_key: missing_value
+
+- id: num_compter_39__fill_blank_2
+  skill_id: num_compter_39
+  difficulty: 2
+  template:
+    type: fill_blank
+    operation: null
+    params:
+      mode: sequence
+      start_min: 2
+      start_max: 10
+      step: 2
+      length: 5
+    prompt_template: "Complète la suite : {sequence}"
+    answer_key: missing_value
+
+- id: num_lire_ecrire_20__decomposition_1
+  skill_id: num_lire_ecrire_20
+  difficulty: 1
+  template:
+    type: decomposition
+    operation: null
+    params:
+      target_min: 1
+      target_max: 20
+      places: ["dizaines", "unités"]
+    prompt_template: "Combien font {parts} ?"
+    answer_key: target
+
+- id: num_dizaines_unites_20__decomposition_1
+  skill_id: num_dizaines_unites_20
+  difficulty: 1
+  template:
+    type: decomposition
+    operation: null
+    params:
+      target_min: 10
+      target_max: 20
+      places: ["dizaines", "unités"]
+    prompt_template: "{n} = combien de dizaines et unités ?"
+    answer_key: parts
+
+- id: num_comparer_ordonner_20__comparison_1
+  skill_id: num_comparer_ordonner_20
+  difficulty: 1
+  template:
+    type: comparison
+    operation: null
+    params:
+      a_min: 1
+      a_max: 20
+      b_min: 1
+      b_max: 20
+    prompt_template: "{a} … {b} (écris <, > ou =)"
+    answer_key: symbol
+
+- id: num_decomposer_20__decomposition_1
+  skill_id: num_decomposer_20
+  difficulty: 1
+  template:
+    type: fill_blank
+    operation: add
+    params:
+      a_min: 1
+      a_max: 15
+      b_min: 1
+      b_max: 15
+      result_max: 20
+      blank_position: b
+    prompt_template: "{a} + ? = {result}"
+    answer_key: b
+
+# --- Addition P1 ---
+
+- id: add_sens__computation_1
+  skill_id: add_sens
+  difficulty: 1
+  template:
+    type: computation
+    operation: add
+    params:
+      a_min: 1
+      a_max: 5
+      b_min: 1
+      b_max: 5
+    prompt_template: "{a} + {b} = ?"
+    answer_key: result
+
+- id: add_complements_10__fill_blank_1
+  skill_id: add_complements_10
+  difficulty: 1
+  template:
+    type: fill_blank
+    operation: add
+    params:
+      a_min: 1
+      a_max: 9
+      b_min: 1
+      b_max: 9
+      result_max: 10
+      result_min: 10
+      blank_position: b
+    prompt_template: "{a} + ? = 10"
+    answer_key: b
+
+- id: add_faits_10__computation_1
+  skill_id: add_faits_10
+  difficulty: 1
+  template:
+    type: computation
+    operation: add
+    params:
+      a_min: 1
+      a_max: 9
+      b_min: 1
+      b_max: 9
+      result_max: 10
+    prompt_template: "{a} + {b} = ?"
+    answer_key: result
+
+- id: add_sans_retenue_20__computation_1
+  skill_id: add_sans_retenue_20
+  difficulty: 1
+  template:
+    type: computation
+    operation: add
+    params:
+      a_min: 10
+      a_max: 15
+      b_min: 1
+      b_max: 9
+      no_carry: true
+      result_max: 20
+    prompt_template: "{a} + {b} = ?"
+    answer_key: result
+
+- id: add_avec_retenue_20__computation_1
+  skill_id: add_avec_retenue_20
+  difficulty: 1
+  template:
+    type: computation
+    operation: add
+    params:
+      a_min: 5
+      a_max: 15
+      b_min: 3
+      b_max: 12
+      requires_carry: true
+      result_max: 20
+    prompt_template: "{a} + {b} = ?"
+    answer_key: result
+
+# --- Soustraction P1 ---
+
+- id: soustr_sens__computation_1
+  skill_id: soustr_sens
+  difficulty: 1
+  template:
+    type: computation
+    operation: subtract
+    params:
+      a_min: 2
+      a_max: 5
+      b_min: 1
+      b_max: 4
+      result_non_negative: true
+    prompt_template: "{a} − {b} = ?"
+    answer_key: result
+
+- id: soustr_faits_10__computation_1
+  skill_id: soustr_faits_10
+  difficulty: 1
+  template:
+    type: computation
+    operation: subtract
+    params:
+      a_min: 2
+      a_max: 10
+      b_min: 1
+      b_max: 9
+      result_non_negative: true
+    prompt_template: "{a} − {b} = ?"
+    answer_key: result
+
+- id: soustr_sans_emprunt_20__computation_1
+  skill_id: soustr_sans_emprunt_20
+  difficulty: 1
+  template:
+    type: computation
+    operation: subtract
+    params:
+      a_min: 11
+      a_max: 19
+      b_min: 1
+      b_max: 9
+      no_borrow: true
+      result_non_negative: true
+    prompt_template: "{a} − {b} = ?"
+    answer_key: result
+
+# --- Propriétés P1 ---
+
+- id: prop_commutativite_add__fill_blank_1
+  skill_id: prop_commutativite_add
+  difficulty: 1
+  template:
+    type: fill_blank
+    operation: add
+    params:
+      a_min: 2
+      a_max: 10
+      b_min: 2
+      b_max: 10
+      result_max: 20
+      blank_position: a
+    prompt_template: "{b} + ? = {result}  (aide : {result} = ? + {b})"
+    answer_key: a

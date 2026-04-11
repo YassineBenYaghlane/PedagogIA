@@ -1,0 +1,205 @@
+# Exercise templates — P6 (6e primaire)
+# 9 skills: milliards, maitrise complète, division écrite avancée
+
+# --- Numération P6 ---
+
+- id: num_lire_ecrire_milliard__decomposition_1
+  skill_id: num_lire_ecrire_milliard
+  difficulty: 1
+  template:
+    type: decomposition
+    operation: null
+    params:
+      target_min: 1000000
+      target_max: 999999999
+      places: ["millions", "centaines de mille", "dizaines de mille", "milliers", "centaines", "dizaines", "unités"]
+    prompt_template: "Combien font {parts} ?"
+    answer_key: target
+
+# --- Calcul écrit P6 ---
+
+- id: ce_division_avance__computation_1
+  skill_id: ce_division_avance
+  difficulty: 1
+  template:
+    type: computation
+    operation: divide
+    params:
+      a_min: 2
+      a_max: 50
+      b_min: 2
+      b_max: 20
+      exact_division: true
+    prompt_template: "Pose et calcule : {a} ÷ {b} = ?"
+    answer_key: result
+
+- id: ce_multiplication_decimaux__computation_1
+  skill_id: ce_multiplication_decimaux
+  difficulty: 1
+  template:
+    type: computation
+    operation: multiply
+    params:
+      a_min: 10
+      a_max: 99
+      b_min: 1
+      b_max: 10
+      decimals: 1
+    prompt_template: "Pose et calcule : {a} × {b} = ?"
+    answer_key: result
+
+# --- Calcul mental P6 ---
+
+- id: cm_mult_par_250__computation_1
+  skill_id: cm_mult_par_250
+  difficulty: 1
+  template:
+    type: computation
+    operation: multiply
+    params:
+      fixed_a: [4, 8, 12, 16, 20, 40]
+      fixed_b: [250]
+      b_min: 250
+      b_max: 250
+    prompt_template: "{a} × 250 = ?"
+    answer_key: result
+
+- id: cm_div_par_01_05_025__computation_1
+  skill_id: cm_div_par_01_05_025
+  difficulty: 1
+  template:
+    type: computation
+    operation: divide
+    params:
+      a_min: 1
+      a_max: 20
+      fixed_b: [0.1, 0.5, 0.25]
+      b_min: 0
+      b_max: 1
+      decimals: 2
+    prompt_template: "{a} ÷ {b} = ?"
+    answer_key: result
+
+# --- Maitrise globale P6 ---
+
+- id: maitrise_add_soustr__computation_1
+  skill_id: maitrise_add_soustr
+  difficulty: 1
+  template:
+    type: computation
+    operation: add
+    params:
+      a_min: 10
+      a_max: 999
+      b_min: 10
+      b_max: 999
+      decimals: 2
+    prompt_template: "{a} + {b} = ?"
+    answer_key: result
+
+- id: maitrise_add_soustr__computation_2
+  skill_id: maitrise_add_soustr
+  difficulty: 2
+  template:
+    type: computation
+    operation: subtract
+    params:
+      a_min: 50
+      a_max: 999
+      b_min: 10
+      b_max: 500
+      decimals: 2
+      result_non_negative: true
+    prompt_template: "{a} − {b} = ?"
+    answer_key: result
+
+- id: maitrise_mult_div__computation_1
+  skill_id: maitrise_mult_div
+  difficulty: 1
+  template:
+    type: computation
+    operation: multiply
+    params:
+      a_min: 2
+      a_max: 50
+      b_min: 2
+      b_max: 20
+      decimals: 1
+    prompt_template: "{a} × {b} = ?"
+    answer_key: result
+
+- id: maitrise_mult_div__computation_2
+  skill_id: maitrise_mult_div
+  difficulty: 2
+  template:
+    type: computation
+    operation: divide
+    params:
+      a_min: 2
+      a_max: 20
+      b_min: 2
+      b_max: 10
+      exact_division: true
+    prompt_template: "{a} ÷ {b} = ?"
+    answer_key: result
+
+- id: maitrise_calcul_mental__computation_1
+  skill_id: maitrise_calcul_mental
+  difficulty: 1
+  template:
+    type: missing_operator
+    operation: null
+    params:
+      a_min: 5
+      a_max: 50
+      b_min: 2
+      b_max: 20
+      operators: ["+", "-", "×"]
+    prompt_template: "{a} ? {b} = {result}"
+    answer_key: operator
+
+- id: maitrise_calcul_mental__computation_2
+  skill_id: maitrise_calcul_mental
+  difficulty: 2
+  template:
+    type: computation
+    operation: multiply
+    params:
+      a_min: 10
+      a_max: 50
+      fixed_b: [9, 11, 25, 99, 101]
+      b_min: 9
+      b_max: 101
+    prompt_template: "{a} × {b} = ?"
+    answer_key: result
+
+# --- Résolution de problèmes P6 ---
+
+- id: resolution_problemes__missing_operator_1
+  skill_id: resolution_problemes
+  difficulty: 1
+  template:
+    type: missing_operator
+    operation: null
+    params:
+      a_min: 10
+      a_max: 100
+      b_min: 2
+      b_max: 20
+      operators: ["+", "-", "×", "÷"]
+    prompt_template: "{a} ? {b} = {result}"
+    answer_key: operator
+
+- id: resolution_problemes__computation_1
+  skill_id: resolution_problemes
+  difficulty: 2
+  template:
+    type: computation
+    operation: multiply
+    params:
+      a_min: 10
+      a_max: 50
+      b_min: 2
+      b_max: 15
+    prompt_template: "{a} × {b} = ?"
+    answer_key: result

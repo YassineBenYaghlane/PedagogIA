@@ -3,6 +3,7 @@ import { useSessionStore } from "./stores/sessionStore"
 import WelcomeScreen from "./components/screens/WelcomeScreen"
 import QuestionScreen from "./components/screens/QuestionScreen"
 import DiagnosticScreen from "./components/screens/DiagnosticScreen"
+import SkillTreeScreen from "./components/screens/SkillTreeScreen"
 import "./App.css"
 
 export default function App() {
@@ -43,6 +44,7 @@ export default function App() {
           <DiagnosticScreen analysis={store.analysis} onRestart={handleRestart} />
         ) : null
       } />
+      <Route path="/skill-tree" element={<SkillTreeScreen />} />
     </Routes>
   )
 }

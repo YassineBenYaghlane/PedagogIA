@@ -1,12 +1,9 @@
-"""Skill tree DAG: load, validate, and query the FWB skill tree."""
-
 from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
 
 import yaml
-
 
 SKILLS_PATH = Path(__file__).parent / "skills.yaml"
 

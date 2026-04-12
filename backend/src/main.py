@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import settings
-from app.routers import exercises, sessions, skills, students
-from app.schemas.health import HealthResponse
+from src.config import settings
+from src.routers import exercises, sessions, skills, students
+from src.schemas.health import HealthResponse
 
 app = FastAPI(title="PedagogIA API", version="0.1.0")
 

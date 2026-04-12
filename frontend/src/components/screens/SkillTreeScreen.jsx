@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react"
+import { useState, useCallback, useEffect, useMemo } from "react"
 import {
   ReactFlow,
   Background,
@@ -8,8 +8,6 @@ import {
   useNodesState,
   useEdgesState,
 } from "@xyflow/react"
-import yaml from "js-yaml"
-import skillsRaw from "../../../backend/app/skill_tree/skills.yaml?raw"
 import "@xyflow/react/dist/style.css"
 import SkillNode from "../ui/SkillNode"
 import { levelDescriptions } from "../../lib/constants"
@@ -50,16 +48,36 @@ function LaneLabel({ data }) {
 const nodeTypes = { skillNode: SkillNode, laneLabel: LaneLabel }
 
 export default function SkillTreeScreen() {
-  const skills = useMemo(() => yaml.load(skillsRaw), [])
-  const nextId = useMemo(() => skills.find((s) => s.grade === "P2")?.id ?? null, [skills])
+  const [skills, setSkills] = useState(null)
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/skills`)
+      .then((r) => r.json())
+      .then((data) =>
+        setSkills(data.map((s) => ({ ...s, prerequisites: s.prerequisite_ids })))
+      )
+  }, [])
+
+  const nextId = useMemo(
+    () => skills?.find((s) => s.grade === "P2")?.id ?? null,
+    [skills]
+  )
 
   const { nodes: initialNodes, edges: initialEdges, successors } = useMemo(
-    () => buildGraph(skills, nextId),
+    () =>
+      skills
+        ? buildGraph(skills, nextId)
+        : { nodes: [], edges: [], successors: new Map() },
     [skills, nextId]
   )
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
+
+  useEffect(() => {
+    setNodes(initialNodes)
+    setEdges(initialEdges)
+  }, [initialNodes, initialEdges, setNodes, setEdges])
   const [selected, setSelected] = useState(null)
   const [query, setQuery] = useState("")
   const [gradeFilter, setGradeFilter] = useState(null)
@@ -152,6 +170,14 @@ export default function SkillTreeScreen() {
     (node) => node.data?.colors?.minimap ?? "#c2c7dd",
     []
   )
+
+  if (!skills) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center bg-background text-on-surface-variant">
+        Chargement…
+      </div>
+    )
+  }
 
   return (
     <div className="h-screen w-screen flex flex-col bg-background">

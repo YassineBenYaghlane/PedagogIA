@@ -4,9 +4,9 @@ from collections import Counter
 
 from sqlalchemy.orm import Session
 
-from app.database import SessionLocal
-from app.models.skill import ExerciseTemplate, Skill, SkillPrerequisite
-from app.skill_tree.tree import build_dag, get_frontier, load_skills, load_templates, validate_dag
+from src.database import SessionLocal
+from src.models.skill import ExerciseTemplate, Skill, SkillPrerequisite
+from src.skill_tree.tree import build_dag, get_frontier, load_skills, load_templates, validate_dag
 
 
 def seed_skills(db: Session) -> None:

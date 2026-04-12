@@ -1,4 +1,4 @@
-from app.skill_tree.tree import (
+from src.skill_tree.tree import (
     build_dag,
     get_all_ancestors,
     get_frontier,

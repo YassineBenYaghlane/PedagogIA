@@ -12,7 +12,7 @@ repos:
     hooks:
       - id: eslint
         name: eslint
-        entry: npx eslint --fix
+        entry: bash -c 'cd frontend && node_modules/.bin/eslint --fix "${@#frontend/}"' --
         language: system
-        files: \.(js|jsx)$
-        exclude: ^(dist|node_modules)/
+        files: ^frontend/.*\.(js|jsx)$
+        exclude: ^frontend/(dist|node_modules)/

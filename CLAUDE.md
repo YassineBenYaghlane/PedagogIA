@@ -9,21 +9,21 @@ PedagogIA ("L'Explorateur") is a French-language adaptive math learning app for 
 ## Commands
 
 ```bash
-# Frontend
+# Frontend (cd frontend)
 npm run dev      # Vite dev server
 npm run build    # Production build
 npm run lint     # ESLint
 
-# Backend
+# Backend (cd backend)
 uv run uvicorn app.main:app --reload   # FastAPI dev server
 uv run pytest                          # Run tests
 uv run ruff check .                    # Lint
 uv run ruff format .                   # Format
 
-# Database
-docker compose up -d   # PostgreSQL on port 5411
+# Database + backend container (from repo root)
+docker compose up -d   # Postgres on 5411, backend on 8000
 
-# Seed
+# Seed (cd backend)
 uv run python -m app.skill_tree.seed   # Load skill tree + exercise templates into DB
 ```
 
@@ -32,7 +32,7 @@ uv run python -m app.skill_tree.seed   # Load skill tree + exercise templates in
 ### Frontend — React 19 + Vite 8 + Tailwind CSS 4
 
 ```
-src/
+frontend/src/
   components/
     ui/           — Icon, Button, Card, ProgressBar, NumberPad
     screens/      — HomeScreen, ExerciseScreen, DiagnosticScreen, DrillScreen
@@ -80,6 +80,7 @@ Skill tree authored in YAML, seeded into DB. Exercise templates as JSONB, instan
 **Simplicity above all.** Readable, modular, no overengineering.
 
 ### General rules
+
 - **Max 400 lines per file.** If longer, split it.
 - **Reuse and abstraction.** Think ahead for reusability. Don't duplicate logic.
 - **No parasite comments.** No obvious comments, no file-level docstrings. Short inline comments only when logic isn't self-evident.
@@ -88,6 +89,7 @@ Skill tree authored in YAML, seeded into DB. Exercise templates as JSONB, instan
 - **No overcomplication.** If something feels complex, simplify it. Three simple lines > one clever line.
 
 ### Python (backend)
+
 - **PEP 8** enforced via ruff
 - **Language:** English code, French domain terms (skill labels, feedback text, UI strings)
 - **Tooling:** uv (package manager), ruff (linter + formatter), pytest (tests), pre-commit hooks
@@ -95,6 +97,7 @@ Skill tree authored in YAML, seeded into DB. Exercise templates as JSONB, instan
 - **Naming:** snake_case functions/variables, PascalCase classes, UPPER_CASE constants
 
 ### JavaScript/React (frontend)
+
 - **No semicolons**, double quotes, arrow functions, no trailing commas
 - **Language:** All UI text in French. Variable/function names in French (existing convention)
 - **Naming:** PascalCase components, camelCase functions, UPPERCASE constants
@@ -102,11 +105,13 @@ Skill tree authored in YAML, seeded into DB. Exercise templates as JSONB, instan
 - **ESLint** enforced via pre-commit
 
 ### Testing
+
 - Backend: **pytest** + pytest-asyncio. Test business logic (exercise instantiation, skill tree traversal, investigation). Skip trivial CRUD tests.
 - Frontend: **Vitest** for pure functions (generators, utils). No UI component tests for now.
 - No coverage targets. Test what matters.
 
 ### Pre-commit hooks
+
 - **ruff check + ruff format** on Python files
 - **eslint** on JS/JSX files
 - Configured via `.pre-commit-config.yaml`
@@ -114,6 +119,7 @@ Skill tree authored in YAML, seeded into DB. Exercise templates as JSONB, instan
 ## Git Workflow
 
 **GitHub Flow:** main is always deployable.
+
 - Branch per issue: `feat/<issue-number>-short-name` (e.g., `feat/1-skill-tree`)
 - Open PR, merge to main
 - Issues tracked with milestones (Phase 0-4)
@@ -121,6 +127,7 @@ Skill tree authored in YAML, seeded into DB. Exercise templates as JSONB, instan
 ## Design System
 
 Defined in `design-ceb/DESIGN.md`. Material Design 3 + glassmorphism:
+
 - **Primary**: Azure Blue `#0059b6` | **Secondary**: Sunflower Yellow `#705900` | **Tertiary**: Mint Green `#00694b`
 - Custom CSS: `.glass-card`, `.shadow-ambient`, `.gradient-soul`, `.spring-hover`, `.bg-orb`
 - Design tokens as CSS custom properties in `src/index.css`

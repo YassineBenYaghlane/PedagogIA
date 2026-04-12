@@ -4,7 +4,7 @@ import uuid
 from sqlalchemy import ForeignKey, String, func, text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.database import Base
+from src.database import Base
 
 
 class Student(Base):

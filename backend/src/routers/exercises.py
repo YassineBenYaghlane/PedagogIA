@@ -3,10 +3,10 @@ import random
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from app.database import get_db
-from app.models.skill import ExerciseTemplate
-from app.schemas.exercise import ExerciseResponse
-from app.services.exercise_gen import instantiate
+from src.database import get_db
+from src.models.skill import ExerciseTemplate
+from src.schemas.exercise import ExerciseResponse
+from src.services.exercise_gen import instantiate
 
 router = APIRouter(prefix="/exercises", tags=["exercises"])
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from app.services.exercise_gen import instantiate
+from src.services.exercise_gen import instantiate
 
 
 def _make_template(

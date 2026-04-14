@@ -17,6 +17,9 @@ frontend/test-results/
 frontend/playwright-report/
 frontend/blob-report/
 frontend/playwright/.cache/
+frontend/test-results.json
+frontend/e2e/.pr-runs/
+frontend/e2e/screenshots/pr-*/
 
 # Editor directories and files
 .vscode/*

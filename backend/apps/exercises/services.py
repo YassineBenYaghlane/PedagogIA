@@ -1,9 +1,8 @@
 import random
 
 from django.core import signing
-from django.utils import timezone
 
-from apps.students.models import StudentSkillState
+from apps.students.services.mastery import update_mastery
 from src.services.exercise_gen import instantiate
 
 from .models import Attempt, ExerciseTemplate
@@ -61,16 +60,5 @@ def record_attempt(*, session, signature, student_answer) -> Attempt:
         correct_answer=str(correct_answer),
         is_correct=is_correct,
     )
-    state, _ = StudentSkillState.objects.get_or_create(
-        student=session.student, skill=template.skill
-    )
-    state.total_attempts += 1
-    if is_correct:
-        state.consecutive_correct += 1
-        state.mastery_level = min(1.0, state.mastery_level + 0.1)
-    else:
-        state.consecutive_correct = 0
-        state.mastery_level = max(0.0, state.mastery_level - 0.05)
-    state.last_practiced_at = timezone.now()
-    state.save()
+    update_mastery(session.student, template.skill, is_correct)
     return attempt

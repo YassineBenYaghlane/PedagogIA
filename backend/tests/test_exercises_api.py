@@ -22,3 +22,31 @@ def test_generate_ok(auth_client):
 def test_generate_missing_skill(auth_client):
     res = auth_client.get("/api/exercises/generate/")
     assert res.status_code == 400
+
+
+@pytest.mark.django_db
+def test_next_returns_exercise_for_own_student(auth_client):
+    student = auth_client.post(
+        "/api/students/", {"display_name": "A", "grade": "P1"}, format="json"
+    ).json()
+    res = auth_client.get(f"/api/exercises/next/?student_id={student['id']}")
+    assert res.status_code == 200, res.content
+    body = res.json()
+    assert body["student_id"] == student["id"]
+    assert "skill" in body and "exercise" in body
+    assert "signature" in body["exercise"]
+
+
+@pytest.mark.django_db
+def test_next_404_for_other_parents_student(auth_client, other_parent):
+    from apps.students.models import Student
+
+    other = Student.objects.create(parent=other_parent, display_name="X", grade="P1")
+    res = auth_client.get(f"/api/exercises/next/?student_id={other.id}")
+    assert res.status_code == 404
+
+
+@pytest.mark.django_db
+def test_next_requires_student_id(auth_client):
+    res = auth_client.get("/api/exercises/next/")
+    assert res.status_code == 400

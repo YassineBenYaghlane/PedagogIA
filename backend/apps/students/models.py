@@ -23,8 +23,20 @@ class Student(models.Model):
 
 
 class StudentSkillState(models.Model):
+    NOT_STARTED = "not_started"
+    IN_PROGRESS = "in_progress"
+    MASTERED = "mastered"
+    NEEDS_REVIEW = "needs_review"
+    STATUS_CHOICES = [
+        (NOT_STARTED, "Pas commencé"),
+        (IN_PROGRESS, "En cours"),
+        (MASTERED, "Maîtrisé"),
+        (NEEDS_REVIEW, "À revoir"),
+    ]
+
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="skill_states")
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=NOT_STARTED)
     mastery_level = models.FloatField(default=0.0)
     consecutive_correct = models.PositiveIntegerField(default=0)
     total_attempts = models.PositiveIntegerField(default=0)

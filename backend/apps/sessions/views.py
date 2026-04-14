@@ -34,10 +34,18 @@ class SessionViewSet(ModelViewSet):
             attempt = record_attempt(session=session, **serializer.validated_data)
         except Exception as exc:
             return Response({"signature": str(exc)}, status=400)
-        if session.mode == "diagnostic":
+        if session.mode in ("diagnostic", "drill"):
+            if session.mode == "drill":
+                msg = (
+                    "Bravo, rapide !"
+                    if attempt.is_correct
+                    else f"Non, c'était {attempt.correct_answer}."
+                )
+            else:
+                msg = "Bravo !" if attempt.is_correct else "Réponse notée."
             feedback = {
                 "is_correct": attempt.is_correct,
-                "message": "Bravo !" if attempt.is_correct else "Réponse notée.",
+                "message": msg,
                 "next_action": "practice",
                 "next_skill_id": None,
             }

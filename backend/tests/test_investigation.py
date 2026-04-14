@@ -121,6 +121,25 @@ def test_invalid_next_action_rejected(fake_client):
     assert result.next_action == "practice"
 
 
+def test_strategies_are_extracted(fake_client):
+    fake_client.messages.create.return_value = _fake_response(
+        {
+            "feedback_text": "Tu as oublié la retenue.",
+            "next_action": "investigate",
+            "next_skill_id": "add_faits_10",
+            "confidence": 0.9,
+            "strategies": [
+                {"name": "Décomposition", "explanation": "Sépare 13 en 10 + 3."},
+                {"name": "Dessin", "explanation": "Dessine des points et regroupe par 10."},
+                {"name": "X", "explanation": ""},
+            ],
+        }
+    )
+    result = investigate(_attempt())
+    assert len(result.strategies) == 2
+    assert result.strategies[0]["name"] == "Décomposition"
+
+
 def test_feedback_for_handles_api_failure(monkeypatch):
     def raise_(_):
         raise RuntimeError("api down")

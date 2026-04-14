@@ -9,6 +9,7 @@ import RegisterScreen from "./components/screens/RegisterScreen"
 import GoogleCallbackScreen from "./components/screens/GoogleCallbackScreen"
 import ChildPickerScreen from "./components/screens/ChildPickerScreen"
 import DiagnosticScreen from "./components/screens/DiagnosticScreen"
+import DrillScreen from "./components/screens/DrillScreen"
 import "./App.css"
 
 function RequireAuth({ children }) {
@@ -39,6 +40,7 @@ export default function App() {
       <Route path="/" element={<RequireAuth><WelcomeScreen /></RequireAuth>} />
       <Route path="/exercise" element={<RequireAuth><ExerciseScreen /></RequireAuth>} />
       <Route path="/diagnostic" element={<RequireAuth><DiagnosticScreen /></RequireAuth>} />
+      <Route path="/drill" element={<RequireAuth><DrillScreen /></RequireAuth>} />
       <Route path="/skill-tree" element={<RequireAuth><SkillTreeScreen /></RequireAuth>} />
     </Routes>
   )

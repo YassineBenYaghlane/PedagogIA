@@ -44,6 +44,7 @@ def _stub_investigation(monkeypatch, request):
             next_skill_id=None,
             confidence=0.9,
             model="stub",
+            strategies=[],
         )
 
     monkeypatch.setattr(investigation, "investigate", fake)

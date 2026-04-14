@@ -4,13 +4,14 @@ import { exercisesApi } from "../api/exercises"
 export const useSessionStore = create((set, get) => ({
   sessionId: null,
   studentId: null,
+  lockedSkillId: null,
   current: null,
   feedback: null,
   loading: false,
   error: null,
 
-  start: async (studentId) => {
-    set({ loading: true, error: null, feedback: null, current: null })
+  start: async (studentId, lockedSkillId = null) => {
+    set({ loading: true, error: null, feedback: null, current: null, lockedSkillId })
     try {
       const session = await exercisesApi.createSession(studentId)
       set({ sessionId: session.id, studentId })
@@ -21,9 +22,9 @@ export const useSessionStore = create((set, get) => ({
   },
 
   loadNext: async () => {
-    const { studentId, feedback } = get()
+    const { studentId, feedback, lockedSkillId } = get()
     if (!studentId) return
-    const override = feedback?.next_skill_id || null
+    const override = lockedSkillId || feedback?.next_skill_id || null
     set({ loading: true, feedback: null })
     try {
       const data = await exercisesApi.next(studentId, override)
@@ -50,9 +51,16 @@ export const useSessionStore = create((set, get) => ({
     if (sessionId) {
       try { await exercisesApi.endSession(sessionId) } catch { /* ignore */ }
     }
-    set({ sessionId: null, studentId: null, current: null, feedback: null })
+    set({ sessionId: null, studentId: null, lockedSkillId: null, current: null, feedback: null })
   },
 
   reset: () =>
-    set({ sessionId: null, studentId: null, current: null, feedback: null, error: null })
+    set({
+      sessionId: null,
+      studentId: null,
+      lockedSkillId: null,
+      current: null,
+      feedback: null,
+      error: null
+    })
 }))

@@ -3,6 +3,9 @@ from django.urls import path
 from .diagnostic_views import next_question as diagnostic_next
 from .diagnostic_views import result as diagnostic_result
 from .diagnostic_views import start as diagnostic_start
+from .drill_views import next_question as drill_next
+from .drill_views import result as drill_result
+from .drill_views import start as drill_start
 from .views import generate, next_exercise
 
 urlpatterns = [
@@ -19,4 +22,7 @@ urlpatterns = [
         diagnostic_result,
         name="diagnostic-result",
     ),
+    path("drill/start/", drill_start, name="drill-start"),
+    path("drill/<uuid:session_id>/next/", drill_next, name="drill-next"),
+    path("drill/<uuid:session_id>/result/", drill_result, name="drill-result"),
 ]

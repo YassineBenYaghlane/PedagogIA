@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { useNavigate } from "react-router"
+import { useNavigate, useSearchParams } from "react-router"
 import Icon from "../ui/Icon"
 import ExerciseCard from "../exercises/ExerciseCard"
 import { useSessionStore } from "../../stores/sessionStore"
@@ -7,9 +7,13 @@ import { useAuthStore } from "../../stores/authStore"
 
 export default function ExerciseScreen() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const skillOverride = searchParams.get("skill") || null
   const { selectedChildId, children, bootstrap } = useAuthStore()
-  const { sessionId, current, feedback, loading, error, start, submit, loadNext, stop } =
-    useSessionStore()
+  const {
+    sessionId, lockedSkillId, current, feedback, loading, error,
+    start, submit, loadNext, stop
+  } = useSessionStore()
   const child = children.find((c) => c.id === selectedChildId)
 
   useEffect(() => {
@@ -17,8 +21,8 @@ export default function ExerciseScreen() {
       navigate("/children")
       return
     }
-    if (!sessionId) start(selectedChildId)
-  }, [selectedChildId, sessionId, start, navigate])
+    if (!sessionId) start(selectedChildId, skillOverride)
+  }, [selectedChildId, sessionId, start, navigate, skillOverride])
 
   const handleStop = async () => {
     await stop()
@@ -40,7 +44,7 @@ export default function ExerciseScreen() {
         </button>
         {child && (
           <span className="text-sm font-headline font-semibold text-on-surface-variant">
-            {child.display_name} · {child.grade}
+            {lockedSkillId ? "Libre" : "Entraînement"} · {child.display_name}
           </span>
         )}
       </div>

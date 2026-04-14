@@ -41,6 +41,8 @@ class StudentSkillState(models.Model):
     consecutive_correct = models.PositiveIntegerField(default=0)
     total_attempts = models.PositiveIntegerField(default=0)
     last_practiced_at = models.DateTimeField(null=True, blank=True)
+    next_review_at = models.DateTimeField(null=True, blank=True)
+    review_interval_hours = models.PositiveIntegerField(default=24)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

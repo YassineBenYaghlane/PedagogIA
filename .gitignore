@@ -37,3 +37,4 @@ __pycache__/
 # Environment
 .env
 !.env.example
+.claude/scheduled_tasks.lock

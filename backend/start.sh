@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 set -e
 
-uv run alembic upgrade head
-uv run python -m src.skill_tree.seed
-exec uv run uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+uv run python manage.py migrate --noinput
+uv run python manage.py collectstatic --noinput
+uv run python manage.py seed_skills
+uv run python manage.py seed_templates
+
+if [ "${DJANGO_DEV_SERVER:-0}" = "1" ]; then
+  exec uv run python manage.py runserver 0.0.0.0:8000
+else
+  exec uv run gunicorn pedagogia.wsgi:application \
+    --bind 0.0.0.0:8000 \
+    --workers 2 \
+    --reload
+fi

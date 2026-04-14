@@ -4,29 +4,37 @@ version = "0.1.0"
 description = "PedagogIA backend — adaptive math learning for FWB students"
 requires-python = ">=3.12"
 dependencies = [
+    "django>=5.1,<5.2",
+    "djangorestframework>=3.15",
+    "psycopg[binary]>=3.2",
+    "django-cors-headers>=4.5",
+    "django-environ>=0.11",
+    "drf-spectacular>=0.27",
+    "dj-rest-auth>=7.0",
+    "django-allauth>=65.0",
     "pyyaml>=6.0",
-    "fastapi>=0.115",
-    "uvicorn[standard]>=0.34",
-    "sqlalchemy>=2.0",
-    "psycopg2-binary>=2.9",
-    "alembic>=1.15",
-    "pydantic-settings>=2.8",
+    "requests>=2.33.1",
+    "gunicorn>=25.3.0",
+    "whitenoise>=6.12.0",
 ]
 
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+exclude = ["migrations", ".venv"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "W"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+DJANGO_SETTINGS_MODULE = "pedagogia.settings.dev"
+python_files = ["test_*.py", "tests.py"]
+testpaths = ["tests", "apps"]
 
 [dependency-groups]
 dev = [
-    "pytest>=9.0.3",
-    "httpx>=0.28",
+    "pytest>=9.0",
+    "pytest-django>=4.9",
     "ruff>=0.11",
-    "pre-commit>=4.5.1",
+    "pre-commit>=4.5",
 ]

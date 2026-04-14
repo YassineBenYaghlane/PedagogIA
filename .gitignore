@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Playwright
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
+frontend/playwright/.cache/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -31,3 +37,5 @@ __pycache__/
 # Environment
 .env
 !.env.example
+.claude/scheduled_tasks.lock
+backend/staticfiles/

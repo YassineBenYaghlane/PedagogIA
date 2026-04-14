@@ -9,6 +9,7 @@ import {
   useEdgesState,
 } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
+import { api } from "../../api/client"
 import SkillNode from "../ui/SkillNode"
 import { levelDescriptions } from "../../lib/constants"
 import {
@@ -51,11 +52,9 @@ export default function SkillTreeScreen() {
   const [skills, setSkills] = useState(null)
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/skills`)
-      .then((r) => r.json())
-      .then((data) =>
-        setSkills(data.map((s) => ({ ...s, prerequisites: s.prerequisite_ids })))
-      )
+    api.get("/skills/").then((data) =>
+      setSkills(data.map((s) => ({ ...s, prerequisites: s.prerequisite_ids })))
+    )
   }, [])
 
   const nextId = useMemo(

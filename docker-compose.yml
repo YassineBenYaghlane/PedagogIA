@@ -23,13 +23,15 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      DJANGO_SETTINGS_MODULE: pedagogia.settings.dev
     depends_on:
       db:
         condition: service_healthy
     command: ./start.sh
     volumes:
       - ./backend:/app
+      - backend_venv:/app/.venv
 
   frontend:
     build:
@@ -38,6 +40,8 @@ services:
       - "${FRONTEND_PORT}:5173"
     env_file:
       - .env
+    environment:
+      VITE_API_PROXY_TARGET: http://backend:8000
     depends_on:
       - backend
     volumes:
@@ -47,3 +51,4 @@ services:
 volumes:
   pgdata:
   frontend_node_modules:
+  backend_venv:

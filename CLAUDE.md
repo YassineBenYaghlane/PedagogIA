@@ -10,9 +10,11 @@ PedagogIA ("L'Explorateur") is a French-language adaptive math learning app for 
 
 ```bash
 # Frontend (cd frontend)
-npm run dev      # Vite dev server
-npm run build    # Production build
-npm run lint     # ESLint
+npm run dev           # Vite dev server
+npm run build         # Production build
+npm run lint          # ESLint
+npm run test:e2e      # Playwright E2E (headless)
+npm run test:e2e:ui   # Playwright UI runner
 
 # Backend (cd backend)
 uv run uvicorn app.main:app --reload   # FastAPI dev server

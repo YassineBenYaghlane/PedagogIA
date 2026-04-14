@@ -1,17 +1,25 @@
 import { defineConfig, devices } from "@playwright/test"
 
+const jsonOutput = process.env.PLAYWRIGHT_JSON_OUTPUT_FILE || "test-results.json"
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  reporter: "html",
+  reporter: [
+    ["list"],
+    ["html", { open: "never" }],
+    ["json", { outputFile: jsonOutput }]
+  ],
   use: {
     baseURL: "http://localhost:5173",
     trace: "on-first-retry"
   },
   projects: [
-    { name: "chromium", use: { ...devices["Desktop Chrome"] } }
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    { name: "webkit", use: { ...devices["Desktop Safari"] } }
   ],
   webServer: {
     command: "npm run dev",

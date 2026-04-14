@@ -1,6 +1,9 @@
+import { useNavigate } from "react-router"
 import Icon from "../ui/Icon"
 
-export default function WelcomeScreen({ onStart }) {
+export default function WelcomeScreen() {
+  const navigate = useNavigate()
+  const onStart = () => navigate("/exercise")
   return (
     <div className="min-h-screen bg-background font-body text-on-surface flex flex-col items-center justify-center p-6 relative overflow-hidden">
       <div className="bg-orb absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/10 opacity-50" />

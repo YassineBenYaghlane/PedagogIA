@@ -1,76 +1,57 @@
 import { create } from "zustand"
-import { OPERATIONS, opStartLevel } from "../lib/constants"
-import { generators } from "../lib/generators"
-import { getNextLevel, analyzeResults } from "../lib/adaptive"
-
-const generateNextQuestion = (levels, questionIndex) => {
-  const opIndex = questionIndex % OPERATIONS.length
-  const op = OPERATIONS[opIndex]
-  const level = levels[op]
-  const gen = generators[op][level]
-  if (!gen) {
-    const available = Object.keys(generators[op])
-    const fallbackGen = generators[op][available[available.length - 1]]
-    const q = fallbackGen()
-    return { ...q, operation: op, level: available[available.length - 1] }
-  }
-  const q = gen()
-  return { ...q, operation: op, level }
-}
+import { exercisesApi } from "../api/exercises"
 
 export const useSessionStore = create((set, get) => ({
-  questions: [],
-  currentIndex: 0,
-  results: [],
-  currentLevels: { ...opStartLevel },
-  analysis: null,
+  sessionId: null,
+  studentId: null,
+  current: null,
+  feedback: null,
+  loading: false,
+  error: null,
 
-  startTest: () => {
-    const initLevels = { ...opStartLevel }
-    const firstQ = generateNextQuestion(initLevels, 0)
-    set({
-      currentLevels: initLevels,
-      results: [],
-      currentIndex: 0,
-      questions: [firstQ],
-      analysis: null
-    })
-  },
-
-  handleAnswer: (isCorrect) => {
-    const { questions, currentIndex, results, currentLevels } = get()
-    const currentQ = questions[currentIndex]
-    const newResult = { operation: currentQ.operation, level: currentQ.level, correct: isCorrect }
-    const newResults = [...results, newResult]
-    const nextIndex = currentIndex + 1
-
-    if (nextIndex >= 20) {
-      const analysis = analyzeResults(newResults)
-      set({ results: newResults, analysis })
-      return { finished: true }
+  start: async (studentId) => {
+    set({ loading: true, error: null, feedback: null, current: null })
+    try {
+      const session = await exercisesApi.createSession(studentId)
+      set({ sessionId: session.id, studentId })
+      await get().loadNext()
+    } catch (err) {
+      set({ error: err.message, loading: false })
     }
-
-    const newLevels = { ...currentLevels }
-    const op = currentQ.operation
-    newLevels[op] = getNextLevel(currentLevels[op], isCorrect, op)
-
-    const nextQ = generateNextQuestion(newLevels, nextIndex)
-    set({
-      results: newResults,
-      currentLevels: newLevels,
-      currentIndex: nextIndex,
-      questions: [...questions, nextQ]
-    })
-    return { finished: false }
   },
 
-  reset: () => {
-    set({
-      questions: [],
-      currentIndex: 0,
-      results: [],
-      currentLevels: { ...opStartLevel },
-      analysis: null
-    })
-  }
+  loadNext: async () => {
+    const { studentId } = get()
+    if (!studentId) return
+    set({ loading: true, feedback: null })
+    try {
+      const data = await exercisesApi.next(studentId)
+      set({ current: data, loading: false })
+    } catch (err) {
+      set({ error: err.message, loading: false })
+    }
+  },
+
+  submit: async (answer) => {
+    const { sessionId, current } = get()
+    if (!sessionId || !current) return
+    set({ loading: true })
+    try {
+      const res = await exercisesApi.submit(sessionId, current.exercise.signature, answer)
+      set({ feedback: res.feedback, loading: false })
+    } catch (err) {
+      set({ error: err.message, loading: false })
+    }
+  },
+
+  stop: async () => {
+    const { sessionId } = get()
+    if (sessionId) {
+      try { await exercisesApi.endSession(sessionId) } catch { /* ignore */ }
+    }
+    set({ sessionId: null, studentId: null, current: null, feedback: null })
+  },
+
+  reset: () =>
+    set({ sessionId: null, studentId: null, current: null, feedback: null, error: null })
 }))

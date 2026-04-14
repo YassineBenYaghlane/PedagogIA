@@ -1,10 +1,8 @@
 import { useEffect } from "react"
 import { Routes, Route, useNavigate, Navigate, useLocation } from "react-router"
-import { useSessionStore } from "./stores/sessionStore"
 import { useAuthStore } from "./stores/authStore"
 import WelcomeScreen from "./components/screens/WelcomeScreen"
-import QuestionScreen from "./components/screens/QuestionScreen"
-import DiagnosticScreen from "./components/screens/DiagnosticScreen"
+import ExerciseScreen from "./components/screens/ExerciseScreen"
 import SkillTreeScreen from "./components/screens/SkillTreeScreen"
 import LoginScreen from "./components/screens/LoginScreen"
 import RegisterScreen from "./components/screens/RegisterScreen"
@@ -21,7 +19,6 @@ function RequireAuth({ children }) {
 
 export default function App() {
   const navigate = useNavigate()
-  const store = useSessionStore()
   const bootstrap = useAuthStore((s) => s.bootstrap)
 
   useEffect(() => {
@@ -31,47 +28,13 @@ export default function App() {
     return () => window.removeEventListener("auth:unauthorized", onUnauth)
   }, [bootstrap, navigate])
 
-  const handleStart = () => {
-    store.startTest()
-    navigate("/quiz")
-  }
-
-  const handleAnswer = (isCorrect) => {
-    const { finished } = store.handleAnswer(isCorrect)
-    if (finished) navigate("/diagnostic")
-  }
-
-  const handleRestart = () => {
-    store.reset()
-    navigate("/")
-  }
-
   return (
     <Routes>
       <Route path="/login" element={<LoginScreen />} />
       <Route path="/register" element={<RegisterScreen />} />
       <Route path="/children" element={<RequireAuth><ChildPickerScreen /></RequireAuth>} />
-      <Route path="/" element={<RequireAuth><WelcomeScreen onStart={handleStart} /></RequireAuth>} />
-      <Route path="/quiz" element={
-        <RequireAuth>
-          {store.questions[store.currentIndex] ? (
-            <QuestionScreen
-              key={store.currentIndex}
-              question={store.questions[store.currentIndex]}
-              index={store.currentIndex}
-              total={20}
-              onAnswer={handleAnswer}
-            />
-          ) : null}
-        </RequireAuth>
-      } />
-      <Route path="/diagnostic" element={
-        <RequireAuth>
-          {store.analysis ? (
-            <DiagnosticScreen analysis={store.analysis} onRestart={handleRestart} />
-          ) : null}
-        </RequireAuth>
-      } />
+      <Route path="/" element={<RequireAuth><WelcomeScreen /></RequireAuth>} />
+      <Route path="/exercise" element={<RequireAuth><ExerciseScreen /></RequireAuth>} />
       <Route path="/skill-tree" element={<RequireAuth><SkillTreeScreen /></RequireAuth>} />
     </Routes>
   )

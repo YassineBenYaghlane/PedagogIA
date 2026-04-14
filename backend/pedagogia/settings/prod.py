@@ -4,7 +4,7 @@ from .base import *  # noqa: F401,F403
 
 DEBUG = False
 
-for required in ("DJANGO_SECRET_KEY", "DATABASE_URL"):
+for required in ("DJANGO_SECRET_KEY", "DATABASE_URL", "ANTHROPIC_API_KEY"):
     if not os.environ.get(required):
         raise RuntimeError(f"Missing required env var: {required}")
 

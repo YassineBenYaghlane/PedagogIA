@@ -1,9 +1,8 @@
 import random
 
 from django.core import signing
-from django.utils import timezone
 
-from apps.students.models import StudentSkillState
+from apps.students.services.mastery import update_mastery
 from src.services.exercise_gen import instantiate
 
 from .models import Attempt, ExerciseTemplate
@@ -12,12 +11,16 @@ ANSWER_SALT = "pedagogia.exercise.answer"
 
 
 def generate_exercise(skill_id: str, difficulty: int) -> dict:
-    qs = ExerciseTemplate.objects.filter(skill_id=skill_id, difficulty=difficulty)
-    templates = list(qs)
+    templates = list(ExerciseTemplate.objects.filter(skill_id=skill_id, difficulty=difficulty))
     if not templates:
-        raise ExerciseTemplate.DoesNotExist(
-            f"No template for skill={skill_id} difficulty={difficulty}"
-        )
+        available = list(ExerciseTemplate.objects.filter(skill_id=skill_id))
+        if not available:
+            raise ExerciseTemplate.DoesNotExist(f"No template for skill={skill_id}")
+        # fall back to the closest difficulty below, else the lowest available
+        below = [t for t in available if t.difficulty <= difficulty]
+        templates = below if below else available
+        templates.sort(key=lambda t: -t.difficulty if below else t.difficulty)
+        templates = [t for t in templates if t.difficulty == templates[0].difficulty]
     chosen = random.choice(templates)
     generated = instantiate(chosen.template)
     signature = signing.dumps(
@@ -61,16 +64,5 @@ def record_attempt(*, session, signature, student_answer) -> Attempt:
         correct_answer=str(correct_answer),
         is_correct=is_correct,
     )
-    state, _ = StudentSkillState.objects.get_or_create(
-        student=session.student, skill=template.skill
-    )
-    state.total_attempts += 1
-    if is_correct:
-        state.consecutive_correct += 1
-        state.mastery_level = min(1.0, state.mastery_level + 0.1)
-    else:
-        state.consecutive_correct = 0
-        state.mastery_level = max(0.0, state.mastery_level - 0.05)
-    state.last_practiced_at = timezone.now()
-    state.save()
+    update_mastery(session.student, template.skill, is_correct)
     return attempt

@@ -16,6 +16,7 @@ dependencies = [
     "requests>=2.33.1",
     "gunicorn>=25.3.0",
     "whitenoise>=6.12.0",
+    "anthropic>=0.40",
 ]
 
 [tool.ruff]
@@ -30,6 +31,7 @@ select = ["E", "F", "I", "W"]
 DJANGO_SETTINGS_MODULE = "pedagogia.settings.dev"
 python_files = ["test_*.py", "tests.py"]
 testpaths = ["tests", "apps"]
+markers = ["real_investigation: do not stub the investigation module"]
 
 [dependency-groups]
 dev = [

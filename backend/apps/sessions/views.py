@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from apps.common.permissions import IsOwnerParent
+from apps.exercises.investigation import feedback_for
 from apps.exercises.serializers import AttemptCreateSerializer, AttemptReadSerializer
 from apps.exercises.services import record_attempt
 
@@ -33,4 +34,10 @@ class SessionViewSet(ModelViewSet):
             attempt = record_attempt(session=session, **serializer.validated_data)
         except Exception as exc:
             return Response({"signature": str(exc)}, status=400)
-        return Response(AttemptReadSerializer(attempt).data, status=201)
+        return Response(
+            {
+                "attempt": AttemptReadSerializer(attempt).data,
+                "feedback": feedback_for(attempt),
+            },
+            status=201,
+        )

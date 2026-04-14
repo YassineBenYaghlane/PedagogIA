@@ -11,12 +11,16 @@ ANSWER_SALT = "pedagogia.exercise.answer"
 
 
 def generate_exercise(skill_id: str, difficulty: int) -> dict:
-    qs = ExerciseTemplate.objects.filter(skill_id=skill_id, difficulty=difficulty)
-    templates = list(qs)
+    templates = list(ExerciseTemplate.objects.filter(skill_id=skill_id, difficulty=difficulty))
     if not templates:
-        raise ExerciseTemplate.DoesNotExist(
-            f"No template for skill={skill_id} difficulty={difficulty}"
-        )
+        available = list(ExerciseTemplate.objects.filter(skill_id=skill_id))
+        if not available:
+            raise ExerciseTemplate.DoesNotExist(f"No template for skill={skill_id}")
+        # fall back to the closest difficulty below, else the lowest available
+        below = [t for t in available if t.difficulty <= difficulty]
+        templates = below if below else available
+        templates.sort(key=lambda t: -t.difficulty if below else t.difficulty)
+        templates = [t for t in templates if t.difficulty == templates[0].difficulty]
     chosen = random.choice(templates)
     generated = instantiate(chosen.template)
     signature = signing.dumps(

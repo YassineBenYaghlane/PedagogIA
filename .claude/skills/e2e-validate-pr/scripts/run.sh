@@ -41,16 +41,22 @@ done
 wait
 
 # --- 3. wait for each stack's backend + frontend
+WAIT_TIMEOUT="${E2E_WAIT_TIMEOUT:-360}"
 wait_url() {
-  local url="$1" name="$2" deadline=$((SECONDS + 120))
+  local url="$1" project="$2" component="$3" deadline=$((SECONDS + WAIT_TIMEOUT))
   until curl -fs "$url" >/dev/null 2>&1; do
-    (( SECONDS > deadline )) && die "$name not ready at $url after 120s"
-    sleep 2
+    if (( SECONDS > deadline )); then
+      log "$project $component not ready at $url after ${WAIT_TIMEOUT}s — recent logs:"
+      docker compose -p "$project" logs --tail 40 "$component" 2>&1 || true
+      die "$project $component did not become ready"
+    fi
+    sleep 3
   done
 }
 for id in "${STACK_IDS[@]}"; do
-  wait_url "http://localhost:$((8000 + id))/api/health/" "stack-$id backend"
-  wait_url "http://localhost:$((5173 + id))/" "stack-$id frontend"
+  project="pedagogia-e2e-${id}"
+  wait_url "http://localhost:$((8000 + id))/api/health/" "$project" backend
+  wait_url "http://localhost:$((5173 + id))/" "$project" frontend
 done
 log "All stacks ready"
 

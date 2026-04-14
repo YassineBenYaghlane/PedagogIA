@@ -28,15 +28,34 @@ export CORS_ORIGINS="[\"http://localhost:${FRONTEND_PORT}\"]"
 
 PROJECT="pedagogia-e2e-${ID}"
 REPO_ROOT="$(git rev-parse --show-toplevel)"
+OVERLAY="$REPO_ROOT/.claude/skills/e2e-validate-pr/scripts/e2e.compose.yml"
+
+ensure_shared_volumes() {
+  local be_img="${E2E_BACKEND_IMAGE:-pedagogia_backend}"
+  local fe_img="${E2E_FRONTEND_IMAGE:-pedagogia_frontend}"
+  docker volume inspect e2e_backend_venv >/dev/null 2>&1 || docker volume create e2e_backend_venv >/dev/null
+  docker volume inspect e2e_frontend_node_modules >/dev/null 2>&1 || docker volume create e2e_frontend_node_modules >/dev/null
+  # Prime each volume once (serially) so parallel stack boots don't race
+  # on the initial copy-from-image.
+  if ! docker run --rm -v e2e_backend_venv:/app/.venv "$be_img" \
+       test -x /app/.venv/bin/python >/dev/null 2>&1; then
+    docker run --rm -v e2e_backend_venv:/app/.venv "$be_img" true >/dev/null 2>&1 || true
+  fi
+  if ! docker run --rm -v e2e_frontend_node_modules:/app/node_modules "$fe_img" \
+       test -d /app/node_modules/.bin >/dev/null 2>&1; then
+    docker run --rm -v e2e_frontend_node_modules:/app/node_modules "$fe_img" true >/dev/null 2>&1 || true
+  fi
+}
 
 case "$ACTION" in
   up)
     cd "$REPO_ROOT"
-    docker compose -p "$PROJECT" up -d >/dev/null
+    ensure_shared_volumes
+    docker compose -p "$PROJECT" -f docker-compose.yml -f "$OVERLAY" up -d >/dev/null
     ;;
   down)
     cd "$REPO_ROOT"
-    docker compose -p "$PROJECT" down -v --remove-orphans >/dev/null 2>&1 || true
+    docker compose -p "$PROJECT" -f docker-compose.yml -f "$OVERLAY" down -v --remove-orphans >/dev/null 2>&1 || true
     ;;
   url)
     echo "http://localhost:${FRONTEND_PORT}"

@@ -6,14 +6,14 @@ version: 0.1.0
 
 # e2e-validate-pr
 
-Single-command E2E validation for a PR: generate PR-specific Playwright tests from the diff, run them against **three isolated Docker stacks** (one per browser: Chromium / Firefox / WebKit), upload screenshots to a GitHub Gist, and post a markdown summary as a PR comment.
+Single-command E2E validation for a PR: generate PR-specific Playwright tests from the diff, run them against **three isolated Docker stacks** (one per browser: Chromium / Firefox / WebKit), push screenshots to a dated orphan branch in the repo, and post a markdown summary (with inline screenshots) as a PR comment.
 
 ## Scope
 
 - **Runs locally.** No CI assumed.
 - **Parallel isolation**: each browser gets its own `docker compose` project on its own ports (frontend 5174/5175/5176, backend 8001/8002/8003, postgres 5412/5413/5414). The dev stack on 5173/8000/5411 stays untouched.
 - **PR-specific tests** are generated from the diff; existing `frontend/e2e/*.spec.js` are NOT re-run.
-- **Screenshots** live in a Gist, referenced by raw URL so they render inline in the PR comment.
+- **Screenshots** are pushed to a dated orphan branch `e2e-runs/pr-<N>-<timestamp>` and referenced via `raw.githubusercontent.com` URLs so they render inline in the PR comment. (`gh gist create` rejects binaries; branch push is the dependency-free alternative.)
 - Stacks and generated specs are **ephemeral** — stacks are torn down on exit (even on failure) and the spec is deleted.
 
 ## Preconditions

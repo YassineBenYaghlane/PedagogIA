@@ -29,3 +29,21 @@ def other_parent(db, django_user_model):
 def auth_client(api, parent):
     api.force_authenticate(parent)
     return api
+
+
+@pytest.fixture(autouse=True)
+def _stub_investigation(monkeypatch, request):
+    if request.node.get_closest_marker("real_investigation"):
+        return
+    from apps.exercises import investigation
+
+    def fake(attempt):
+        return investigation.InvestigationResult(
+            feedback_text="(stub) revoyons cette étape.",
+            next_action="practice",
+            next_skill_id=None,
+            confidence=0.9,
+            model="stub",
+        )
+
+    monkeypatch.setattr(investigation, "investigate", fake)

@@ -7,7 +7,7 @@ import { useAuthStore } from "../../stores/authStore"
 
 export default function ExerciseScreen() {
   const navigate = useNavigate()
-  const { selectedChildId, children } = useAuthStore()
+  const { selectedChildId, children, bootstrap } = useAuthStore()
   const { sessionId, current, feedback, loading, error, start, submit, loadNext, stop } =
     useSessionStore()
   const child = children.find((c) => c.id === selectedChildId)
@@ -22,6 +22,7 @@ export default function ExerciseScreen() {
 
   const handleStop = async () => {
     await stop()
+    await bootstrap()
     navigate("/")
   }
 

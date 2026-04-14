@@ -114,7 +114,10 @@ def _generate_computation(template: dict) -> dict[str, Any]:
 
     for _ in range(MAX_RETRIES):
         a = _pick_value(params, "a")
-        b = _pick_value(params, "b")
+        if params.get("fixed_b_equals_a"):
+            b = a
+        else:
+            b = _pick_value(params, "b")
 
         if params.get("result_non_negative") and operation == "subtract":
             a, b = max(a, b), min(a, b)
@@ -194,6 +197,8 @@ def _fill_blank_operand(template: dict) -> dict[str, Any]:
         result = _compute(operation, a, b)
 
         if params.get("result_max") and result > params["result_max"]:
+            continue
+        if params.get("result_min") is not None and result < params["result_min"]:
             continue
         if params.get("result_non_negative") and result < 0:
             continue

@@ -18,15 +18,6 @@ const BUCKET_STYLES = {
   }
 }
 
-const CATEGORY_LABELS = {
-  num: "Numération",
-  add: "Addition",
-  soustr: "Soustraction",
-  mult: "Multiplication",
-  div: "Division",
-  cm: "Calcul mental"
-}
-
 function SkillRow({ skill }) {
   const style = BUCKET_STYLES[skill.bucket]
   return (
@@ -47,18 +38,41 @@ function SkillRow({ skill }) {
   )
 }
 
-function groupByCategory(skills) {
+function groupByGrade(skills) {
   const groups = {}
   for (const s of skills) {
-    const key = s.category || "autre"
+    const key = s.grade || "autre"
     if (!groups[key]) groups[key] = []
     groups[key].push(s)
   }
   return groups
 }
 
+function GradeSummaryRow({ entry }) {
+  const style = BUCKET_STYLES[entry.bucket]
+  const pct = Math.round((entry.rate || 0) * 100)
+  return (
+    <div className="flex items-center justify-between py-2">
+      <div className="flex items-center gap-3 min-w-0">
+        <span className="font-headline font-bold text-on-surface w-8">{entry.grade}</span>
+        <div className="flex-1 h-2 rounded-full bg-surface-container overflow-hidden min-w-[60px]">
+          <div
+            className={`h-full transition-all duration-500 ${style.dot}`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+      </div>
+      <div className="flex items-center gap-3 ml-3 flex-shrink-0 text-sm">
+        <span className="text-on-surface-variant">{entry.correct}/{entry.total_attempts}</span>
+        <span className={`font-headline font-bold ${style.text} w-10 text-right`}>{pct}%</span>
+      </div>
+    </div>
+  )
+}
+
 export default function DiagnosticResult({ result, child, onBack }) {
-  const groups = groupByCategory(result.skills)
+  const groups = groupByGrade(result.skills)
+  const grades = result.grades || []
   const counts = result.skills.reduce(
     (acc, s) => ({ ...acc, [s.bucket]: (acc[s.bucket] || 0) + 1 }),
     { green: 0, orange: 0, red: 0 }
@@ -121,11 +135,23 @@ export default function DiagnosticResult({ result, child, onBack }) {
           </div>
         )}
 
+        {grades.length > 0 && (
+          <div className="mb-8" data-testid="diagnostic-grades">
+            <h2 className="font-headline font-bold text-on-surface mb-3">Niveau par année</h2>
+            <div className="bg-surface-container-low rounded-xl p-4 space-y-1">
+              {grades.map((g) => (
+                <GradeSummaryRow key={g.grade} entry={g} />
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="space-y-5 mb-8" data-testid="diagnostic-skills">
-          {Object.entries(groups).map(([cat, skills]) => (
-            <div key={cat}>
+          <h2 className="font-headline font-bold text-on-surface mb-1">Détail par compétence</h2>
+          {Object.entries(groups).map(([grade, skills]) => (
+            <div key={grade}>
               <h3 className="font-headline font-bold text-on-surface-variant uppercase text-xs tracking-wide mb-2">
-                {CATEGORY_LABELS[cat] || cat}
+                {grade}
               </h3>
               <div className="bg-surface-container-low rounded-xl px-4">
                 {skills.map((s) => (

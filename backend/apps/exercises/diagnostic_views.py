@@ -8,7 +8,12 @@ from rest_framework.response import Response
 from apps.sessions.models import Session
 from apps.students.models import Student
 
-from .diagnostic import DIAGNOSTIC_LENGTH, build_plan, build_result, get_exercise_for_slot
+from .diagnostic import (
+    DIAGNOSTIC_LENGTH,
+    build_result,
+    get_exercise_for_slot,
+    select_next_slot,
+)
 from .models import Attempt
 from .serializers import GeneratedExerciseSerializer
 
@@ -22,16 +27,19 @@ def _get_session(request, session_id: str) -> Session:
     )
 
 
-def _nth_question(session: Session, index: int) -> dict | None:
-    plan = build_plan(session.student, session.id)
-    if index >= len(plan) or index >= DIAGNOSTIC_LENGTH:
+def _build_question(session: Session) -> dict | None:
+    attempts = list(
+        Attempt.objects.filter(session=session).select_related("skill").order_by("responded_at")
+    )
+    slot = select_next_slot(session.student, attempts)
+    if slot is None:
         return None
-    slot = plan[index]
     exercise = get_exercise_for_slot(slot)
     return {
-        "index": index,
-        "total": min(DIAGNOSTIC_LENGTH, len(plan)),
+        "index": len(attempts),
+        "total": DIAGNOSTIC_LENGTH,
         "skill": {"id": slot.skill_id},
+        "difficulty": slot.difficulty,
         "exercise": GeneratedExerciseSerializer(exercise).data,
     }
 
@@ -44,12 +52,12 @@ def start(request):
         raise ValidationError({"student_id": "required"})
     student = get_object_or_404(Student, id=student_id, parent=request.user)
     session = Session.objects.create(student=student, mode="diagnostic")
-    question = _nth_question(session, 0)
+    question = _build_question(session)
     return Response(
         {
             "session_id": str(session.id),
             "student_id": str(student.id),
-            "length": question["total"] if question else 0,
+            "length": DIAGNOSTIC_LENGTH,
             "question": question,
         },
         status=201,
@@ -60,8 +68,8 @@ def start(request):
 @permission_classes([IsAuthenticated])
 def next_question(request, session_id):
     session = _get_session(request, session_id)
+    question = _build_question(session)
     answered = Attempt.objects.filter(session=session).count()
-    question = _nth_question(session, answered)
     if question is None:
         if session.ended_at is None:
             session.ended_at = timezone.now()

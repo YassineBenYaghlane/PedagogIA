@@ -64,4 +64,14 @@ def pick_next_skill(student: Student) -> tuple[Skill, int]:
     if in_progress is not None:
         return in_progress.skill, _difficulty_for(in_progress)
 
+    fallback = (
+        Skill.objects.filter(grade=student.grade)
+        .exclude(id__in=mastered_ids)
+        .filter(id__in=ExerciseTemplate.objects.values("skill_id"))
+        .order_by("id")
+        .first()
+    )
+    if fallback is not None:
+        return fallback, _difficulty_for(states.get(fallback.id))
+
     raise NoSkillAvailable(f"No skill available for student {student.id}")

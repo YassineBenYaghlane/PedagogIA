@@ -21,11 +21,12 @@ export const useSessionStore = create((set, get) => ({
   },
 
   loadNext: async () => {
-    const { studentId } = get()
+    const { studentId, feedback } = get()
     if (!studentId) return
+    const override = feedback?.next_skill_id || null
     set({ loading: true, feedback: null })
     try {
-      const data = await exercisesApi.next(studentId)
+      const data = await exercisesApi.next(studentId, override)
       set({ current: data, loading: false })
     } catch (err) {
       set({ error: err.message, loading: false })

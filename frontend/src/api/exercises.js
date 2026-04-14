@@ -1,7 +1,11 @@
 import { api } from "./client"
 
 export const exercisesApi = {
-  next: (studentId) => api.get(`/exercises/next/?student_id=${encodeURIComponent(studentId)}`),
+  next: (studentId, skillId = null) => {
+    const params = new URLSearchParams({ student_id: studentId })
+    if (skillId) params.set("skill_id", skillId)
+    return api.get(`/exercises/next/?${params.toString()}`)
+  },
   generate: (skillId, difficulty = 1) =>
     api.get(`/exercises/generate/?skill_id=${encodeURIComponent(skillId)}&difficulty=${difficulty}`),
   submit: (sessionId, signature, studentAnswer) =>

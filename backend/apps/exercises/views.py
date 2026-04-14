@@ -5,12 +5,22 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from apps.students.models import Student
+from apps.skills.models import Skill
+from apps.students.models import Student, StudentSkillState
 from apps.students.services import NoSkillAvailable, pick_next_skill
 
 from .models import ExerciseTemplate
 from .serializers import GeneratedExerciseSerializer
 from .services import generate_exercise
+
+
+def _difficulty_for_skill(student: Student, skill: Skill) -> int:
+    state = StudentSkillState.objects.filter(student=student, skill=skill).first()
+    if state is None or state.mastery_level < 0.3:
+        return 1
+    if state.mastery_level < 0.7:
+        return 2
+    return 3
 
 
 @api_view(["GET"])
@@ -41,10 +51,17 @@ def next_exercise(request):
         student = get_object_or_404(Student, id=student_id, parent=request.user)
     except (ValueError, Student.DoesNotExist) as exc:
         raise Http404 from exc
-    try:
-        skill, difficulty = pick_next_skill(student)
-    except NoSkillAvailable as exc:
-        return Response({"detail": str(exc)}, status=204)
+    override_skill_id = request.query_params.get("skill_id")
+    if override_skill_id:
+        skill = Skill.objects.filter(id=override_skill_id).first()
+        if skill is None or not ExerciseTemplate.objects.filter(skill=skill).exists():
+            raise ValidationError({"skill_id": "unknown or has no templates"})
+        difficulty = _difficulty_for_skill(student, skill)
+    else:
+        try:
+            skill, difficulty = pick_next_skill(student)
+        except NoSkillAvailable as exc:
+            return Response({"detail": str(exc)}, status=404)
     payload = generate_exercise(skill.id, difficulty)
     return Response(
         {

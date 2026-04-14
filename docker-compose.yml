@@ -30,6 +30,7 @@ services:
     command: ./start.sh
     volumes:
       - ./backend:/app
+      - backend_venv:/app/.venv
 
   frontend:
     build:
@@ -47,3 +48,4 @@ services:
 volumes:
   pgdata:
   frontend_node_modules:
+  backend_venv:

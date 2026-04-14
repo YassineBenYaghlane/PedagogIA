@@ -6,14 +6,15 @@ version: 0.1.0
 
 # e2e-validate-pr
 
-Single-command E2E validation for a PR: generate PR-specific Playwright tests from the diff, run them across **Chromium + Firefox + WebKit** in parallel, upload screenshots to a GitHub Gist, and post a markdown summary as a PR comment.
+Single-command E2E validation for a PR: generate PR-specific Playwright tests from the diff, run them against **three isolated Docker stacks** (one per browser: Chromium / Firefox / WebKit), upload screenshots to a GitHub Gist, and post a markdown summary as a PR comment.
 
 ## Scope
 
-- **Runs locally.** No CI assumed. Stack is `docker compose`.
-- **PR-specific tests** are generated from the diff; existing `frontend/e2e/*.spec.js` are NOT re-run (those are pre-merge regressions).
+- **Runs locally.** No CI assumed.
+- **Parallel isolation**: each browser gets its own `docker compose` project on its own ports (frontend 5174/5175/5176, backend 8001/8002/8003, postgres 5412/5413/5414). The dev stack on 5173/8000/5411 stays untouched.
+- **PR-specific tests** are generated from the diff; existing `frontend/e2e/*.spec.js` are NOT re-run.
 - **Screenshots** live in a Gist, referenced by raw URL so they render inline in the PR comment.
-- Generated specs are **ephemeral** — cleaned up after the run.
+- Stacks and generated specs are **ephemeral** — stacks are torn down on exit (even on failure) and the spec is deleted.
 
 ## Preconditions
 
@@ -43,15 +44,12 @@ gh pr diff "$PR"
 gh pr checkout "$PR"
 ```
 
-### 3. Bring the stack up
+### 3. Boot three isolated stacks (handled by `run.sh`)
 
-```
-docker compose up -d
-```
-
-Wait for readiness (60s timeout each):
-- Backend: `curl -fs http://localhost:8000/api/health/` returns 200.
-- Frontend: `curl -fs http://localhost:5173/` returns 200.
+`scripts/stack.sh up <N>` spins up an isolated stack with project name
+`pedagogia-e2e-<N>` and ports offset by `<N>` from the dev stack. The
+orchestrator boots stacks 1, 2, 3 in parallel and waits for each
+backend's `/api/health/` and frontend's `/` to respond (120s timeout).
 
 ### 4. Design a test plan
 
@@ -71,16 +69,19 @@ Write to `frontend/e2e/.pr-runs/pr-<N>.spec.js`. Conventions (see `references/co
 - Screenshots go to `frontend/e2e/screenshots/pr-<N>/` — the path is per-run, per-browser via Playwright's `project.use.contextOptions` if needed.
 - All UI text assertions in French.
 
-### 6. Run across three browsers in parallel
+### 6. Run across three browsers against three stacks
 
 ```
 cd frontend
-npx playwright test e2e/.pr-runs/pr-<N>.spec.js \
+E2E_PARALLEL=1 npx playwright test e2e/.pr-runs/pr-<N>.spec.js \
   --reporter=list,json \
   --output=test-results/pr-<N>
 ```
 
-The `playwright.config.js` declares three projects (chromium/firefox/webkit) with `fullyParallel: true`, so the N scenarios run 3× concurrently.
+`playwright.config.js` reads `E2E_PARALLEL=1` and pins each browser project
+to its own stack (chromium→:5174, firefox→:5175, webkit→:5176). With
+`fullyParallel: true`, scenarios within each browser also run concurrently.
+Data isolation is full — each stack has its own Postgres.
 
 ### 7. Collect results
 
@@ -112,11 +113,17 @@ gh pr comment "$PR" --body-file /tmp/pr-<N>-summary.md
 
 ### 10. Clean up
 
+Tear down the 3 parallel stacks (`run.sh` does this via an `EXIT` trap, so
+it runs even on failure):
+
 ```
+for id in 1 2 3; do
+  bash .claude/skills/e2e-validate-pr/scripts/stack.sh down "$id"
+done
 rm -rf frontend/e2e/.pr-runs/pr-<N>.spec.js frontend/test-results/pr-<N>
 ```
 
-Leave the docker stack running (the user may want to keep inspecting).
+The dev stack (ports 5173/8000/5411) is never touched.
 
 ## Orchestrator
 

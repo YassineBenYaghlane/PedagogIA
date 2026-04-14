@@ -5,6 +5,8 @@ from django.urls import include, path
 from django.views.decorators.csrf import ensure_csrf_cookie
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
+from apps.accounts.views import GoogleLogin, UserDetailsView
+
 
 @ensure_csrf_cookie
 def csrf(request):
@@ -22,8 +24,10 @@ urlpatterns = [
     path("api/csrf/", csrf),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema")),
+    path("api/auth/user/", UserDetailsView.as_view(), name="rest_user_details"),
     path("api/auth/", include("dj_rest_auth.urls")),
     path("api/auth/registration/", include("dj_rest_auth.registration.urls")),
+    path("api/auth/google/", GoogleLogin.as_view(), name="google_login"),
     path("api/", include("apps.skills.urls")),
     path("api/", include("apps.exercises.urls")),
     path("api/", include("apps.students.urls")),

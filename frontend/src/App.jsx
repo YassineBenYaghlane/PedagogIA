@@ -6,6 +6,7 @@ import ExerciseScreen from "./components/screens/ExerciseScreen"
 import SkillTreeScreen from "./components/screens/SkillTreeScreen"
 import LoginScreen from "./components/screens/LoginScreen"
 import RegisterScreen from "./components/screens/RegisterScreen"
+import GoogleCallbackScreen from "./components/screens/GoogleCallbackScreen"
 import ChildPickerScreen from "./components/screens/ChildPickerScreen"
 import "./App.css"
 
@@ -32,6 +33,7 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<LoginScreen />} />
       <Route path="/register" element={<RegisterScreen />} />
+      <Route path="/auth/google/callback" element={<GoogleCallbackScreen />} />
       <Route path="/children" element={<RequireAuth><ChildPickerScreen /></RequireAuth>} />
       <Route path="/" element={<RequireAuth><WelcomeScreen /></RequireAuth>} />
       <Route path="/exercise" element={<RequireAuth><ExerciseScreen /></RequireAuth>} />

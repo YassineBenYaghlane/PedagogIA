@@ -4,7 +4,14 @@ from .base import *  # noqa: F401,F403
 
 DEBUG = False
 
-for required in ("DJANGO_SECRET_KEY", "DATABASE_URL", "ANTHROPIC_API_KEY"):
+for required in (
+    "DJANGO_SECRET_KEY",
+    "DATABASE_URL",
+    "ANTHROPIC_API_KEY",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET",
+    "GOOGLE_OAUTH_CALLBACK_URL",
+):
     if not os.environ.get(required):
         raise RuntimeError(f"Missing required env var: {required}")
 

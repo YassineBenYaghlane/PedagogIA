@@ -15,7 +15,7 @@ export const useAuthStore = create((set, get) => ({
       const parent = await api.get("/auth/user/")
       set({
         parent,
-        children: parent.children || [],
+        children: parent?.children || [],
         loading: false
       })
     } catch (err) {
@@ -41,6 +41,12 @@ export const useAuthStore = create((set, get) => ({
       password2: password,
       display_name: displayName || ""
     })
+    await get().bootstrap()
+  },
+
+  googleLogin: async (code) => {
+    set({ error: null })
+    await api.post("/auth/google/", { code })
     await get().bootstrap()
   },
 

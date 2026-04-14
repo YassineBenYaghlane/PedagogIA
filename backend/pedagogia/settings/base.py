@@ -13,6 +13,9 @@ env = environ.Env(
     ANTHROPIC_API_KEY=(str, ""),
     INVESTIGATION_MODEL_PRIMARY=(str, "claude-haiku-4-5-20251001"),
     INVESTIGATION_MODEL_ESCALATION=(str, "claude-sonnet-4-6"),
+    GOOGLE_CLIENT_ID=(str, ""),
+    GOOGLE_CLIENT_SECRET=(str, ""),
+    GOOGLE_OAUTH_CALLBACK_URL=(str, "http://localhost:5173/auth/google/callback"),
 )
 
 environ.Env.read_env(BASE_DIR.parent / ".env")
@@ -36,6 +39,7 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     "dj_rest_auth",
     "dj_rest_auth.registration",
     "apps.accounts",
@@ -106,6 +110,24 @@ REST_AUTH = {
     "SESSION_LOGIN": True,
     "USER_DETAILS_SERIALIZER": "apps.accounts.serializers.ParentSerializer",
     "REGISTER_SERIALIZER": "apps.accounts.serializers.ParentRegisterSerializer",
+}
+
+GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET")
+GOOGLE_OAUTH_CALLBACK_URL = env("GOOGLE_OAUTH_CALLBACK_URL")
+
+SOCIALACCOUNT_ADAPTER = "apps.accounts.adapters.SocialAccountAdapter"
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {
+            "client_id": GOOGLE_CLIENT_ID,
+            "secret": GOOGLE_CLIENT_SECRET,
+            "key": "",
+        },
+        "SCOPE": ["email", "profile"],
+        "AUTH_PARAMS": {"access_type": "online"},
+    },
 }
 
 SPECTACULAR_SETTINGS = {

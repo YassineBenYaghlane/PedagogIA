@@ -38,3 +38,4 @@ __pycache__/
 .env
 !.env.example
 .claude/scheduled_tasks.lock
+backend/staticfiles/

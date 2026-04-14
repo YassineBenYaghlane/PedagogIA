@@ -12,8 +12,9 @@ def test_generate_ok(auth_client):
     res = auth_client.get("/api/exercises/generate/?skill_id=add_avec_retenue_20&difficulty=1")
     assert res.status_code == 200
     body = res.json()
-    for key in ("template_id", "skill_id", "difficulty", "type", "prompt", "answer", "params"):
+    for key in ("template_id", "skill_id", "difficulty", "type", "prompt", "params", "signature"):
         assert key in body
+    assert "answer" not in body
     assert body["skill_id"] == "add_avec_retenue_20"
 
 

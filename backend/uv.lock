@@ -335,6 +335,7 @@ dependencies = [
     { name = "psycopg", extra = ["binary"] },
     { name = "pyyaml" },
     { name = "requests" },
+    { name = "whitenoise" },
 ]
 
 [package.dev-dependencies]
@@ -358,6 +359,7 @@ requires-dist = [
     { name = "psycopg", extras = ["binary"], specifier = ">=3.2" },
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "requests", specifier = ">=2.33.1" },
+    { name = "whitenoise", specifier = ">=6.12.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -749,4 +751,13 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/eb/e3/2595f5ab32a7c1ebe96ba23b70ed06477e8a6de08925b2c55ce22f2e5be5/virtualenv-21.2.2.tar.gz", hash = "sha256:cf780026a5696c86ef9982be3ca9b623c97ea4eb3d92043504f06729112048ce", size = 5844760, upload-time = "2026-04-13T23:34:04.65Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b2/68/f13bb8a2eba772c86fe2a272cafc5b0f3708718d008d035d2018e238d4b9/virtualenv-21.2.2-py3-none-any.whl", hash = "sha256:eab30caa0abcc5bd97d42dd780171f3a39e96881af50875536ef45b640650301", size = 5828328, upload-time = "2026-04-13T23:34:02.288Z" },
+]
+
+[[package]]
+name = "whitenoise"
+version = "6.12.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/cb/2a/55b3f3a4ec326cd077c1c3defeee656b9298372a69229134d930151acd01/whitenoise-6.12.0.tar.gz", hash = "sha256:f723ebb76a112e98816ff80fcea0a6c9b8ecde835f8ddda25df7a30a3c2db6ad", size = 26841, upload-time = "2026-02-27T00:05:42.028Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/db/eb/d5583a11486211f3ebd4b385545ae787f32363d453c19fffd81106c9c138/whitenoise-6.12.0-py3-none-any.whl", hash = "sha256:fc5e8c572e33ebf24795b47b6a7da8da3c00cff2349f5b04c02f28d0cc5a3cc2", size = 20302, upload-time = "2026-02-27T00:05:40.086Z" },
 ]

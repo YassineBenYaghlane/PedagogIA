@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from apps.common.permissions import IsOwnerParent
-from apps.exercises.serializers import AttemptSerializer
+from apps.exercises.serializers import AttemptCreateSerializer, AttemptReadSerializer
 from apps.exercises.services import record_attempt
 
 from .models import Session
@@ -25,9 +25,12 @@ class SessionViewSet(ModelViewSet):
         session = self.get_object()
         if request.method == "GET":
             qs = session.attempts.all()
-            return Response(AttemptSerializer(qs, many=True).data)
+            return Response(AttemptReadSerializer(qs, many=True).data)
 
-        serializer = AttemptSerializer(data=request.data, context={"request": request})
+        serializer = AttemptCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        attempt = record_attempt(session=session, **serializer.validated_data)
-        return Response(AttemptSerializer(attempt).data, status=201)
+        try:
+            attempt = record_attempt(session=session, **serializer.validated_data)
+        except Exception as exc:
+            return Response({"signature": str(exc)}, status=400)
+        return Response(AttemptReadSerializer(attempt).data, status=201)

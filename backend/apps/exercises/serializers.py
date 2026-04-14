@@ -15,11 +15,11 @@ class GeneratedExerciseSerializer(serializers.Serializer):
     difficulty = serializers.IntegerField()
     type = serializers.CharField()
     prompt = serializers.CharField()
-    answer = serializers.JSONField()
     params = serializers.JSONField()
+    signature = serializers.CharField()
 
 
-class AttemptSerializer(serializers.ModelSerializer):
+class AttemptReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attempt
         fields = (
@@ -33,4 +33,9 @@ class AttemptSerializer(serializers.ModelSerializer):
             "is_correct",
             "responded_at",
         )
-        read_only_fields = ("id", "session", "responded_at")
+        read_only_fields = fields
+
+
+class AttemptCreateSerializer(serializers.Serializer):
+    signature = serializers.CharField()
+    student_answer = serializers.CharField(allow_blank=True)

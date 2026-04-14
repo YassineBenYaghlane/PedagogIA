@@ -40,7 +40,10 @@ def test_attempt_updates_skill_state(auth_client):
         format="json",
     )
     assert res.status_code == 201, res.content
-    assert res.json()["is_correct"] is False
+    body = res.json()
+    assert body["attempt"]["is_correct"] is False
+    assert body["feedback"]["is_correct"] is False
+    assert "message" in body["feedback"]
 
     from apps.students.models import StudentSkillState
 

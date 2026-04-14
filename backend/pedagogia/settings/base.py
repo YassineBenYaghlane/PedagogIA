@@ -10,6 +10,9 @@ env = environ.Env(
     DATABASE_URL=(str, "postgres://ceb:ceb@localhost:5411/ceb"),
     CORS_ORIGINS=(list, ["http://localhost:5173"]),
     CORS_ORIGINS_RAW=(str, ""),
+    ANTHROPIC_API_KEY=(str, ""),
+    INVESTIGATION_MODEL_PRIMARY=(str, "claude-haiku-4-5-20251001"),
+    INVESTIGATION_MODEL_ESCALATION=(str, "claude-sonnet-4-6"),
 )
 
 environ.Env.read_env(BASE_DIR.parent / ".env")
@@ -141,6 +144,10 @@ def _parse_origins(raw):
 CORS_ALLOWED_ORIGINS = _parse_origins(env.str("CORS_ORIGINS", default=""))
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
+
+ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY")
+INVESTIGATION_MODEL_PRIMARY = env("INVESTIGATION_MODEL_PRIMARY")
+INVESTIGATION_MODEL_ESCALATION = env("INVESTIGATION_MODEL_ESCALATION")
 
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"

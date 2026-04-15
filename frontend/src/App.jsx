@@ -13,10 +13,10 @@ import DrillScreen from "./components/screens/DrillScreen"
 import "./App.css"
 
 function RequireAuth({ children }) {
-  const { parent, loading } = useAuthStore()
+  const { user, loading } = useAuthStore()
   const location = useLocation()
   if (loading) return <div className="p-8 text-center">Chargement…</div>
-  if (!parent) return <Navigate to="/login" replace state={{ from: location }} />
+  if (!user) return <Navigate to="/login" replace state={{ from: location }} />
   return children
 }
 

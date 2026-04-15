@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('display_name', models.CharField(max_length=100)),
                 ('grade', models.CharField(max_length=4)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('parent', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='students', to=settings.AUTH_USER_MODEL)),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='students', to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'ordering': ['display_name'],

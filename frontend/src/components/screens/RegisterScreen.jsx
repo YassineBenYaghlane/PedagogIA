@@ -29,7 +29,7 @@ export default function RegisterScreen() {
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-blue-50 to-indigo-100">
       <form onSubmit={onSubmit} className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 space-y-4" data-testid="register-form">
-        <h1 className="text-2xl font-bold text-slate-900">Créer un compte parent</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Créer un compte</h1>
 
         <label className="block">
           <span className="text-sm font-medium text-slate-700">Prénom (optionnel)</span>

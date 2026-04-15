@@ -5,7 +5,7 @@ import { useAuthStore } from "../../stores/authStore"
 const GRADES = ["P1", "P2", "P3", "P4", "P5", "P6"]
 
 export default function ChildPickerScreen() {
-  const { parent, children, addChild, selectChild, logout } = useAuthStore()
+  const { user, children, addChild, selectChild, logout } = useAuthStore()
   const navigate = useNavigate()
   const [name, setName] = useState("")
   const [grade, setGrade] = useState("P3")
@@ -33,8 +33,8 @@ export default function ChildPickerScreen() {
       <div className="max-w-2xl mx-auto space-y-6">
         <header className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Bonjour {parent?.display_name || parent?.email}</h1>
-            <p className="text-sm text-slate-600">Choisis un explorateur pour commencer</p>
+            <h1 className="text-2xl font-bold text-slate-900">Bonjour {user?.display_name || user?.email}</h1>
+            <p className="text-sm text-slate-600">Choisis un profil pour commencer</p>
           </div>
           <button onClick={logout} className="text-sm text-slate-600 hover:text-slate-900" data-testid="logout">
             Se déconnecter
@@ -54,12 +54,12 @@ export default function ChildPickerScreen() {
             </button>
           ))}
           {children.length === 0 && (
-            <p className="text-slate-600 italic sm:col-span-2">Aucun explorateur pour le moment.</p>
+            <p className="text-slate-600 italic sm:col-span-2">Aucun profil pour le moment.</p>
           )}
         </section>
 
         <form onSubmit={onAdd} className="bg-white rounded-2xl p-6 shadow-lg space-y-3" data-testid="add-child-form">
-          <h2 className="font-semibold text-slate-900">Ajouter un explorateur</h2>
+          <h2 className="font-semibold text-slate-900">Ajouter un profil</h2>
           <div className="flex gap-2">
             <input
               value={name}

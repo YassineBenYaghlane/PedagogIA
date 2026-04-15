@@ -11,8 +11,8 @@ from apps.students.services.mastery import (
 
 
 @pytest.fixture
-def student(parent):
-    return Student.objects.create(parent=parent, display_name="A", grade="P2")
+def student(user):
+    return Student.objects.create(user=user, display_name="A", grade="P2")
 
 
 @pytest.fixture

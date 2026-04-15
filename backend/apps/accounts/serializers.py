@@ -3,19 +3,19 @@ from rest_framework import serializers
 
 from apps.students.serializers import StudentNestedSerializer
 
-from .models import Parent
+from .models import User
 
 
-class ParentSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     children = StudentNestedSerializer(many=True, read_only=True, source="students")
 
     class Meta:
-        model = Parent
+        model = User
         fields = ("id", "email", "display_name", "children")
         read_only_fields = ("id", "email")
 
 
-class ParentRegisterSerializer(RegisterSerializer):
+class UserRegisterSerializer(RegisterSerializer):
     username = None
     display_name = serializers.CharField(required=False, allow_blank=True, max_length=100)
 

@@ -15,6 +15,6 @@ class SessionSerializer(serializers.ModelSerializer):
 
     def validate_student(self, student: Student) -> Student:
         user = self.context["request"].user
-        if student.parent_id != user.id:
+        if student.user_id != user.id:
             raise serializers.ValidationError("Invalid student.")
         return student

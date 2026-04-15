@@ -103,7 +103,7 @@ export default function WelcomeScreen() {
             onClick={() => navigate("/children")}
             className="text-on-surface-variant hover:text-on-surface text-sm w-full py-2 cursor-pointer"
           >
-            Changer d'explorateur
+            Changer de profil
           </button>
         </div>
       </div>

@@ -38,10 +38,10 @@ def test_next_returns_exercise_for_own_student(auth_client):
 
 
 @pytest.mark.django_db
-def test_next_404_for_other_parents_student(auth_client, other_parent):
+def test_next_404_for_other_users_student(auth_client, other_user):
     from apps.students.models import Student
 
-    other = Student.objects.create(parent=other_parent, display_name="X", grade="P1")
+    other = Student.objects.create(user=other_user, display_name="X", grade="P1")
     res = auth_client.get(f"/api/exercises/next/?student_id={other.id}")
     assert res.status_code == 404
 

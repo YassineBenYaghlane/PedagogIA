@@ -103,11 +103,11 @@ def test_result_includes_grade_breakdown(auth_client, student):
 
 
 @pytest.mark.django_db
-def test_cannot_access_other_parents_diagnostic(auth_client, other_parent):
+def test_cannot_access_other_users_diagnostic(auth_client, other_user):
     from apps.sessions.models import Session
     from apps.students.models import Student
 
-    other_student = Student.objects.create(parent=other_parent, display_name="Z", grade="P2")
+    other_student = Student.objects.create(user=other_user, display_name="Z", grade="P2")
     sess = Session.objects.create(student=other_student, mode="diagnostic")
     res = auth_client.get(f"/api/diagnostic/{sess.id}/next/")
     assert res.status_code == 404

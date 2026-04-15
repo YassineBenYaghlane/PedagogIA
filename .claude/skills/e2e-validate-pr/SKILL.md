@@ -1,151 +1,142 @@
 ---
 name: e2e-validate-pr
-description: Validate a PR end-to-end with Playwright across multiple browsers and post a screenshot-rich summary to the PR. Trigger when the user says "e2e test this PR", "validate PR N", "run e2e on the PR", "check the PR in a browser", or invokes /e2e-validate-pr.
-version: 0.1.0
+description: End-to-end validation of a PR in a real browser — generate PR-specific Playwright scenarios from the diff, run them against an isolated docker compose stack (its own Postgres/Django/Vite on shifted ports), and post a screenshot-rich summary comment on the PR. Use this skill whenever the user asks to "e2e test this PR", "validate PR N", "check the PR in a browser", "run playwright on this PR", "take screenshots for PR review", or invokes `/e2e-validate-pr` — even if they don't explicitly say Playwright. Also worth using proactively right before merging a frontend-touching PR so the comment is on the PR before approval. Tests run on a single browser (Chromium) for speed and signal clarity — cross-browser coverage is handled by the existing evergreen specs in `frontend/e2e/` instead.
+version: 0.2.0
 ---
 
 # e2e-validate-pr
 
-Single-command E2E validation for a PR: generate PR-specific Playwright tests from the diff, run them against **three isolated Docker stacks** (one per browser: Chromium / Firefox / WebKit), push screenshots to a dated orphan branch in the repo, and post a markdown summary (with inline screenshots) as a PR comment.
+End-to-end PR validation in one command:
 
-## Scope
+1. Read the PR title, body, and diff to design a short scenario list grounded in what actually changed.
+2. Generate a throwaway Playwright spec for those scenarios.
+3. Boot a fully isolated docker compose stack (its own DB, backend, and Vite, on ports shifted by +1 from dev) so the dev stack on 5173/8000/5411 is untouched.
+4. Run the spec on **Chromium** against that stack.
+5. Push the screenshots to a dated orphan branch (`e2e-runs/pr-<N>-<timestamp>`) so they render inline on the PR.
+6. Post a markdown summary with the scenario table and screenshots as a PR comment.
+7. Tear everything down (stack + spec + JSON reporter output), leaving only the screenshot branch and the PR comment behind.
 
-- **Runs locally.** No CI assumed.
-- **Parallel isolation**: each browser gets its own `docker compose` project on its own ports (frontend 5174/5175/5176, backend 8001/8002/8003, postgres 5412/5413/5414). The dev stack on 5173/8000/5411 stays untouched.
-- **PR-specific tests** are generated from the diff; existing `frontend/e2e/*.spec.js` are NOT re-run.
-- **Screenshots** are pushed to a dated orphan branch `e2e-runs/pr-<N>-<timestamp>` and referenced via `raw.githubusercontent.com` URLs so they render inline in the PR comment. (`gh gist create` rejects binaries; branch push is the dependency-free alternative.)
-- Stacks and generated specs are **ephemeral** — stacks are torn down on exit (even on failure) and the spec is deleted.
+## Why single-browser
+
+Cross-browser regressions are caught by the evergreen specs committed under `frontend/e2e/` — those already run on chromium/firefox/webkit. The purpose of *this* skill is different: give a human reviewer a grounded, screenshot-backed summary of the PR's actual behavior before they click Approve. One browser is enough for that job, and booting three isolated docker stacks to get three near-identical screenshots of the same UI was a poor time/token tradeoff. Chromium is chosen because it matches the most common end-user browser and because Playwright's Chromium build is the lightest of the three.
 
 ## Preconditions
 
 - `gh` CLI authenticated.
 - Docker running.
 - `frontend/node_modules` installed.
-- Playwright browsers installed. First run: `cd frontend && npx playwright install --with-deps chromium firefox webkit`. The orchestrator detects missing browsers and installs them automatically.
+- Chromium installed for Playwright: `cd frontend && npx playwright install --with-deps chromium`. The orchestrator surfaces a helpful error if it's missing.
 
 ## Workflow
 
-Follow these steps in order. If a step fails, stop and report the failure — do not post the comment.
+Follow the steps in order. If a step fails, stop and report — do not post the comment.
 
-### 1. Resolve target PR
+### 1. Resolve the PR
 
-If the user provided a number: `PR=$1`.
-Else: `PR=$(gh pr view --json number --jq .number)` (current branch).
-
-Fetch context:
-```
+```bash
+PR="${1:-$(gh pr view --json number --jq .number)}"
 gh pr view "$PR" --json number,title,body,baseRefName,headRefName,author
 gh pr diff "$PR"
 ```
 
-### 2. Checkout the PR branch
+### 2. Design a scenario plan
 
-```
-gh pr checkout "$PR"
-```
+From the title, body, and diff, produce **3–6 scenarios** that are:
+- **Observable in the browser** — routes, UI transitions, data shown on screen.
+- **Specific** — "submitting a wrong answer renders the French AI feedback panel with an Explain button", not "exercise works".
+- **Independent** — each scenario starts from a fresh registration so they don't share parent/children state.
 
-### 3. Boot three isolated stacks (handled by `run.sh`)
+Print the plan to the user before generating the spec; it's cheap to let them correct it before spinning docker.
 
-`scripts/stack.sh up <N>` spins up an isolated stack with project name
-`pedagogia-e2e-<N>` and ports offset by `<N>` from the dev stack. The
-orchestrator boots stacks 1, 2, 3 in parallel and waits for each
-backend's `/api/health/` and frontend's `/` to respond (120s timeout).
+### 3. Generate the spec
 
-### 4. Design a test plan
+Write `frontend/e2e/.pr-runs/pr-<N>.spec.js`. Conventions live in `references/conventions.md` — read it if you're unsure about selectors, data isolation, or screenshot naming. Key points:
 
-Using the PR title, body, and diff as context, produce an ordered checklist of **3–6 scenarios** tied to what changed. Each scenario must be:
-- Observable in the browser (routes, UI changes, data flows)
-- Independent (no shared state between scenarios)
-- Specific ("wrong answer → AI feedback panel renders French message", not "exercise works")
-
-Print the plan to the user before generating specs.
-
-### 5. Generate Playwright specs
-
-Write to `frontend/e2e/.pr-runs/pr-<N>.spec.js`. Conventions (see `references/conventions.md`):
 - One `test()` per scenario.
-- Use `page.getByTestId()` for selectors; existing testids like `register-email`, `child-add`, `start-training`, `logout` are available.
-- Capture `page.screenshot({ path: \`${SHOTS}/<browser>-<scenario>-<step>.png\`, fullPage: true })` at key milestones.
-- Screenshots go to `frontend/e2e/screenshots/pr-<N>/` — the path is per-run, per-browser via Playwright's `project.use.contextOptions` if needed.
-- All UI text assertions in French.
+- Selectors: prefer `page.getByTestId(...)`. Known ids are listed in the conventions file.
+- Every meaningful milestone gets a screenshot: `await page.screenshot({ path: shot(testInfo, "step-NN-label"), fullPage: true })`.
+- Screenshots land in `$E2E_SHOT_DIR` (set by `run.sh`).
+- UI text assertions stay in French.
 
-### 6. Run across three browsers against three stacks
+### 4. Hand off to the orchestrator
 
+```bash
+bash .claude/skills/e2e-validate-pr/scripts/run.sh "$PR" frontend/e2e/.pr-runs/pr-"$PR".spec.js
 ```
-cd frontend
-E2E_PARALLEL=1 npx playwright test e2e/.pr-runs/pr-<N>.spec.js \
+
+`run.sh` is the single entry point for steps 5–9 below. It uses `set -euo pipefail` + an `EXIT` trap so the stack is always torn down, even on failure.
+
+### 5. Checkout the PR branch
+
+`gh pr checkout "$PR"` — the spec references are resolved against the PR's code, not `main`.
+
+### 6. Boot the isolated stack
+
+`scripts/stack.sh up 1` brings up docker project `pedagogia-e2e-1` on ports:
+
+| service   | port |
+|-----------|------|
+| Vite      | 5174 |
+| Backend   | 8001 |
+| Postgres  | 5412 |
+
+Shared named volumes (`e2e_backend_venv`, `e2e_frontend_node_modules`) are primed before boot so repeated runs skip `uv sync` and `npm install`.
+
+The orchestrator then polls `http://localhost:8001/api/health/` and `http://localhost:5174/` until both respond (default 360s timeout, overrideable via `E2E_WAIT_TIMEOUT`).
+
+### 7. Run Playwright on Chromium
+
+```bash
+export E2E_SHOT_DIR="$REPO_ROOT/frontend/e2e/screenshots/pr-$PR"
+export E2E_PARALLEL=1             # switches baseURL to :5174 in playwright.config.js
+export PLAYWRIGHT_JSON_OUTPUT_FILE="$JSON_OUT"
+npx playwright test "$SPEC" \
+  --project=chromium \
   --reporter=list,json \
-  --output=test-results/pr-<N>
+  --output="test-results/pr-$PR"
 ```
 
-`playwright.config.js` reads `E2E_PARALLEL=1` and pins each browser project
-to its own stack (chromium→:5174, firefox→:5175, webkit→:5176). With
-`fullyParallel: true`, scenarios within each browser also run concurrently.
-Data isolation is full — each stack has its own Postgres.
+`--project=chromium` is what restricts the run to one browser; `playwright.config.js` still declares firefox/webkit so you can run them manually during dev (`--project=firefox`), but the skill deliberately doesn't.
 
-### 7. Collect results
+### 8. Collect results
 
-```
+```bash
 python3 .claude/skills/e2e-validate-pr/scripts/collect_results.py \
-  --pr "$PR" \
-  --results frontend/test-results/pr-<N> \
-  --json frontend/test-results.json \
-  > /tmp/pr-<N>-summary.md
+  --pr "$PR" --shots "$SHOT_DIR" --json "$JSON_OUT" --out /tmp/pr-"$PR"-summary.md
 ```
 
-`collect_results.py` reads the JSON reporter output, groups pass/fail by (scenario × browser), and emits the markdown body + a newline-separated list of screenshot paths.
+Produces the PR-comment markdown: scenario list, pass/fail table for the Chromium column, and one screenshot per scenario embedded with local paths (rewritten to public URLs in the next step).
 
-### 8. Upload screenshots
+### 9. Publish screenshots + post the comment
 
-```
-bash .claude/skills/e2e-validate-pr/scripts/upload_screenshots.sh "$PR" \
-  frontend/test-results/pr-<N>
-```
-
-Creates a single gist with all PNGs, writes raw URLs to `/tmp/pr-<N>-gist.json` keyed by filename.
-
-### 9. Post the PR comment
-
-Substitute gist URLs into the summary markdown, then:
-```
-gh pr comment "$PR" --body-file /tmp/pr-<N>-summary.md
+```bash
+bash .claude/skills/e2e-validate-pr/scripts/upload_screenshots.sh "$PR" "$SHOT_DIR" /tmp/pr-"$PR"-gist.json
+python3 .claude/skills/e2e-validate-pr/scripts/collect_results.py \
+  --pr "$PR" --shots "$SHOT_DIR" --json "$JSON_OUT" \
+  --out /tmp/pr-"$PR"-summary.md --gist-map /tmp/pr-"$PR"-gist.json
+gh pr comment "$PR" --body-file /tmp/pr-"$PR"-summary.md
 ```
 
-### 10. Clean up
+Screenshots are pushed to a dated orphan branch because `gh gist create` rejects binary files. The summary's image links become `raw.githubusercontent.com` URLs so they render inline on the PR.
 
-Tear down the 3 parallel stacks (`run.sh` does this via an `EXIT` trap, so
-it runs even on failure):
+### 10. Tear down
 
-```
-for id in 1 2 3; do
-  bash .claude/skills/e2e-validate-pr/scripts/stack.sh down "$id"
-done
-rm -rf frontend/e2e/.pr-runs/pr-<N>.spec.js frontend/test-results/pr-<N>
-```
-
-The dev stack (ports 5173/8000/5411) is never touched.
-
-## Orchestrator
-
-`scripts/run.sh` executes steps 1–3, 6–10. Steps 4–5 (test plan design + spec generation) stay in Claude's main loop because they need LLM judgment on the diff. The script accepts the generated spec path as an argument.
-
-Typical invocation by Claude:
-```
-bash .claude/skills/e2e-validate-pr/scripts/run.sh <PR_NUMBER> <spec_path>
-```
+The `EXIT` trap in `run.sh` runs `scripts/stack.sh down 1`, removes the generated spec, and deletes the per-run JSON reporter file. The dev stack (5173/8000/5411) is never touched.
 
 ## Output contract
 
-The PR comment MUST contain:
-- Title with PR number
-- Scenarios list (numbered)
-- Results table (scenario rows × browser columns, ✅/❌)
-- At least one screenshot per scenario from the chromium run (golden path)
-- Link to the gist for full artifact access
-- Footer identifying the skill
+The PR comment contains, in order:
+
+- `## 🤖 E2E validation — PR #<N>`
+- Numbered scenario list (mirrors the plan from step 2)
+- Pass/fail table with one **Chromium** column
+- Screenshots, one per scenario, labeled by scenario title
+- Link to the screenshot branch
+- Footer line identifying this skill
 
 ## When to skip this skill
 
-- PR changes only backend code with no observable UI effect — rely on `uv run pytest` instead.
-- Docs-only PRs — no validation needed.
-- When the user explicitly asks for a "smoke test" — run `npx playwright test` against existing specs without generating new ones.
+- **Pure backend PR with no UI delta** — `uv run pytest` inside the repo is the right check.
+- **Docs-only PR** — no validation needed.
+- **User asked for a quick smoke test** — run `npx playwright test` against the existing evergreen specs without generating new ones.
+- **User wants cross-browser sign-off** — the evergreen specs already run chromium/firefox/webkit; this skill is for PR-specific spot checks, not browser matrix coverage.

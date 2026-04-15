@@ -51,12 +51,12 @@ Filename format: `<project>-<test-slug>-<label>.png`.
 
 ## Data isolation
 
-Every test registers its own account:
+Every test registers its own account so scenarios don't share parent/children state:
 ```js
-const email = `e2e-pr<N>-${test.info().project.name}-${Date.now()}@example.com`
+const email = `e2e-pr<N>-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`
 ```
 
-This keeps the three browsers from colliding on the same parent/children.
+The random suffix is there because scenarios run in parallel (`fullyParallel: true` in `playwright.config.js`) and a timestamp alone can collide.
 
 ## French UI
 

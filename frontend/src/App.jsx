@@ -10,6 +10,8 @@ import GoogleCallbackScreen from "./components/screens/GoogleCallbackScreen"
 import ChildPickerScreen from "./components/screens/ChildPickerScreen"
 import DiagnosticScreen from "./components/screens/DiagnosticScreen"
 import DrillScreen from "./components/screens/DrillScreen"
+import ProfileScreen from "./components/screens/ProfileScreen"
+import BadgeToast from "./components/badges/BadgeToast"
 import "./App.css"
 
 function RequireAuth({ children }) {
@@ -32,16 +34,20 @@ export default function App() {
   }, [bootstrap, navigate])
 
   return (
-    <Routes>
-      <Route path="/login" element={<LoginScreen />} />
-      <Route path="/register" element={<RegisterScreen />} />
-      <Route path="/auth/google/callback" element={<GoogleCallbackScreen />} />
-      <Route path="/children" element={<RequireAuth><ChildPickerScreen /></RequireAuth>} />
-      <Route path="/" element={<RequireAuth><WelcomeScreen /></RequireAuth>} />
-      <Route path="/exercise" element={<RequireAuth><ExerciseScreen /></RequireAuth>} />
-      <Route path="/diagnostic" element={<RequireAuth><DiagnosticScreen /></RequireAuth>} />
-      <Route path="/drill" element={<RequireAuth><DrillScreen /></RequireAuth>} />
-      <Route path="/skill-tree" element={<RequireAuth><SkillTreeScreen /></RequireAuth>} />
-    </Routes>
+    <>
+      <BadgeToast />
+      <Routes>
+        <Route path="/login" element={<LoginScreen />} />
+        <Route path="/register" element={<RegisterScreen />} />
+        <Route path="/auth/google/callback" element={<GoogleCallbackScreen />} />
+        <Route path="/children" element={<RequireAuth><ChildPickerScreen /></RequireAuth>} />
+        <Route path="/" element={<RequireAuth><WelcomeScreen /></RequireAuth>} />
+        <Route path="/exercise" element={<RequireAuth><ExerciseScreen /></RequireAuth>} />
+        <Route path="/diagnostic" element={<RequireAuth><DiagnosticScreen /></RequireAuth>} />
+        <Route path="/drill" element={<RequireAuth><DrillScreen /></RequireAuth>} />
+        <Route path="/skill-tree" element={<RequireAuth><SkillTreeScreen /></RequireAuth>} />
+        <Route path="/profile" element={<RequireAuth><ProfileScreen /></RequireAuth>} />
+      </Routes>
+    </>
   )
 }

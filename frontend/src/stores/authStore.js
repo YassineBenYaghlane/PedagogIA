@@ -87,5 +87,36 @@ export const useAuthStore = create((set, get) => ({
   selectChild: (id) => {
     writeSelected(id)
     set({ selectedChildId: id })
+  },
+
+  applyGamification: (studentId, g) => {
+    if (!g) return
+    const { children } = get()
+    set({
+      children: children.map((c) =>
+        c.id === studentId
+          ? {
+              ...c,
+              xp: g.xp_total ?? c.xp,
+              rank: g.rank ?? c.rank,
+              current_streak: g.current_streak ?? c.current_streak,
+              best_streak: g.best_streak ?? c.best_streak,
+              daily_goal: g.daily_goal ?? c.daily_goal,
+              daily_progress: g.daily_progress ?? c.daily_progress,
+              achievements: [
+                ...(g.newly_earned_badges || []).map((b) => ({
+                  code: b.code,
+                  label: b.label,
+                  description: b.description,
+                  icon: b.icon,
+                  tier: b.tier,
+                  earned_at: new Date().toISOString()
+                })),
+                ...(c.achievements || [])
+              ]
+            }
+          : c
+      )
+    })
   }
 }))

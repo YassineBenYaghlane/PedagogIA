@@ -1,7 +1,10 @@
 from django.db.models import Count
 from rest_framework import serializers
 
-from .models import Student, StudentSkillState
+from apps.students.services.achievements import serialize_badge
+from apps.students.services.streaks import daily_progress
+
+from .models import Student, StudentAchievement, StudentSkillState
 
 
 def mastery_counts(student: Student) -> dict:
@@ -14,28 +17,81 @@ def mastery_counts(student: Student) -> dict:
     return out
 
 
-class StudentNestedSerializer(serializers.ModelSerializer):
-    mastery_summary = serializers.SerializerMethodField()
+class StudentAchievementSerializer(serializers.ModelSerializer):
+    label = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+    icon = serializers.SerializerMethodField()
+    tier = serializers.SerializerMethodField()
 
     class Meta:
-        model = Student
-        fields = ("id", "display_name", "grade", "created_at", "mastery_summary")
-        read_only_fields = ("id", "created_at", "mastery_summary")
+        model = StudentAchievement
+        fields = ("code", "label", "description", "icon", "tier", "earned_at")
+
+    def _badge(self, obj):
+        return serialize_badge(obj.code)
+
+    def get_label(self, obj):
+        return self._badge(obj).get("label", obj.code)
+
+    def get_description(self, obj):
+        return self._badge(obj).get("description", "")
+
+    def get_icon(self, obj):
+        return self._badge(obj).get("icon", "sigma")
+
+    def get_tier(self, obj):
+        return self._badge(obj).get("tier", "bronze")
+
+
+GAMIFICATION_FIELDS = (
+    "xp",
+    "rank",
+    "current_streak",
+    "best_streak",
+    "daily_goal",
+    "daily_progress",
+    "achievements",
+)
+
+
+class _StudentBase(serializers.ModelSerializer):
+    mastery_summary = serializers.SerializerMethodField()
+    daily_progress = serializers.SerializerMethodField()
+    achievements = StudentAchievementSerializer(many=True, read_only=True)
 
     def get_mastery_summary(self, obj: Student) -> dict:
         return mastery_counts(obj)
 
+    def get_daily_progress(self, obj: Student) -> int:
+        return daily_progress(obj)
 
-class StudentSerializer(serializers.ModelSerializer):
-    mastery_summary = serializers.SerializerMethodField()
 
+class StudentNestedSerializer(_StudentBase):
     class Meta:
         model = Student
-        fields = ("id", "display_name", "grade", "created_at", "mastery_summary")
-        read_only_fields = ("id", "created_at", "mastery_summary")
+        fields = (
+            "id",
+            "display_name",
+            "grade",
+            "created_at",
+            "mastery_summary",
+            *GAMIFICATION_FIELDS,
+        )
+        read_only_fields = ("id", "created_at", "mastery_summary", *GAMIFICATION_FIELDS)
 
-    def get_mastery_summary(self, obj: Student) -> dict:
-        return mastery_counts(obj)
+
+class StudentSerializer(_StudentBase):
+    class Meta:
+        model = Student
+        fields = (
+            "id",
+            "display_name",
+            "grade",
+            "created_at",
+            "mastery_summary",
+            *GAMIFICATION_FIELDS,
+        )
+        read_only_fields = ("id", "created_at", "mastery_summary", *GAMIFICATION_FIELDS)
 
 
 class StudentSkillStateSerializer(serializers.ModelSerializer):

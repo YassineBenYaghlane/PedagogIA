@@ -1,8 +1,12 @@
 import random
 
 from django.core import signing
+from django.db import transaction
 
+from apps.students.services.achievements import evaluate, serialize_badge
 from apps.students.services.mastery import update_mastery
+from apps.students.services.streaks import daily_progress, update_streak
+from apps.students.services.xp import award_xp
 from src.services.exercise_gen import instantiate
 
 from .models import Attempt, ExerciseTemplate
@@ -49,20 +53,56 @@ def _normalize(value) -> str:
     return str(value).strip().replace(",", ".")
 
 
-def record_attempt(*, session, signature, student_answer) -> Attempt:
+def _session_consecutive_correct(session) -> int:
+    count = 0
+    for a in Attempt.objects.filter(session=session).order_by("-responded_at"):
+        if a.is_correct:
+            count += 1
+        else:
+            break
+    return count
+
+
+def record_attempt(*, session, signature, student_answer) -> tuple[Attempt, dict]:
     payload = signing.loads(signature, salt=ANSWER_SALT, max_age=60 * 60 * 6)
     template = ExerciseTemplate.objects.select_related("skill").get(id=payload["template_id"])
     correct_answer = payload["answer"]
     is_correct = _normalize(student_answer) == _normalize(correct_answer)
 
-    attempt = Attempt.objects.create(
-        session=session,
-        skill=template.skill,
-        template=template,
-        exercise_params=payload["params"],
-        student_answer=str(student_answer),
-        correct_answer=str(correct_answer),
-        is_correct=is_correct,
-    )
-    update_mastery(session.student, template.skill, is_correct)
-    return attempt
+    with transaction.atomic():
+        attempt = Attempt.objects.create(
+            session=session,
+            skill=template.skill,
+            template=template,
+            exercise_params=payload["params"],
+            student_answer=str(student_answer),
+            correct_answer=str(correct_answer),
+            is_correct=is_correct,
+        )
+        update_mastery(session.student, template.skill, is_correct)
+        student = session.student
+        update_streak(student)
+        consecutive = _session_consecutive_correct(session)
+        xp_delta, new_rank = award_xp(student, is_correct, template.difficulty, consecutive)
+        progress = daily_progress(student)
+        context = {
+            "is_correct": is_correct,
+            "difficulty": template.difficulty,
+            "session_consecutive_correct": consecutive,
+            "new_rank": new_rank,
+            "daily_progress": progress,
+        }
+        new_badges = evaluate(student, context)
+
+    gamification = {
+        "xp_delta": xp_delta,
+        "xp_total": student.xp,
+        "rank": student.rank,
+        "rank_changed": new_rank is not None,
+        "current_streak": student.current_streak,
+        "best_streak": student.best_streak,
+        "daily_goal": student.daily_goal,
+        "daily_progress": progress,
+        "newly_earned_badges": [serialize_badge(a.code) for a in new_badges],
+    }
+    return attempt, gamification

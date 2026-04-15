@@ -15,6 +15,13 @@ class Student(models.Model):
     grade = models.CharField(max_length=4)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    xp = models.PositiveIntegerField(default=0)
+    rank = models.CharField(max_length=24, default="curieux")
+    current_streak = models.PositiveIntegerField(default=0)
+    best_streak = models.PositiveIntegerField(default=0)
+    last_activity_date = models.DateField(null=True, blank=True)
+    daily_goal = models.PositiveSmallIntegerField(default=5)
+
     class Meta:
         ordering = ["display_name"]
 
@@ -48,4 +55,17 @@ class StudentSkillState(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["student", "skill"], name="uq_student_skill"),
+        ]
+
+
+class StudentAchievement(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="achievements")
+    code = models.CharField(max_length=48)
+    earned_at = models.DateTimeField(auto_now_add=True)
+    context = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        ordering = ["-earned_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["student", "code"], name="uq_student_achievement"),
         ]

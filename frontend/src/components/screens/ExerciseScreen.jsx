@@ -11,8 +11,8 @@ export default function ExerciseScreen() {
   const skillOverride = searchParams.get("skill") || null
   const { selectedChildId, children, bootstrap } = useAuthStore()
   const {
-    sessionId, lockedSkillId, current, feedback, loading, error,
-    start, submit, loadNext, stop
+    sessionId, lockedSkillId, current, feedback, explanation, explaining,
+    loading, error, start, submit, loadNext, stop, explain
   } = useSessionStore()
   const child = children.find((c) => c.id === selectedChildId)
 
@@ -21,8 +21,9 @@ export default function ExerciseScreen() {
       navigate("/children")
       return
     }
-    if (!sessionId) start(selectedChildId, skillOverride)
-  }, [selectedChildId, sessionId, start, navigate, skillOverride])
+    const intentMismatch = (skillOverride || null) !== (lockedSkillId || null)
+    if (!sessionId || intentMismatch) start(selectedChildId, skillOverride)
+  }, [selectedChildId, sessionId, lockedSkillId, skillOverride, start, navigate])
 
   const handleStop = async () => {
     await stop()
@@ -60,6 +61,9 @@ export default function ExerciseScreen() {
         exercise={current?.exercise}
         skill={current?.skill}
         feedback={feedback}
+        explanation={explanation}
+        explaining={explaining}
+        onExplain={explain}
         busy={loading}
         onSubmit={submit}
         onNext={loadNext}

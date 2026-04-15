@@ -27,7 +27,50 @@ function StrategyTabs({ strategies }) {
   )
 }
 
-export default function FeedbackMessage({ feedback }) {
+function ExplainSection({ feedback, explanation, explaining, onExplain }) {
+  if (!feedback?.can_explain) return null
+
+  if (explaining) {
+    return (
+      <div
+        className="mt-4 flex items-center justify-center gap-2 text-sm text-on-surface-variant"
+        data-testid="explain-loading"
+      >
+        <Icon name="progress_activity" className="animate-spin text-primary" />
+        L'IA analyse ton erreur…
+      </div>
+    )
+  }
+
+  if (explanation) {
+    return (
+      <div className="mt-4" data-testid="explanation">
+        {explanation.message && (
+          <p className="text-sm text-on-surface text-center">{explanation.message}</p>
+        )}
+        {explanation.next_skill_id && (
+          <p className="text-xs text-on-surface-variant text-center mt-2">
+            On va revoir : <span className="font-mono">{explanation.next_skill_id}</span>
+          </p>
+        )}
+        <StrategyTabs strategies={explanation.strategies} />
+      </div>
+    )
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onExplain}
+      data-testid="explain-btn"
+      className="mt-4 w-full flex items-center justify-center gap-2 bg-surface-container-low hover:bg-surface-container text-on-surface font-headline font-bold py-2.5 rounded-xl cursor-pointer text-sm"
+    >
+      <Icon name="lightbulb" /> Expliquer mon erreur
+    </button>
+  )
+}
+
+export default function FeedbackMessage({ feedback, explanation, explaining, onExplain }) {
   if (!feedback) return null
   const ok = feedback.is_correct
   return (
@@ -41,12 +84,12 @@ export default function FeedbackMessage({ feedback }) {
       {feedback.message && (
         <p className="text-on-surface-variant text-center mt-2">{feedback.message}</p>
       )}
-      {!ok && feedback.next_skill_id && (
-        <p className="text-sm text-on-surface-variant text-center mt-3">
-          On va revoir : <span className="font-mono">{feedback.next_skill_id}</span>
-        </p>
-      )}
-      {!ok && <StrategyTabs strategies={feedback.strategies} />}
+      <ExplainSection
+        feedback={feedback}
+        explanation={explanation}
+        explaining={explaining}
+        onExplain={onExplain}
+      />
     </div>
   )
 }

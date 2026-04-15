@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from apps.common.permissions import IsOwnerParent
-from apps.exercises.investigation import feedback_for
 from apps.exercises.serializers import AttemptCreateSerializer, AttemptReadSerializer
 from apps.exercises.services import record_attempt
 
@@ -34,23 +33,23 @@ class SessionViewSet(ModelViewSet):
             attempt = record_attempt(session=session, **serializer.validated_data)
         except Exception as exc:
             return Response({"signature": str(exc)}, status=400)
-        if session.mode in ("diagnostic", "drill"):
-            if session.mode == "drill":
-                msg = (
-                    "Bravo, rapide !"
-                    if attempt.is_correct
-                    else f"Non, c'était {attempt.correct_answer}."
-                )
-            else:
-                msg = "Bravo !" if attempt.is_correct else "Réponse notée."
-            feedback = {
-                "is_correct": attempt.is_correct,
-                "message": msg,
-                "next_action": "practice",
-                "next_skill_id": None,
-            }
+        if session.mode == "drill":
+            msg = (
+                "Bravo, rapide !"
+                if attempt.is_correct
+                else f"Non, c'était {attempt.correct_answer}."
+            )
+        elif session.mode == "diagnostic":
+            msg = "Bravo !" if attempt.is_correct else "Réponse notée."
         else:
-            feedback = feedback_for(attempt)
+            msg = "Bravo !" if attempt.is_correct else "Pas tout à fait."
+        feedback = {
+            "is_correct": attempt.is_correct,
+            "message": msg,
+            "next_action": "practice",
+            "next_skill_id": None,
+            "can_explain": not attempt.is_correct and session.mode == "learn",
+        }
         return Response(
             {
                 "attempt": AttemptReadSerializer(attempt).data,

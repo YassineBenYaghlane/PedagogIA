@@ -82,7 +82,7 @@ WSGI_APPLICATION = "pedagogia.wsgi.application"
 
 DATABASES = {"default": env.db("DATABASE_URL")}
 
-AUTH_USER_MODEL = "accounts.Parent"
+AUTH_USER_MODEL = "accounts.User"
 SITE_ID = 1
 
 AUTHENTICATION_BACKENDS = [
@@ -108,8 +108,8 @@ REST_FRAMEWORK = {
 REST_AUTH = {
     "USE_JWT": False,
     "SESSION_LOGIN": True,
-    "USER_DETAILS_SERIALIZER": "apps.accounts.serializers.ParentSerializer",
-    "REGISTER_SERIALIZER": "apps.accounts.serializers.ParentRegisterSerializer",
+    "USER_DETAILS_SERIALIZER": "apps.accounts.serializers.UserSerializer",
+    "REGISTER_SERIALIZER": "apps.accounts.serializers.UserRegisterSerializer",
 }
 
 GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID")

@@ -16,18 +16,18 @@ def api():
 
 
 @pytest.fixture
-def parent(db, django_user_model):
+def user(db, django_user_model):
     return django_user_model.objects.create_user(email="alice@test.com", password="pw12345!")
 
 
 @pytest.fixture
-def other_parent(db, django_user_model):
+def other_user(db, django_user_model):
     return django_user_model.objects.create_user(email="bob@test.com", password="pw12345!")
 
 
 @pytest.fixture
-def auth_client(api, parent):
-    api.force_authenticate(parent)
+def auth_client(api, user):
+    api.force_authenticate(user)
     return api
 
 

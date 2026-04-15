@@ -1,11 +1,11 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .models import Parent
+from .models import User
 
 
-@admin.register(Parent)
-class ParentAdmin(UserAdmin):
+@admin.register(User)
+class UserAdmin(BaseUserAdmin):
     ordering = ("email",)
     list_display = ("email", "display_name", "is_staff", "date_joined")
     search_fields = ("email", "display_name")

@@ -2,7 +2,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from apps.common.permissions import IsOwnerParent
+from apps.common.permissions import IsOwner
 from apps.exercises.serializers import AttemptCreateSerializer, AttemptReadSerializer
 from apps.exercises.services import record_attempt
 
@@ -12,13 +12,13 @@ from .serializers import SessionSerializer
 
 class SessionViewSet(ModelViewSet):
     serializer_class = SessionSerializer
-    permission_classes = [IsOwnerParent]
+    permission_classes = [IsOwner]
 
     def get_queryset(self):
         user = self.request.user
         if not user.is_authenticated:
             return Session.objects.none()
-        return Session.objects.filter(student__parent=user).select_related("student")
+        return Session.objects.filter(student__user=user).select_related("student")
 
     @action(detail=True, methods=["get", "post"], url_path="attempts")
     def attempts(self, request, pk=None):

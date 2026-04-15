@@ -49,7 +49,7 @@ def next_exercise(request):
     if not student_id:
         raise ValidationError({"student_id": "required"})
     try:
-        student = get_object_or_404(Student, id=student_id, parent=request.user)
+        student = get_object_or_404(Student, id=student_id, user=request.user)
     except (ValueError, Student.DoesNotExist) as exc:
         raise Http404 from exc
     override_skill_id = request.query_params.get("skill_id")
@@ -76,11 +76,11 @@ def next_exercise(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def explain_attempt(request, attempt_id):
-    """On-demand AI investigation for a wrong attempt the parent owns."""
+    """On-demand AI investigation for a wrong attempt the user owns."""
     attempt = get_object_or_404(
         Attempt.objects.select_related("session__student", "skill"),
         id=attempt_id,
-        session__student__parent=request.user,
+        session__student__user=request.user,
     )
     if attempt.is_correct:
         raise ValidationError({"detail": "explanation only available for wrong attempts"})

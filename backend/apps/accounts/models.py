@@ -3,7 +3,7 @@ from django.db import models
 from django.utils import timezone
 
 
-class ParentManager(BaseUserManager):
+class UserManager(BaseUserManager):
     use_in_migrations = True
 
     def _create(self, email, password, **extra):
@@ -28,20 +28,20 @@ class ParentManager(BaseUserManager):
         return self._create(email, password, **extra)
 
 
-class Parent(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     display_name = models.CharField(max_length=100, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
 
-    objects = ParentManager()
+    objects = UserManager()
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
     class Meta:
-        verbose_name = "parent"
+        verbose_name = "user"
 
     def __str__(self) -> str:
         return self.email

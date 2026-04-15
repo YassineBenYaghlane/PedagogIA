@@ -1,8 +1,8 @@
 # Charte Design : L'Équilibre Sophistiqué
 **Document de Direction Artistique pour Junior Designers**
 
-## 1. Étoile du Nord : L'Explorateur Curateur
-Pour un public de 12 ans, nous devons rejeter l'esthétique "jouet" tout en évitant la froideur institutionnelle. Notre direction créative est **"L'Explorateur Curateur"**. 
+## 1. Étoile du Nord : Le Curateur Savant
+Pour un public de 12 ans, nous devons rejeter l'esthétique "jouet" tout en évitant la froideur institutionnelle. Notre direction créative est **"Le Curateur Savant"**. 
 
 Le design ne doit pas ressembler à un manuel scolaire, mais à une plateforme de curation moderne. Nous brisons la structure rigide des grilles traditionnelles par une **asymétrie intentionnelle** : des éléments qui se chevauchent légèrement, des échelles typographiques contrastées et une profondeur de champ créée par des couches de verre translucide. L'objectif est de créer un sentiment d'autorité ludique.
 

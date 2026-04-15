@@ -17,7 +17,7 @@ def _get_session(request, session_id: str) -> Session:
     return get_object_or_404(
         Session.objects.select_related("student"),
         id=session_id,
-        student__parent=request.user,
+        student__user=request.user,
         mode="drill",
     )
 
@@ -49,7 +49,7 @@ def start(request):
     student_id = request.data.get("student_id")
     if not student_id:
         raise ValidationError({"student_id": "required"})
-    student = get_object_or_404(Student, id=student_id, parent=request.user)
+    student = get_object_or_404(Student, id=student_id, user=request.user)
     session = Session.objects.create(student=student, mode="drill")
     question = _build_question(session)
     return Response(

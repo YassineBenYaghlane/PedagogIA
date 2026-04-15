@@ -7,8 +7,8 @@ from apps.students.services.selection import NoSkillAvailable, pick_next_skill
 
 
 @pytest.fixture
-def p1_student(parent):
-    return Student.objects.create(parent=parent, display_name="A", grade="P1")
+def p1_student(user):
+    return Student.objects.create(user=user, display_name="A", grade="P1")
 
 
 @pytest.mark.django_db
@@ -47,8 +47,8 @@ def test_difficulty_scales_with_mastery_level(p1_student):
 
 
 @pytest.mark.django_db
-def test_raises_when_no_skills_for_grade(parent):
-    student = Student.objects.create(parent=parent, display_name="X", grade="P9")
+def test_raises_when_no_skills_for_grade(user):
+    student = Student.objects.create(user=user, display_name="X", grade="P9")
     with pytest.raises(NoSkillAvailable):
         pick_next_skill(student)
 

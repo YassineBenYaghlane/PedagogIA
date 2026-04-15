@@ -20,7 +20,7 @@ const writeSelected = (id) => {
 }
 
 export const useAuthStore = create((set, get) => ({
-  parent: null,
+  user: null,
   children: [],
   selectedChildId: readSelected(),
   loading: true,
@@ -30,19 +30,19 @@ export const useAuthStore = create((set, get) => ({
     set({ loading: true, error: null })
     try {
       await api.bootstrapCsrf()
-      const parent = await api.get("/auth/user/")
-      const children = parent?.children || []
+      const user = await api.get("/auth/user/")
+      const children = user?.children || []
       const stored = readSelected()
       const selectedChildId = children.some((c) => c.id === stored) ? stored : null
       set({
-        parent,
+        user,
         children,
         selectedChildId,
         loading: false
       })
     } catch (err) {
       if (err.status === 401 || err.status === 403) {
-        set({ parent: null, children: [], selectedChildId: null, loading: false })
+        set({ user: null, children: [], selectedChildId: null, loading: false })
       } else {
         set({ error: err.message, loading: false })
       }
@@ -75,7 +75,7 @@ export const useAuthStore = create((set, get) => ({
   logout: async () => {
     try { await api.post("/auth/logout/") } catch { /* ignore */ }
     writeSelected(null)
-    set({ parent: null, children: [], selectedChildId: null })
+    set({ user: null, children: [], selectedChildId: null })
   },
 
   addChild: async (displayName, grade) => {

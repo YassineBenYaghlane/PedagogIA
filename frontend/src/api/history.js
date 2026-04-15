@@ -12,12 +12,13 @@ export const historyApi = {
 async function downloadBlob(url) {
   const res = await fetch(url, { credentials: "include" })
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  const blob = await res.blob()
-  const filename = parseFilename(res.headers.get("Content-Disposition"))
+  const buffer = await res.arrayBuffer()
+  const blob = new Blob([buffer], { type: "application/octet-stream" })
+  const filename = parseFilename(res.headers.get("Content-Disposition")) || "export"
   const objectUrl = URL.createObjectURL(blob)
   const a = document.createElement("a")
   a.href = objectUrl
-  if (filename) a.download = filename
+  a.download = filename
   document.body.appendChild(a)
   a.click()
   a.remove()

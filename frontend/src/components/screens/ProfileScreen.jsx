@@ -1,6 +1,8 @@
+import { useState } from "react"
 import { useNavigate } from "react-router"
 import Icon from "../ui/Icon"
 import { useAuthStore } from "../../stores/authStore"
+import { historyApi } from "../../api/history"
 import RankChip from "../xp/RankChip"
 import XPBar from "../xp/XPBar"
 import StreakFlame from "../streak/StreakFlame"
@@ -11,10 +13,23 @@ export default function ProfileScreen() {
   const navigate = useNavigate()
   const { children, selectedChildId } = useAuthStore()
   const child = children.find((c) => c.id === selectedChildId)
+  const [exporting, setExporting] = useState(null)
 
   if (!child) {
     navigate("/children")
     return null
+  }
+
+  const handleExport = async (kind) => {
+    setExporting(kind)
+    try {
+      if (kind === "pdf") await historyApi.exportPdf(child.id)
+      else await historyApi.exportJson(child.id)
+    } catch (e) {
+      console.error("export failed", e)
+    } finally {
+      setExporting(null)
+    }
   }
 
   return (
@@ -59,6 +74,32 @@ export default function ProfileScreen() {
         <div className="bg-surface-container-lowest rounded-xl shadow-ambient ghost-border p-6 md:p-8">
           <h2 className="font-headline font-bold text-lg mb-4">Mes orbes</h2>
           <BadgeGallery earned={child.achievements || []} />
+        </div>
+
+        <div className="bg-surface-container-lowest rounded-xl shadow-ambient ghost-border p-6 md:p-8">
+          <h2 className="font-headline font-bold text-lg mb-4">Historique & export</h2>
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => navigate("/history")}
+              className="bg-primary text-on-primary rounded-full px-5 py-2 font-headline font-bold spring-hover cursor-pointer"
+            >
+              <Icon name="history" /> Voir l'historique
+            </button>
+            <button
+              onClick={() => handleExport("pdf")}
+              disabled={exporting === "pdf"}
+              className="bg-surface-container ghost-border rounded-full px-5 py-2 font-headline font-bold spring-hover cursor-pointer disabled:opacity-50"
+            >
+              <Icon name="picture_as_pdf" /> {exporting === "pdf" ? "…" : "Exporter PDF"}
+            </button>
+            <button
+              onClick={() => handleExport("json")}
+              disabled={exporting === "json"}
+              className="bg-surface-container ghost-border rounded-full px-5 py-2 font-headline font-bold spring-hover cursor-pointer disabled:opacity-50"
+            >
+              <Icon name="data_object" /> {exporting === "json" ? "…" : "Exporter JSON"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

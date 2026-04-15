@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr-be">
+<head>
+<meta charset="utf-8">
+<title>PedagogIA — {{ student.display_name }}</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "DejaVu Sans", sans-serif; color: #1a1c1e; font-size: 11pt; }
+  h1, h2, h3 { font-family: "DejaVu Sans", sans-serif; color: #0059b6; margin: 0; }
+  .header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #0059b6; padding-bottom: 8mm; margin-bottom: 6mm; }
+  .header h1 { font-size: 22pt; }
+  .meta { color: #5a6066; font-size: 10pt; }
+  .rank { background: #e8f1ff; color: #0059b6; padding: 4px 10px; border-radius: 999px; font-weight: 700; font-size: 10pt; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; margin-bottom: 6mm; }
+  .card { border: 1px solid #d8dde2; border-radius: 6px; padding: 4mm; background: #fafbfc; }
+  .card .label { color: #5a6066; font-size: 9pt; text-transform: uppercase; letter-spacing: 0.5px; }
+  .card .value { font-size: 18pt; font-weight: 700; color: #00694b; }
+  section { margin-bottom: 6mm; }
+  section h2 { font-size: 13pt; margin-bottom: 3mm; }
+  table { width: 100%; border-collapse: collapse; font-size: 9.5pt; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #ecedef; }
+  th { background: #f3f6fa; color: #0059b6; font-weight: 600; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .badge { display: inline-block; background: #fff5d6; color: #705900; padding: 3px 8px; border-radius: 999px; font-size: 9pt; margin: 2px 4px 2px 0; }
+  .skill-chip { display: inline-block; background: #e8f1ff; color: #0059b6; padding: 2px 6px; border-radius: 4px; font-size: 8.5pt; margin: 1px; }
+  footer { margin-top: 8mm; text-align: center; color: #9aa0a6; font-size: 8pt; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="meta">Rapport de progression</div>
+    <h1>{{ student.display_name }}</h1>
+    <div class="meta">Niveau {{ student.grade }} · généré le {% now "d/m/Y" %}</div>
+  </div>
+  <span class="rank">{{ student.rank|default:"curieux" }}</span>
+</div>
+
+<div class="grid">
+  <div class="card"><div class="label">XP</div><div class="value">{{ student.xp|default:0 }}</div></div>
+  <div class="card"><div class="label">Série actuelle</div><div class="value">{{ student.current_streak|default:0 }} j</div></div>
+  <div class="card"><div class="label">Meilleure série</div><div class="value">{{ student.best_streak|default:0 }} j</div></div>
+</div>
+
+<section>
+  <h2>Maîtrise des compétences</h2>
+  <table>
+    <tr>
+      <th>Maîtrisées</th><th>En cours</th><th>À revoir</th><th>Non commencées</th>
+    </tr>
+    <tr>
+      <td class="num">{{ mastery.mastered|default:0 }}</td>
+      <td class="num">{{ mastery.in_progress|default:0 }}</td>
+      <td class="num">{{ mastery.needs_review|default:0 }}</td>
+      <td class="num">{{ mastery.not_started|default:0 }}</td>
+    </tr>
+  </table>
+</section>
+
+{% if achievements %}
+<section>
+  <h2>Orbes obtenues ({{ achievements|length }})</h2>
+  <div>
+    {% for a in achievements %}<span class="badge">{{ a.code }}</span>{% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section>
+  <h2>30 dernières sessions</h2>
+  {% if sessions %}
+  <table>
+    <tr>
+      <th>Date</th><th>Mode</th><th>Durée</th><th>Réussite</th><th>Compétences</th>
+    </tr>
+    {% for s in sessions %}
+    <tr>
+      <td>{{ s.started_at|date:"d/m/Y H:i" }}</td>
+      <td>{{ s.mode }}</td>
+      <td class="num">{% if s.duration_seconds %}{{ s.duration_seconds }} s{% else %}—{% endif %}</td>
+      <td class="num">{% if s.accuracy is not None %}{{ s.accuracy }} % ({{ s.correct_count }}/{{ s.attempt_count }}){% else %}—{% endif %}</td>
+      <td>{% for sk in s.skills %}<span class="skill-chip">{{ sk.label }}</span>{% endfor %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p class="meta">Aucune session enregistrée pour l'instant.</p>
+  {% endif %}
+</section>
+
+<footer>PedagogIA — apprentissage adaptatif des mathématiques · FWB</footer>
+
+</body>
+</html>

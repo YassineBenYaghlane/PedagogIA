@@ -1,16 +1,24 @@
 import { create } from "zustand"
 import { exercisesApi } from "../api/exercises"
 
-export const useSessionStore = create((set, get) => ({
+const INITIAL = {
   sessionId: null,
   studentId: null,
+  lockedSkillId: null,
   current: null,
   feedback: null,
+  lastAttemptId: null,
+  explanation: null,
+  explaining: false,
   loading: false,
-  error: null,
+  error: null
+}
 
-  start: async (studentId) => {
-    set({ loading: true, error: null, feedback: null, current: null })
+export const useSessionStore = create((set, get) => ({
+  ...INITIAL,
+
+  start: async (studentId, lockedSkillId = null) => {
+    set({ ...INITIAL, loading: true, lockedSkillId })
     try {
       const session = await exercisesApi.createSession(studentId)
       set({ sessionId: session.id, studentId })
@@ -21,10 +29,16 @@ export const useSessionStore = create((set, get) => ({
   },
 
   loadNext: async () => {
-    const { studentId, feedback } = get()
+    const { studentId, explanation, lockedSkillId } = get()
     if (!studentId) return
-    const override = feedback?.next_skill_id || null
-    set({ loading: true, feedback: null })
+    const override = lockedSkillId || explanation?.next_skill_id || null
+    set({
+      loading: true,
+      feedback: null,
+      lastAttemptId: null,
+      explanation: null,
+      explaining: false
+    })
     try {
       const data = await exercisesApi.next(studentId, override)
       set({ current: data, loading: false })
@@ -36,12 +50,28 @@ export const useSessionStore = create((set, get) => ({
   submit: async (answer) => {
     const { sessionId, current } = get()
     if (!sessionId || !current) return
-    set({ loading: true })
+    set({ loading: true, explanation: null, explaining: false })
     try {
       const res = await exercisesApi.submit(sessionId, current.exercise.signature, answer)
-      set({ feedback: res.feedback, loading: false })
+      set({
+        feedback: res.feedback,
+        lastAttemptId: res.attempt?.id || null,
+        loading: false
+      })
     } catch (err) {
       set({ error: err.message, loading: false })
+    }
+  },
+
+  explain: async () => {
+    const { lastAttemptId, explaining, explanation } = get()
+    if (!lastAttemptId || explaining || explanation) return
+    set({ explaining: true })
+    try {
+      const data = await exercisesApi.explain(lastAttemptId)
+      set({ explanation: data, explaining: false })
+    } catch (err) {
+      set({ explaining: false, error: err.message })
     }
   },
 
@@ -50,9 +80,8 @@ export const useSessionStore = create((set, get) => ({
     if (sessionId) {
       try { await exercisesApi.endSession(sessionId) } catch { /* ignore */ }
     }
-    set({ sessionId: null, studentId: null, current: null, feedback: null })
+    set({ ...INITIAL })
   },
 
-  reset: () =>
-    set({ sessionId: null, studentId: null, current: null, feedback: null, error: null })
+  reset: () => set({ ...INITIAL })
 }))

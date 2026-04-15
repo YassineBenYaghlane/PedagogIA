@@ -1,10 +1,28 @@
 import { create } from "zustand"
 import { api } from "../api/client"
 
+const STORAGE_KEY = "pedagogia.selectedChildId"
+
+const readSelected = () => {
+  try {
+    return typeof localStorage !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null
+  } catch {
+    return null
+  }
+}
+
+const writeSelected = (id) => {
+  try {
+    if (typeof localStorage === "undefined") return
+    if (id) localStorage.setItem(STORAGE_KEY, id)
+    else localStorage.removeItem(STORAGE_KEY)
+  } catch { /* ignore */ }
+}
+
 export const useAuthStore = create((set, get) => ({
   parent: null,
   children: [],
-  selectedChildId: null,
+  selectedChildId: readSelected(),
   loading: true,
   error: null,
 
@@ -13,14 +31,18 @@ export const useAuthStore = create((set, get) => ({
     try {
       await api.bootstrapCsrf()
       const parent = await api.get("/auth/user/")
+      const children = parent?.children || []
+      const stored = readSelected()
+      const selectedChildId = children.some((c) => c.id === stored) ? stored : null
       set({
         parent,
-        children: parent?.children || [],
+        children,
+        selectedChildId,
         loading: false
       })
     } catch (err) {
       if (err.status === 401 || err.status === 403) {
-        set({ parent: null, children: [], loading: false })
+        set({ parent: null, children: [], selectedChildId: null, loading: false })
       } else {
         set({ error: err.message, loading: false })
       }
@@ -52,6 +74,7 @@ export const useAuthStore = create((set, get) => ({
 
   logout: async () => {
     try { await api.post("/auth/logout/") } catch { /* ignore */ }
+    writeSelected(null)
     set({ parent: null, children: [], selectedChildId: null })
   },
 
@@ -61,5 +84,8 @@ export const useAuthStore = create((set, get) => ({
     return child
   },
 
-  selectChild: (id) => set({ selectedChildId: id })
+  selectChild: (id) => {
+    writeSelected(id)
+    set({ selectedChildId: id })
+  }
 }))

@@ -61,3 +61,34 @@ def test_creates_state_if_missing(student, skill):
     assert not StudentSkillState.objects.filter(student=student, skill=skill).exists()
     update_mastery(student, skill, True)
     assert StudentSkillState.objects.filter(student=student, skill=skill).exists()
+
+
+@pytest.mark.django_db
+def test_review_schedule_doubles_on_correct_for_automatisme(student):
+    # automatismes have threshold >= 5
+    auto = Skill.objects.get(id="add_complements_10")
+    assert auto.mastery_threshold >= 5
+
+    s1 = update_mastery(student, auto, True)
+    first_hours = s1.review_interval_hours
+    s2 = update_mastery(student, auto, True)
+    assert s2.review_interval_hours >= first_hours * 2
+    assert s2.next_review_at is not None
+
+
+@pytest.mark.django_db
+def test_review_schedule_resets_on_wrong(student):
+    auto = Skill.objects.get(id="add_complements_10")
+    for _ in range(3):
+        update_mastery(student, auto, True)
+    s = update_mastery(student, auto, False)
+    # reset to the minimum interval
+    assert s.review_interval_hours == 4
+
+
+@pytest.mark.django_db
+def test_non_automatisme_has_no_review_schedule(student, skill):
+    # add_avec_retenue_20 has threshold 3 < 5
+    assert skill.mastery_threshold < 5
+    s = update_mastery(student, skill, True)
+    assert s.next_review_at is None

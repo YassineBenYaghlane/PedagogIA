@@ -86,11 +86,18 @@ export default function WelcomeScreen() {
             <Icon name="account_tree" /> Arbre des compétences
           </button>
           <button
-            disabled
-            className="bg-surface-container-low text-on-surface-variant font-headline font-bold text-lg w-full py-3 rounded-xl cursor-not-allowed flex items-center justify-center gap-3 opacity-60"
-            title="Bientôt disponible"
+            data-testid="start-drill"
+            onClick={() => navigate("/drill")}
+            className="bg-surface-container-low hover:bg-surface-container text-on-surface font-headline font-bold text-lg w-full py-3 rounded-xl cursor-pointer flex items-center justify-center gap-3"
           >
-            <Icon name="insights" /> Diagnostic <span className="text-xs">(bientôt)</span>
+            <Icon name="bolt" fill /> Automatismes
+          </button>
+          <button
+            data-testid="start-diagnostic"
+            onClick={() => navigate("/diagnostic")}
+            className="bg-surface-container-low hover:bg-surface-container text-on-surface font-headline font-bold text-lg w-full py-3 rounded-xl cursor-pointer flex items-center justify-center gap-3"
+          >
+            <Icon name="insights" /> Diagnostic
           </button>
           <button
             onClick={() => navigate("/children")}

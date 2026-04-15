@@ -9,6 +9,7 @@ import {
   useEdgesState,
 } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
+import { useNavigate } from "react-router"
 import { api } from "../../api/client"
 import SkillNode from "../ui/SkillNode"
 import { levelDescriptions } from "../../lib/constants"
@@ -49,6 +50,7 @@ function LaneLabel({ data }) {
 const nodeTypes = { skillNode: SkillNode, laneLabel: LaneLabel }
 
 export default function SkillTreeScreen() {
+  const navigate = useNavigate()
   const [skills, setSkills] = useState(null)
 
   useEffect(() => {
@@ -250,7 +252,7 @@ export default function SkillTreeScreen() {
           />
         </ReactFlow>
 
-        {selected && <DetailPanel skill={selected} onClose={onPaneClick} />}
+        {selected && <DetailPanel skill={selected} onClose={onPaneClick} onPractice={(id) => navigate(`/exercise?skill=${encodeURIComponent(id)}`)} />}
         <StatusLegend />
       </div>
     </div>
@@ -275,7 +277,7 @@ function StatusLegend() {
   )
 }
 
-function DetailPanel({ skill, onClose }) {
+function DetailPanel({ skill, onClose, onPractice }) {
   const colors = GRADE_COLORS[skill.grade]
   return (
     <div className="absolute top-4 right-4 w-80 glass-card ghost-border shadow-ambient rounded-2xl p-5 z-50">
@@ -314,6 +316,15 @@ function DetailPanel({ skill, onClose }) {
             </code>
           ))}
         </div>
+      )}
+      {onPractice && (
+        <button
+          data-testid="practice-skill"
+          onClick={() => onPractice(skill.id)}
+          className="mt-4 w-full gradient-soul text-on-primary font-headline font-bold py-2.5 rounded-xl spring-hover cursor-pointer text-sm"
+        >
+          Pratiquer cette compétence
+        </button>
       )}
     </div>
   )

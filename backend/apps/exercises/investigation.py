@@ -24,7 +24,10 @@ SYSTEM_PROMPT = (
     "strict avec les clés: feedback_text (français, court, bienveillant, sans "
     "donner la réponse), next_action (practice|investigate|redirect), "
     "next_skill_id (id d'une compétence prérequise à tester, ou null), "
-    "confidence (0..1)."
+    "confidence (0..1), strategies (liste de 2 à 3 objets {name, explanation} "
+    "présentant des approches différentes pour résoudre ce type de problème — "
+    "ex: 'Calcul mental', 'Décomposition', 'Dessin'; chaque explanation est "
+    "courte et ne donne pas la réponse exacte)."
 )
 
 
@@ -35,6 +38,7 @@ class InvestigationResult:
     next_skill_id: str | None
     confidence: float
     model: str
+    strategies: list[dict]
 
     def to_dict(self) -> dict:
         return {
@@ -43,6 +47,7 @@ class InvestigationResult:
             "next_skill_id": self.next_skill_id,
             "confidence": self.confidence,
             "model": self.model,
+            "strategies": self.strategies,
         }
 
 
@@ -166,6 +171,7 @@ def investigate(attempt: Attempt) -> InvestigationResult:
             next_skill_id=None,
             confidence=0.0,
             model=used_model,
+            strategies=[],
         )
 
     next_skill_id = parsed.get("next_skill_id")
@@ -177,7 +183,22 @@ def investigate(attempt: Attempt) -> InvestigationResult:
         next_skill_id=next_skill_id,
         confidence=float(parsed.get("confidence", 0.0)),
         model=used_model,
+        strategies=_clean_strategies(parsed.get("strategies")),
     )
+
+
+def _clean_strategies(raw) -> list[dict]:
+    if not isinstance(raw, list):
+        return []
+    out = []
+    for item in raw[:3]:
+        if not isinstance(item, dict):
+            continue
+        name = item.get("name")
+        explanation = item.get("explanation")
+        if isinstance(name, str) and isinstance(explanation, str) and name and explanation:
+            out.append({"name": name.strip(), "explanation": explanation.strip()})
+    return out
 
 
 def feedback_for(attempt: Attempt) -> dict:
@@ -204,4 +225,5 @@ def feedback_for(attempt: Attempt) -> dict:
         "message": result.feedback_text,
         "next_action": result.next_action,
         "next_skill_id": result.next_skill_id,
+        "strategies": result.strategies,
     }

@@ -13,5 +13,7 @@ export const exercisesApi = {
   createSession: (studentId, mode = "learn") =>
     api.post("/sessions/", { student: studentId, mode }),
   endSession: (sessionId) =>
-    api.patch(`/sessions/${sessionId}/`, { ended_at: new Date().toISOString() })
+    api.patch(`/sessions/${sessionId}/`, { ended_at: new Date().toISOString() }),
+  explain: (attemptId) =>
+    api.post(`/attempts/${attemptId}/explain/`, {})
 }

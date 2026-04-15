@@ -3,7 +3,10 @@ import Icon from "../ui/Icon"
 import HintPanel from "./HintPanel"
 import FeedbackMessage from "./FeedbackMessage"
 
-export default function ExerciseCard({ exercise, skill, feedback, onSubmit, onNext, busy }) {
+export default function ExerciseCard({
+  exercise, skill, feedback, onSubmit, onNext, busy,
+  explanation, explaining, onExplain
+}) {
   const [input, setInput] = useState("")
   const nextRef = useRef(null)
 
@@ -56,7 +59,12 @@ export default function ExerciseCard({ exercise, skill, feedback, onSubmit, onNe
 
       {!feedback && <HintPanel exercise={exercise} />}
 
-      <FeedbackMessage feedback={feedback} />
+      <FeedbackMessage
+        feedback={feedback}
+        explanation={explanation}
+        explaining={explaining}
+        onExplain={onExplain}
+      />
 
       {feedback && (
         <button

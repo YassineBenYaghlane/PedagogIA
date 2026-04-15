@@ -9,7 +9,8 @@ from apps.skills.models import Skill
 from apps.students.models import Student, StudentSkillState
 from apps.students.services import NoSkillAvailable, pick_next_skill
 
-from .models import ExerciseTemplate
+from .investigation import feedback_for
+from .models import Attempt, ExerciseTemplate
 from .serializers import GeneratedExerciseSerializer
 from .services import generate_exercise
 
@@ -70,3 +71,17 @@ def next_exercise(request):
             "exercise": GeneratedExerciseSerializer(payload).data,
         }
     )
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def explain_attempt(request, attempt_id):
+    """On-demand AI investigation for a wrong attempt the parent owns."""
+    attempt = get_object_or_404(
+        Attempt.objects.select_related("session__student", "skill"),
+        id=attempt_id,
+        session__student__parent=request.user,
+    )
+    if attempt.is_correct:
+        raise ValidationError({"detail": "explanation only available for wrong attempts"})
+    return Response(feedback_for(attempt))

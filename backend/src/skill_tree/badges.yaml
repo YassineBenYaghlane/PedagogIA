@@ -1,0 +1,144 @@
+# Phase 3 achievements. Mathématicien theme.
+# Trigger types handled in apps/students/services/achievements.py::TRIGGER_HANDLERS.
+# Icons map to math symbols rendered by BadgeIcon.jsx (sigma, sqrt, pi, infinity, delta, integral, plus_minus, times).
+# Tiers: bronze | argent | or.
+
+- code: first_step
+  label: "Premier pas"
+  description: "Termine ton premier exercice"
+  icon: sigma
+  tier: bronze
+  trigger: { type: attempts_total, value: 1 }
+
+- code: ten_done
+  label: "Dix sur dix"
+  description: "Réponds à 10 exercices"
+  icon: sigma
+  tier: bronze
+  trigger: { type: attempts_total, value: 10 }
+
+- code: hundred_done
+  label: "La centaine"
+  description: "Réponds à 100 exercices"
+  icon: sigma
+  tier: argent
+  trigger: { type: attempts_total, value: 100 }
+
+- code: five_hundred_done
+  label: "Demi-millier"
+  description: "Réponds à 500 exercices"
+  icon: sigma
+  tier: or
+  trigger: { type: attempts_total, value: 500 }
+
+- code: first_correct
+  label: "Première solution"
+  description: "Trouve ta première bonne réponse"
+  icon: sqrt
+  tier: bronze
+  trigger: { type: correct_total, value: 1 }
+
+- code: fifty_correct
+  label: "Cinquante solutions"
+  description: "50 bonnes réponses au total"
+  icon: sqrt
+  tier: argent
+  trigger: { type: correct_total, value: 50 }
+
+- code: streak_3_row
+  label: "Trois d'affilée"
+  description: "3 bonnes réponses de suite"
+  icon: delta
+  tier: bronze
+  trigger: { type: session_consecutive_correct, value: 3 }
+
+- code: streak_10_row
+  label: "Série parfaite"
+  description: "10 bonnes réponses de suite"
+  icon: delta
+  tier: or
+  trigger: { type: session_consecutive_correct, value: 10 }
+
+- code: streak_day_3
+  label: "Trois jours"
+  description: "3 jours d'entraînement consécutifs"
+  icon: infinity
+  tier: bronze
+  trigger: { type: current_streak, value: 3 }
+
+- code: streak_day_7
+  label: "Semaine entière"
+  description: "7 jours d'entraînement consécutifs"
+  icon: infinity
+  tier: argent
+  trigger: { type: current_streak, value: 7 }
+
+- code: streak_day_30
+  label: "Mois mathématique"
+  description: "30 jours d'entraînement consécutifs"
+  icon: infinity
+  tier: or
+  trigger: { type: current_streak, value: 30 }
+
+- code: skill_first_mastered
+  label: "Première compétence"
+  description: "Maîtrise une compétence"
+  icon: pi
+  tier: bronze
+  trigger: { type: mastered_count, value: 1 }
+
+- code: skill_five_mastered
+  label: "Cinq compétences"
+  description: "Maîtrise 5 compétences"
+  icon: pi
+  tier: argent
+  trigger: { type: mastered_count, value: 5 }
+
+- code: skill_grade_complete
+  label: "Année conquise"
+  description: "Maîtrise toutes les compétences de ton année"
+  icon: pi
+  tier: or
+  trigger: { type: grade_complete }
+
+- code: difficulty_3_correct
+  label: "Défi résolu"
+  description: "Réussis un exercice au niveau 3"
+  icon: delta
+  tier: argent
+  trigger: { type: difficulty_correct, value: 3 }
+
+- code: rank_calculateur
+  label: "Rang : Calculateur"
+  description: "Atteins le rang Calculateur"
+  icon: plus_minus
+  tier: bronze
+  trigger: { type: rank_reached, value: calculateur }
+
+- code: rank_arithmeticien
+  label: "Rang : Arithméticien"
+  description: "Atteins le rang Arithméticien"
+  icon: times
+  tier: argent
+  trigger: { type: rank_reached, value: arithmeticien }
+
+- code: rank_mathematicien
+  label: "Rang : Mathématicien"
+  description: "Atteins le rang Mathématicien"
+  icon: integral
+  tier: or
+  trigger: { type: rank_reached, value: mathematicien }
+
+- code: rank_savant
+  label: "Rang : Savant"
+  description: "Atteins le rang Savant"
+  icon: infinity
+  tier: or
+  trigger: { type: rank_reached, value: savant }
+
+- code: daily_goal_hit
+  label: "Objectif du jour"
+  description: "Atteins ton objectif quotidien pour la première fois"
+  icon: sigma
+  tier: bronze
+  trigger: { type: daily_goal_hit }

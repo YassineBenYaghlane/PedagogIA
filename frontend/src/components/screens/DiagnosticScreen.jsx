@@ -79,6 +79,7 @@ export default function DiagnosticScreen() {
         key={current?.exercise?.signature || "loading"}
         exercise={current?.exercise}
         skill={current?.skill}
+        grade={child?.grade}
         feedback={feedback}
         busy={loading}
         onSubmit={submit}

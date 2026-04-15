@@ -16,7 +16,7 @@ test("training flow: register → home → exercise → wrong → feedback → s
   await expect(page).toHaveURL(/\/children/)
 
   await page.getByTestId("child-name").fill("Léo")
-  await page.getByTestId("child-grade").selectOption("P1")
+  await page.getByTestId("child-grade").selectOption("P3")
   await page.getByTestId("child-add").click()
   await expect(page.getByTestId("children-list").locator("[data-testid^='child-']")).toHaveCount(1)
 

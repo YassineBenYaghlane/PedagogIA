@@ -1,5 +1,6 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Icon from "../ui/Icon"
+import { playCorrect, playIncorrect } from "../../hooks/useSound"
 
 function StrategyTabs({ strategies }) {
   const [active, setActive] = useState(0)
@@ -71,8 +72,13 @@ function ExplainSection({ feedback, explanation, explaining, onExplain }) {
 }
 
 export default function FeedbackMessage({ feedback, explanation, explaining, onExplain }) {
+  const ok = feedback?.is_correct
+  useEffect(() => {
+    if (!feedback) return
+    if (ok) playCorrect()
+    else playIncorrect()
+  }, [feedback, ok])
   if (!feedback) return null
-  const ok = feedback.is_correct
   return (
     <div className={`mt-6 rounded-xl p-5 ${ok ? "bg-tertiary-container/20" : "bg-error-container/10"}`}>
       <div className={`w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center ${ok ? "bg-tertiary/10" : "bg-error/10"}`}>

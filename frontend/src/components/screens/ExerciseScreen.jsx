@@ -60,6 +60,7 @@ export default function ExerciseScreen() {
         key={current?.exercise?.signature || "loading"}
         exercise={current?.exercise}
         skill={current?.skill}
+        grade={child?.grade}
         feedback={feedback}
         explanation={explanation}
         explaining={explaining}

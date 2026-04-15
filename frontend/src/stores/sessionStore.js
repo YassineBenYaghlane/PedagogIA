@@ -1,5 +1,7 @@
 import { create } from "zustand"
 import { exercisesApi } from "../api/exercises"
+import { useAuthStore } from "./authStore"
+import { useBadgeStore } from "./badgeStore"
 
 const INITIAL = {
   sessionId: null,
@@ -53,6 +55,11 @@ export const useSessionStore = create((set, get) => ({
     set({ loading: true, explanation: null, explaining: false })
     try {
       const res = await exercisesApi.submit(sessionId, current.exercise.signature, answer)
+      const { studentId } = get()
+      if (res.gamification && studentId) {
+        useAuthStore.getState().applyGamification(studentId, res.gamification)
+        useBadgeStore.getState().push(res.gamification.newly_earned_badges)
+      }
       set({
         feedback: res.feedback,
         lastAttemptId: res.attempt?.id || null,

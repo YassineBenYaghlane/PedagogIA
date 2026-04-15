@@ -2,6 +2,11 @@ import { useEffect } from "react"
 import { useNavigate } from "react-router"
 import Icon from "../ui/Icon"
 import { useAuthStore } from "../../stores/authStore"
+import RankChip from "../xp/RankChip"
+import XPBar from "../xp/XPBar"
+import StreakFlame from "../streak/StreakFlame"
+import DailyGoalProgress from "../streak/DailyGoalProgress"
+import BadgeGallery from "../badges/BadgeGallery"
 
 const STATUS_LABELS = {
   not_started: "Pas commencé",
@@ -20,7 +25,7 @@ const STATUS_TONES = {
 function MasterySummary({ summary }) {
   if (!summary) return null
   return (
-    <div className="grid grid-cols-2 gap-3 mb-8">
+    <div className="grid grid-cols-2 gap-3 mb-6">
       {Object.keys(STATUS_LABELS).map((k) => (
         <div key={k} className="bg-surface-container-low rounded-xl p-4 text-center">
           <div className={`text-3xl font-headline font-extrabold ${STATUS_TONES[k]}`}>
@@ -51,8 +56,8 @@ export default function WelcomeScreen() {
       <div className="bg-orb absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/10 opacity-50" />
       <div className="bg-orb absolute top-[60%] -right-[5%] w-[30%] h-[30%] bg-secondary-container/20 opacity-50" />
 
-      <div className="bg-surface-container-lowest rounded-xl shadow-ambient p-8 md:p-10 max-w-lg w-full ghost-border relative z-10">
-        <div className="flex items-center justify-between mb-6">
+      <div className="bg-surface-container-lowest rounded-xl shadow-ambient p-6 md:p-8 max-w-lg w-full ghost-border relative z-10">
+        <div className="flex items-center justify-between mb-4">
           <div>
             <p className="text-sm uppercase tracking-wide text-on-surface-variant">Bonjour</p>
             <h1 className="font-headline text-3xl md:text-4xl font-extrabold text-primary tracking-tight">
@@ -67,6 +72,18 @@ export default function WelcomeScreen() {
           >
             <Icon name="logout" /> Déconnexion
           </button>
+        </div>
+
+        <div className="space-y-3 mb-6" data-testid="gamification-header">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <RankChip rank={child.rank || "curieux"} />
+            <StreakFlame currentStreak={child.current_streak ?? 0} />
+          </div>
+          <XPBar xp={child.xp ?? 0} />
+          <DailyGoalProgress
+            progress={child.daily_progress ?? 0}
+            goal={child.daily_goal ?? 5}
+          />
         </div>
 
         <MasterySummary summary={child.mastery_summary} />
@@ -99,13 +116,30 @@ export default function WelcomeScreen() {
           >
             <Icon name="insights" /> Diagnostic
           </button>
-          <button
-            onClick={() => navigate("/children")}
-            className="text-on-surface-variant hover:text-on-surface text-sm w-full py-2 cursor-pointer"
-          >
-            Changer de profil
-          </button>
         </div>
+
+        <div className="mt-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-headline font-bold text-sm uppercase tracking-wide text-on-surface-variant">
+              Mes orbes
+            </h2>
+            <button
+              onClick={() => navigate("/profile")}
+              className="text-xs text-primary font-headline font-bold cursor-pointer"
+              data-testid="open-profile"
+            >
+              Tout voir →
+            </button>
+          </div>
+          <BadgeGallery earned={child.achievements || []} compact />
+        </div>
+
+        <button
+          onClick={() => navigate("/children")}
+          className="mt-6 text-on-surface-variant hover:text-on-surface text-sm w-full py-2 cursor-pointer"
+        >
+          Changer de profil
+        </button>
       </div>
     </div>
   )

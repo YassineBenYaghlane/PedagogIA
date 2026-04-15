@@ -1,5 +1,7 @@
 import { create } from "zustand"
 import { drillApi } from "../api/drill"
+import { useAuthStore } from "./authStore"
+import { useBadgeStore } from "./badgeStore"
 
 export const useDrillStore = create((set, get) => ({
   sessionId: null,
@@ -49,6 +51,11 @@ export const useDrillStore = create((set, get) => ({
       )
       const ok = res.feedback.is_correct
       const nextStreak = ok ? streak + 1 : 0
+      const { studentId } = get()
+      if (res.gamification && studentId) {
+        useAuthStore.getState().applyGamification(studentId, res.gamification)
+        useBadgeStore.getState().push(res.gamification.newly_earned_badges)
+      }
       set({
         feedback: res.feedback,
         streak: nextStreak,

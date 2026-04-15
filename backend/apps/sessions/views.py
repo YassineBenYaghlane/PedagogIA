@@ -30,7 +30,7 @@ class SessionViewSet(ModelViewSet):
         serializer = AttemptCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
-            attempt = record_attempt(session=session, **serializer.validated_data)
+            attempt, gamification = record_attempt(session=session, **serializer.validated_data)
         except Exception as exc:
             return Response({"signature": str(exc)}, status=400)
         if session.mode == "drill":
@@ -54,6 +54,7 @@ class SessionViewSet(ModelViewSet):
             {
                 "attempt": AttemptReadSerializer(attempt).data,
                 "feedback": feedback,
+                "gamification": gamification,
             },
             status=201,
         )

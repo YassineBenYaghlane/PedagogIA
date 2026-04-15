@@ -1,5 +1,7 @@
 import { create } from "zustand"
 import { diagnosticApi } from "../api/diagnostic"
+import { useAuthStore } from "./authStore"
+import { useBadgeStore } from "./badgeStore"
 
 export const useDiagnosticStore = create((set, get) => ({
   sessionId: null,
@@ -43,6 +45,11 @@ export const useDiagnosticStore = create((set, get) => ({
         current.exercise.signature,
         answer
       )
+      const { studentId } = get()
+      if (res.gamification && studentId) {
+        useAuthStore.getState().applyGamification(studentId, res.gamification)
+        useBadgeStore.getState().push(res.gamification.newly_earned_badges)
+      }
       set({ feedback: res.feedback, loading: false })
     } catch (err) {
       set({ error: err.message, loading: false })

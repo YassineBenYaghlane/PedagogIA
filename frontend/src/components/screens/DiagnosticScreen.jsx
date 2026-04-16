@@ -1,6 +1,8 @@
 import { useEffect } from "react"
 import { useNavigate } from "react-router"
 import Icon from "../ui/Icon"
+import ProgressBar from "../ui/ProgressBar"
+import { LatinLabel } from "../ui/Heading"
 import ExerciseCard from "../exercises/ExerciseCard"
 import { useDiagnosticStore } from "../../stores/diagnosticStore"
 import { useAuthStore } from "../../stores/authStore"
@@ -11,7 +13,7 @@ export default function DiagnosticScreen() {
   const { selectedChildId, children, bootstrap } = useAuthStore()
   const {
     sessionId, current, feedback, done, result, loading, error,
-    start, submit, loadNext, reset
+    start, submit, loadNext, reset,
   } = useDiagnosticStore()
   const child = children.find((c) => c.id === selectedChildId)
 
@@ -33,44 +35,40 @@ export default function DiagnosticScreen() {
     return <DiagnosticResult result={result} child={child} onBack={handleQuit} />
   }
 
-  const progress = current ? (current.index / current.total) * 100 : 0
+  const progress = current ? current.index + 1 : 0
+  const total = current?.total ?? 0
 
   return (
-    <div className="min-h-screen bg-background font-body text-on-surface flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      <div className="bg-orb absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/10 opacity-50" />
-      <div className="bg-orb absolute top-[60%] -right-[5%] w-[30%] h-[30%] bg-secondary-container/20 opacity-50" />
-
-      <div className="w-full max-w-md mb-4 flex justify-between items-center relative z-10">
+    <div className="min-h-screen paper-rule flex flex-col items-center p-6">
+      <div className="w-full max-w-xl mb-4 flex justify-between items-center">
         <button
           onClick={handleQuit}
-          className="text-on-surface-variant hover:text-on-surface flex items-center gap-1 cursor-pointer"
+          className="text-stem hover:text-bark flex items-center gap-1.5 cursor-pointer text-sm"
         >
-          <Icon name="arrow_back" /> Quitter
+          <Icon name="arrow_back" size={16} /> Quitter
         </button>
         {child && (
-          <span className="text-sm font-headline font-semibold text-on-surface-variant">
-            Diagnostic · {child.display_name}
-          </span>
+          <div className="text-right">
+            <LatinLabel>Locus discendi</LatinLabel>
+            <div className="text-sm text-bark font-semibold">Diagnostic · {child.display_name}</div>
+          </div>
         )}
       </div>
 
       {current && (
-        <div className="w-full max-w-md mb-4 relative z-10" data-testid="diagnostic-progress">
-          <div className="flex justify-between text-xs font-headline font-bold text-on-surface-variant mb-1">
-            <span>Question {current.index + 1} / {current.total}</span>
-            <span>{Math.round(progress)}%</span>
-          </div>
-          <div className="h-2 rounded-full bg-surface-container-low overflow-hidden">
-            <div
-              className="h-full gradient-soul transition-all duration-500"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
+        <div className="w-full max-w-xl mb-4" data-testid="diagnostic-progress">
+          <ProgressBar
+            value={progress}
+            max={total}
+            tone="sage"
+            label={`Question ${progress} / ${total}`}
+            showValue
+          />
         </div>
       )}
 
       {error && (
-        <div className="text-error mb-4 relative z-10" data-testid="diagnostic-error">
+        <div className="text-rose px-3 py-2 rounded-lg bg-rose-soft/60 mb-4" data-testid="diagnostic-error">
           {error}
         </div>
       )}

@@ -13,7 +13,7 @@ export default function NumberPad({ value, onChange, onSubmit, disabled }) {
   }
 
   return (
-    <div className="grid grid-cols-3 gap-3 mt-3" data-testid="number-pad">
+    <div className="grid grid-cols-3 gap-3 mt-4" data-testid="number-pad">
       {KEYS.map((k) => {
         if (k === "clear") {
           return (
@@ -22,7 +22,7 @@ export default function NumberPad({ value, onChange, onSubmit, disabled }) {
               type="button"
               onClick={() => press("back")}
               disabled={disabled}
-              className="bg-surface-container-low hover:bg-surface-container text-on-surface font-headline font-bold text-2xl py-5 rounded-xl cursor-pointer spring-hover flex items-center justify-center disabled:opacity-50"
+              className="specimen bg-paper hover:bg-mist text-bark font-mono text-2xl py-5 rounded-xl cursor-pointer flex items-center justify-center transition-transform hover:-translate-y-0.5 disabled:opacity-50"
               aria-label="Effacer le dernier chiffre"
             >
               <Icon name="backspace" />
@@ -36,7 +36,7 @@ export default function NumberPad({ value, onChange, onSubmit, disabled }) {
               type="button"
               onClick={() => press("submit")}
               disabled={disabled || !value.trim()}
-              className="gradient-soul text-on-primary font-headline font-bold text-2xl py-5 rounded-xl cursor-pointer spring-hover flex items-center justify-center disabled:opacity-50"
+              className="pill py-5 text-2xl rounded-xl cursor-pointer flex items-center justify-center disabled:opacity-50"
               aria-label="Valider"
             >
               <Icon name="check" />
@@ -49,7 +49,7 @@ export default function NumberPad({ value, onChange, onSubmit, disabled }) {
             type="button"
             onClick={() => press(k)}
             disabled={disabled}
-            className="bg-surface-container-low hover:bg-surface-container text-on-surface font-headline font-extrabold text-3xl py-5 rounded-xl cursor-pointer spring-hover disabled:opacity-50"
+            className="specimen bg-bone hover:bg-mist text-bark font-mono text-3xl font-semibold py-5 rounded-xl cursor-pointer transition-transform hover:-translate-y-0.5 disabled:opacity-50 tabular-nums"
           >
             {k}
           </button>

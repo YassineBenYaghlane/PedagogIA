@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import { useNavigate, useSearchParams } from "react-router"
 import Icon from "../ui/Icon"
+import { LatinLabel } from "../ui/Heading"
 import ExerciseCard from "../exercises/ExerciseCard"
 import { useSessionStore } from "../../stores/sessionStore"
 import { useAuthStore } from "../../stores/authStore"
@@ -12,7 +13,7 @@ export default function ExerciseScreen() {
   const { selectedChildId, children, bootstrap } = useAuthStore()
   const {
     sessionId, lockedSkillId, current, feedback, explanation, explaining,
-    loading, error, start, submit, loadNext, stop, explain
+    loading, error, start, submit, loadNext, stop, explain,
   } = useSessionStore()
   const child = children.find((c) => c.id === selectedChildId)
 
@@ -32,26 +33,29 @@ export default function ExerciseScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-background font-body text-on-surface flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      <div className="bg-orb absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/10 opacity-50" />
-      <div className="bg-orb absolute top-[60%] -right-[5%] w-[30%] h-[30%] bg-secondary-container/20 opacity-50" />
-
-      <div className="w-full max-w-md mb-6 flex justify-between items-center relative z-10">
+    <div className="min-h-screen paper-rule flex flex-col items-center p-6">
+      <div className="w-full max-w-xl mb-6 flex justify-between items-center">
         <button
           onClick={handleStop}
-          className="text-on-surface-variant hover:text-on-surface flex items-center gap-1 cursor-pointer"
+          className="text-stem hover:text-bark flex items-center gap-1.5 cursor-pointer text-sm"
         >
-          <Icon name="arrow_back" /> Arrêter
+          <Icon name="arrow_back" size={16} /> Arrêter
         </button>
         {child && (
-          <span className="text-sm font-headline font-semibold text-on-surface-variant">
-            {lockedSkillId ? "Libre" : "Entraînement"} · {child.display_name}
-          </span>
+          <div className="text-right">
+            <LatinLabel>In officina</LatinLabel>
+            <div className="text-sm text-bark font-semibold">
+              {lockedSkillId ? "Séance libre" : "Établi"} · {child.display_name}
+            </div>
+          </div>
         )}
       </div>
 
       {error && (
-        <div className="text-error mb-4 relative z-10" data-testid="exercise-error">
+        <div
+          className="text-rose px-3 py-2 rounded-lg bg-rose-soft/60 mb-4"
+          data-testid="exercise-error"
+        >
           {error}
         </div>
       )}

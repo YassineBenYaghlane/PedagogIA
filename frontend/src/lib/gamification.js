@@ -18,24 +18,17 @@ export const MATH_GLYPHS = {
 }
 
 export const TIER_STYLES = {
-  bronze: {
-    ring: "ring-[#a97142]",
-    from: "from-[#eec594]",
-    to: "to-[#a97142]",
-    text: "text-[#6b3f1f]"
-  },
-  argent: {
-    ring: "ring-[#8a97a8]",
-    from: "from-[#d8dde4]",
-    to: "to-[#8a97a8]",
-    text: "text-[#3c4654]"
-  },
-  or: {
-    ring: "ring-[#c79a2a]",
-    from: "from-[#ffe8a3]",
-    to: "to-[#c79a2a]",
-    text: "text-[#6c4a09]"
-  }
+  bronze: { halo: "#C7E0B5", ink: "#3F6F4A", stem: "#6FA274" },
+  argent: { halo: "#DCEDF4", ink: "#2F6A88", stem: "#4F8BAC" },
+  or: { halo: "#FBF1D6", ink: "#8A6A1F", stem: "#E8C66A" },
+}
+
+export const RANK_LATIN = {
+  curieux: "Curiosus",
+  calculateur: "Calculator",
+  arithmeticien: "Arithmeticus",
+  mathematicien: "Mathematicus",
+  savant: "Sapiens",
 }
 
 export const rankInfo = (code) => RANKS.find((r) => r.code === code) || RANKS[0]

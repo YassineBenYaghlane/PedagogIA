@@ -9,7 +9,7 @@ export default function DotArray({ count = 0, groupSize = 5 }) {
       {dots.map((i) => (
         <span
           key={i}
-          className={`inline-block w-5 h-5 rounded-full ${i % groupSize === groupSize - 1 ? "bg-primary mr-2" : "bg-primary/60"}`}
+          className={`inline-block w-5 h-5 rounded-full ${i % groupSize === groupSize - 1 ? "bg-sage mr-2" : "bg-sage/60"}`}
         />
       ))}
     </div>

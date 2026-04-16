@@ -1,6 +1,10 @@
 import { useEffect } from "react"
 import { useNavigate } from "react-router"
 import Icon from "../ui/Icon"
+import Button from "../ui/Button"
+import Card from "../ui/Card"
+import Chip from "../ui/Chip"
+import { Heading, LatinLabel } from "../ui/Heading"
 import { useAuthStore } from "../../stores/authStore"
 import RankChip from "../xp/RankChip"
 import XPBar from "../xp/XPBar"
@@ -9,32 +13,32 @@ import DailyGoalProgress from "../streak/DailyGoalProgress"
 import BadgeGallery from "../badges/BadgeGallery"
 
 const STATUS_LABELS = {
-  not_started: "Pas commencé",
-  in_progress: "En cours",
-  mastered: "Maîtrisé",
-  needs_review: "À revoir"
+  not_started: "En sommeil",
+  in_progress: "En croissance",
+  mastered: "Floraison",
+  needs_review: "À arroser",
 }
 
 const STATUS_TONES = {
-  not_started: "text-on-surface-variant",
-  in_progress: "text-primary",
-  mastered: "text-tertiary",
-  needs_review: "text-error"
+  not_started: "text-twig",
+  in_progress: "text-sage-deep",
+  mastered: "text-honey",
+  needs_review: "text-sky-deep",
 }
 
 function MasterySummary({ summary }) {
   if (!summary) return null
   return (
-    <div className="grid grid-cols-2 gap-3 mb-6">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       {Object.keys(STATUS_LABELS).map((k) => (
-        <div key={k} className="bg-surface-container-low rounded-xl p-4 text-center">
-          <div className={`text-3xl font-headline font-extrabold ${STATUS_TONES[k]}`}>
+        <Card key={k} className="p-4 text-center">
+          <div className={`font-mono text-3xl font-semibold ${STATUS_TONES[k]}`}>
             {summary[k] ?? 0}
           </div>
-          <div className="text-xs uppercase tracking-wide text-on-surface-variant mt-1">
+          <div className="text-[11px] uppercase tracking-wider text-stem mt-1">
             {STATUS_LABELS[k]}
           </div>
-        </div>
+        </Card>
       ))}
     </div>
   )
@@ -52,30 +56,34 @@ export default function WelcomeScreen() {
   if (!child) return null
 
   return (
-    <div className="min-h-screen bg-background font-body text-on-surface flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      <div className="bg-orb absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/10 opacity-50" />
-      <div className="bg-orb absolute top-[60%] -right-[5%] w-[30%] h-[30%] bg-secondary-container/20 opacity-50" />
-
-      <div className="bg-surface-container-lowest rounded-xl shadow-ambient p-6 md:p-8 max-w-lg w-full ghost-border relative z-10">
-        <div className="flex items-center justify-between mb-4">
+    <div className="min-h-screen greenhouse">
+      <div className="max-w-3xl mx-auto px-6 py-10 md:py-14">
+        <header className="flex items-start justify-between gap-4 mb-8">
           <div>
-            <p className="text-sm uppercase tracking-wide text-on-surface-variant">Bonjour</p>
-            <h1 className="font-headline text-3xl md:text-4xl font-extrabold text-primary tracking-tight">
-              {child.display_name}
-            </h1>
-            <p className="text-on-surface-variant">Niveau {child.grade}</p>
+            <LatinLabel>Hortus mathematicus</LatinLabel>
+            <Heading level={1} className="mt-1">
+              Bienvenue dans ta serre,<br />
+              <em className="text-sage-deep not-italic font-display italic">
+                {child.display_name}
+              </em>
+              .
+            </Heading>
+            <p className="text-stem mt-3">Niveau {child.grade}</p>
           </div>
           <button
             data-testid="logout"
-            onClick={async () => { await logout(); navigate("/login") }}
-            className="text-on-surface-variant hover:text-on-surface text-sm flex items-center gap-1 cursor-pointer"
+            onClick={async () => {
+              await logout()
+              navigate("/login")
+            }}
+            className="text-stem hover:text-bark text-sm flex items-center gap-1 cursor-pointer"
           >
-            <Icon name="logout" /> Déconnexion
+            <Icon name="logout" size={16} /> Déconnexion
           </button>
-        </div>
+        </header>
 
-        <div className="space-y-3 mb-6" data-testid="gamification-header">
-          <div className="flex items-center justify-between gap-2 flex-wrap">
+        <Card className="p-5 md:p-6 mb-6 space-y-4" data-testid="gamification-header">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
             <RankChip rank={child.rank || "curieux"} />
             <StreakFlame currentStreak={child.current_streak ?? 0} />
           </div>
@@ -84,62 +92,71 @@ export default function WelcomeScreen() {
             progress={child.daily_progress ?? 0}
             goal={child.daily_goal ?? 5}
           />
+        </Card>
+
+        <div className="mb-6">
+          <MasterySummary summary={child.mastery_summary} />
         </div>
 
-        <MasterySummary summary={child.mastery_summary} />
-
-        <div className="space-y-3">
-          <button
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8">
+          <Button
             data-testid="start-training"
             onClick={() => navigate("/exercise")}
-            className="gradient-soul text-on-primary font-headline font-bold text-xl w-full py-4 rounded-xl shadow-[0_12px_24px_rgba(0,89,182,0.3)] spring-hover cursor-pointer flex items-center justify-center gap-3"
+            size="lg"
+            className="md:col-span-2"
           >
             <Icon name="play_arrow" fill /> Entraînement
-          </button>
-          <button
-            onClick={() => navigate("/skill-tree")}
-            className="bg-surface-container-low hover:bg-surface-container text-on-surface font-headline font-bold text-lg w-full py-3 rounded-xl cursor-pointer flex items-center justify-center gap-3"
-          >
-            <Icon name="account_tree" /> Arbre des compétences
-          </button>
-          <button
+          </Button>
+          <Button variant="ghost" size="md" onClick={() => navigate("/skill-tree")}>
+            <Icon name="account_tree" /> Carte des compétences
+          </Button>
+          <Button
             data-testid="start-drill"
+            variant="ghost"
+            size="md"
             onClick={() => navigate("/drill")}
-            className="bg-surface-container-low hover:bg-surface-container text-on-surface font-headline font-bold text-lg w-full py-3 rounded-xl cursor-pointer flex items-center justify-center gap-3"
           >
             <Icon name="bolt" fill /> Automatismes
-          </button>
-          <button
+          </Button>
+          <Button
             data-testid="start-diagnostic"
+            variant="ghost"
+            size="md"
             onClick={() => navigate("/diagnostic")}
-            className="bg-surface-container-low hover:bg-surface-container text-on-surface font-headline font-bold text-lg w-full py-3 rounded-xl cursor-pointer flex items-center justify-center gap-3"
+            className="md:col-span-2"
           >
             <Icon name="insights" /> Diagnostic
-          </button>
+          </Button>
         </div>
 
-        <div className="mt-6">
+        <section className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-headline font-bold text-sm uppercase tracking-wide text-on-surface-variant">
-              Mes orbes
-            </h2>
+            <div>
+              <LatinLabel>Florilegium</LatinLabel>
+              <Heading level={4} className="mt-0.5">
+                Mon herbier
+              </Heading>
+            </div>
             <button
               onClick={() => navigate("/profile")}
-              className="text-xs text-primary font-headline font-bold cursor-pointer"
+              className="text-xs font-semibold text-sage-deep hover:underline cursor-pointer"
               data-testid="open-profile"
             >
               Tout voir →
             </button>
           </div>
           <BadgeGallery earned={child.achievements || []} compact />
-        </div>
+        </section>
 
-        <button
-          onClick={() => navigate("/children")}
-          className="mt-6 text-on-surface-variant hover:text-on-surface text-sm w-full py-2 cursor-pointer"
-        >
-          Changer de profil
-        </button>
+        <div className="flex items-center justify-between pt-6 border-t border-sage/10">
+          <Chip tone="sky">Saison · printemps</Chip>
+          <button
+            onClick={() => navigate("/children")}
+            className="text-stem hover:text-bark text-sm cursor-pointer"
+          >
+            Changer de carnet
+          </button>
+        </div>
       </div>
     </div>
   )

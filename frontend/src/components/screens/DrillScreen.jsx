@@ -1,6 +1,11 @@
 import { useEffect } from "react"
 import { useNavigate } from "react-router"
 import Icon from "../ui/Icon"
+import Button from "../ui/Button"
+import Card from "../ui/Card"
+import Chip from "../ui/Chip"
+import ProgressBar from "../ui/ProgressBar"
+import { Heading, LatinLabel } from "../ui/Heading"
 import ExerciseCard from "../exercises/ExerciseCard"
 import { useDrillStore } from "../../stores/drillStore"
 import { useAuthStore } from "../../stores/authStore"
@@ -8,45 +13,34 @@ import { useAuthStore } from "../../stores/authStore"
 function DrillResult({ summary, bestStreak, onBack }) {
   const pct = Math.round((summary?.accuracy || 0) * 100)
   return (
-    <div className="min-h-screen bg-background font-body text-on-surface flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      <div className="bg-orb absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/10 opacity-50" />
-      <div className="bg-surface-container-lowest rounded-xl shadow-ambient p-8 md:p-10 max-w-md w-full ghost-border relative z-10 text-center">
-        <p className="text-sm uppercase tracking-wide text-on-surface-variant">Drill terminé</p>
-        <h1 className="font-headline text-3xl font-extrabold text-primary mt-1">Bravo !</h1>
+    <div className="min-h-screen water flex flex-col items-center justify-center p-6">
+      <Card className="p-8 md:p-10 max-w-md w-full text-center">
+        <LatinLabel>Exercitatio peracta</LatinLabel>
+        <Heading level={2} className="mt-1">Bravo !</Heading>
 
         <div className="grid grid-cols-3 gap-3 my-8" data-testid="drill-summary">
-          <div className="bg-surface-container-low rounded-xl p-4">
-            <div className="text-3xl font-headline font-extrabold text-primary">
+          <Card className="p-4">
+            <div className="font-mono text-3xl font-semibold text-sage-deep">
               {summary?.correct ?? 0}
             </div>
-            <div className="text-xs uppercase tracking-wide text-on-surface-variant mt-1">
-              Réussies
-            </div>
-          </div>
-          <div className="bg-surface-container-low rounded-xl p-4">
-            <div className="text-3xl font-headline font-extrabold text-tertiary">{pct}%</div>
-            <div className="text-xs uppercase tracking-wide text-on-surface-variant mt-1">
-              Précision
-            </div>
-          </div>
-          <div className="bg-surface-container-low rounded-xl p-4">
-            <div className="text-3xl font-headline font-extrabold text-secondary">
+            <div className="text-[11px] uppercase tracking-wider text-stem mt-1">Réussies</div>
+          </Card>
+          <Card className="p-4">
+            <div className="font-mono text-3xl font-semibold text-sky-deep">{pct}%</div>
+            <div className="text-[11px] uppercase tracking-wider text-stem mt-1">Précision</div>
+          </Card>
+          <Card className="p-4">
+            <div className="font-mono text-3xl font-semibold text-honey">
               {Math.max(summary?.best_streak ?? 0, bestStreak)}
             </div>
-            <div className="text-xs uppercase tracking-wide text-on-surface-variant mt-1">
-              Meilleure série
-            </div>
-          </div>
+            <div className="text-[11px] uppercase tracking-wider text-stem mt-1">Meilleure série</div>
+          </Card>
         </div>
 
-        <button
-          onClick={onBack}
-          className="gradient-soul text-on-primary font-headline font-bold text-xl w-full py-4 rounded-xl shadow-[0_12px_24px_rgba(0,89,182,0.3)] spring-hover cursor-pointer flex items-center justify-center gap-3"
-          data-testid="drill-done"
-        >
-          <Icon name="home" /> Retour à l'accueil
-        </button>
-      </div>
+        <Button onClick={onBack} size="lg" className="w-full" data-testid="drill-done">
+          <Icon name="home" /> Retour à la serre
+        </Button>
+      </Card>
     </div>
   )
 }
@@ -56,7 +50,7 @@ export default function DrillScreen() {
   const { selectedChildId, children, bootstrap } = useAuthStore()
   const {
     sessionId, current, feedback, done, summary, streak, bestStreak,
-    loading, error, start, submit, loadNext, reset
+    loading, error, start, submit, loadNext, reset,
   } = useDrillStore()
   const child = children.find((c) => c.id === selectedChildId)
 
@@ -74,51 +68,44 @@ export default function DrillScreen() {
     navigate("/")
   }
 
-  if (done) {
-    return <DrillResult summary={summary} bestStreak={bestStreak} onBack={handleQuit} />
-  }
+  if (done) return <DrillResult summary={summary} bestStreak={bestStreak} onBack={handleQuit} />
 
-  const progress = current ? (current.index / current.total) * 100 : 0
+  const progress = current ? current.index + 1 : 0
+  const total = current?.total ?? 0
 
   return (
-    <div className="min-h-screen bg-background font-body text-on-surface flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      <div className="bg-orb absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/10 opacity-50" />
-      <div className="bg-orb absolute top-[60%] -right-[5%] w-[30%] h-[30%] bg-secondary-container/20 opacity-50" />
-
-      <div className="w-full max-w-md mb-4 flex justify-between items-center relative z-10">
+    <div className="min-h-screen paper-rule flex flex-col items-center p-6">
+      <div className="w-full max-w-xl mb-4 flex justify-between items-center">
         <button
           onClick={handleQuit}
-          className="text-on-surface-variant hover:text-on-surface flex items-center gap-1 cursor-pointer"
+          className="text-stem hover:text-bark flex items-center gap-1.5 cursor-pointer text-sm"
         >
-          <Icon name="arrow_back" /> Quitter
+          <Icon name="arrow_back" size={16} /> Quitter
         </button>
         {child && (
-          <span className="text-sm font-headline font-semibold text-on-surface-variant">
-            Drill · {child.display_name}
-          </span>
+          <div className="text-right">
+            <LatinLabel>Exercitatio</LatinLabel>
+            <div className="text-sm text-bark font-semibold">Automatismes · {child.display_name}</div>
+          </div>
         )}
       </div>
 
       {current && (
-        <div className="w-full max-w-md mb-4 relative z-10" data-testid="drill-progress">
-          <div className="flex justify-between text-xs font-headline font-bold text-on-surface-variant mb-1">
-            <span>Question {current.index + 1} / {current.total}</span>
-            <span className="flex items-center gap-1">
-              <Icon name="bolt" fill className="text-secondary" />
-              {streak} · best {bestStreak}
+        <div className="w-full max-w-xl mb-4" data-testid="drill-progress">
+          <div className="flex justify-between items-center mb-1.5">
+            <span className="text-xs text-stem font-mono">
+              Question {progress} / {total}
             </span>
+            <Chip tone="honey" className="!text-[10px]">
+              <Icon name="bolt" size={12} fill /> {streak} · best {bestStreak}
+            </Chip>
           </div>
-          <div className="h-2 rounded-full bg-surface-container-low overflow-hidden">
-            <div
-              className="h-full gradient-soul transition-all duration-500"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
+          <ProgressBar value={progress} max={total} tone="sage" />
         </div>
       )}
 
       {error && (
-        <div className="text-error mb-4 relative z-10" data-testid="drill-error">
+        <div className="text-rose px-3 py-2 rounded-lg bg-rose-soft/60 mb-4" data-testid="drill-error">
           {error}
         </div>
       )}

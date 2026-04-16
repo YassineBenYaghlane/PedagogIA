@@ -1,6 +1,10 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router"
 import { useAuthStore } from "../../stores/authStore"
+import Button from "../ui/Button"
+import Card from "../ui/Card"
+import Input from "../ui/Input"
+import { Heading, LatinLabel } from "../ui/Heading"
 
 export default function RegisterScreen() {
   const register = useAuthStore((s) => s.register)
@@ -27,60 +31,73 @@ export default function RegisterScreen() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-blue-50 to-indigo-100">
-      <form onSubmit={onSubmit} className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 space-y-4" data-testid="register-form">
-        <h1 className="text-2xl font-bold text-slate-900">Créer un compte</h1>
+    <div className="min-h-screen greenhouse flex items-center justify-center p-6">
+      <Card variant="tag" className="w-full max-w-md p-8 space-y-5">
+        <form onSubmit={onSubmit} data-testid="register-form" className="space-y-5">
+          <div>
+            <LatinLabel>Novum hortum plantare</LatinLabel>
+            <Heading level={2} className="mt-1">
+              Créer un compte
+            </Heading>
+            <p className="text-sm text-stem mt-1">Plante ta première graine.</p>
+          </div>
 
-        <label className="block">
-          <span className="text-sm font-medium text-slate-700">Prénom (optionnel)</span>
-          <input
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-            data-testid="register-name"
-          />
-        </label>
+          <label className="block">
+            <span className="text-sm font-medium text-bark">Prénom (optionnel)</span>
+            <Input
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              className="mt-1"
+              data-testid="register-name"
+            />
+          </label>
 
-        <label className="block">
-          <span className="text-sm font-medium text-slate-700">Email</span>
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-            data-testid="register-email"
-          />
-        </label>
+          <label className="block">
+            <span className="text-sm font-medium text-bark">Email</span>
+            <Input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1"
+              data-testid="register-email"
+            />
+          </label>
 
-        <label className="block">
-          <span className="text-sm font-medium text-slate-700">Mot de passe (8+ caractères)</span>
-          <input
-            type="password"
-            required
-            minLength={8}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-            data-testid="register-password"
-          />
-        </label>
+          <label className="block">
+            <span className="text-sm font-medium text-bark">Mot de passe (8+ caractères)</span>
+            <Input
+              type="password"
+              required
+              minLength={8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1"
+              data-testid="register-password"
+            />
+          </label>
 
-        {error && <p className="text-sm text-red-600 whitespace-pre-wrap" data-testid="register-error">{error}</p>}
+          {error && (
+            <p
+              className="text-sm text-rose whitespace-pre-wrap px-3 py-2 rounded-lg bg-rose-soft/60"
+              data-testid="register-error"
+            >
+              {error}
+            </p>
+          )}
 
-        <button
-          type="submit"
-          disabled={busy}
-          className="w-full rounded-lg bg-blue-600 text-white font-semibold py-2 hover:bg-blue-700 disabled:opacity-50"
-          data-testid="register-submit"
-        >
-          {busy ? "Création…" : "Créer le compte"}
-        </button>
+          <Button type="submit" disabled={busy} className="w-full" data-testid="register-submit">
+            {busy ? "Création…" : "Créer le compte"}
+          </Button>
 
-        <p className="text-sm text-center text-slate-600">
-          Déjà inscrit ? <Link to="/login" className="text-blue-600 font-medium">Se connecter</Link>
-        </p>
-      </form>
+          <p className="text-sm text-center text-stem">
+            Déjà inscrit ?{" "}
+            <Link to="/login" className="text-sage-deep font-semibold hover:underline">
+              Se connecter
+            </Link>
+          </p>
+        </form>
+      </Card>
     </div>
   )
 }

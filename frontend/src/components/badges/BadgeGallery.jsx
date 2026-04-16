@@ -20,7 +20,7 @@ const ALL_BADGES = [
   { code: "rank_arithmeticien", label: "Rang Arithméticien", icon: "times", tier: "argent" },
   { code: "rank_mathematicien", label: "Rang Mathématicien", icon: "integral", tier: "or" },
   { code: "rank_savant", label: "Rang Savant", icon: "infinity", tier: "or" },
-  { code: "daily_goal_hit", label: "Objectif du jour", icon: "sigma", tier: "bronze" }
+  { code: "daily_goal_hit", label: "Objectif du jour", icon: "sigma", tier: "bronze" },
 ]
 
 export default function BadgeGallery({ earned = [], compact = false }) {
@@ -32,8 +32,8 @@ export default function BadgeGallery({ earned = [], compact = false }) {
 
   if (compact && items.length === 0) {
     return (
-      <p className="text-sm text-on-surface-variant text-center italic">
-        Aucun badge pour le moment — réponds à ton premier exercice !
+      <p className="text-sm text-stem text-center latin">
+        Aucune fleur pressée — plante ta première graine.
       </p>
     )
   }
@@ -44,10 +44,10 @@ export default function BadgeGallery({ earned = [], compact = false }) {
         const got = earnedMap.get(b.code) || b
         const locked = !earnedCodes.has(b.code)
         return (
-          <div key={b.code} className="flex flex-col items-center gap-1">
+          <div key={b.code} className="flex flex-col items-center gap-1.5">
             <BadgeIcon icon={got.icon} tier={got.tier} size={48} locked={locked} title={got.label} />
             {!compact && (
-              <span className={`text-[10px] leading-tight text-center font-headline ${locked ? "text-on-surface-variant" : "text-on-surface"}`}>
+              <span className={`text-[10px] leading-tight text-center ${locked ? "text-twig" : "text-bark"}`}>
                 {got.label}
               </span>
             )}

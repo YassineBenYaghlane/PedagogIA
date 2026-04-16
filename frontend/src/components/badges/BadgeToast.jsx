@@ -21,16 +21,16 @@ export default function BadgeToast() {
 
   return (
     <div
-      className="fixed top-6 right-6 z-50 bg-surface-container-lowest rounded-xl shadow-ambient ghost-border p-4 flex items-center gap-3 max-w-xs"
+      className="fixed top-6 right-6 z-50 tag p-4 flex items-center gap-3 max-w-xs animate-[floraison-fade_200ms_ease-out]"
       data-testid="badge-toast"
       role="status"
     >
       <BadgeIcon icon={current.icon} tier={current.tier} size={48} />
       <div className="text-left">
-        <div className="text-xs uppercase tracking-wide text-on-surface-variant">Nouveau badge</div>
-        <div className="font-headline font-bold text-on-surface">{current.label}</div>
+        <span className="latin text-[10px] uppercase tracking-wider">Novum signum</span>
+        <div className="font-display font-semibold text-bark leading-tight">{current.label}</div>
         {current.description && (
-          <div className="text-xs text-on-surface-variant mt-0.5">{current.description}</div>
+          <div className="text-xs text-stem mt-0.5">{current.description}</div>
         )}
       </div>
     </div>

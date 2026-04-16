@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router"
 import Icon from "../ui/Icon"
+import Card from "../ui/Card"
+import { Heading, LatinLabel } from "../ui/Heading"
 import { useAuthStore } from "../../stores/authStore"
 import RankChip from "../xp/RankChip"
 import XPBar from "../xp/XPBar"
@@ -18,26 +20,26 @@ export default function ProfileScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-background font-body text-on-surface p-6 relative overflow-hidden">
-      <div className="bg-orb absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/10 opacity-50" />
-      <div className="max-w-2xl mx-auto relative z-10 space-y-6">
+    <div className="min-h-screen bg-chalk p-6">
+      <div className="max-w-2xl mx-auto space-y-6">
         <div className="flex justify-between items-center">
           <button
             onClick={() => navigate("/")}
-            className="text-on-surface-variant hover:text-on-surface flex items-center gap-1 cursor-pointer"
+            className="text-stem hover:text-bark flex items-center gap-1.5 cursor-pointer text-sm"
           >
-            <Icon name="arrow_back" /> Accueil
+            <Icon name="arrow_back" size={16} /> Serre
           </button>
+          <LatinLabel>Florilegium</LatinLabel>
         </div>
 
-        <div className="bg-surface-container-lowest rounded-xl shadow-ambient ghost-border p-6 md:p-8">
+        <Card className="p-6 md:p-8">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
-              <p className="text-sm uppercase tracking-wide text-on-surface-variant">Profil</p>
-              <h1 className="font-headline text-3xl font-extrabold text-primary">
+              <LatinLabel>Hortulanus</LatinLabel>
+              <Heading level={2} className="mt-1">
                 {child.display_name}
-              </h1>
-              <p className="text-on-surface-variant">Niveau {child.grade}</p>
+              </Heading>
+              <p className="text-stem mt-1">Niveau {child.grade}</p>
             </div>
             <RankChip rank={child.rank || "curieux"} />
           </div>
@@ -45,8 +47,8 @@ export default function ProfileScreen() {
             <XPBar xp={child.xp ?? 0} />
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <StreakFlame currentStreak={child.current_streak ?? 0} />
-              <span className="text-xs text-on-surface-variant font-headline font-bold">
-                Meilleure série : {child.best_streak ?? 0}
+              <span className="text-xs text-stem font-mono">
+                Meilleure série · {child.best_streak ?? 0}
               </span>
             </div>
             <DailyGoalProgress
@@ -54,12 +56,17 @@ export default function ProfileScreen() {
               goal={child.daily_goal ?? 5}
             />
           </div>
-        </div>
+        </Card>
 
-        <div className="bg-surface-container-lowest rounded-xl shadow-ambient ghost-border p-6 md:p-8">
-          <h2 className="font-headline font-bold text-lg mb-4">Mes orbes</h2>
+        <Card className="p-6 md:p-8">
+          <div className="mb-4">
+            <LatinLabel>Flores pressi</LatinLabel>
+            <Heading level={3} className="mt-0.5">
+              Mon herbier
+            </Heading>
+          </div>
           <BadgeGallery earned={child.achievements || []} />
-        </div>
+        </Card>
       </div>
     </div>
   )

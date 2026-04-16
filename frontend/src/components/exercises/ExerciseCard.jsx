@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef } from "react"
 import Icon from "../ui/Icon"
+import Button from "../ui/Button"
+import Card from "../ui/Card"
+import { LatinLabel } from "../ui/Heading"
 import HintPanel from "./HintPanel"
 import FeedbackMessage from "./FeedbackMessage"
 import NumberPad from "./NumberPad"
@@ -36,7 +39,7 @@ const firstNumericParam = (params) => {
 
 export default function ExerciseCard({
   exercise, skill, grade, feedback, onSubmit, onNext, busy,
-  explanation, explaining, onExplain
+  explanation, explaining, onExplain,
 }) {
   const [input, setInput] = useState("")
   const nextRef = useRef(null)
@@ -58,19 +61,24 @@ export default function ExerciseCard({
   }
 
   if (!exercise) {
-    return <div className="text-center text-on-surface-variant">Chargement…</div>
+    return (
+      <Card className="p-8 w-full max-w-md text-center">
+        <span className="latin text-stem">Germinatio…</span>
+      </Card>
+    )
   }
 
   const visual = chooseVisual(grade, skill?.id, firstNumericParam(exercise?.params))
 
   return (
-    <div className="bg-surface-container-lowest rounded-xl shadow-ambient p-8 md:p-12 w-full max-w-md text-center ghost-border relative z-10">
+    <Card className="p-8 md:p-10 w-full max-w-md text-center">
       {skill && (
-        <p className="text-xs uppercase tracking-wide font-headline font-bold text-on-surface-variant mb-2">
-          {skill.label} · {skill.grade}
-        </p>
+        <>
+          <LatinLabel>{skill.grade}</LatinLabel>
+          <p className="font-display text-sm text-bark mt-0.5 mb-5">{skill.label}</p>
+        </>
       )}
-      <div className="font-headline text-3xl md:text-4xl font-extrabold text-on-surface mb-4 tracking-tight">
+      <div className="font-mono text-4xl md:text-5xl font-semibold text-bark mb-5 tabular-nums tracking-tight">
         {exercise.prompt}
       </div>
 
@@ -86,8 +94,8 @@ export default function ExerciseCard({
           disabled={!!feedback || busy}
           autoFocus={!useNumPad}
           readOnly={useNumPad}
-          placeholder={useNumPad ? "" : "Ta réponse..."}
-          className="w-full text-center font-headline text-3xl font-bold p-4 rounded-xl bg-surface-container-low text-on-surface border border-transparent focus:bg-surface-container-lowest focus:border-primary/15 focus:shadow-[0_0_0_3px_rgba(0,89,182,0.1)] outline-none transition-all duration-300 disabled:opacity-60 placeholder:text-outline-variant"
+          placeholder={useNumPad ? "" : "Ta réponse…"}
+          className="w-full text-center font-mono text-3xl font-semibold p-4 rounded-lg bg-paper text-bark border-2 border-sage/30 focus:border-sage focus:outline-none focus:ring-4 focus:ring-sage-pale/60 transition-all disabled:opacity-60 placeholder:text-twig tabular-nums"
           data-testid="exercise-input"
         />
 
@@ -100,13 +108,14 @@ export default function ExerciseCard({
           />
         ) : (
           !feedback && (
-            <button
+            <Button
               type="submit"
               disabled={busy}
-              className="gradient-soul text-on-primary font-headline font-bold text-xl w-full mt-5 py-4 rounded-xl shadow-[0_12px_24px_rgba(0,89,182,0.3)] spring-hover cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
+              size="lg"
+              className="w-full mt-5"
             >
               Valider <Icon name="check" />
-            </button>
+            </Button>
           )
         )}
       </form>
@@ -121,14 +130,10 @@ export default function ExerciseCard({
       />
 
       {feedback && (
-        <button
-          ref={nextRef}
-          onClick={onNext}
-          className="gradient-soul text-on-primary font-headline font-bold text-xl w-full mt-4 py-4 rounded-xl shadow-[0_12px_24px_rgba(0,89,182,0.3)] spring-hover cursor-pointer flex items-center justify-center gap-2"
-        >
+        <Button ref={nextRef} onClick={onNext} size="lg" className="w-full mt-4">
           Suivant <Icon name="arrow_forward" />
-        </button>
+        </Button>
       )}
-    </div>
+    </Card>
   )
 }

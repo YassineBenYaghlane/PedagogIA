@@ -247,7 +247,7 @@
       b_max: 10
       result_max: 20
       blank_position: a
-    prompt_template: "{b} + ? = {result}  (aide : {result} = ? + {b})"
+    prompt_template: "{b} + ? = {result}"
     answer_key: a
 
 # --- #70 MCQ / Symbol / Decomposition additions ---

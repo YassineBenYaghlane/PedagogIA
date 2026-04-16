@@ -1,4 +1,5 @@
 const UNSAFE = new Set(["POST", "PUT", "PATCH", "DELETE"])
+const CSRF_COOKIE = import.meta.env.VITE_CSRF_COOKIE_NAME || "csrftoken"
 
 function readCookie(name) {
   const match = document.cookie.match(new RegExp("(^|; )" + name + "=([^;]*)"))
@@ -9,7 +10,7 @@ async function request(path, { method = "GET", body, headers = {} } = {}) {
   const finalHeaders = { "Content-Type": "application/json", ...headers }
   const m = method.toUpperCase()
   if (UNSAFE.has(m)) {
-    const token = readCookie("csrftoken")
+    const token = readCookie(CSRF_COOKIE)
     if (token) finalHeaders["X-CSRFToken"] = token
   }
   const res = await fetch(`/api${path}`, {

@@ -9,7 +9,7 @@ export default function SymbolInput({ disabled, onSubmit }) {
           type="button"
           onClick={() => onSubmit(s)}
           disabled={disabled}
-          className="w-20 h-20 rounded-xl bg-surface-container-low text-on-surface font-headline text-4xl font-extrabold border border-outline-variant hover:bg-surface-container-lowest hover:border-primary/40 focus:border-primary focus:shadow-[0_0_0_3px_rgba(0,89,182,0.1)] outline-none transition-all duration-200 disabled:opacity-60 cursor-pointer"
+          className="w-24 h-24 rounded-xl bg-surface-container-low text-on-surface font-headline text-5xl font-extrabold border border-outline-variant hover:bg-surface-container-lowest hover:border-primary/40 active:bg-primary/10 focus-visible:border-primary focus-visible:shadow-[0_0_0_3px_rgba(0,89,182,0.1)] outline-none transition-all duration-200 disabled:opacity-60 cursor-pointer touch-manipulation"
         >
           {s}
         </button>

@@ -1,8 +1,9 @@
 import { useRef, useState } from "react"
 import Icon from "../../ui/Icon"
 
-const MARGIN = 32
-const HEIGHT = 120
+const MARGIN = 40
+const WIDTH = 600
+const HEIGHT = 140
 
 export default function PointOnLineInput({ exercise, disabled, onSubmit }) {
   const params = exercise?.params ?? {}
@@ -10,18 +11,25 @@ export default function PointOnLineInput({ exercise, disabled, onSubmit }) {
   const max = Number(params.max ?? 10)
   const step = Number(params.step ?? 1)
   const [value, setValue] = useState(null)
+  const [dragging, setDragging] = useState(false)
   const svgRef = useRef(null)
 
   const ticks = []
   for (let v = min; v <= max; v += step) ticks.push(v)
 
-  const toX = (v, width) => MARGIN + ((v - min) / (max - min)) * (width - 2 * MARGIN)
+  const drawable = WIDTH - 2 * MARGIN
+  const midRaw = (min + max) / 2
+  const midSnapped = Math.round(midRaw / step) * step
+  const labeledTicks = new Set([min, midSnapped, max])
+
+  const toX = (v) => MARGIN + ((v - min) / (max - min)) * drawable
 
   const pickFromEvent = (clientX) => {
     const svg = svgRef.current
     if (!svg) return
     const rect = svg.getBoundingClientRect()
-    const ratio = (clientX - rect.left - MARGIN) / (rect.width - 2 * MARGIN)
+    const ratio = (clientX - rect.left - (MARGIN / WIDTH) * rect.width) /
+      ((drawable / WIDTH) * rect.width)
     const raw = min + Math.max(0, Math.min(1, ratio)) * (max - min)
     const snapped = Math.round(raw / step) * step
     setValue(Math.max(min, Math.min(max, snapped)))
@@ -29,12 +37,19 @@ export default function PointOnLineInput({ exercise, disabled, onSubmit }) {
 
   const onPointerDown = (e) => {
     if (disabled) return
+    svgRef.current?.setPointerCapture?.(e.pointerId)
+    setDragging(true)
     pickFromEvent(e.clientX)
   }
 
   const onPointerMove = (e) => {
-    if (disabled || e.buttons !== 1) return
+    if (!dragging || disabled) return
     pickFromEvent(e.clientX)
+  }
+
+  const onPointerUp = (e) => {
+    svgRef.current?.releasePointerCapture?.(e.pointerId)
+    setDragging(false)
   }
 
   const onKey = (e) => {
@@ -49,17 +64,18 @@ export default function PointOnLineInput({ exercise, disabled, onSubmit }) {
     }
   }
 
-  const width = 360
   const lineY = HEIGHT / 2
 
   return (
     <div className="mt-4" data-testid="point-on-line-input">
       <svg
         ref={svgRef}
-        viewBox={`0 0 ${width} ${HEIGHT}`}
-        className="w-full h-32 touch-none select-none cursor-pointer"
+        viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+        className="w-full h-36 touch-none select-none cursor-pointer"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
         onKeyDown={onKey}
         tabIndex={disabled ? -1 : 0}
         role="slider"
@@ -69,47 +85,44 @@ export default function PointOnLineInput({ exercise, disabled, onSubmit }) {
       >
         <line
           x1={MARGIN}
-          x2={width - MARGIN}
+          x2={WIDTH - MARGIN}
           y1={lineY}
           y2={lineY}
           stroke="currentColor"
           strokeWidth="2"
           className="text-outline"
         />
-        {ticks.map((t) => (
-          <g key={t}>
-            <line
-              x1={toX(t, width)}
-              x2={toX(t, width)}
-              y1={lineY - 8}
-              y2={lineY + 8}
-              stroke="currentColor"
-              strokeWidth="2"
-              className="text-outline"
-            />
-            <text
-              x={toX(t, width)}
-              y={lineY + 28}
-              textAnchor="middle"
-              className="fill-on-surface-variant text-xs"
-            >
-              {t}
-            </text>
-          </g>
-        ))}
+        {ticks.map((t) => {
+          const labeled = labeledTicks.has(t)
+          return (
+            <g key={t}>
+              <line
+                x1={toX(t)}
+                x2={toX(t)}
+                y1={lineY - (labeled ? 10 : 5)}
+                y2={lineY + (labeled ? 10 : 5)}
+                stroke="currentColor"
+                strokeWidth={labeled ? 2 : 1}
+                className="text-outline"
+              />
+              {labeled && (
+                <text
+                  x={toX(t)}
+                  y={lineY + 30}
+                  textAnchor="middle"
+                  className="fill-on-surface-variant"
+                  style={{ fontSize: 14 }}
+                >
+                  {t}
+                </text>
+              )}
+            </g>
+          )
+        })}
         {value !== null && (
-          <circle
-            cx={toX(value, width)}
-            cy={lineY}
-            r={12}
-            className="fill-primary"
-          />
+          <circle cx={toX(value)} cy={lineY} r={14} className="fill-primary" />
         )}
       </svg>
-
-      <div className="text-center mt-2 font-headline text-2xl text-on-surface">
-        {value === null ? "Place le point" : value}
-      </div>
 
       <button
         type="button"

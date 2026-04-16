@@ -1,50 +1,54 @@
-import { useState } from "react"
-import Icon from "../../ui/Icon"
+import { useEffect, useRef, useState } from "react"
 import NumberPad from "../NumberPad"
 
-const NUMPAD_GRADES = new Set(["P1", "P2"])
+const MAX_LEN = 8
 
-export default function NumberInput({ grade, disabled, onSubmit }) {
+export default function NumberInput({ disabled, onSubmit }) {
   const [value, setValue] = useState("")
-  const useNumPad = NUMPAD_GRADES.has(grade)
+  const valueRef = useRef(value)
+
+  useEffect(() => {
+    valueRef.current = value
+  }, [value])
 
   const submit = () => {
-    const v = value.trim()
+    const v = valueRef.current.trim()
     if (!v || disabled) return
     onSubmit(v)
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    submit()
-  }
+  useEffect(() => {
+    const onKey = (e) => {
+      if (disabled) return
+      if (e.key >= "0" && e.key <= "9") {
+        setValue((prev) => (prev.length >= MAX_LEN ? prev : prev + e.key))
+      } else if (e.key === "," || e.key === ".") {
+        setValue((prev) => {
+          if (prev.includes(",") || prev.length >= MAX_LEN) return prev
+          return (prev || "0") + ","
+        })
+      } else if (e.key === "Backspace") {
+        setValue((prev) => prev.slice(0, -1))
+      } else if (e.key === "Enter") {
+        e.preventDefault()
+        const v = valueRef.current.trim()
+        if (v) onSubmit(v)
+      }
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [disabled, onSubmit])
 
   return (
-    <form onSubmit={handleSubmit} className="mt-4">
-      <input
-        type="text"
-        inputMode="decimal"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        disabled={disabled}
-        autoFocus={!useNumPad}
-        readOnly={useNumPad}
-        placeholder={useNumPad ? "" : "Ta réponse..."}
-        className="w-full text-center font-headline text-3xl font-bold p-4 rounded-xl bg-surface-container-low text-on-surface border border-transparent focus:bg-surface-container-lowest focus:border-primary/15 focus:shadow-[0_0_0_3px_rgba(0,89,182,0.1)] outline-none transition-all duration-300 disabled:opacity-60 placeholder:text-outline-variant"
+    <div className="mt-4" data-testid="number-input">
+      <div
+        className="w-full text-center font-headline text-5xl font-extrabold p-4 rounded-xl bg-surface-container-low text-on-surface min-h-[5rem] flex items-center justify-center tabular-nums"
+        aria-live="polite"
         data-testid="exercise-input"
-      />
-
-      {useNumPad ? (
-        <NumberPad value={value} onChange={setValue} onSubmit={submit} disabled={disabled} />
-      ) : (
-        <button
-          type="submit"
-          disabled={disabled}
-          className="gradient-soul text-on-primary font-headline font-bold text-xl w-full mt-5 py-4 rounded-xl shadow-[0_12px_24px_rgba(0,89,182,0.3)] spring-hover cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
-        >
-          Valider <Icon name="check" />
-        </button>
-      )}
-    </form>
+      >
+        {value || <span className="text-outline-variant text-3xl">—</span>}
+      </div>
+      <NumberPad value={value} onChange={setValue} onSubmit={submit} disabled={disabled} />
+    </div>
   )
 }

@@ -5,8 +5,6 @@ import Card from "../ui/Card"
 import { LatinLabel } from "../ui/Heading"
 import HintPanel from "./HintPanel"
 import FeedbackMessage from "./FeedbackMessage"
-import NumberLine from "./visuals/NumberLine"
-import DotArray from "./visuals/DotArray"
 import NumberInput from "./inputs/NumberInput"
 import McqInput from "./inputs/McqInput"
 import SymbolInput from "./inputs/SymbolInput"
@@ -32,33 +30,6 @@ function renderInput(inputType, props) {
   }
 }
 
-const VISUAL_GRADES = new Set(["P1", "P2", "P3"])
-
-const isSmallSkill = (skillId) => {
-  if (!skillId) return false
-  return /_(5|10|20)$/.test(skillId) || skillId.startsWith("num_compter")
-}
-
-const chooseVisual = (grade, skillId, paramsValue) => {
-  if (!VISUAL_GRADES.has(grade)) return null
-  if (!skillId) return null
-  if (skillId.startsWith("num_compter") && typeof paramsValue === "number") {
-    return { kind: "dots", count: paramsValue }
-  }
-  if (isSmallSkill(skillId) && (skillId.includes("add") || skillId.includes("soustr"))) {
-    return { kind: "line", max: 20 }
-  }
-  return null
-}
-
-const firstNumericParam = (params) => {
-  if (!params) return null
-  for (const v of Object.values(params)) {
-    if (typeof v === "number") return v
-  }
-  return null
-}
-
 export default function ExerciseCard({
   exercise, skill, grade, feedback, onSubmit, onNext, busy,
   explanation, explaining, onExplain,
@@ -77,7 +48,6 @@ export default function ExerciseCard({
     )
   }
 
-  const visual = chooseVisual(grade, skill?.id, firstNumericParam(exercise?.params))
   const disabled = !!feedback || busy
 
   return (
@@ -91,9 +61,6 @@ export default function ExerciseCard({
       <div className="font-mono text-4xl md:text-5xl font-semibold text-bark mb-5 tabular-nums tracking-tight">
         {exercise.prompt}
       </div>
-
-      {visual?.kind === "line" && <NumberLine max={visual.max} />}
-      {visual?.kind === "dots" && <DotArray count={visual.count} />}
 
       {!feedback &&
         renderInput(exercise.input_type, {

@@ -1,3 +1,4 @@
+from django.core import signing
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
@@ -8,11 +9,12 @@ from rest_framework.response import Response
 from apps.skills.models import Skill
 from apps.students.models import Student, StudentSkillState
 from apps.students.services import NoSkillAvailable, pick_next_skill
+from src.services.exercise_gen import instantiate
 
 from .investigation import feedback_for
-from .models import Attempt, ExerciseTemplate
+from .models import INPUT_TYPES, Attempt, ExerciseTemplate
 from .serializers import GeneratedExerciseSerializer
-from .services import generate_exercise
+from .services import ANSWER_SALT, generate_exercise
 
 
 def _difficulty_for_skill(student: Student, skill: Skill) -> int:
@@ -71,6 +73,45 @@ def next_exercise(request):
             "exercise": GeneratedExerciseSerializer(payload).data,
         }
     )
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def samples(request):
+    """Debug-only: one generated exercise per input_type, with a valid signature."""
+    out = []
+    for input_type, _ in INPUT_TYPES:
+        tpl = ExerciseTemplate.objects.filter(input_type=input_type).order_by("?").first()
+        if tpl is None:
+            continue
+        try:
+            generated = instantiate(tpl.template)
+        except Exception:
+            continue
+        signature = signing.dumps(
+            {
+                "template_id": tpl.id,
+                "skill_id": tpl.skill_id,
+                "input_type": tpl.input_type,
+                "params": generated["params"],
+                "answer": generated["answer"],
+            },
+            salt=ANSWER_SALT,
+        )
+        out.append(
+            {
+                "template_id": tpl.id,
+                "skill_id": tpl.skill_id,
+                "difficulty": tpl.difficulty,
+                "type": tpl.template.get("type"),
+                "input_type": tpl.input_type,
+                "prompt": generated["prompt"],
+                "params": generated["params"],
+                "signature": signature,
+                "answer": generated["answer"],
+            }
+        )
+    return Response(out)
 
 
 @api_view(["POST"])

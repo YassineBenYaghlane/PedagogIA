@@ -318,7 +318,7 @@
       b_min: 2
       b_max: 10
       blank_position: a
-    prompt_template: "{b} × ? = {result}  (aide : ? × {b} = {result})"
+    prompt_template: "{b} × ? = {result}"
     answer_key: a
 
 - id: prop_associativite_add__computation_1

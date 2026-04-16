@@ -255,7 +255,11 @@ def _generate_decomposition(template: dict) -> dict[str, Any]:
         answer = parts_display
 
     parts_dict = dict(zip(places, parts))
-    return {"prompt": prompt, "answer": answer, "params": {"target": target, "parts": parts_dict}}
+    return {
+        "prompt": prompt,
+        "answer": answer,
+        "params": {"target": target, "parts": parts_dict, "places": places},
+    }
 
 
 def _decompose_number(n: int, places: list[str]) -> list[int]:

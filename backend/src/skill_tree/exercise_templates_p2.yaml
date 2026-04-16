@@ -6,6 +6,7 @@
 - id: num_compter_100__fill_blank_1
   skill_id: num_compter_100
   difficulty: 1
+  input_type: number
   template:
     type: fill_blank
     operation: null
@@ -21,6 +22,7 @@
 - id: num_compter_100__fill_blank_2
   skill_id: num_compter_100
   difficulty: 2
+  input_type: number
   template:
     type: fill_blank
     operation: null
@@ -36,6 +38,7 @@
 - id: num_lire_ecrire_100__decomposition_1
   skill_id: num_lire_ecrire_100
   difficulty: 1
+  input_type: number
   template:
     type: decomposition
     operation: null
@@ -49,6 +52,7 @@
 - id: num_dizaines_unites_100__decomposition_1
   skill_id: num_dizaines_unites_100
   difficulty: 1
+  input_type: decomposition
   template:
     type: decomposition
     operation: null
@@ -62,6 +66,7 @@
 - id: num_comparer_ordonner_100__comparison_1
   skill_id: num_comparer_ordonner_100
   difficulty: 1
+  input_type: symbol
   template:
     type: comparison
     operation: null
@@ -70,12 +75,13 @@
       a_max: 100
       b_min: 1
       b_max: 100
-    prompt_template: "{a} … {b} (écris <, > ou =)"
+    prompt_template: "{a} … {b}"
     answer_key: symbol
 
 - id: num_decomposer_100__fill_blank_1
   skill_id: num_decomposer_100
   difficulty: 1
+  input_type: number
   template:
     type: fill_blank
     operation: add
@@ -92,6 +98,7 @@
 - id: num_pair_impair__fill_blank_1
   skill_id: num_pair_impair
   difficulty: 1
+  input_type: symbol
   template:
     type: comparison
     operation: null
@@ -100,7 +107,7 @@
       a_max: 100
       b_min: 2
       b_max: 100
-    prompt_template: "{a} … {b} (écris <, > ou =)"
+    prompt_template: "{a} … {b}"
     answer_key: symbol
 
 # --- Addition P2 ---
@@ -108,6 +115,7 @@
 - id: add_tables_10__computation_1
   skill_id: add_tables_10
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: add
@@ -122,6 +130,7 @@
 - id: add_doubles_20__computation_1
   skill_id: add_doubles_20
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: add
@@ -137,6 +146,7 @@
 - id: add_sans_retenue_100__computation_1
   skill_id: add_sans_retenue_100
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: add
@@ -152,6 +162,7 @@
 - id: add_avec_retenue_100__computation_1
   skill_id: add_avec_retenue_100
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: add
@@ -170,6 +181,7 @@
 - id: soustr_sans_emprunt_100__computation_1
   skill_id: soustr_sans_emprunt_100
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: subtract
@@ -186,6 +198,7 @@
 - id: soustr_avec_emprunt_100__computation_1
   skill_id: soustr_avec_emprunt_100
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: subtract
@@ -202,6 +215,7 @@
 - id: soustr_moities_20__computation_1
   skill_id: soustr_moities_20
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: divide
@@ -219,6 +233,7 @@
 - id: mult_sens__computation_1
   skill_id: mult_sens
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -233,6 +248,7 @@
 - id: mult_T2__computation_1
   skill_id: mult_T2
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -246,6 +262,7 @@
 - id: mult_T5__computation_1
   skill_id: mult_T5
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -259,6 +276,7 @@
 - id: mult_T10__computation_1
   skill_id: mult_T10
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -274,6 +292,7 @@
 - id: div_vocabulaire__computation_1
   skill_id: div_vocabulaire
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: divide
@@ -289,6 +308,7 @@
 - id: prop_commutativite_mult__fill_blank_1
   skill_id: prop_commutativite_mult
   difficulty: 1
+  input_type: number
   template:
     type: fill_blank
     operation: multiply
@@ -304,6 +324,7 @@
 - id: prop_associativite_add__computation_1
   skill_id: prop_associativite_add
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: add
@@ -321,6 +342,7 @@
 - id: cm_decomposition_add_100__computation_1
   skill_id: cm_decomposition_add_100
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: add
@@ -336,6 +358,7 @@
 - id: cm_decomposition_soustr_100__computation_1
   skill_id: cm_decomposition_soustr_100
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: subtract
@@ -351,6 +374,7 @@
 - id: cm_mult_par_10__computation_1
   skill_id: cm_mult_par_10
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -366,6 +390,7 @@
 - id: cm_mult_par_20__computation_1
   skill_id: cm_mult_par_20
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -383,6 +408,7 @@
 - id: num_decomposer_100_cle__fill_blank_1
   skill_id: num_decomposer_100_cle
   difficulty: 1
+  input_type: number
   template:
     type: fill_blank
     operation: add
@@ -395,3 +421,175 @@
       blank_position: b
     prompt_template: "{a} + ? = 100"
     answer_key: b
+
+# --- #70 + #71 additions ---
+
+- id: add_tables_10__mcq_1
+  skill_id: add_tables_10
+  difficulty: 1
+  input_type: mcq
+  template:
+    type: mcq
+    operation: add
+    params:
+      a_min: 1
+      a_max: 9
+      b_min: 1
+      b_max: 9
+      num_options: 4
+      distractor_spread: 3
+    prompt_template: "{a} + {b} = ?"
+    answer_key: result
+
+- id: mult_T2__mcq_1
+  skill_id: mult_T2
+  difficulty: 1
+  input_type: mcq
+  template:
+    type: mcq
+    operation: multiply
+    params:
+      fixed_a: [2]
+      b_min: 1
+      b_max: 10
+      num_options: 4
+      distractor_spread: 4
+    prompt_template: "{a} × {b} = ?"
+    answer_key: result
+
+- id: mult_T5__mcq_1
+  skill_id: mult_T5
+  difficulty: 1
+  input_type: mcq
+  template:
+    type: mcq
+    operation: multiply
+    params:
+      fixed_a: [5]
+      b_min: 1
+      b_max: 10
+      num_options: 4
+      distractor_spread: 5
+    prompt_template: "{a} × {b} = ?"
+    answer_key: result
+
+- id: num_comparer_ordonner_100__symbol_2
+  skill_id: num_comparer_ordonner_100
+  difficulty: 2
+  input_type: symbol
+  template:
+    type: comparison
+    params:
+      a_min: 40
+      a_max: 100
+      b_min: 40
+      b_max: 100
+    prompt_template: "{a} … {b}"
+    answer_key: symbol
+
+- id: num_comparer_ordonner_100__symbol_3
+  skill_id: num_comparer_ordonner_100
+  difficulty: 1
+  input_type: symbol
+  template:
+    type: comparison
+    params:
+      a_min: 20
+      a_max: 60
+      b_min: 20
+      b_max: 60
+    prompt_template: "{a} … {b}"
+    answer_key: symbol
+
+- id: num_decomposer_100__decomposition_1
+  skill_id: num_decomposer_100
+  difficulty: 1
+  input_type: decomposition
+  template:
+    type: decomposition
+    params:
+      target_min: 20
+      target_max: 99
+      places: ["dizaines", "unités"]
+    prompt_template: "Décompose {n}"
+    answer_key: parts
+
+- id: num_dizaines_unites_100__decomposition_1
+  skill_id: num_dizaines_unites_100
+  difficulty: 2
+  input_type: decomposition
+  template:
+    type: decomposition
+    params:
+      target_min: 11
+      target_max: 99
+      places: ["dizaines", "unités"]
+    prompt_template: "Écris {n} en dizaines et unités"
+    answer_key: parts
+
+- id: num_decomposer_100_cle__decomposition_1
+  skill_id: num_decomposer_100_cle
+  difficulty: 2
+  input_type: decomposition
+  template:
+    type: decomposition
+    params:
+      target_min: 31
+      target_max: 99
+      places: ["dizaines", "unités"]
+    prompt_template: "Décompose {n} en dizaines et unités"
+    answer_key: parts
+
+- id: num_comparer_ordonner_100__point_on_line_1
+  skill_id: num_comparer_ordonner_100
+  difficulty: 1
+  input_type: point_on_line
+  template:
+    type: point_on_line
+    params:
+      min: 0
+      max: 100
+      step: 10
+    prompt_template: "Place {target} sur la ligne"
+    answer_key: target
+
+- id: num_comparer_ordonner_100__point_on_line_2
+  skill_id: num_comparer_ordonner_100
+  difficulty: 2
+  input_type: point_on_line
+  template:
+    type: point_on_line
+    params:
+      min: 0
+      max: 50
+      step: 5
+    prompt_template: "Place {target} sur la ligne"
+    answer_key: target
+
+- id: num_comparer_ordonner_100__drag_order_1
+  skill_id: num_comparer_ordonner_100
+  difficulty: 2
+  input_type: drag_order
+  template:
+    type: drag_order
+    params:
+      item_min: 10
+      item_max: 99
+      count: 4
+      direction: asc
+    prompt_template: "Range du plus petit au plus grand"
+    answer_key: order
+
+- id: num_comparer_ordonner_100__drag_order_2
+  skill_id: num_comparer_ordonner_100
+  difficulty: 2
+  input_type: drag_order
+  template:
+    type: drag_order
+    params:
+      item_min: 10
+      item_max: 99
+      count: 4
+      direction: desc
+    prompt_template: "Range du plus grand au plus petit"
+    answer_key: order

@@ -1,15 +1,37 @@
-import { useState, useEffect, useRef } from "react"
+import { useEffect, useRef } from "react"
 import Icon from "../ui/Icon"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import { LatinLabel } from "../ui/Heading"
 import HintPanel from "./HintPanel"
 import FeedbackMessage from "./FeedbackMessage"
-import NumberPad from "./NumberPad"
 import NumberLine from "./visuals/NumberLine"
 import DotArray from "./visuals/DotArray"
+import NumberInput from "./inputs/NumberInput"
+import McqInput from "./inputs/McqInput"
+import SymbolInput from "./inputs/SymbolInput"
+import DecompositionInput from "./inputs/DecompositionInput"
+import PointOnLineInput from "./inputs/PointOnLineInput"
+import DragOrderInput from "./inputs/DragOrderInput"
 
-const NUMPAD_GRADES = new Set(["P1", "P2"])
+function renderInput(inputType, props) {
+  switch (inputType) {
+    case "mcq":
+      return <McqInput {...props} />
+    case "symbol":
+      return <SymbolInput {...props} />
+    case "decomposition":
+      return <DecompositionInput {...props} />
+    case "point_on_line":
+      return <PointOnLineInput {...props} />
+    case "drag_order":
+      return <DragOrderInput {...props} />
+    case "number":
+    default:
+      return <NumberInput {...props} />
+  }
+}
+
 const VISUAL_GRADES = new Set(["P1", "P2", "P3"])
 
 const isSmallSkill = (skillId) => {
@@ -41,24 +63,11 @@ export default function ExerciseCard({
   exercise, skill, grade, feedback, onSubmit, onNext, busy,
   explanation, explaining, onExplain,
 }) {
-  const [input, setInput] = useState("")
   const nextRef = useRef(null)
-  const useNumPad = NUMPAD_GRADES.has(grade)
 
   useEffect(() => {
     if (feedback && nextRef.current) nextRef.current.focus()
   }, [feedback])
-
-  const submit = () => {
-    const v = input.trim()
-    if (!v || feedback || busy) return
-    onSubmit(v)
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    submit()
-  }
 
   if (!exercise) {
     return (
@@ -69,6 +78,7 @@ export default function ExerciseCard({
   }
 
   const visual = chooseVisual(grade, skill?.id, firstNumericParam(exercise?.params))
+  const disabled = !!feedback || busy
 
   return (
     <Card className="p-8 md:p-10 w-full max-w-md text-center">
@@ -85,40 +95,14 @@ export default function ExerciseCard({
       {visual?.kind === "line" && <NumberLine max={visual.max} />}
       {visual?.kind === "dots" && <DotArray count={visual.count} />}
 
-      <form onSubmit={handleSubmit} className="mt-4">
-        <input
-          type="text"
-          inputMode="decimal"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          disabled={!!feedback || busy}
-          autoFocus={!useNumPad}
-          readOnly={useNumPad}
-          placeholder={useNumPad ? "" : "Ta réponse…"}
-          className="w-full text-center font-mono text-3xl font-semibold p-4 rounded-lg bg-paper text-bark border-2 border-sage/30 focus:border-sage focus:outline-none focus:ring-4 focus:ring-sage-pale/60 transition-all disabled:opacity-60 placeholder:text-twig tabular-nums"
-          data-testid="exercise-input"
-        />
-
-        {useNumPad ? (
-          <NumberPad
-            value={input}
-            onChange={setInput}
-            onSubmit={submit}
-            disabled={!!feedback || busy}
-          />
-        ) : (
-          !feedback && (
-            <Button
-              type="submit"
-              disabled={busy}
-              size="lg"
-              className="w-full mt-5"
-            >
-              Valider <Icon name="check" />
-            </Button>
-          )
-        )}
-      </form>
+      {!feedback &&
+        renderInput(exercise.input_type, {
+          key: exercise.template_id,
+          exercise,
+          grade,
+          disabled,
+          onSubmit,
+        })}
 
       {!feedback && <HintPanel exercise={exercise} />}
 

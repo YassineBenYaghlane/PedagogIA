@@ -6,6 +6,7 @@
 - id: num_compter_39__fill_blank_1
   skill_id: num_compter_39
   difficulty: 1
+  input_type: number
   template:
     type: fill_blank
     operation: null
@@ -21,6 +22,7 @@
 - id: num_compter_39__fill_blank_2
   skill_id: num_compter_39
   difficulty: 2
+  input_type: number
   template:
     type: fill_blank
     operation: null
@@ -36,6 +38,7 @@
 - id: num_lire_ecrire_20__decomposition_1
   skill_id: num_lire_ecrire_20
   difficulty: 1
+  input_type: number
   template:
     type: decomposition
     operation: null
@@ -49,6 +52,7 @@
 - id: num_dizaines_unites_20__decomposition_1
   skill_id: num_dizaines_unites_20
   difficulty: 1
+  input_type: decomposition
   template:
     type: decomposition
     operation: null
@@ -62,6 +66,7 @@
 - id: num_comparer_ordonner_20__comparison_1
   skill_id: num_comparer_ordonner_20
   difficulty: 1
+  input_type: symbol
   template:
     type: comparison
     operation: null
@@ -70,12 +75,13 @@
       a_max: 20
       b_min: 1
       b_max: 20
-    prompt_template: "{a} … {b} (écris <, > ou =)"
+    prompt_template: "{a} … {b}"
     answer_key: symbol
 
 - id: num_decomposer_20__decomposition_1
   skill_id: num_decomposer_20
   difficulty: 1
+  input_type: number
   template:
     type: fill_blank
     operation: add
@@ -94,6 +100,7 @@
 - id: add_sens__computation_1
   skill_id: add_sens
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: add
@@ -108,6 +115,7 @@
 - id: add_complements_10__fill_blank_1
   skill_id: add_complements_10
   difficulty: 1
+  input_type: number
   template:
     type: fill_blank
     operation: add
@@ -125,6 +133,7 @@
 - id: add_faits_10__computation_1
   skill_id: add_faits_10
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: add
@@ -140,6 +149,7 @@
 - id: add_sans_retenue_20__computation_1
   skill_id: add_sans_retenue_20
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: add
@@ -156,6 +166,7 @@
 - id: add_avec_retenue_20__computation_1
   skill_id: add_avec_retenue_20
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: add
@@ -174,6 +185,7 @@
 - id: soustr_sens__computation_1
   skill_id: soustr_sens
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: subtract
@@ -189,6 +201,7 @@
 - id: soustr_faits_10__computation_1
   skill_id: soustr_faits_10
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: subtract
@@ -204,6 +217,7 @@
 - id: soustr_sans_emprunt_20__computation_1
   skill_id: soustr_sans_emprunt_20
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: subtract
@@ -222,6 +236,7 @@
 - id: prop_commutativite_add__fill_blank_1
   skill_id: prop_commutativite_add
   difficulty: 1
+  input_type: number
   template:
     type: fill_blank
     operation: add
@@ -234,3 +249,133 @@
       blank_position: a
     prompt_template: "{b} + ? = {result}  (aide : {result} = ? + {b})"
     answer_key: a
+
+# --- #70 MCQ / Symbol / Decomposition additions ---
+
+- id: add_faits_10__mcq_1
+  skill_id: add_faits_10
+  difficulty: 1
+  input_type: mcq
+  template:
+    type: mcq
+    operation: add
+    params:
+      a_min: 1
+      a_max: 9
+      b_min: 1
+      b_max: 9
+      result_max: 10
+      num_options: 4
+      distractor_spread: 3
+    prompt_template: "{a} + {b} = ?"
+    answer_key: result
+
+- id: add_sans_retenue_20__mcq_1
+  skill_id: add_sans_retenue_20
+  difficulty: 2
+  input_type: mcq
+  template:
+    type: mcq
+    operation: add
+    params:
+      a_min: 10
+      a_max: 15
+      b_min: 1
+      b_max: 9
+      no_carry: true
+      result_max: 20
+      num_options: 4
+      distractor_spread: 4
+    prompt_template: "{a} + {b} = ?"
+    answer_key: result
+
+- id: soustr_faits_10__mcq_1
+  skill_id: soustr_faits_10
+  difficulty: 1
+  input_type: mcq
+  template:
+    type: mcq
+    operation: subtract
+    params:
+      a_min: 2
+      a_max: 10
+      b_min: 1
+      b_max: 9
+      result_non_negative: true
+      num_options: 4
+      distractor_spread: 3
+    prompt_template: "{a} − {b} = ?"
+    answer_key: result
+
+- id: soustr_sans_emprunt_20__mcq_1
+  skill_id: soustr_sans_emprunt_20
+  difficulty: 2
+  input_type: mcq
+  template:
+    type: mcq
+    operation: subtract
+    params:
+      a_min: 11
+      a_max: 19
+      b_min: 1
+      b_max: 9
+      no_borrow: true
+      result_non_negative: true
+      num_options: 4
+      distractor_spread: 3
+    prompt_template: "{a} − {b} = ?"
+    answer_key: result
+
+- id: num_comparer_ordonner_20__symbol_2
+  skill_id: num_comparer_ordonner_20
+  difficulty: 2
+  input_type: symbol
+  template:
+    type: comparison
+    params:
+      a_min: 10
+      a_max: 20
+      b_min: 10
+      b_max: 20
+    prompt_template: "{a} … {b}"
+    answer_key: symbol
+
+- id: num_comparer_ordonner_20__symbol_3
+  skill_id: num_comparer_ordonner_20
+  difficulty: 1
+  input_type: symbol
+  template:
+    type: comparison
+    params:
+      a_min: 1
+      a_max: 10
+      b_min: 1
+      b_max: 10
+    prompt_template: "{a} … {b}"
+    answer_key: symbol
+
+- id: num_dizaines_unites_20__decomposition_2
+  skill_id: num_dizaines_unites_20
+  difficulty: 2
+  input_type: decomposition
+  template:
+    type: decomposition
+    params:
+      target_min: 11
+      target_max: 19
+      places: ["dizaines", "unités"]
+    prompt_template: "Décompose {n}"
+    answer_key: parts
+
+- id: num_decomposer_20__decomposition_1
+  skill_id: num_decomposer_20
+  difficulty: 1
+  input_type: decomposition
+  template:
+    type: decomposition
+    params:
+      target_min: 11
+      target_max: 20
+      places: ["dizaines", "unités"]
+    prompt_template: "Écris {n} en dizaines et unités"
+    answer_key: parts

@@ -10,6 +10,7 @@ from apps.students.services.xp import award_xp
 from src.services.exercise_gen import instantiate
 
 from .models import Attempt, ExerciseTemplate
+from .validators import validate as validate_answer
 
 ANSWER_SALT = "pedagogia.exercise.answer"
 
@@ -31,6 +32,7 @@ def generate_exercise(skill_id: str, difficulty: int) -> dict:
         {
             "template_id": chosen.id,
             "skill_id": chosen.skill_id,
+            "input_type": chosen.input_type,
             "params": generated["params"],
             "answer": generated["answer"],
         },
@@ -41,16 +43,11 @@ def generate_exercise(skill_id: str, difficulty: int) -> dict:
         "skill_id": chosen.skill_id,
         "difficulty": chosen.difficulty,
         "type": chosen.template.get("type"),
+        "input_type": chosen.input_type,
         "prompt": generated["prompt"],
         "params": generated["params"],
         "signature": signature,
     }
-
-
-def _normalize(value) -> str:
-    if isinstance(value, float) and value.is_integer():
-        value = int(value)
-    return str(value).strip().replace(",", ".")
 
 
 def _session_consecutive_correct(session) -> int:
@@ -67,13 +64,15 @@ def record_attempt(*, session, signature, student_answer) -> tuple[Attempt, dict
     payload = signing.loads(signature, salt=ANSWER_SALT, max_age=60 * 60 * 6)
     template = ExerciseTemplate.objects.select_related("skill").get(id=payload["template_id"])
     correct_answer = payload["answer"]
-    is_correct = _normalize(student_answer) == _normalize(correct_answer)
+    input_type = payload.get("input_type") or template.input_type
+    is_correct = validate_answer(input_type, student_answer, correct_answer, payload["params"])
 
     with transaction.atomic():
         attempt = Attempt.objects.create(
             session=session,
             skill=template.skill,
             template=template,
+            input_type=input_type,
             exercise_params=payload["params"],
             student_answer=str(student_answer),
             correct_answer=str(correct_answer),

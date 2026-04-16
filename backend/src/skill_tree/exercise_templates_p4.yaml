@@ -6,6 +6,7 @@
 - id: num_lire_ecrire_100000__decomposition_1
   skill_id: num_lire_ecrire_100000
   difficulty: 1
+  input_type: number
   template:
     type: decomposition
     operation: null
@@ -19,6 +20,7 @@
 - id: num_decomposer_100000__decomposition_1
   skill_id: num_decomposer_100000
   difficulty: 1
+  input_type: decomposition
   template:
     type: decomposition
     operation: null
@@ -32,6 +34,7 @@
 - id: num_decimaux_intro__comparison_1
   skill_id: num_decimaux_intro
   difficulty: 1
+  input_type: symbol
   template:
     type: comparison
     operation: null
@@ -41,12 +44,13 @@
       b_min: 1
       b_max: 50
       decimals: 1
-    prompt_template: "{a} … {b} (écris <, > ou =)"
+    prompt_template: "{a} … {b}"
     answer_key: symbol
 
 - id: num_comparer_decimaux__comparison_1
   skill_id: num_comparer_decimaux
   difficulty: 1
+  input_type: symbol
   template:
     type: comparison
     operation: null
@@ -56,7 +60,7 @@
       b_min: 1
       b_max: 100
       decimals: 2
-    prompt_template: "{a} … {b} (écris <, > ou =)"
+    prompt_template: "{a} … {b}"
     answer_key: symbol
 
 # --- Tables de multiplication P4 ---
@@ -64,6 +68,7 @@
 - id: mult_T7__computation_1
   skill_id: mult_T7
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -77,6 +82,7 @@
 - id: mult_T8__computation_1
   skill_id: mult_T8
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -90,6 +96,7 @@
 - id: mult_T9__computation_1
   skill_id: mult_T9
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -103,6 +110,7 @@
 - id: mult_toutes_tables__computation_1
   skill_id: mult_toutes_tables
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -119,6 +127,7 @@
 - id: div_par_1_chiffre__computation_1
   skill_id: div_par_1_chiffre
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: divide
@@ -136,6 +145,7 @@
 - id: ce_multiplication__computation_1
   skill_id: ce_multiplication
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -152,6 +162,7 @@
 - id: cm_mult_par_5__computation_1
   skill_id: cm_mult_par_5
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -167,6 +178,7 @@
 - id: cm_mult_par_9__computation_1
   skill_id: cm_mult_par_9
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -182,6 +194,7 @@
 - id: cm_mult_par_11__computation_1
   skill_id: cm_mult_par_11
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -197,6 +210,7 @@
 - id: cm_div_par_5_8_100__computation_1
   skill_id: cm_div_par_5_8_100
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: divide
@@ -215,6 +229,7 @@
 - id: add_decimaux_dixieme__computation_1
   skill_id: add_decimaux_dixieme
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: add
@@ -230,6 +245,7 @@
 - id: soustr_decimaux_dixieme__computation_1
   skill_id: soustr_decimaux_dixieme
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: subtract
@@ -242,3 +258,57 @@
       result_non_negative: true
     prompt_template: "{a} − {b} = ?"
     answer_key: result
+
+# --- #71 additions ---
+
+- id: num_lire_ecrire_100000__point_on_line_1
+  skill_id: num_lire_ecrire_100000
+  difficulty: 2
+  input_type: point_on_line
+  template:
+    type: point_on_line
+    params:
+      min: 0
+      max: 10000
+      step: 1000
+    prompt_template: "Place {target} sur la ligne"
+    answer_key: target
+
+- id: num_decimaux_intro__point_on_line_1
+  skill_id: num_decimaux_intro
+  difficulty: 2
+  input_type: point_on_line
+  template:
+    type: point_on_line
+    params:
+      min: 0
+      max: 10
+      step: 1
+    prompt_template: "Place {target} sur la ligne"
+    answer_key: target
+
+- id: num_comparer_decimaux__drag_order_1
+  skill_id: num_comparer_decimaux
+  difficulty: 2
+  input_type: drag_order
+  template:
+    type: drag_order
+    params:
+      fixed_items: ["0,1", "0,5", "0,25", "0,75", "1,0", "1,5"]
+      count: 4
+      direction: asc
+    prompt_template: "Range du plus petit au plus grand"
+    answer_key: order
+
+- id: num_comparer_decimaux__drag_order_2
+  skill_id: num_comparer_decimaux
+  difficulty: 3
+  input_type: drag_order
+  template:
+    type: drag_order
+    params:
+      fixed_items: ["0,1", "0,12", "0,2", "0,02", "0,21", "0,11"]
+      count: 4
+      direction: asc
+    prompt_template: "Range du plus petit au plus grand"
+    answer_key: order

@@ -6,6 +6,7 @@
 - id: num_lire_ecrire_million__decomposition_1
   skill_id: num_lire_ecrire_million
   difficulty: 1
+  input_type: number
   template:
     type: decomposition
     operation: null
@@ -19,6 +20,7 @@
 - id: num_decimaux_milliemes__comparison_1
   skill_id: num_decimaux_milliemes
   difficulty: 1
+  input_type: symbol
   template:
     type: comparison
     operation: null
@@ -28,12 +30,13 @@
       b_min: 1
       b_max: 100
       decimals: 3
-    prompt_template: "{a} … {b} (écris <, > ou =)"
+    prompt_template: "{a} … {b}"
     answer_key: symbol
 
 - id: num_decomposer_1__fill_blank_1
   skill_id: num_decomposer_1
   difficulty: 1
+  input_type: number
   template:
     type: fill_blank
     operation: add
@@ -51,6 +54,7 @@
 - id: num_compter_decimaux__fill_blank_1
   skill_id: num_compter_decimaux
   difficulty: 1
+  input_type: number
   template:
     type: fill_blank
     operation: null
@@ -68,6 +72,7 @@
 - id: mult_deux_chiffres__computation_1
   skill_id: mult_deux_chiffres
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -84,6 +89,7 @@
 - id: add_decimaux_milliemes__computation_1
   skill_id: add_decimaux_milliemes
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: add
@@ -99,6 +105,7 @@
 - id: soustr_decimaux_milliemes__computation_1
   skill_id: soustr_decimaux_milliemes
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: subtract
@@ -115,6 +122,7 @@
 - id: mult_decimaux__computation_1
   skill_id: mult_decimaux
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -130,6 +138,7 @@
 - id: div_decimaux__computation_1
   skill_id: div_decimaux
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: divide
@@ -148,6 +157,7 @@
 - id: ce_addition_decimaux__computation_1
   skill_id: ce_addition_decimaux
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: add
@@ -163,6 +173,7 @@
 - id: ce_soustraction_decimaux__computation_1
   skill_id: ce_soustraction_decimaux
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: subtract
@@ -179,6 +190,7 @@
 - id: ce_multiplication_avance__computation_1
   skill_id: ce_multiplication_avance
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -193,6 +205,7 @@
 - id: ce_division__computation_1
   skill_id: ce_division
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: divide
@@ -210,6 +223,7 @@
 - id: cm_mult_par_01__computation_1
   skill_id: cm_mult_par_01
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -226,6 +240,7 @@
 - id: cm_mult_par_025__computation_1
   skill_id: cm_mult_par_025
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -241,6 +256,7 @@
 - id: cm_mult_par_99__computation_1
   skill_id: cm_mult_par_99
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -256,6 +272,7 @@
 - id: cm_mult_par_101__computation_1
   skill_id: cm_mult_par_101
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -271,6 +288,7 @@
 - id: cm_mult_par_25__computation_1
   skill_id: cm_mult_par_25
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -285,6 +303,7 @@
 - id: cm_div_par_50_25__computation_1
   skill_id: cm_div_par_50_25
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: divide
@@ -303,6 +322,7 @@
 - id: estimation_resultat_complet__estimation_1
   skill_id: estimation_resultat_complet
   difficulty: 1
+  input_type: number
   template:
     type: estimation
     operation: multiply
@@ -314,3 +334,32 @@
       round_to: 10
     prompt_template: "Estime le résultat : {a} × {b} ≈ ?"
     answer_key: estimate
+
+# --- #71 additions ---
+
+- id: num_compter_decimaux__point_on_line_1
+  skill_id: num_compter_decimaux
+  difficulty: 2
+  input_type: point_on_line
+  template:
+    type: point_on_line
+    params:
+      min: 0
+      max: 5
+      step: 1
+    prompt_template: "Place {target} sur la ligne"
+    answer_key: target
+
+- id: num_decomposer_1__drag_order_1
+  skill_id: num_decomposer_1
+  difficulty: 2
+  input_type: drag_order
+  template:
+    type: drag_order
+    params:
+      item_min: 1000
+      item_max: 9999
+      count: 4
+      direction: asc
+    prompt_template: "Range du plus petit au plus grand"
+    answer_key: order

@@ -1,0 +1,1419 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QUÊTE — L'Atlas des Royaumes · PedagogIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Manrope:wght@400..800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          banner: ['Cinzel', 'serif'],
+          display: ['Fraunces', 'serif'],
+          body: ['Manrope', 'ui-sans-serif', 'system-ui'],
+          mono: ['JetBrains Mono', 'ui-monospace'],
+        },
+        colors: {
+          parchment: '#F2E9D2',
+          parch2:    '#E8DBB8',
+          parch3:    '#DAC893',
+          ink:       '#1F1A14',
+          ink2:      '#4A3F2E',
+          royal:     '#0D4F4F',
+          royal2:    '#0A3838',
+          brass:     '#B8860B',
+          brass2:    '#8B6508',
+          quest:     '#2D5BA3',
+          moss:      '#5C7A3E',
+          rust:      '#A8442B',
+          arcane:    '#5B3A8C',
+        },
+      },
+    },
+  }
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  html, body { background: #E0D2A8; }
+  body {
+    font-family: 'Manrope', system-ui, sans-serif;
+    color: #1F1A14;
+    background-image:
+      radial-gradient(circle at 12% 8%,  rgba(184,134,11,.10), transparent 40%),
+      radial-gradient(circle at 88% 92%, rgba(13,79,79,.10),   transparent 40%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.015) 0 1px, transparent 1px 7px);
+  }
+
+  /* ---------- Parchment surface (used inside screens) ---------- */
+  .parchment {
+    background-color: #F2E9D2;
+    background-image:
+      radial-gradient(ellipse at 10% 0%,  rgba(184,134,11,.08) 0%, transparent 55%),
+      radial-gradient(ellipse at 95% 100%, rgba(168,68,43,.05) 0%, transparent 55%),
+      repeating-linear-gradient(45deg, rgba(75,55,30,.025) 0 2px, transparent 2px 6px);
+  }
+  .parchment-deep {
+    background-color: #E8DBB8;
+    background-image:
+      radial-gradient(ellipse at 50% 50%, rgba(75,55,30,.05), transparent 70%),
+      repeating-linear-gradient(0deg, rgba(75,55,30,.025) 0 1px, transparent 1px 8px);
+  }
+  .deckled {
+    border: 1px solid rgba(75,55,30,.18);
+    box-shadow:
+      inset 0 0 0 1px rgba(255,251,235,.4),
+      inset 0 0 24px rgba(75,55,30,.10),
+      0 12px 30px -16px rgba(75,55,30,.35);
+  }
+  .seal {
+    background: radial-gradient(circle at 30% 25%, #DDA440 0%, #B8860B 45%, #7D5A06 100%);
+    box-shadow:
+      inset 0 2px 4px rgba(255,235,180,.6),
+      inset 0 -3px 8px rgba(0,0,0,.25),
+      0 4px 10px -2px rgba(75,55,30,.4);
+  }
+  .seal-rust {
+    background: radial-gradient(circle at 30% 25%, #C95F44 0%, #A8442B 45%, #6E2A18 100%);
+    box-shadow:
+      inset 0 2px 4px rgba(255,200,180,.5),
+      inset 0 -3px 8px rgba(0,0,0,.25),
+      0 4px 10px -2px rgba(75,55,30,.4);
+  }
+  .seal-moss {
+    background: radial-gradient(circle at 30% 25%, #87A35F 0%, #5C7A3E 45%, #3A4F25 100%);
+    box-shadow:
+      inset 0 2px 4px rgba(220,235,200,.5),
+      inset 0 -3px 8px rgba(0,0,0,.25),
+      0 4px 10px -2px rgba(75,55,30,.4);
+  }
+  .quill-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(75,55,30,.4), transparent);
+  }
+
+  /* ---------- Tablet frame (834 × 1194) ---------- */
+  .tablet {
+    width: 834px; height: 1194px;
+    border-radius: 40px;
+    background: #1a1a1a;
+    padding: 18px;
+    box-shadow: 0 60px 120px -60px rgba(0,0,0,.5), 0 2px 0 0 rgba(255,255,255,.05) inset;
+    position: relative;
+    transform: scale(0.5);
+    transform-origin: top left;
+    margin-bottom: -610px;
+    margin-right: -425px;
+  }
+  .tablet::before {
+    content: ""; position: absolute;
+    top: 8px; left: 50%; transform: translateX(-50%);
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #000; box-shadow: 0 0 0 2px #1a1a1a;
+  }
+  .tablet-screen {
+    width: 100%; height: 100%;
+    border-radius: 24px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ---------- Browser frame (1440 × 900) ---------- */
+  .browser {
+    width: 1440px; height: 900px;
+    border-radius: 14px;
+    background: #d8d8d8;
+    overflow: hidden;
+    box-shadow: 0 40px 80px -40px rgba(0,0,0,.4), 0 1px 0 0 rgba(255,255,255,.6) inset;
+    transform: scale(0.42);
+    transform-origin: top left;
+    margin-bottom: -524px;
+    margin-right: -836px;
+  }
+  .browser-chrome {
+    height: 40px;
+    background: linear-gradient(to bottom, #ececec, #d8d8d8);
+    display: flex; align-items: center;
+    padding: 0 16px; gap: 8px;
+    border-bottom: 1px solid rgba(0,0,0,.08);
+  }
+  .browser-chrome .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .browser-chrome .red { background: #ff5f57; }
+  .browser-chrome .amber { background: #febc2e; }
+  .browser-chrome .green { background: #28c840; }
+  .browser-chrome .url {
+    flex: 1; margin: 0 12px;
+    background: #fff; height: 24px; border-radius: 6px;
+    display: flex; align-items: center; padding: 0 12px;
+    font: 500 12px/1 ui-sans-serif, system-ui;
+    color: #666;
+    border: 1px solid rgba(0,0,0,.06);
+  }
+  .browser-screen {
+    width: 100%; height: calc(100% - 40px);
+    overflow: hidden; position: relative;
+  }
+
+  /* ---------- Sticky nav ---------- */
+  .navlink {
+    padding: 9px 14px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 13px;
+    color: #1F1A14;
+    background: rgba(255,251,235,.7);
+    border: 1px solid rgba(75,55,30,.2);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 200ms ease-out;
+  }
+  .navlink:hover { transform: translateY(-1px); background: #fff; border-color: rgba(75,55,30,.4); }
+
+  /* ---------- Map elements ---------- */
+  .kingdom-pin {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: #F2E9D2;
+    border: 3px solid #0D4F4F;
+    box-shadow: 0 6px 14px -4px rgba(75,55,30,.5), inset 0 0 0 2px rgba(255,251,235,.6);
+    color: #0D4F4F;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: 22px;
+  }
+  .kingdom-pin.locked {
+    background: #DAC893;
+    border-color: #8B6508;
+    color: #8B6508;
+    opacity: 0.65;
+  }
+  .kingdom-pin.epic {
+    background: #F2E9D2;
+    border-color: #5B3A8C;
+    color: #5B3A8C;
+    box-shadow: 0 6px 14px -4px rgba(91,58,140,.4), inset 0 0 0 2px rgba(255,251,235,.6);
+  }
+
+  /* dashed trade route */
+  .route { stroke: #8B6508; stroke-width: 2; fill: none; stroke-dasharray: 4 5; opacity: .55; }
+  .route-locked { stroke: #8B6508; stroke-width: 1.5; fill: none; stroke-dasharray: 2 6; opacity: .3; }
+
+  /* XP bar */
+  .xp-track {
+    height: 12px; border-radius: 999px;
+    background: #DAC893;
+    box-shadow: inset 0 1px 2px rgba(75,55,30,.3);
+    overflow: hidden;
+    border: 1px solid rgba(75,55,30,.2);
+  }
+  .xp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #DDA440 0%, #B8860B 100%);
+    box-shadow: inset 0 1px 0 rgba(255,235,180,.5);
+  }
+
+  /* keypad button */
+  .keypad-btn {
+    background: #F2E9D2;
+    border: 2px solid #0D4F4F;
+    border-radius: 14px;
+    padding: 14px 0;
+    font-family: 'JetBrains Mono', ui-monospace;
+    font-weight: 700;
+    font-size: 30px;
+    color: #0D4F4F;
+    box-shadow: 0 3px 0 #0A3838, inset 0 1px 0 rgba(255,251,235,.6);
+    transition: transform 100ms ease-out;
+  }
+  .keypad-btn:hover { transform: translateY(-1px); }
+
+  .stamp-rotate { transform: rotate(-8deg); }
+
+  /* heart life icon style */
+  .life-on { color: #A8442B; }
+  .life-off { color: rgba(75,55,30,.25); }
+
+  /* nav scroll shadow */
+  .glass-bar {
+    background: rgba(242,233,210,.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(75,55,30,.15);
+  }
+
+  /* tiny banner ribbon corner */
+  .ribbon {
+    position: absolute; top: -10px; left: 24px;
+    background: #0D4F4F; color: #F2E9D2;
+    font-family: 'Cinzel', serif; font-weight: 700;
+    letter-spacing: 0.08em;
+    font-size: 11px;
+    padding: 6px 14px 8px;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+  }
+
+  /* drop cap */
+  .dropcap::first-letter {
+    font-family: 'Cinzel', serif;
+    float: left;
+    font-size: 64px;
+    line-height: 0.85;
+    padding: 6px 8px 0 0;
+    color: #B8860B;
+    font-weight: 700;
+  }
+
+  /* compass rose */
+  .compass {
+    width: 56px; height: 56px;
+    color: #8B6508;
+    opacity: 0.65;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0ms !important; transition-duration: 0ms !important; }
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- ========== HEADER ========== -->
+<header class="max-w-7xl mx-auto px-6 pt-10 pb-6">
+  <div class="flex items-start justify-between gap-6 flex-wrap">
+    <div class="max-w-2xl">
+      <div class="font-banner tracking-[0.25em] text-sm text-brass2">PEDAGOGIA · DESIGN PROPOSAL</div>
+      <h1 class="font-banner font-bold text-5xl md:text-6xl text-royal mt-3 leading-none">
+        QUÊTE
+      </h1>
+      <p class="font-display italic text-2xl text-ink2 mt-2">L'Atlas des Royaumes Mathématiques.</p>
+      <p class="text-ink2 mt-4 leading-relaxed">
+        Une carte d'aventure savante : chaque champ devient un <em>royaume</em>, chaque compétence une <em>cité</em>,
+        chaque exercice une <em>quête</em>. La gamification est forte (XP, sceaux, rangs, ligues) mais la mise en scène reste celle
+        d'un atlas érudit — parchemins, sceaux de cire, encre. Pas de mascotte, pas d'arc-en-ciel.
+      </p>
+    </div>
+    <div class="flex flex-col gap-2 items-end">
+      <span class="px-3 py-1 rounded-full bg-royal text-parchment text-xs font-semibold tracking-wider">QUÊTE · v1</span>
+      <span class="px-3 py-1 rounded-full bg-parchment border border-ink/15 text-xs font-semibold">Cible · 6–12 ans · FWB</span>
+      <span class="px-3 py-1 rounded-full bg-parchment border border-ink/15 text-xs font-semibold">Stack · Tailwind + React 19</span>
+      <span class="px-3 py-1 rounded-full bg-parchment border border-ink/15 text-xs font-semibold">A11y · AA 4.5:1 vérifié</span>
+    </div>
+  </div>
+</header>
+
+<!-- ========== NAV ========== -->
+<nav class="sticky top-0 z-40 glass-bar">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex gap-2 overflow-x-auto">
+    <a href="#s-couverture"  class="navlink">① Couverture</a>
+    <a href="#s-aventurier"  class="navlink">② Aventurier</a>
+    <a href="#s-carte"       class="navlink">③ Carte</a>
+    <a href="#s-quete"       class="navlink">④ Quête</a>
+    <a href="#s-conseiller"  class="navlink">⑤ Conseiller</a>
+    <a href="#s-carnet"      class="navlink">⑥ Carnet</a>
+    <a href="#s-adoubement"  class="navlink">⑦ Adoubement</a>
+    <a href="#tokens"        class="navlink">⚙ Jetons</a>
+  </div>
+</nav>
+
+<!-- ========== FRAMES GRID ========== -->
+<main class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 xl:grid-cols-2 gap-14 place-items-start">
+
+  <!-- ===================== 01 · COUVERTURE (tablet) ===================== -->
+  <section id="s-couverture" class="preview-frame flex flex-col items-start gap-3" data-name="01-couverture">
+    <div class="tablet">
+      <div class="tablet-screen parchment">
+        <!-- top bar minimal -->
+        <div class="absolute inset-x-0 top-0 px-8 pt-7 flex items-center justify-between">
+          <div class="font-banner tracking-[0.25em] text-xs text-brass2">PEDAGOGIA</div>
+          <div class="flex items-center gap-2 text-xs text-ink2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>
+            Édition francophone · FWB
+          </div>
+        </div>
+
+        <!-- center -->
+        <div class="absolute inset-0 flex flex-col items-center justify-center px-14 text-center">
+          <!-- compass rose -->
+          <svg viewBox="0 0 100 100" class="w-28 h-28 mb-8" fill="none" stroke="#8B6508" stroke-width="1.4">
+            <circle cx="50" cy="50" r="46"/>
+            <circle cx="50" cy="50" r="36" stroke-dasharray="2 4"/>
+            <path d="M50 6 L56 50 L50 94 L44 50 Z" fill="#B8860B" stroke="#8B6508"/>
+            <path d="M6 50 L50 56 L94 50 L50 44 Z" fill="#F2E9D2"/>
+            <text x="50" y="20" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="9" fill="#8B6508">N</text>
+            <text x="84" y="54" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="9" fill="#8B6508">E</text>
+            <text x="50" y="92" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="9" fill="#8B6508">S</text>
+            <text x="16" y="54" text-anchor="middle" font-family="Cinzel" font-weight="700" font-size="9" fill="#8B6508">O</text>
+          </svg>
+
+          <div class="font-banner tracking-[0.4em] text-xs text-brass2 mb-4">L'ATLAS DES ROYAUMES</div>
+          <h2 class="font-banner font-bold text-royal text-[80px] leading-[0.95]">
+            QUÊTE
+          </h2>
+          <p class="font-display italic text-3xl text-ink2 mt-4">
+            Un voyage à travers les nombres.
+          </p>
+
+          <div class="quill-divider w-48 my-8"></div>
+
+          <p class="text-ink2 max-w-md leading-relaxed">
+            Cinq royaumes vous attendent — Additia, Soustractia, Multipliantia, l'Empire des Fractions, et la Citadelle des Décimaux.
+            Choisis ton aventurier et reprends l'expédition.
+          </p>
+
+          <button class="mt-10 bg-royal text-parchment font-banner font-semibold tracking-wider text-sm px-10 py-4 rounded-full shadow-lg flex items-center gap-3">
+            REPRENDRE L'EXPÉDITION
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+
+          <button class="mt-4 text-ink2 font-semibold text-sm underline decoration-brass underline-offset-4">
+            ou commencer une nouvelle aventure
+          </button>
+        </div>
+
+        <!-- bottom seal -->
+        <div class="absolute inset-x-0 bottom-0 px-10 pb-7 flex items-end justify-between">
+          <div class="text-[10px] tracking-widest text-ink2/70 font-banner">CHAMP III · ARITHMÉTIQUE · P1—P6</div>
+          <div class="seal w-12 h-12 rounded-full flex items-center justify-center">
+            <svg class="w-6 h-6 text-parchment" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-ink2 text-sm font-semibold mt-2">① Couverture · tablette · 834×1194</p>
+  </section>
+
+  <!-- ===================== 02 · AVENTURIER (tablet) ===================== -->
+  <section id="s-aventurier" class="preview-frame flex flex-col items-start gap-3" data-name="02-aventurier">
+    <div class="tablet">
+      <div class="tablet-screen parchment">
+        <div class="px-10 pt-10 pb-6">
+          <div class="font-banner tracking-[0.25em] text-[11px] text-brass2">CHAPITRE I</div>
+          <h2 class="font-banner font-bold text-royal text-4xl mt-2">Choisis ton aventurier</h2>
+          <p class="font-display italic text-ink2 text-lg mt-2">Trois âmes en route, une carte à compléter.</p>
+        </div>
+
+        <div class="px-10 grid grid-cols-2 gap-5">
+          <!-- Aya -->
+          <div class="parchment-deep deckled rounded-2xl p-5 relative">
+            <span class="ribbon">CARTOGRAPHE</span>
+            <div class="flex items-center gap-4 mt-4">
+              <div class="w-16 h-16 rounded-full bg-royal text-parchment flex items-center justify-center font-banner font-bold text-3xl">A</div>
+              <div>
+                <div class="font-banner font-bold text-royal text-2xl">Aya</div>
+                <div class="text-xs text-ink2 font-semibold tracking-wider">9 ANS · P4</div>
+              </div>
+            </div>
+            <div class="mt-5">
+              <div class="flex justify-between text-[11px] font-semibold text-ink2 mb-1">
+                <span>NIVEAU 12</span><span>1240 / 1500 <span class="text-brass2">XP</span></span>
+              </div>
+              <div class="xp-track"><div class="xp-fill" style="width:82%"></div></div>
+            </div>
+            <div class="mt-4 text-[12px] text-ink2 leading-snug">
+              Dernière quête : <em>Le pont des centaines</em><br>
+              <span class="text-brass2 font-semibold">7 jours de bivouac consécutifs</span>
+            </div>
+          </div>
+
+          <!-- Noé -->
+          <div class="parchment-deep deckled rounded-2xl p-5 relative">
+            <span class="ribbon" style="background:#8B6508">APPRENTI</span>
+            <div class="flex items-center gap-4 mt-4">
+              <div class="w-16 h-16 rounded-full bg-quest text-parchment flex items-center justify-center font-banner font-bold text-3xl">N</div>
+              <div>
+                <div class="font-banner font-bold text-royal text-2xl">Noé</div>
+                <div class="text-xs text-ink2 font-semibold tracking-wider">7 ANS · P2</div>
+              </div>
+            </div>
+            <div class="mt-5">
+              <div class="flex justify-between text-[11px] font-semibold text-ink2 mb-1">
+                <span>NIVEAU 6</span><span>410 / 800 <span class="text-brass2">XP</span></span>
+              </div>
+              <div class="xp-track"><div class="xp-fill" style="width:51%"></div></div>
+            </div>
+            <div class="mt-4 text-[12px] text-ink2 leading-snug">
+              Dernière quête : <em>Compter par 5 jusqu'à 50</em><br>
+              <span class="text-brass2 font-semibold">3 jours de bivouac</span>
+            </div>
+          </div>
+
+          <!-- Margaux -->
+          <div class="parchment-deep deckled rounded-2xl p-5 relative">
+            <span class="ribbon" style="background:#5B3A8C">MAÎTRE</span>
+            <div class="flex items-center gap-4 mt-4">
+              <div class="w-16 h-16 rounded-full bg-arcane text-parchment flex items-center justify-center font-banner font-bold text-3xl">M</div>
+              <div>
+                <div class="font-banner font-bold text-royal text-2xl">Margaux</div>
+                <div class="text-xs text-ink2 font-semibold tracking-wider">11 ANS · P6</div>
+              </div>
+            </div>
+            <div class="mt-5">
+              <div class="flex justify-between text-[11px] font-semibold text-ink2 mb-1">
+                <span>NIVEAU 24</span><span>3450 / 4000 <span class="text-brass2">XP</span></span>
+              </div>
+              <div class="xp-track"><div class="xp-fill" style="width:86%"></div></div>
+            </div>
+            <div class="mt-4 text-[12px] text-ink2 leading-snug">
+              Dernière quête : <em>L'Énigme des fractions équivalentes</em><br>
+              <span class="text-brass2 font-semibold">21 jours · streak record</span>
+            </div>
+          </div>
+
+          <!-- Add new -->
+          <button class="rounded-2xl border-2 border-dashed border-ink/30 p-5 flex flex-col items-center justify-center gap-3 text-ink2 hover:border-royal hover:text-royal transition">
+            <svg class="w-12 h-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+            <div class="font-banner font-semibold tracking-wider text-sm">NOUVEL AVENTURIER</div>
+            <div class="text-[11px] italic">Créer une carte vierge</div>
+          </button>
+        </div>
+
+        <div class="absolute inset-x-0 bottom-0 px-10 pb-7 flex items-center justify-between">
+          <button class="text-ink2 text-sm font-semibold flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+            Retour
+          </button>
+          <div class="text-[11px] tracking-widest text-ink2/60 font-banner">3 ÂMES SUR 5 SLOTS</div>
+        </div>
+      </div>
+    </div>
+    <p class="text-ink2 text-sm font-semibold mt-2">② Choix de l'aventurier · tablette</p>
+  </section>
+
+  <!-- ===================== 03 · CARTE (browser, dashboard-dense) ===================== -->
+  <section id="s-carte" class="preview-frame flex flex-col items-start gap-3" data-name="03-carte">
+    <div class="browser">
+      <div class="browser-chrome">
+        <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
+        <div class="url">pedagogia.be / aya / atlas</div>
+      </div>
+      <div class="browser-screen parchment">
+        <!-- top HUD -->
+        <header class="px-10 pt-7 pb-5 flex items-center justify-between border-b border-ink/10 parchment-deep">
+          <div class="flex items-center gap-5">
+            <div class="w-12 h-12 rounded-full bg-royal text-parchment flex items-center justify-center font-banner font-bold text-2xl">A</div>
+            <div>
+              <div class="font-banner font-bold text-royal text-xl leading-none">Aya · Cartographe</div>
+              <div class="text-xs text-ink2 mt-1">Niveau 12 · Royaume favori : Additia</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-7">
+            <!-- XP -->
+            <div class="w-56">
+              <div class="flex justify-between text-[11px] font-semibold text-ink2 mb-1">
+                <span>EXPÉRIENCE</span><span>1240 / 1500</span>
+              </div>
+              <div class="xp-track"><div class="xp-fill" style="width:82%"></div></div>
+            </div>
+            <!-- Gold -->
+            <div class="flex items-center gap-2">
+              <div class="seal w-9 h-9 rounded-full flex items-center justify-center text-parchment font-bold text-sm">$</div>
+              <div>
+                <div class="font-mono font-bold text-ink leading-none">340</div>
+                <div class="text-[10px] tracking-widest text-ink2 font-banner">PIÈCES</div>
+              </div>
+            </div>
+            <!-- Streak -->
+            <div class="flex items-center gap-2">
+              <svg class="w-7 h-7 text-rust" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c0 5-5 6-5 11a5 5 0 0010 0c0-3-2-4-2-7 0 0-3 1-3 4 0-3-2-5 0-8z"/></svg>
+              <div>
+                <div class="font-mono font-bold text-ink leading-none">7</div>
+                <div class="text-[10px] tracking-widest text-ink2 font-banner">JOURS</div>
+              </div>
+            </div>
+            <button class="bg-royal text-parchment text-xs font-banner tracking-wider font-semibold px-4 py-2.5 rounded-full">CARNET</button>
+          </div>
+        </header>
+
+        <!-- main: map + side panel -->
+        <div class="grid grid-cols-[1fr_360px] h-[calc(100%-92px)]">
+          <!-- MAP -->
+          <div class="relative overflow-hidden">
+            <!-- map background "land" texture -->
+            <svg class="absolute inset-0 w-full h-full" viewBox="0 0 1080 768" preserveAspectRatio="xMidYMid slice">
+              <!-- subtle landmass -->
+              <defs>
+                <pattern id="dots" width="14" height="14" patternUnits="userSpaceOnUse">
+                  <circle cx="2" cy="2" r="0.6" fill="#8B6508" opacity="0.18"/>
+                </pattern>
+              </defs>
+              <rect width="1080" height="768" fill="url(#dots)"/>
+              <!-- coastline curves -->
+              <path d="M -20 540 Q 200 480 380 530 T 760 510 Q 920 490 1100 540" stroke="#8B6508" stroke-width="1.6" fill="none" opacity="0.35" stroke-dasharray="6 8"/>
+              <path d="M -20 200 Q 220 260 420 220 T 800 240 Q 980 230 1100 270" stroke="#8B6508" stroke-width="1.6" fill="none" opacity="0.35" stroke-dasharray="6 8"/>
+              <!-- mountain glyphs -->
+              <g stroke="#8B6508" stroke-width="1.2" fill="none" opacity="0.5">
+                <path d="M 590 360 l 14 -22 l 14 22 z"/>
+                <path d="M 615 360 l 16 -28 l 16 28 z"/>
+                <path d="M 645 360 l 14 -22 l 14 22 z"/>
+              </g>
+              <!-- routes -->
+              <path d="M 180 380 Q 320 300 470 350" class="route"/>
+              <path d="M 470 350 Q 600 380 720 320" class="route"/>
+              <path d="M 470 350 Q 500 480 580 560" class="route"/>
+              <path d="M 720 320 Q 850 380 920 480" class="route-locked"/>
+              <path d="M 580 560 Q 720 600 880 600" class="route-locked"/>
+            </svg>
+
+            <!-- kingdom pins absolutely positioned over map -->
+            <div class="absolute" style="left: 130px; top: 330px;">
+              <div class="kingdom-pin">+</div>
+              <div class="mt-2 -ml-3 text-center">
+                <div class="font-banner font-bold text-royal text-sm leading-none">ADDITIA</div>
+                <div class="text-[10px] text-moss font-semibold mt-0.5">82% · conquis</div>
+              </div>
+            </div>
+
+            <div class="absolute" style="left: 430px; top: 300px;">
+              <div class="kingdom-pin">−</div>
+              <div class="mt-2 -ml-6 text-center">
+                <div class="font-banner font-bold text-royal text-sm leading-none">SOUSTRACTIA</div>
+                <div class="text-[10px] text-moss font-semibold mt-0.5">65% · en cours</div>
+              </div>
+            </div>
+
+            <div class="absolute" style="left: 680px; top: 270px;">
+              <div class="kingdom-pin">×</div>
+              <div class="mt-2 -ml-6 text-center">
+                <div class="font-banner font-bold text-royal text-sm leading-none">MULTIPLIANTIA</div>
+                <div class="text-[10px] text-brass2 font-semibold mt-0.5">41% · à explorer</div>
+              </div>
+            </div>
+
+            <div class="absolute" style="left: 540px; top: 510px;">
+              <div class="kingdom-pin locked">÷</div>
+              <div class="mt-2 -ml-4 text-center">
+                <div class="font-banner font-bold text-ink2/70 text-sm leading-none">DIVISIA</div>
+                <div class="text-[10px] text-ink2/60 font-semibold mt-0.5">verrouillé</div>
+              </div>
+            </div>
+
+            <div class="absolute" style="left: 880px; top: 440px;">
+              <div class="kingdom-pin epic">¾</div>
+              <div class="mt-2 -ml-8 text-center">
+                <div class="font-banner font-bold text-arcane text-sm leading-none">EMP. DES FRACTIONS</div>
+                <div class="text-[10px] text-arcane font-semibold mt-0.5">épique · niv. 18</div>
+              </div>
+            </div>
+
+            <div class="absolute" style="left: 870px; top: 590px;">
+              <div class="kingdom-pin locked">,</div>
+              <div class="mt-2 -ml-4 text-center">
+                <div class="font-banner font-bold text-ink2/70 text-sm leading-none">DÉCIMAUX</div>
+                <div class="text-[10px] text-ink2/60 font-semibold mt-0.5">verrouillé</div>
+              </div>
+            </div>
+
+            <!-- legend -->
+            <div class="absolute bottom-5 left-5 parchment-deep deckled rounded-xl px-4 py-3 text-[11px] flex items-center gap-4">
+              <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-moss"></div>conquis</div>
+              <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-brass"></div>en cours</div>
+              <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-arcane"></div>épique</div>
+              <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-ink2/30"></div>verrouillé</div>
+            </div>
+
+            <!-- compass corner -->
+            <svg viewBox="0 0 100 100" class="compass absolute top-5 right-5">
+              <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="1.4"/>
+              <circle cx="50" cy="50" r="34" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 4"/>
+              <path d="M50 8 L55 50 L50 92 L45 50 Z" fill="#B8860B" stroke="currentColor"/>
+              <path d="M8 50 L50 55 L92 50 L50 45 Z" fill="#F2E9D2" stroke="currentColor"/>
+            </svg>
+          </div>
+
+          <!-- right rail -->
+          <aside class="parchment-deep border-l border-ink/15 px-6 py-6 overflow-hidden">
+            <div class="font-banner tracking-[0.2em] text-[11px] text-brass2">QUÊTES DU JOUR</div>
+            <div class="quill-divider mt-2 mb-4"></div>
+
+            <ul class="space-y-3">
+              <li class="bg-parchment border border-ink/10 rounded-xl p-3 flex gap-3 items-start">
+                <div class="seal w-9 h-9 rounded-full shrink-0 flex items-center justify-center text-parchment text-xs font-bold">+</div>
+                <div class="flex-1">
+                  <div class="font-display font-semibold text-sm leading-tight">Le pont des centaines</div>
+                  <div class="text-[11px] text-ink2 mt-0.5">Additia · 6 énigmes</div>
+                  <div class="flex justify-between items-end mt-2">
+                    <div class="text-[11px] text-brass2 font-semibold">+45 XP · +20 pièces</div>
+                    <button class="text-[11px] font-banner tracking-wider font-bold text-royal">PARTIR →</button>
+                  </div>
+                </div>
+              </li>
+
+              <li class="bg-parchment border border-ink/10 rounded-xl p-3 flex gap-3 items-start">
+                <div class="seal w-9 h-9 rounded-full shrink-0 flex items-center justify-center text-parchment text-xs font-bold">−</div>
+                <div class="flex-1">
+                  <div class="font-display font-semibold text-sm leading-tight">L'écart des oasis</div>
+                  <div class="text-[11px] text-ink2 mt-0.5">Soustractia · 4 énigmes</div>
+                  <div class="flex justify-between items-end mt-2">
+                    <div class="text-[11px] text-brass2 font-semibold">+30 XP · +15 pièces</div>
+                    <button class="text-[11px] font-banner tracking-wider font-bold text-royal">PARTIR →</button>
+                  </div>
+                </div>
+              </li>
+
+              <li class="bg-parchment border border-ink/10 rounded-xl p-3 flex gap-3 items-start opacity-60">
+                <div class="w-9 h-9 rounded-full shrink-0 flex items-center justify-center bg-ink2/15 text-ink2 text-xs font-bold">×</div>
+                <div class="flex-1">
+                  <div class="font-display font-semibold text-sm leading-tight">Les jardins de Multipliantia</div>
+                  <div class="text-[11px] text-ink2 mt-0.5">Bivouac requis · niveau 14</div>
+                </div>
+              </li>
+            </ul>
+
+            <!-- next rank -->
+            <div class="mt-6 parchment border border-ink/15 rounded-xl p-4">
+              <div class="font-banner tracking-[0.2em] text-[10px] text-brass2">PROCHAIN RANG</div>
+              <div class="flex items-center gap-3 mt-2">
+                <div class="seal w-12 h-12 rounded-full flex items-center justify-center text-parchment">
+                  <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+                </div>
+                <div>
+                  <div class="font-banner font-bold text-royal">EXPLORATEUR</div>
+                  <div class="text-[11px] text-ink2">Plus que <strong>260 XP</strong></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ligue -->
+            <div class="mt-4 parchment border border-ink/15 rounded-xl p-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="font-banner tracking-[0.2em] text-[10px] text-brass2">LIGUE D'OR · J5</div>
+                  <div class="font-display font-semibold mt-1">3<sup>e</sup> sur 24</div>
+                </div>
+                <div class="text-right text-[11px] text-ink2">
+                  <div>Aya — 1240 pts</div>
+                  <div class="text-moss">↑ +2 places</div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+    <p class="text-ink2 text-sm font-semibold mt-2">③ Carte des Royaumes · navigateur · 1440×900</p>
+  </section>
+
+  <!-- ===================== 04 · QUÊTE (tablet) ===================== -->
+  <section id="s-quete" class="preview-frame flex flex-col items-start gap-3" data-name="04-quete">
+    <div class="tablet">
+      <div class="tablet-screen parchment">
+        <!-- top HUD -->
+        <header class="px-7 pt-7 pb-4 flex items-center justify-between border-b border-ink/10">
+          <div class="flex items-center gap-3">
+            <button class="w-10 h-10 rounded-full bg-parchment-deep border border-ink/20 flex items-center justify-center">
+              <svg class="w-4 h-4 text-ink2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+            </button>
+            <div>
+              <div class="font-banner tracking-widest text-[11px] text-brass2">QUÊTE 3 / 6</div>
+              <div class="font-display font-semibold text-base leading-tight">Le pont des centaines · <span class="italic text-royal">Additia</span></div>
+            </div>
+          </div>
+          <!-- lives -->
+          <div class="flex gap-1.5">
+            <svg class="w-6 h-6 life-on" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z"/></svg>
+            <svg class="w-6 h-6 life-on" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z"/></svg>
+            <svg class="w-6 h-6 life-off" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z"/></svg>
+          </div>
+        </header>
+
+        <!-- progress dots -->
+        <div class="px-7 pt-4 flex items-center gap-2">
+          <div class="h-2 flex-1 bg-moss rounded-full"></div>
+          <div class="h-2 flex-1 bg-moss rounded-full"></div>
+          <div class="h-2 flex-1 bg-brass rounded-full"></div>
+          <div class="h-2 flex-1 bg-parch3 rounded-full"></div>
+          <div class="h-2 flex-1 bg-parch3 rounded-full"></div>
+          <div class="h-2 flex-1 bg-parch3 rounded-full"></div>
+          <span class="text-[11px] text-ink2 font-semibold ml-2">3/6</span>
+        </div>
+
+        <!-- exercise scroll -->
+        <div class="mx-7 mt-6 parchment-deep deckled rounded-2xl p-7 relative">
+          <div class="absolute -top-3 right-6 bg-brass text-parchment font-banner font-bold text-[10px] tracking-wider px-3 py-1.5 rounded-full">+45 XP POSSIBLE</div>
+          <div class="font-display italic text-ink2 text-sm">Énigme · addition à retenue</div>
+          <div class="font-display text-xl text-ink mt-3 leading-snug">
+            Pour traverser le pont, tu dois calculer le nombre de pierres totales.
+            La rive ouest en compte <strong>347</strong>, la rive est <strong>185</strong>.
+          </div>
+          <div class="quill-divider my-5"></div>
+          <div class="font-mono text-[64px] font-bold text-royal text-center leading-none tracking-tight">
+            347 + 185 = <span class="text-brass border-b-2 border-brass px-3">?</span>
+          </div>
+          <div class="flex items-center justify-between mt-5">
+            <button class="flex items-center gap-2 text-quest font-banner font-bold text-xs tracking-wider">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20l4-8h-3V4L9 12h3z"/></svg>
+              INDICE DU CONSEILLER
+              <span class="text-brass2">(−5 XP)</span>
+            </button>
+            <div class="text-[11px] text-ink2 font-semibold">⏳ 1 min 12 s</div>
+          </div>
+        </div>
+
+        <!-- Keypad -->
+        <div class="mx-7 mt-7 grid grid-cols-3 gap-3">
+          <button class="keypad-btn">7</button>
+          <button class="keypad-btn">8</button>
+          <button class="keypad-btn">9</button>
+          <button class="keypad-btn">4</button>
+          <button class="keypad-btn">5</button>
+          <button class="keypad-btn">6</button>
+          <button class="keypad-btn">1</button>
+          <button class="keypad-btn">2</button>
+          <button class="keypad-btn">3</button>
+          <button class="keypad-btn col-span-1" style="background:#E8DBB8">⌫</button>
+          <button class="keypad-btn col-span-1">0</button>
+          <button class="keypad-btn col-span-1" style="background:#0D4F4F;color:#F2E9D2">,</button>
+        </div>
+
+        <!-- Validate -->
+        <div class="mx-7 mt-5">
+          <button class="w-full bg-royal text-parchment font-banner font-bold tracking-widest text-base py-5 rounded-2xl shadow-lg flex items-center justify-center gap-3">
+            VALIDER LA RÉPONSE
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+          </button>
+        </div>
+
+        <div class="absolute inset-x-0 bottom-0 px-7 pb-5 flex items-center justify-between">
+          <div class="text-[11px] text-ink2/60 font-banner tracking-widest">QUÊTE EN COURS</div>
+          <div class="flex items-center gap-2 text-[11px] text-ink2">
+            <div class="seal w-5 h-5 rounded-full"></div>
+            340 pièces
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-ink2 text-sm font-semibold mt-2">④ Quête active · tablette</p>
+  </section>
+
+  <!-- ===================== 05 · CONSEILLER (tablet, feedback flow) ===================== -->
+  <section id="s-conseiller" class="preview-frame flex flex-col items-start gap-3" data-name="05-conseiller">
+    <div class="tablet">
+      <div class="tablet-screen parchment">
+        <!-- top -->
+        <header class="px-7 pt-7 pb-4 flex items-center justify-between border-b border-ink/10">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-parchment-deep border border-ink/20 flex items-center justify-center">
+              <svg class="w-4 h-4 text-ink2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+            </div>
+            <div>
+              <div class="font-banner tracking-widest text-[11px] text-brass2">QUÊTE 3 / 6</div>
+              <div class="font-display font-semibold text-base leading-tight">Le pont des centaines</div>
+            </div>
+          </div>
+          <div class="flex gap-1.5">
+            <svg class="w-6 h-6 life-on" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z"/></svg>
+            <svg class="w-6 h-6 life-off" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z"/></svg>
+            <svg class="w-6 h-6 life-off" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z"/></svg>
+          </div>
+        </header>
+
+        <!-- wrong answer banner (rust, no harsh red) -->
+        <div class="mx-7 mt-6 rounded-2xl border-2 border-rust/40 bg-rust/5 p-5">
+          <div class="flex items-center gap-3">
+            <div class="seal-rust w-10 h-10 rounded-full flex items-center justify-center text-parchment">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v5M12 17h.01"/></svg>
+            </div>
+            <div>
+              <div class="font-banner font-bold text-rust tracking-wider text-sm">PONT EFFONDRÉ</div>
+              <div class="text-ink2 text-sm mt-0.5">
+                Tu as répondu <span class="font-mono font-bold text-rust">422</span>. La bonne réponse est <span class="font-mono font-bold text-moss">532</span>.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conseiller speaking -->
+        <div class="mx-7 mt-5 parchment-deep deckled rounded-2xl p-6 relative">
+          <div class="absolute -top-4 left-6 bg-quest text-parchment font-banner font-bold text-[11px] tracking-wider px-4 py-1.5 rounded-full">LE CONSEILLER</div>
+          <div class="flex items-start gap-4 mt-2">
+            <div class="w-14 h-14 rounded-full bg-quest text-parchment flex items-center justify-center shrink-0">
+              <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M3 11l9 4 9-4M3 15l9 4 9-4"/></svg>
+            </div>
+            <div class="text-ink leading-relaxed dropcap">
+              On dirait que la <strong>retenue à la dizaine</strong> a glissé entre les pierres. Pas grave, recommençons doucement le passage du pont.
+            </div>
+          </div>
+
+          <!-- Step-by-step decomposition -->
+          <div class="mt-5 grid grid-cols-3 gap-3">
+            <div class="parchment rounded-xl border border-ink/15 p-3">
+              <div class="font-banner text-[10px] tracking-widest text-brass2">UNITÉS</div>
+              <div class="font-mono font-bold text-2xl text-royal mt-1">7 + 5 = 12</div>
+              <div class="text-[11px] text-ink2 mt-1">→ on pose <strong>2</strong>, on retient <strong>1</strong></div>
+            </div>
+            <div class="parchment rounded-xl border-2 border-brass p-3 relative">
+              <div class="absolute -top-2 -right-2 seal w-6 h-6 rounded-full text-parchment text-[10px] font-bold flex items-center justify-center">!</div>
+              <div class="font-banner text-[10px] tracking-widest text-brass2">DIZAINES</div>
+              <div class="font-mono font-bold text-2xl text-royal mt-1">4 + 8 + <span class="text-rust">1</span></div>
+              <div class="text-[11px] text-ink2 mt-1">= 13 → pose <strong>3</strong>, retiens <strong>1</strong></div>
+            </div>
+            <div class="parchment rounded-xl border border-ink/15 p-3">
+              <div class="font-banner text-[10px] tracking-widest text-brass2">CENTAINES</div>
+              <div class="font-mono font-bold text-2xl text-royal mt-1">3 + 1 + 1 = 5</div>
+              <div class="text-[11px] text-ink2 mt-1">→ on pose <strong>5</strong></div>
+            </div>
+          </div>
+
+          <div class="quill-divider my-4"></div>
+          <div class="text-center font-mono text-3xl font-bold text-moss">
+            347 + 185 = 532
+          </div>
+        </div>
+
+        <!-- next step suggestion -->
+        <div class="mx-7 mt-5 parchment border border-quest/40 rounded-2xl p-4 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-quest/15 flex items-center justify-center text-quest">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          </div>
+          <div class="flex-1">
+            <div class="text-sm font-semibold text-ink">Une petite quête bonus pour consolider ?</div>
+            <div class="text-[12px] text-ink2">3 énigmes courtes sur la <em>retenue à la dizaine</em> · gratuit en XP</div>
+          </div>
+          <button class="text-quest text-xs font-banner font-bold tracking-wider">PLUS TARD</button>
+        </div>
+
+        <!-- bottom CTAs -->
+        <div class="absolute inset-x-0 bottom-0 px-7 pb-7 flex gap-3">
+          <button class="flex-1 bg-parchment-deep border border-ink/20 text-ink font-banner font-bold tracking-wider text-sm py-4 rounded-2xl">
+            REJOUER L'ÉNIGME
+          </button>
+          <button class="flex-1 bg-royal text-parchment font-banner font-bold tracking-wider text-sm py-4 rounded-2xl shadow flex items-center justify-center gap-2">
+            CONTINUER LA QUÊTE
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <p class="text-ink2 text-sm font-semibold mt-2">⑤ Le Conseiller · feedback IA · tablette</p>
+  </section>
+
+  <!-- ===================== 06 · CARNET (browser, dashboard) ===================== -->
+  <section id="s-carnet" class="preview-frame flex flex-col items-start gap-3" data-name="06-carnet">
+    <div class="browser">
+      <div class="browser-chrome">
+        <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
+        <div class="url">pedagogia.be / aya / carnet</div>
+      </div>
+      <div class="browser-screen parchment">
+        <!-- header -->
+        <header class="px-10 pt-7 pb-4 flex items-end justify-between border-b border-ink/10">
+          <div>
+            <div class="font-banner tracking-[0.25em] text-[11px] text-brass2">JOURNAL DE BORD</div>
+            <h2 class="font-banner font-bold text-royal text-3xl mt-1">Carnet d'Aventure d'Aya</h2>
+            <p class="font-display italic text-ink2 mt-1">Saison 3 · semaine du 12 au 18 avril 2026</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="px-4 py-2 rounded-full bg-royal text-parchment font-banner font-bold tracking-wider text-xs">VUE D'ENSEMBLE</button>
+            <button class="px-4 py-2 rounded-full bg-parchment border border-ink/20 font-banner font-semibold tracking-wider text-xs">QUÊTES</button>
+            <button class="px-4 py-2 rounded-full bg-parchment border border-ink/20 font-banner font-semibold tracking-wider text-xs">SCEAUX</button>
+            <button class="px-4 py-2 rounded-full bg-parchment border border-ink/20 font-banner font-semibold tracking-wider text-xs">ROYAUMES</button>
+          </div>
+        </header>
+
+        <!-- KPIs row -->
+        <div class="px-10 pt-6 grid grid-cols-4 gap-5">
+          <div class="parchment-deep deckled rounded-2xl p-5">
+            <div class="flex items-center gap-2 text-brass2">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+              <div class="font-banner tracking-widest text-[10px] font-bold">EXPÉRIENCE</div>
+            </div>
+            <div class="font-banner font-bold text-4xl text-royal mt-2">1240</div>
+            <div class="text-[11px] text-moss mt-1">↑ +180 cette semaine</div>
+          </div>
+          <div class="parchment-deep deckled rounded-2xl p-5">
+            <div class="flex items-center gap-2 text-rust">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c0 5-5 6-5 11a5 5 0 0010 0c0-3-2-4-2-7 0 0-3 1-3 4 0-3-2-5 0-8z"/></svg>
+              <div class="font-banner tracking-widest text-[10px] font-bold">BIVOUACS</div>
+            </div>
+            <div class="font-banner font-bold text-4xl text-royal mt-2">7 <span class="text-base text-ink2 font-display italic">jours</span></div>
+            <div class="text-[11px] text-moss mt-1">record perso : 14</div>
+          </div>
+          <div class="parchment-deep deckled rounded-2xl p-5">
+            <div class="flex items-center gap-2 text-moss">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+              <div class="font-banner tracking-widest text-[10px] font-bold">QUÊTES ACCOMPLIES</div>
+            </div>
+            <div class="font-banner font-bold text-4xl text-royal mt-2">87 <span class="text-base text-ink2 font-display italic">/ 142</span></div>
+            <div class="text-[11px] text-ink2 mt-1">61% du grand atlas</div>
+          </div>
+          <div class="parchment-deep deckled rounded-2xl p-5">
+            <div class="flex items-center gap-2 text-arcane">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M9 14l-3 7 6-3 6 3-3-7"/></svg>
+              <div class="font-banner tracking-widest text-[10px] font-bold">SCEAUX GAGNÉS</div>
+            </div>
+            <div class="font-banner font-bold text-4xl text-royal mt-2">12 <span class="text-base text-ink2 font-display italic">/ 24</span></div>
+            <div class="text-[11px] text-brass2 mt-1">2 nouveaux cette semaine</div>
+          </div>
+        </div>
+
+        <!-- middle row: chart + recent log -->
+        <div class="px-10 pt-6 grid grid-cols-[1.6fr_1fr] gap-5">
+          <!-- Chart -->
+          <div class="parchment-deep deckled rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-banner tracking-widest text-[10px] text-brass2 font-bold">XP GAGNÉE · 28 DERNIERS JOURS</div>
+                <div class="font-display font-semibold text-lg mt-1">L'ascension d'Aya</div>
+              </div>
+              <div class="flex gap-3 text-[11px] text-ink2">
+                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-royal"></span>Additia</span>
+                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-quest"></span>Soustractia</span>
+                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-arcane"></span>Multipliantia</span>
+              </div>
+            </div>
+
+            <svg viewBox="0 0 600 220" class="w-full mt-4">
+              <!-- y axis lines -->
+              <g stroke="#8B6508" stroke-width="0.5" opacity="0.25" stroke-dasharray="2 4">
+                <line x1="40" y1="40"  x2="590" y2="40"/>
+                <line x1="40" y1="100" x2="590" y2="100"/>
+                <line x1="40" y1="160" x2="590" y2="160"/>
+              </g>
+              <g font-family="JetBrains Mono" font-size="9" fill="#4A3F2E">
+                <text x="30" y="44"  text-anchor="end">60</text>
+                <text x="30" y="104" text-anchor="end">40</text>
+                <text x="30" y="164" text-anchor="end">20</text>
+                <text x="30" y="200" text-anchor="end">0</text>
+              </g>
+              <!-- bars (28 days, stacked) -->
+              <g>
+                <!-- generated visually: small width=15, gap=4 -->
+                <!-- I'll just draw 28 bars of varying heights -->
+              </g>
+              <g>
+                <!-- pattern: each day rect -->
+                <!-- day 1..28 -->
+                <!-- royal at base, quest mid, arcane top -->
+                <g fill="#0D4F4F">
+                  <rect x="42"  y="160" width="14" height="35"/>
+                  <rect x="60"  y="155" width="14" height="40"/>
+                  <rect x="78"  y="150" width="14" height="45"/>
+                  <rect x="96"  y="140" width="14" height="55"/>
+                  <rect x="114" y="135" width="14" height="60"/>
+                  <rect x="132" y="125" width="14" height="70"/>
+                  <rect x="150" y="120" width="14" height="75"/>
+                  <rect x="168" y="115" width="14" height="80"/>
+                  <rect x="186" y="105" width="14" height="90"/>
+                  <rect x="204" y="100" width="14" height="95"/>
+                  <rect x="222" y="95"  width="14" height="100"/>
+                  <rect x="240" y="100" width="14" height="95"/>
+                  <rect x="258" y="105" width="14" height="90"/>
+                  <rect x="276" y="95"  width="14" height="100"/>
+                  <rect x="294" y="90"  width="14" height="105"/>
+                  <rect x="312" y="85"  width="14" height="110"/>
+                  <rect x="330" y="80"  width="14" height="115"/>
+                  <rect x="348" y="75"  width="14" height="120"/>
+                  <rect x="366" y="70"  width="14" height="125"/>
+                  <rect x="384" y="80"  width="14" height="115"/>
+                  <rect x="402" y="75"  width="14" height="120"/>
+                  <rect x="420" y="65"  width="14" height="130"/>
+                  <rect x="438" y="55"  width="14" height="140"/>
+                  <rect x="456" y="60"  width="14" height="135"/>
+                  <rect x="474" y="50"  width="14" height="145"/>
+                  <rect x="492" y="55"  width="14" height="140"/>
+                  <rect x="510" y="48"  width="14" height="147"/>
+                  <rect x="528" y="42"  width="14" height="153"/>
+                </g>
+                <!-- quest stacked -->
+                <g fill="#2D5BA3" opacity="0.85">
+                  <rect x="42"  y="148" width="14" height="12"/>
+                  <rect x="60"  y="142" width="14" height="13"/>
+                  <rect x="78"  y="138" width="14" height="12"/>
+                  <rect x="96"  y="125" width="14" height="15"/>
+                  <rect x="114" y="118" width="14" height="17"/>
+                  <rect x="132" y="106" width="14" height="19"/>
+                  <rect x="150" y="100" width="14" height="20"/>
+                  <rect x="168" y="92"  width="14" height="23"/>
+                  <rect x="186" y="80"  width="14" height="25"/>
+                  <rect x="204" y="72"  width="14" height="28"/>
+                  <rect x="222" y="65"  width="14" height="30"/>
+                  <rect x="240" y="70"  width="14" height="30"/>
+                  <rect x="258" y="80"  width="14" height="25"/>
+                  <rect x="276" y="68"  width="14" height="27"/>
+                  <rect x="294" y="60"  width="14" height="30"/>
+                  <rect x="312" y="55"  width="14" height="30"/>
+                  <rect x="330" y="48"  width="14" height="32"/>
+                  <rect x="348" y="42"  width="14" height="33"/>
+                  <rect x="366" y="35"  width="14" height="35"/>
+                  <rect x="384" y="48"  width="14" height="32"/>
+                  <rect x="402" y="40"  width="14" height="35"/>
+                  <rect x="420" y="32"  width="14" height="33"/>
+                  <rect x="438" y="20"  width="14" height="35"/>
+                  <rect x="456" y="25"  width="14" height="35"/>
+                  <rect x="474" y="18"  width="14" height="32"/>
+                  <rect x="492" y="22"  width="14" height="33"/>
+                  <rect x="510" y="18"  width="14" height="30"/>
+                  <rect x="528" y="14"  width="14" height="28"/>
+                </g>
+                <!-- arcane top tiny -->
+                <g fill="#5B3A8C" opacity="0.85">
+                  <rect x="438" y="14"  width="14" height="6"/>
+                  <rect x="456" y="18"  width="14" height="7"/>
+                  <rect x="474" y="12"  width="14" height="6"/>
+                  <rect x="492" y="14"  width="14" height="8"/>
+                  <rect x="510" y="11"  width="14" height="7"/>
+                  <rect x="528" y="6"   width="14" height="8"/>
+                </g>
+              </g>
+              <line x1="40" y1="195" x2="590" y2="195" stroke="#4A3F2E" stroke-width="1"/>
+              <g font-family="JetBrains Mono" font-size="9" fill="#4A3F2E">
+                <text x="56"  y="210" text-anchor="middle">21 mar</text>
+                <text x="222" y="210" text-anchor="middle">28 mar</text>
+                <text x="384" y="210" text-anchor="middle">4 avr</text>
+                <text x="535" y="210" text-anchor="middle">11 avr</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Recent quests log -->
+          <div class="parchment-deep deckled rounded-2xl p-5">
+            <div class="font-banner tracking-widest text-[10px] text-brass2 font-bold">DERNIÈRES QUÊTES</div>
+            <div class="font-display font-semibold text-lg mt-1">Trace de l'expédition</div>
+            <ul class="mt-4 space-y-3 text-sm">
+              <li class="flex items-start gap-3">
+                <div class="seal-moss w-7 h-7 rounded-full shrink-0 mt-0.5 flex items-center justify-center text-parchment">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg>
+                </div>
+                <div>
+                  <div class="font-display font-semibold leading-tight">Le pont des centaines</div>
+                  <div class="text-[11px] text-ink2">Additia · 6/6 · +45 XP · il y a 12 min</div>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <div class="seal-rust w-7 h-7 rounded-full shrink-0 mt-0.5 flex items-center justify-center text-parchment">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+                </div>
+                <div>
+                  <div class="font-display font-semibold leading-tight">L'écart des oasis</div>
+                  <div class="text-[11px] text-ink2">Soustractia · 3/4 · à reprendre</div>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <div class="seal-moss w-7 h-7 rounded-full shrink-0 mt-0.5 flex items-center justify-center text-parchment">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg>
+                </div>
+                <div>
+                  <div class="font-display font-semibold leading-tight">Le marché aux chiffres</div>
+                  <div class="text-[11px] text-ink2">Additia · 5/5 · +35 XP · hier</div>
+                </div>
+              </li>
+              <li class="flex items-start gap-3">
+                <div class="seal-moss w-7 h-7 rounded-full shrink-0 mt-0.5 flex items-center justify-center text-parchment">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg>
+                </div>
+                <div>
+                  <div class="font-display font-semibold leading-tight">La dune des dizaines</div>
+                  <div class="text-[11px] text-ink2">Soustractia · 4/4 · +30 XP · hier</div>
+                </div>
+              </li>
+              <li class="flex items-start gap-3 opacity-70">
+                <div class="seal w-7 h-7 rounded-full shrink-0 mt-0.5 flex items-center justify-center text-parchment">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+                </div>
+                <div>
+                  <div class="font-display font-semibold leading-tight">Sceau gagné · Pont de bronze</div>
+                  <div class="text-[11px] text-brass2">10 ponts traversés sans erreur</div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- bottom seals collection -->
+        <div class="px-10 pt-5 pb-6">
+          <div class="font-banner tracking-widest text-[10px] text-brass2 font-bold">COLLECTION DE SCEAUX · 12 / 24</div>
+          <div class="mt-3 grid grid-cols-12 gap-3">
+            <!-- 8 unlocked + 4 locked = 12 visible row (sample) -->
+            <div class="aspect-square rounded-full seal flex items-center justify-center text-parchment text-[10px] font-banner font-bold">+10</div>
+            <div class="aspect-square rounded-full seal flex items-center justify-center text-parchment text-[10px] font-banner font-bold">×3</div>
+            <div class="aspect-square rounded-full seal flex items-center justify-center text-parchment text-[10px] font-banner font-bold">100</div>
+            <div class="aspect-square rounded-full seal-moss flex items-center justify-center text-parchment text-[10px] font-banner font-bold">7J</div>
+            <div class="aspect-square rounded-full seal-rust flex items-center justify-center text-parchment text-[10px] font-banner font-bold">⚡</div>
+            <div class="aspect-square rounded-full seal flex items-center justify-center text-parchment text-[10px] font-banner font-bold">P3</div>
+            <div class="aspect-square rounded-full seal flex items-center justify-center text-parchment text-[10px] font-banner font-bold">PERF</div>
+            <div class="aspect-square rounded-full seal-moss flex items-center justify-center text-parchment text-[10px] font-banner font-bold">DUEL</div>
+            <div class="aspect-square rounded-full seal flex items-center justify-center text-parchment text-[10px] font-banner font-bold">−</div>
+            <div class="aspect-square rounded-full seal flex items-center justify-center text-parchment text-[10px] font-banner font-bold">+</div>
+            <div class="aspect-square rounded-full seal flex items-center justify-center text-parchment text-[10px] font-banner font-bold">×</div>
+            <div class="aspect-square rounded-full seal-moss flex items-center justify-center text-parchment text-[10px] font-banner font-bold">14J</div>
+          </div>
+          <div class="mt-3 grid grid-cols-12 gap-3 opacity-50">
+            <div class="aspect-square rounded-full bg-parch3 border-2 border-dashed border-ink2/40 flex items-center justify-center text-ink2 text-[10px] font-bold">?</div>
+            <div class="aspect-square rounded-full bg-parch3 border-2 border-dashed border-ink2/40 flex items-center justify-center text-ink2 text-[10px] font-bold">?</div>
+            <div class="aspect-square rounded-full bg-parch3 border-2 border-dashed border-ink2/40 flex items-center justify-center text-ink2 text-[10px] font-bold">?</div>
+            <div class="aspect-square rounded-full bg-parch3 border-2 border-dashed border-ink2/40 flex items-center justify-center text-ink2 text-[10px] font-bold">?</div>
+            <div class="aspect-square rounded-full bg-parch3 border-2 border-dashed border-ink2/40 flex items-center justify-center text-ink2 text-[10px] font-bold">?</div>
+            <div class="aspect-square rounded-full bg-parch3 border-2 border-dashed border-ink2/40 flex items-center justify-center text-ink2 text-[10px] font-bold">?</div>
+            <div class="aspect-square rounded-full bg-parch3 border-2 border-dashed border-ink2/40 flex items-center justify-center text-ink2 text-[10px] font-bold">?</div>
+            <div class="aspect-square rounded-full bg-parch3 border-2 border-dashed border-ink2/40 flex items-center justify-center text-ink2 text-[10px] font-bold">?</div>
+            <div class="aspect-square rounded-full bg-parch3 border-2 border-dashed border-ink2/40 flex items-center justify-center text-ink2 text-[10px] font-bold">?</div>
+            <div class="aspect-square rounded-full bg-parch3 border-2 border-dashed border-ink2/40 flex items-center justify-center text-ink2 text-[10px] font-bold">?</div>
+            <div class="aspect-square rounded-full bg-parch3 border-2 border-dashed border-ink2/40 flex items-center justify-center text-ink2 text-[10px] font-bold">?</div>
+            <div class="aspect-square rounded-full bg-parch3 border-2 border-dashed border-ink2/40 flex items-center justify-center text-ink2 text-[10px] font-bold">?</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-ink2 text-sm font-semibold mt-2">⑥ Carnet d'Aventure · navigateur</p>
+  </section>
+
+  <!-- ===================== 07 · ADOUBEMENT (tablet, celebration) ===================== -->
+  <section id="s-adoubement" class="preview-frame flex flex-col items-start gap-3" data-name="07-adoubement">
+    <div class="tablet">
+      <div class="tablet-screen" style="background:linear-gradient(180deg, #0D4F4F 0%, #0A3838 100%);">
+        <!-- starry parchment overlay -->
+        <svg class="absolute inset-0 w-full h-full opacity-40" viewBox="0 0 834 1194" preserveAspectRatio="none">
+          <defs>
+            <radialGradient id="glow" cx="50%" cy="38%" r="40%">
+              <stop offset="0%" stop-color="#DDA440" stop-opacity="0.45"/>
+              <stop offset="60%" stop-color="#0D4F4F" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <rect width="834" height="1194" fill="url(#glow)"/>
+          <!-- stars -->
+          <g fill="#F2E9D2">
+            <circle cx="120" cy="180" r="1.5"/>
+            <circle cx="220" cy="100" r="1"/>
+            <circle cx="380" cy="160" r="2"/>
+            <circle cx="540" cy="120" r="1.2"/>
+            <circle cx="680" cy="200" r="1.5"/>
+            <circle cx="760" cy="100" r="1"/>
+            <circle cx="80" cy="320" r="1"/>
+            <circle cx="700" cy="380" r="1.5"/>
+            <circle cx="100" cy="900" r="1.2"/>
+            <circle cx="280" cy="950" r="1"/>
+            <circle cx="520" cy="980" r="1.5"/>
+            <circle cx="730" cy="940" r="1"/>
+          </g>
+        </svg>
+
+        <div class="absolute inset-0 flex flex-col items-center px-10 pt-20 pb-10 text-center">
+          <div class="font-banner tracking-[0.45em] text-[11px] text-brass">CÉRÉMONIE</div>
+          <div class="font-banner tracking-[0.25em] text-sm text-parchment/80 mt-2">D'ADOUBEMENT</div>
+
+          <!-- Big seal -->
+          <div class="relative my-12">
+            <!-- aura rings -->
+            <div class="absolute inset-0 -m-8 rounded-full border border-brass/40"></div>
+            <div class="absolute inset-0 -m-16 rounded-full border border-brass/25"></div>
+            <div class="absolute inset-0 -m-24 rounded-full border border-brass/15"></div>
+
+            <div class="seal w-56 h-56 rounded-full flex items-center justify-center stamp-rotate relative">
+              <div class="absolute inset-3 rounded-full border-2 border-parchment/40"></div>
+              <div class="text-parchment text-center">
+                <div class="font-banner tracking-widest text-[10px]">RANG</div>
+                <div class="font-banner font-bold text-2xl mt-1 leading-none">CARTO-</div>
+                <div class="font-banner font-bold text-2xl leading-none">GRAPHE</div>
+                <div class="font-banner tracking-widest text-[10px] mt-1">ADDITIA</div>
+              </div>
+            </div>
+          </div>
+
+          <h2 class="font-banner font-bold text-parchment text-3xl leading-tight">
+            Tu es désormais
+          </h2>
+          <h3 class="font-banner font-bold text-brass text-5xl leading-tight mt-2">
+            CARTOGRAPHE
+          </h3>
+          <p class="font-display italic text-parchment/85 text-lg mt-3 max-w-md">
+            « Aya, tes additions à retenue traversent les ponts les plus longs. Le royaume t'ouvre ses chemins. »
+          </p>
+
+          <!-- rewards -->
+          <div class="mt-8 flex gap-4">
+            <div class="parchment rounded-2xl px-5 py-3 flex items-center gap-3">
+              <div class="seal w-8 h-8 rounded-full text-parchment text-xs font-bold flex items-center justify-center">$</div>
+              <div class="text-left">
+                <div class="font-banner font-bold text-royal text-lg leading-none">+150</div>
+                <div class="text-[10px] tracking-widest font-banner text-ink2">PIÈCES D'OR</div>
+              </div>
+            </div>
+            <div class="parchment rounded-2xl px-5 py-3 flex items-center gap-3">
+              <div class="seal-moss w-8 h-8 rounded-full text-parchment text-xs font-bold flex items-center justify-center">★</div>
+              <div class="text-left">
+                <div class="font-banner font-bold text-royal text-lg leading-none">+1</div>
+                <div class="text-[10px] tracking-widest font-banner text-ink2">SCEAU ROYAL</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- rank progression -->
+          <div class="mt-10 w-full">
+            <div class="flex items-center justify-between text-[10px] font-banner tracking-widest text-parchment/70">
+              <span>APPRENTI</span>
+              <span class="text-brass">CARTOGRAPHE</span>
+              <span>EXPLORATEUR</span>
+              <span>MAÎTRE</span>
+              <span>GRAND MAÎTRE</span>
+            </div>
+            <div class="mt-2 relative h-2 bg-parchment/20 rounded-full">
+              <div class="absolute inset-y-0 left-0 bg-brass rounded-full" style="width:42%"></div>
+              <div class="absolute -top-1 w-4 h-4 rounded-full bg-brass border-2 border-parchment" style="left:calc(42% - 8px)"></div>
+            </div>
+          </div>
+
+          <button class="mt-10 bg-brass text-royal2 font-banner font-bold tracking-widest text-sm px-12 py-4 rounded-full shadow-2xl">
+            CONTINUER
+          </button>
+
+          <button class="mt-3 text-parchment/70 text-xs font-semibold underline decoration-brass underline-offset-4">
+            Partager mon adoubement
+          </button>
+        </div>
+      </div>
+    </div>
+    <p class="text-ink2 text-sm font-semibold mt-2">⑦ Cérémonie d'adoubement · tablette</p>
+  </section>
+
+</main>
+
+<!-- ========== TOKENS ========== -->
+<section id="tokens" class="max-w-7xl mx-auto px-6 pb-16">
+  <div class="quill-divider mb-10"></div>
+  <p class="font-banner tracking-[0.25em] text-xs text-brass2 font-bold">JETONS DE DESIGN</p>
+  <h2 class="font-banner font-bold text-royal text-4xl mt-2">Ce qui fait <em class="font-display italic font-normal text-ink">QUÊTE</em></h2>
+  <p class="text-ink2 mt-2 max-w-2xl">Trois colonnes pour porter le système en React : palette, typographies, et les sept principes d'écriture visuelle.</p>
+
+  <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- ===== Palette ===== -->
+    <div class="parchment-deep deckled rounded-2xl p-6">
+      <h3 class="font-banner font-bold text-royal tracking-wider">PALETTE</h3>
+      <div class="quill-divider my-3"></div>
+      <ul class="space-y-3 text-sm">
+        <li class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg" style="background:#0D4F4F"></div>
+          <div class="flex-1">
+            <div class="font-display font-semibold">Royal</div>
+            <div class="text-[11px] text-ink2 font-mono">#0D4F4F · primaire · bannières</div>
+          </div>
+        </li>
+        <li class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg" style="background:#B8860B"></div>
+          <div class="flex-1">
+            <div class="font-display font-semibold">Laiton</div>
+            <div class="text-[11px] text-ink2 font-mono">#B8860B · XP, sceaux, mérite</div>
+          </div>
+        </li>
+        <li class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg" style="background:#2D5BA3"></div>
+          <div class="flex-1">
+            <div class="font-display font-semibold">Magicien</div>
+            <div class="text-[11px] text-ink2 font-mono">#2D5BA3 · Conseiller IA, indices</div>
+          </div>
+        </li>
+        <li class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg" style="background:#5C7A3E"></div>
+          <div class="flex-1">
+            <div class="font-display font-semibold">Mousse</div>
+            <div class="text-[11px] text-ink2 font-mono">#5C7A3E · validation, conquis</div>
+          </div>
+        </li>
+        <li class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg" style="background:#A8442B"></div>
+          <div class="flex-1">
+            <div class="font-display font-semibold">Rouille</div>
+            <div class="text-[11px] text-ink2 font-mono">#A8442B · erreur (jamais rouge vif)</div>
+          </div>
+        </li>
+        <li class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg" style="background:#5B3A8C"></div>
+          <div class="flex-1">
+            <div class="font-display font-semibold">Arcane</div>
+            <div class="text-[11px] text-ink2 font-mono">#5B3A8C · royaumes épiques</div>
+          </div>
+        </li>
+        <li class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg border border-ink/15" style="background:#F2E9D2"></div>
+          <div class="flex-1">
+            <div class="font-display font-semibold">Parchemin</div>
+            <div class="text-[11px] text-ink2 font-mono">#F2E9D2 · surface principale</div>
+          </div>
+        </li>
+        <li class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg" style="background:#1F1A14"></div>
+          <div class="flex-1">
+            <div class="font-display font-semibold">Encre</div>
+            <div class="text-[11px] text-ink2 font-mono">#1F1A14 · texte · 13.5:1 ✓</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- ===== Typographie ===== -->
+    <div class="parchment-deep deckled rounded-2xl p-6">
+      <h3 class="font-banner font-bold text-royal tracking-wider">TYPOGRAPHIE</h3>
+      <div class="quill-divider my-3"></div>
+
+      <div class="mb-5">
+        <div class="font-banner font-bold text-3xl text-royal">CINZEL · 700</div>
+        <div class="text-[11px] text-ink2 mt-1">Bannières, noms de royaume, rangs · capitales uniquement.</div>
+      </div>
+
+      <div class="mb-5">
+        <div class="font-display italic text-2xl text-ink">Fraunces — un parchemin moderne.</div>
+        <div class="text-[11px] text-ink2 mt-1">Display & emphase · variable opsz pour titres et citations.</div>
+      </div>
+
+      <div class="mb-5">
+        <div class="font-body text-base text-ink leading-relaxed">
+          Manrope porte la lecture courante : labels, boutons, CTA et textes de l'enfant. Lisible dès 8 ans à 14 px.
+        </div>
+        <div class="text-[11px] text-ink2 mt-1">UI · 14–16 px · weight 400/600/700.</div>
+      </div>
+
+      <div>
+        <div class="font-mono font-bold text-2xl text-royal">347 + 185 = 532</div>
+        <div class="text-[11px] text-ink2 mt-1">JetBrains Mono · uniquement pour les nombres et opérations.</div>
+      </div>
+    </div>
+
+    <!-- ===== Principes ===== -->
+    <div class="parchment-deep deckled rounded-2xl p-6">
+      <h3 class="font-banner font-bold text-royal tracking-wider">PRINCIPES</h3>
+      <div class="quill-divider my-3"></div>
+      <ol class="space-y-3 text-sm text-ink">
+        <li><span class="font-banner font-bold text-brass2 mr-2">I.</span><strong>Le laiton = mérite.</strong> L'or est réservé à l'XP, aux sceaux, aux récompenses. Jamais en décor.</li>
+        <li><span class="font-banner font-bold text-brass2 mr-2">II.</span><strong>Parchemin avant UI.</strong> Toute surface a un grain — la lumière vient du papier, pas des néons.</li>
+        <li><span class="font-banner font-bold text-brass2 mr-2">III.</span><strong>L'erreur est annotée.</strong> Pas de rouge vif. Le Conseiller parle, démontre, propose une bonus quest.</li>
+        <li><span class="font-banner font-bold text-brass2 mr-2">IV.</span><strong>Le nombre se voit.</strong> JetBrains Mono pour toute opération — l'enfant suit le calcul.</li>
+        <li><span class="font-banner font-bold text-brass2 mr-2">V.</span><strong>Une métaphore par champ.</strong> Royaume = champ, cité = compétence, quête = exercice. Pas de mélange.</li>
+        <li><span class="font-banner font-bold text-brass2 mr-2">VI.</span><strong>Le rang se mérite, jamais s'achète.</strong> Pas de pay-to-win symbolique. Tout vient de la pratique.</li>
+        <li><span class="font-banner font-bold text-brass2 mr-2">VII.</span><strong>Touch ≥ 44px.</strong> Sur tablette, le clavier numérique respecte la cible Apple HIG.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Anti-patterns -->
+  <div class="mt-8 p-6 rounded-2xl border-2 border-dashed border-rust/50 bg-rust/5">
+    <div class="flex items-center gap-3">
+      <div class="seal-rust w-8 h-8 rounded-full flex items-center justify-center text-parchment">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </div>
+      <h3 class="font-banner font-bold text-rust tracking-widest text-sm">À ÉVITER · ANTI-PATTERNS</h3>
+    </div>
+    <ul class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-8 text-sm text-ink">
+      <li>· Mascotte permanente (l'aventurier reste l'enfant)</li>
+      <li>· Emojis dans l'UI (boutons, headers, chips)</li>
+      <li>· Rouge vif pour l'erreur — toujours rouille</li>
+      <li>· Plus de 3 sceaux/couleurs accent dans une vue</li>
+      <li>· Confettis et particules à chaque bonne réponse</li>
+      <li>· Achats pour XP / progression payante</li>
+      <li>· Tonalité « bébé » en P5–P6 (ton constant 6→12 ans)</li>
+      <li>· Loot box, gacha, hasard pour récompenses</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="max-w-7xl mx-auto px-6 pb-16 text-center text-ink2 text-xs">
+  <div class="quill-divider mb-6"></div>
+  <div class="font-banner tracking-widest">QUÊTE · L'ATLAS DES ROYAUMES · v1 · PROPOSITION DESIGN POUR PEDAGOGIA</div>
+  <div class="mt-2 italic">Preview statique · Tailwind CDN + Google Fonts · sans build</div>
+</footer>
+
+</body>
+</html>

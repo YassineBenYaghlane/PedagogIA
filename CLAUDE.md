@@ -134,12 +134,15 @@ Key tables: `accounts_parent`, `students_student`, `skills_skill`, `skills_skill
 
 ## Design System
 
-Defined in `design-ceb/DESIGN.md`. Material Design 3 + glassmorphism:
+**Le Jardin de PédagogIA** (*Hortus Mathematicus*). Reference preview: `design/JARDIN.html` + `design/jardin-screens/`. Migration tracked in #65.
 
-- **Primary** Azure Blue `#0059b6` | **Secondary** Sunflower Yellow `#705900` | **Tertiary** Mint Green `#00694b`
-- Custom CSS: `.glass-card`, `.shadow-ambient`, `.gradient-soul`, `.spring-hover`, `.bg-orb`
-- Design tokens as CSS custom properties in `src/index.css`
-- Aesthetic: "Curator Savant" — sophisticated, not toy-like
+Metaphor: a calm botanical greenhouse. Each skill is a plant, each session a care ritual, each mastered skill a *floraison*. Four plant states: *en sommeil · à arroser · en croissance · floraison*.
+
+- **Palette** — `bone #FFFFFF` surface · `chalk #F6F8F3` page · `mist #ECF1E7` secondary · `sage #6FA274` primary · `sage-deep #3F6F4A` accent · `sage-leaf #C7E0B5` halos · `sky #B8DCEA` hints/IA · `sky-deep #4F8BAC` links · `bark #2B3A2E` text · `stem #5C6B5F` secondary text · `honey #E8C66A` XP (rare) · `rose #E8A6A1` soft error (never bright red)
+- **Type** — Display *Fraunces* (italic for Latin labels) · UI *Inter* 14–16px · numerals *JetBrains Mono* tabular
+- **Primitives** — `.greenhouse`, `.paper-grid`, `.water`, `.tag`, `.chip`, `.pill`, `.pot`, `.specimen`, `.latin`, `.navlink` (see `src/index.css`); components in `frontend/src/components/ui/`
+- **Screen vocabulary** — ① Serre (Welcome) · ② Carnets (ChildPicker) · ③ Carte (SkillTree) · ④ Établi (Exercise) · ⑤ Jardinier (feedback/investigation) · ⑥ Herbier (progress) · ⑦ Floraison (celebration)
+- **Principles** — 60% white / 25% pale green / 15% accent · SVG only (no emojis in UI) · 200ms transitions, soft shadows · no mascot, no claymorphism, no indigo/violet, no bright red
 
 ## Key Concepts
 

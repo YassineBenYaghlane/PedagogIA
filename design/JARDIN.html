@@ -1,0 +1,1814 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Le Jardin de PédagogIA — Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          display: ['Fraunces', 'ui-serif', 'Georgia', 'serif'],
+          body: ['Inter', 'ui-sans-serif', 'system-ui'],
+          mono: ['JetBrains Mono', 'ui-monospace'],
+        },
+        colors: {
+          /* Jardin / botanical palette — white + light green + light blue */
+          bone:    '#FFFFFF',
+          chalk:   '#F6F8F3',  /* page background, faint green-tinted white */
+          mist:    '#ECF1E7',  /* secondary surface */
+          paper:   '#FAFCF7',
+          sage: {
+            DEFAULT: '#6FA274',  /* primary green */
+            soft:    '#A6C7A8',
+            pale:    '#D6E6D2',
+            leaf:    '#C7E0B5',
+            deep:    '#3F6F4A',  /* used for headings / text accent */
+          },
+          sky: {
+            DEFAULT: '#B8DCEA',  /* light blue accent — water, calm */
+            soft:    '#DCEDF4',
+            deep:    '#4F8BAC',  /* link / cool accent */
+          },
+          bark:    '#2B3A2E',    /* primary text — dark green-grey */
+          stem:    '#5C6B5F',    /* secondary text */
+          twig:    '#A1AEA3',    /* tertiary / muted */
+          rose:    '#E8A6A1',    /* soft error — no harsh red */
+          honey:   '#E8C66A',    /* XP / mérite warm accent */
+          glass:   'rgba(255,255,255,0.7)',
+        },
+        boxShadow: {
+          leaf:    '0 1px 0 rgba(43,58,46,.04), 0 8px 24px -16px rgba(63,111,74,.25)',
+          dew:     '0 1px 0 rgba(43,58,46,.05), 0 12px 32px -22px rgba(79,139,172,.4)',
+          tag:     '0 2px 0 rgba(43,58,46,.06), 0 6px 14px -10px rgba(43,58,46,.2)',
+          glasspane: 'inset 0 1px 0 rgba(255,255,255,.9), 0 30px 60px -40px rgba(63,111,74,.3)',
+          none: 'none',
+        },
+      },
+    },
+  }
+</script>
+<style>
+  html, body { background: #ECF1E7; }
+  body { font-family: 'Inter', system-ui, sans-serif; color: #2B3A2E; }
+  html { scroll-behavior: smooth; }
+
+  /* Greenhouse glass — faint diagonal panes */
+  .greenhouse {
+    background-color: #FFFFFF;
+    background-image:
+      linear-gradient(135deg, rgba(184,220,234,.10) 0 40%, rgba(255,255,255,0) 40%),
+      linear-gradient(45deg,  rgba(198,224,181,.08) 0 50%, rgba(255,255,255,0) 50%);
+    background-size: 220px 220px, 220px 220px;
+  }
+  .paper-grid {
+    background-color: #FAFCF7;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(63,111,74,.10) 1px, transparent 0);
+    background-size: 22px 22px;
+  }
+  .paper-rule {
+    background-color: #FAFCF7;
+    background-image:
+      repeating-linear-gradient(to bottom,
+        rgba(184,220,234,0) 0 27px,
+        rgba(184,220,234,.45) 27px 28px);
+  }
+  .water {
+    background:
+      linear-gradient(180deg, #DCEDF4 0%, #FFFFFF 70%);
+  }
+
+  /* Botanical swing tag (kraft-style but pale, hung on twine) */
+  .tag {
+    position: relative;
+    background: #FAFCF7;
+    border: 1px solid rgba(43,58,46,.08);
+    border-radius: 8px;
+    box-shadow: 0 2px 0 rgba(43,58,46,.04), 0 6px 14px -10px rgba(43,58,46,.18);
+  }
+  .tag::before {
+    content: "";
+    position: absolute;
+    top: -10px; left: 16px;
+    width: 8px; height: 8px;
+    background: #C7E0B5;
+    border-radius: 999px;
+    box-shadow: 0 0 0 2px #FAFCF7;
+  }
+
+  /* Pressed-leaf chip */
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 999px;
+    font-weight: 600; font-size: 11px;
+    background: #ECF1E7; color: #3F6F4A;
+    border: 1px solid rgba(63,111,74,.15);
+  }
+  .chip-sky { background: #DCEDF4; color: #2F6A88; border-color: rgba(79,139,172,.2); }
+  .chip-honey { background: #FBF1D6; color: #8A6A1F; border-color: rgba(232,198,106,.4); }
+  .chip-bark { background: #2B3A2E; color: #FAFCF7; border-color: transparent; }
+
+  /* Soft pill button */
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 18px; border-radius: 14px;
+    font-weight: 600; font-size: 14px;
+    background: #6FA274; color: #FFFFFF;
+    box-shadow: 0 1px 0 rgba(43,58,46,.05), 0 8px 18px -10px rgba(63,111,74,.5);
+    cursor: pointer; transition: transform .2s ease;
+  }
+  .pill:hover { transform: translateY(-1px); }
+  .pill-ghost {
+    background: #FFFFFF; color: #3F6F4A;
+    border: 1px solid rgba(63,111,74,.25);
+    box-shadow: 0 1px 0 rgba(43,58,46,.04);
+  }
+
+  /* Latin / Italic botanical label */
+  .latin { font-family: 'Fraunces', serif; font-style: italic; color: #5C6B5F; }
+
+  /* Plant pot — used in Carnet picker */
+  .pot {
+    width: 168px;
+    background: #FAFCF7;
+    border-radius: 18px;
+    border: 1px solid rgba(43,58,46,.08);
+    overflow: hidden;
+    box-shadow: 0 1px 0 rgba(43,58,46,.04), 0 12px 28px -22px rgba(63,111,74,.35);
+  }
+  .pot-soil {
+    height: 38px;
+    background: linear-gradient(180deg, #B5916C 0%, #8E6B47 100%);
+    border-top: 4px solid #C7E0B5;
+  }
+
+  /* Skill node "specimen card" */
+  .specimen {
+    border-radius: 14px;
+    background: #FFFFFF;
+    border: 1px solid rgba(43,58,46,.08);
+    box-shadow: 0 1px 0 rgba(43,58,46,.03), 0 8px 18px -14px rgba(63,111,74,.25);
+  }
+
+  /* ---------- Tablet frame (834 × 1194) ---------- */
+  .tablet {
+    width: 834px; height: 1194px;
+    border-radius: 40px;
+    background: #1a1a1a;
+    padding: 18px;
+    box-shadow: 0 60px 120px -60px rgba(43,58,46,.4), 0 2px 0 rgba(255,255,255,.05) inset;
+    position: relative;
+    transform: scale(0.55);
+    transform-origin: top left;
+    margin-bottom: -540px;
+    margin-right: -376px;
+  }
+  .tablet::before {
+    content: ""; position: absolute;
+    top: 8px; left: 50%; transform: translateX(-50%);
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #000; box-shadow: 0 0 0 2px #1a1a1a;
+  }
+  .tablet-screen {
+    width: 100%; height: 100%;
+    border-radius: 24px;
+    overflow: hidden;
+    background: #FFFFFF;
+    position: relative;
+  }
+
+  /* ---------- Browser frame (1440 × 900) ---------- */
+  .browser {
+    width: 1440px; height: 900px;
+    border-radius: 14px;
+    background: #d8d8d8;
+    overflow: hidden;
+    box-shadow: 0 40px 80px -40px rgba(43,58,46,.35), 0 1px 0 rgba(255,255,255,.6) inset;
+    transform: scale(0.42);
+    transform-origin: top left;
+    margin-bottom: -524px;
+    margin-right: -836px;
+  }
+  .browser-chrome {
+    height: 40px;
+    background: linear-gradient(to bottom, #ececec, #d8d8d8);
+    display: flex; align-items: center;
+    padding: 0 16px; gap: 8px;
+    border-bottom: 1px solid rgba(0,0,0,.08);
+  }
+  .browser-chrome .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .browser-chrome .red    { background: #ff5f57; }
+  .browser-chrome .amber  { background: #febc2e; }
+  .browser-chrome .green  { background: #28c840; }
+  .browser-chrome .url {
+    flex: 1; margin: 0 12px;
+    background: #fff; height: 24px; border-radius: 6px;
+    display: flex; align-items: center; padding: 0 12px;
+    font: 500 12px/1 ui-sans-serif, system-ui;
+    color: #666;
+    border: 1px solid rgba(0,0,0,.06);
+  }
+  .browser-screen {
+    width: 100%; height: calc(100% - 40px);
+    background: #FFFFFF; overflow: hidden; position: relative;
+  }
+
+  /* ---------- Nav ---------- */
+  .navlink {
+    padding: 9px 14px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 13px;
+    color: #2B3A2E;
+    background: #FFFFFF;
+    border: 1px solid rgba(43,58,46,.1);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform .2s ease;
+  }
+  .navlink:hover { transform: translateY(-1px); }
+  .navlink.active { background: #6FA274; color: #fff; border-color: transparent; }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0ms !important; transition-duration: 0ms !important; }
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- ========== HEADER ========== -->
+<header class="max-w-7xl mx-auto px-6 pt-12 pb-6">
+  <div class="flex items-start justify-between gap-6 flex-wrap">
+    <div class="max-w-2xl">
+      <div class="font-display italic text-xl text-sage-deep">Le Jardin de PédagogIA</div>
+      <h1 class="font-display font-semibold text-4xl md:text-5xl text-bark mt-3 leading-[1.05]">
+        Cultiver le calcul comme on <em>cultive un jardin</em>.
+      </h1>
+      <p class="text-stem mt-4 text-base leading-relaxed">
+        Une serre claire et nette : chaque compétence est une plante, chaque
+        séance un soin, chaque rang acquis une floraison. Sage, ciel, papier blanc —
+        zéro plastique, zéro mascotte.
+      </p>
+    </div>
+    <div class="flex flex-col gap-2 items-end">
+      <span class="px-3 py-1 rounded-full bg-sage text-white text-xs font-semibold">JARDIN · v1</span>
+      <span class="px-3 py-1 rounded-full bg-bone border border-sage/20 text-xs font-semibold text-bark">Cible · 6–12 ans · FWB</span>
+      <span class="px-3 py-1 rounded-full bg-bone border border-sage/20 text-xs font-semibold text-bark">AA · 13:1 (bark / chalk)</span>
+      <span class="px-3 py-1 rounded-full bg-sky-soft border border-sky/30 text-xs font-semibold text-sky-deep">Tablet 834·1194 + Browser 1440·900</span>
+    </div>
+  </div>
+</header>
+
+<!-- ========== NAV ========== -->
+<nav class="sticky top-0 z-40 backdrop-blur-md bg-chalk/80 border-y border-sage/15">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex gap-2 overflow-x-auto">
+    <a href="#s-accueil"     class="navlink">① Serre</a>
+    <a href="#s-carnets"     class="navlink">② Carnets</a>
+    <a href="#s-carte"       class="navlink">③ Carte</a>
+    <a href="#s-exercice"    class="navlink">④ Établi</a>
+    <a href="#s-correction"  class="navlink">⑤ Jardinier</a>
+    <a href="#s-bulletin"    class="navlink">⑥ Herbier</a>
+    <a href="#s-celebration" class="navlink">⑦ Floraison</a>
+    <a href="#tokens"        class="navlink">⚙ Jetons</a>
+  </div>
+</nav>
+
+<!-- ========== FRAMES GRID ========== -->
+<main class="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 gap-16 place-items-center">
+
+  <!-- ============================================================== -->
+  <!-- ① SERRE — TABLET                                                -->
+  <!-- ============================================================== -->
+  <section id="s-accueil" class="preview-frame flex flex-col items-center gap-3" data-name="01-serre-tablet">
+    <div class="tablet">
+      <div class="tablet-screen greenhouse">
+        <!-- top bar -->
+        <div class="flex items-center justify-between px-10 pt-12">
+          <div class="flex items-center gap-3">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#3F6F4A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22V10"/>
+              <path d="M12 10c0-4 4-6 8-6 0 4-2 8-8 8z"/>
+              <path d="M12 14c0-3-3-5-6-5 0 3 1.5 6 6 6z"/>
+            </svg>
+            <div>
+              <div class="font-display text-2xl text-bark">PédagogIA</div>
+              <div class="latin text-xs">Hortus Mathematicus</div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <span class="chip chip-sky">Saison · printemps</span>
+          </div>
+        </div>
+
+        <!-- Hero -->
+        <div class="px-10 mt-16">
+          <div class="latin text-sm text-stem">Bienvenue dans la serre</div>
+          <h2 class="font-display font-semibold text-bark text-[64px] leading-[1.05] mt-1">
+            Cultive ton <em class="text-sage-deep">calcul</em><br/>jour après jour.
+          </h2>
+          <p class="text-stem mt-5 text-lg max-w-md leading-relaxed">
+            Choisis ton carnet, suis ta carte des espèces, et vois tes
+            compétences fleurir.
+          </p>
+          <div class="mt-10 flex gap-3">
+            <button class="pill" style="font-size:16px; padding:14px 22px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              Entrer dans la serre
+            </button>
+            <button class="pill pill-ghost" style="font-size:16px; padding:14px 22px;">Se connecter</button>
+          </div>
+        </div>
+
+        <!-- Three feature tags hung on twine -->
+        <div class="absolute bottom-12 left-10 right-10">
+          <div class="grid grid-cols-3 gap-4">
+            <div class="tag p-4">
+              <div class="flex items-center gap-2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3F6F4A" stroke-width="1.6" stroke-linecap="round"><path d="M12 2v20M5 9c0-4 3-7 7-7s7 3 7 7"/></svg>
+                <span class="font-semibold text-bark text-sm">Diagnostic</span>
+              </div>
+              <p class="latin text-[11px] mt-1">Locus discendi</p>
+              <p class="text-stem text-xs mt-2">Trouve ton point de départ en 12 questions.</p>
+            </div>
+            <div class="tag p-4">
+              <div class="flex items-center gap-2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4F8BAC" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                <span class="font-semibold text-bark text-sm">Séance courte</span>
+              </div>
+              <p class="latin text-[11px] mt-1">Quotidie</p>
+              <p class="text-stem text-xs mt-2">10 minutes, ciblées sur ce qui pousse mal.</p>
+            </div>
+            <div class="tag p-4">
+              <div class="flex items-center gap-2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3F6F4A" stroke-width="1.6" stroke-linecap="round"><path d="M12 21V11"/><path d="M5 11h14"/><path d="M7 11a5 5 0 0 1 10 0"/></svg>
+                <span class="font-semibold text-bark text-sm">Herbier</span>
+              </div>
+              <p class="latin text-[11px] mt-1">Florilegium</p>
+              <p class="text-stem text-xs mt-2">Tes plantes maîtrisées, à conserver.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-stem text-sm font-semibold">① Serre · tablette — accueil pré-auth</p>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- ① SERRE — BROWSER                                              -->
+  <!-- ============================================================== -->
+  <section id="s-accueil-web" class="preview-frame flex flex-col items-center gap-3" data-name="01-serre-browser">
+    <div class="browser">
+      <div class="browser-chrome">
+        <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
+        <div class="url">pedagogia.be</div>
+      </div>
+      <div class="browser-screen greenhouse">
+        <div class="flex items-center justify-between px-16 pt-10">
+          <div class="flex items-center gap-3">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#3F6F4A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22V10"/>
+              <path d="M12 10c0-4 4-6 8-6 0 4-2 8-8 8z"/>
+              <path d="M12 14c0-3-3-5-6-5 0 3 1.5 6 6 6z"/>
+            </svg>
+            <div>
+              <div class="font-display text-2xl text-bark">PédagogIA</div>
+              <div class="latin text-xs">Hortus Mathematicus</div>
+            </div>
+          </div>
+          <nav class="flex gap-7 text-sm font-semibold text-bark">
+            <a class="hover:text-sage-deep">La serre</a>
+            <a class="hover:text-sage-deep">Pour les parents</a>
+            <a class="hover:text-sage-deep">Référentiel FWB</a>
+            <a class="hover:text-sage-deep">Tarifs</a>
+          </nav>
+          <div class="flex items-center gap-2">
+            <button class="pill pill-ghost">Se connecter</button>
+            <button class="pill">Créer un carnet</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-12 px-16 mt-20 items-center">
+          <div>
+            <div class="latin text-base text-stem">Apprendre les mathématiques, sans se faner.</div>
+            <h1 class="font-display font-semibold text-bark text-[88px] leading-[0.98] mt-3">
+              Cultive ton<br/>
+              <em class="text-sage-deep">calcul</em>.
+            </h1>
+            <p class="text-stem mt-6 text-xl max-w-lg leading-relaxed">
+              Une serre sereine pour les enfants de 6 à 12 ans. Diagnostic
+              adaptatif, carte des compétences, et un jardinier IA qui
+              comprend pourquoi une plante ne pousse pas.
+            </p>
+            <div class="mt-10 flex items-center gap-4">
+              <button class="pill" style="font-size:16px; padding:16px 26px;">
+                Commencer le diagnostic
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </button>
+              <button class="pill pill-ghost" style="font-size:16px; padding:16px 22px;">Voir une démonstration</button>
+            </div>
+            <div class="mt-10 flex gap-6 text-stem text-sm">
+              <span class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-sage"></span> Conforme au Référentiel FWB
+              </span>
+              <span class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-sky-deep"></span> Données chiffrées en Belgique
+              </span>
+              <span class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-honey"></span> Sans publicité
+              </span>
+            </div>
+          </div>
+
+          <!-- Right column — illustrative greenhouse panel with skill specimens -->
+          <div class="relative">
+            <div class="absolute inset-0 -z-0 rounded-[36px]"
+              style="background: linear-gradient(180deg, rgba(220,237,244,0.6) 0%, rgba(255,255,255,0.6) 100%); border:1px solid rgba(63,111,74,0.12); box-shadow: 0 30px 60px -40px rgba(63,111,74,.3), inset 0 1px 0 rgba(255,255,255,.9);"></div>
+            <div class="relative p-8">
+              <div class="flex justify-between items-center">
+                <div class="font-display italic text-sage-deep">Spécimens du jour</div>
+                <span class="chip chip-sky">3 plantes en cours</span>
+              </div>
+
+              <div class="mt-5 space-y-3">
+                <div class="specimen p-4 flex items-center justify-between">
+                  <div>
+                    <div class="font-semibold text-bark">Addition à retenue</div>
+                    <div class="latin text-xs">Additio · P3</div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="w-32 h-2 rounded-full bg-mist overflow-hidden">
+                      <div class="h-full bg-sage" style="width:72%"></div>
+                    </div>
+                    <span class="text-bark font-mono text-sm">72%</span>
+                  </div>
+                </div>
+
+                <div class="specimen p-4 flex items-center justify-between">
+                  <div>
+                    <div class="font-semibold text-bark">Tables de 7</div>
+                    <div class="latin text-xs">Multiplicatio · P3</div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="w-32 h-2 rounded-full bg-mist overflow-hidden">
+                      <div class="h-full bg-sage" style="width:48%"></div>
+                    </div>
+                    <span class="text-bark font-mono text-sm">48%</span>
+                  </div>
+                </div>
+
+                <div class="specimen p-4 flex items-center justify-between">
+                  <div>
+                    <div class="font-semibold text-bark">Soustraction posée</div>
+                    <div class="latin text-xs">Subtractio · P3</div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="w-32 h-2 rounded-full bg-mist overflow-hidden">
+                      <div class="h-full bg-sky-deep" style="width:33%"></div>
+                    </div>
+                    <span class="text-bark font-mono text-sm">33%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-6 flex justify-between items-center text-xs text-stem">
+                <span>Aujourd'hui — 12 min · 18 questions</span>
+                <span class="latin">— le jardinier observe</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-stem text-sm font-semibold">① Serre · navigateur — page d'accueil pour parents</p>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- ② CARNETS — TABLET                                              -->
+  <!-- ============================================================== -->
+  <section id="s-carnets" class="preview-frame flex flex-col items-center gap-3" data-name="02-carnets-tablet">
+    <div class="tablet">
+      <div class="tablet-screen" style="background:#FFFFFF;">
+        <div class="px-10 pt-14">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="latin text-sm text-stem">Famille Vanderpas</div>
+              <h2 class="font-display text-bark text-4xl mt-1">Choisis ton carnet</h2>
+            </div>
+            <button class="pill pill-ghost">+ Nouveau carnet</button>
+          </div>
+          <p class="text-stem mt-3 max-w-md">Chaque enfant a son propre pot. Personne d'autre n'y voit ce qui pousse.</p>
+
+          <div class="mt-10 grid grid-cols-3 gap-6">
+
+            <!-- Pot 1 -->
+            <div class="pot">
+              <div class="h-32 bg-sage-pale flex items-end justify-center pb-2">
+                <svg width="72" height="84" viewBox="0 0 72 84" fill="none" stroke="#3F6F4A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M36 80V36"/>
+                  <path d="M36 36c-10 0-18-8-18-18 10 0 18 8 18 18z"/>
+                  <path d="M36 50c10 0 18-8 18-18-10 0-18 8-18 18z"/>
+                  <path d="M36 26c0-6 4-12 12-12 0 6-4 12-12 12z"/>
+                </svg>
+              </div>
+              <div class="pot-soil"></div>
+              <div class="p-3 text-center">
+                <div class="font-display text-xl text-bark">Aya</div>
+                <div class="latin text-xs">P3 · 8 ans</div>
+                <div class="mt-2 inline-flex items-center gap-1 chip">7 jours</div>
+              </div>
+            </div>
+
+            <!-- Pot 2 -->
+            <div class="pot" style="box-shadow: 0 0 0 3px #6FA274, 0 12px 28px -22px rgba(63,111,74,.4);">
+              <div class="h-32 bg-sage-leaf flex items-end justify-center pb-2 relative">
+                <span class="absolute top-2 right-2 chip chip-honey">en cours</span>
+                <svg width="80" height="92" viewBox="0 0 80 92" fill="none" stroke="#3F6F4A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M40 88V30"/>
+                  <path d="M40 30c-12 0-22-10-22-22 12 0 22 10 22 22z"/>
+                  <path d="M40 50c12 0 22-10 22-22-12 0-22 10-22 22z"/>
+                  <path d="M40 60c-8 0-14-6-14-14 8 0 14 6 14 14z"/>
+                  <circle cx="40" cy="20" r="4" fill="#E8C66A" stroke="#8A6A1F"/>
+                </svg>
+              </div>
+              <div class="pot-soil"></div>
+              <div class="p-3 text-center">
+                <div class="font-display text-xl text-bark">Noé</div>
+                <div class="latin text-xs">P5 · 10 ans</div>
+                <div class="mt-2 inline-flex items-center gap-1 chip chip-honey">15 jours</div>
+              </div>
+            </div>
+
+            <!-- Pot 3 -->
+            <div class="pot">
+              <div class="h-32 bg-sky-soft flex items-end justify-center pb-2">
+                <svg width="60" height="84" viewBox="0 0 60 84" fill="none" stroke="#4F8BAC" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M30 80V42"/>
+                  <path d="M30 42c-8 0-14-6-14-14 8 0 14 6 14 14z"/>
+                  <path d="M30 52c8 0 14-6 14-14-8 0-14 6-14 14z"/>
+                </svg>
+              </div>
+              <div class="pot-soil"></div>
+              <div class="p-3 text-center">
+                <div class="font-display text-xl text-bark">Margaux</div>
+                <div class="latin text-xs">P1 · 6 ans</div>
+                <div class="mt-2 inline-flex items-center gap-1 chip">2 jours</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Parent panel -->
+          <div class="mt-10 p-5 rounded-xl border border-sage/15 bg-paper flex items-center justify-between">
+            <div>
+              <div class="font-semibold text-bark">Espace parent</div>
+              <p class="text-stem text-sm mt-1">Suis les progrès, exporte un PDF, ou ajuste un objectif.</p>
+            </div>
+            <button class="pill pill-ghost">Ouvrir l'espace parent →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-stem text-sm font-semibold">② Carnets · tablette — choix d'un profil enfant</p>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- ② CARNETS — BROWSER                                            -->
+  <!-- ============================================================== -->
+  <section id="s-carnets-web" class="preview-frame flex flex-col items-center gap-3" data-name="02-carnets-browser">
+    <div class="browser">
+      <div class="browser-chrome">
+        <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
+        <div class="url">pedagogia.be / carnets</div>
+      </div>
+      <div class="browser-screen" style="background:#F6F8F3;">
+        <div class="flex">
+          <!-- Sidebar -->
+          <aside class="w-64 h-full bg-bone border-r border-sage/15 px-6 py-8">
+            <div class="flex items-center gap-2 mb-10">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3F6F4A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22V10"/>
+                <path d="M12 10c0-4 4-6 8-6 0 4-2 8-8 8z"/>
+                <path d="M12 14c0-3-3-5-6-5 0 3 1.5 6 6 6z"/>
+              </svg>
+              <span class="font-display text-bark text-lg">PédagogIA</span>
+            </div>
+            <nav class="space-y-1 text-sm">
+              <a class="flex items-center gap-2 px-3 py-2 rounded-lg bg-sage-pale text-sage-deep font-semibold">Carnets</a>
+              <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-bark hover:bg-mist">Espace parent</a>
+              <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-bark hover:bg-mist">Historique</a>
+              <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-bark hover:bg-mist">Exports</a>
+              <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-bark hover:bg-mist">Réglages</a>
+            </nav>
+            <div class="mt-12 p-4 rounded-xl bg-sky-soft border border-sky/30">
+              <div class="latin text-xs text-sky-deep">Conseil du jardinier</div>
+              <p class="text-bark text-sm mt-1">Une séance courte chaque jour vaut mieux qu'une longue le dimanche.</p>
+            </div>
+          </aside>
+
+          <!-- Main -->
+          <div class="flex-1 px-12 py-10">
+            <div class="flex items-end justify-between">
+              <div>
+                <div class="latin text-sm text-stem">Famille Vanderpas · 3 carnets</div>
+                <h1 class="font-display text-bark text-5xl mt-1">Choisis un carnet</h1>
+              </div>
+              <button class="pill">+ Nouveau carnet</button>
+            </div>
+
+            <div class="mt-10 grid grid-cols-3 gap-8">
+              <!-- Pot card 1 -->
+              <div class="pot" style="width:auto;">
+                <div class="h-44 bg-sage-pale flex items-end justify-center pb-2">
+                  <svg width="80" height="92" viewBox="0 0 80 92" fill="none" stroke="#3F6F4A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M40 88V36"/>
+                    <path d="M40 36c-12 0-22-10-22-22 12 0 22 10 22 22z"/>
+                    <path d="M40 50c12 0 22-10 22-22-12 0-22 10-22 22z"/>
+                    <path d="M40 26c0-6 5-12 13-12 0 6-5 12-13 12z"/>
+                  </svg>
+                </div>
+                <div class="pot-soil"></div>
+                <div class="p-5">
+                  <div class="font-display text-2xl text-bark">Aya</div>
+                  <div class="latin text-sm">P3 · 8 ans</div>
+                  <div class="mt-3 flex gap-2 flex-wrap">
+                    <span class="chip">7 jours de suite</span>
+                    <span class="chip chip-sky">Addition P3</span>
+                  </div>
+                  <div class="mt-4 text-stem text-xs">Dernière séance · hier 18:42</div>
+                </div>
+              </div>
+
+              <!-- Pot card 2 — selected -->
+              <div class="pot" style="width:auto; box-shadow:0 0 0 3px #6FA274, 0 12px 28px -22px rgba(63,111,74,.4);">
+                <div class="h-44 bg-sage-leaf flex items-end justify-center pb-2 relative">
+                  <span class="absolute top-3 right-3 chip chip-honey">Sélectionné</span>
+                  <svg width="100" height="116" viewBox="0 0 100 116" fill="none" stroke="#3F6F4A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M50 110V40"/>
+                    <path d="M50 40c-15 0-28-13-28-28 15 0 28 13 28 28z"/>
+                    <path d="M50 60c15 0 28-13 28-28-15 0-28 13-28 28z"/>
+                    <path d="M50 76c-10 0-18-8-18-18 10 0 18 8 18 18z"/>
+                    <circle cx="50" cy="26" r="5" fill="#E8C66A" stroke="#8A6A1F"/>
+                  </svg>
+                </div>
+                <div class="pot-soil"></div>
+                <div class="p-5">
+                  <div class="font-display text-2xl text-bark">Noé</div>
+                  <div class="latin text-sm">P5 · 10 ans</div>
+                  <div class="mt-3 flex gap-2 flex-wrap">
+                    <span class="chip chip-honey">15 jours de suite</span>
+                    <span class="chip chip-sky">Tables de 7</span>
+                  </div>
+                  <button class="mt-5 w-full pill" style="justify-content:center;">Ouvrir le carnet →</button>
+                </div>
+              </div>
+
+              <!-- Pot card 3 -->
+              <div class="pot" style="width:auto;">
+                <div class="h-44 bg-sky-soft flex items-end justify-center pb-2">
+                  <svg width="70" height="92" viewBox="0 0 70 92" fill="none" stroke="#4F8BAC" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M35 88V46"/>
+                    <path d="M35 46c-9 0-16-7-16-16 9 0 16 7 16 16z"/>
+                    <path d="M35 56c9 0 16-7 16-16-9 0-16 7-16 16z"/>
+                  </svg>
+                </div>
+                <div class="pot-soil"></div>
+                <div class="p-5">
+                  <div class="font-display text-2xl text-bark">Margaux</div>
+                  <div class="latin text-sm">P1 · 6 ans</div>
+                  <div class="mt-3 flex gap-2 flex-wrap">
+                    <span class="chip">2 jours de suite</span>
+                    <span class="chip chip-sky">Diagnostic en cours</span>
+                  </div>
+                  <div class="mt-4 text-stem text-xs">Dernière séance · il y a 2h</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-stem text-sm font-semibold">② Carnets · navigateur — espace famille</p>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- ③ CARTE — TABLET                                                -->
+  <!-- ============================================================== -->
+  <section id="s-carte" class="preview-frame flex flex-col items-center gap-3" data-name="03-carte-tablet">
+    <div class="tablet">
+      <div class="tablet-screen paper-grid">
+
+        <!-- Header strip -->
+        <div class="px-8 pt-10 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-sage-leaf flex items-center justify-center text-sage-deep font-display font-semibold">N</div>
+            <div>
+              <div class="font-semibold text-bark">Noé · P5</div>
+              <div class="latin text-xs text-stem">Carte des espèces · Champ 3</div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <span class="chip">Champ 3 · Arithmétique</span>
+            <span class="chip chip-honey">15 jours</span>
+          </div>
+        </div>
+
+        <h2 class="font-display text-bark text-4xl px-8 mt-6">Carte des espèces</h2>
+        <p class="latin text-sm text-stem px-8">— ce qui pousse, ce qui demande de l'eau, ce qui dort encore.</p>
+
+        <!-- Canvas with skill nodes -->
+        <div class="relative mx-8 mt-6 rounded-2xl overflow-hidden border border-sage/15" style="height: 760px; background: linear-gradient(180deg, #FAFCF7 0%, #ECF1E7 100%);">
+
+          <!-- SVG connecting lines -->
+          <svg class="absolute inset-0 w-full h-full" viewBox="0 0 770 760" fill="none">
+            <path d="M385 80 L200 220" stroke="#A6C7A8" stroke-width="2" stroke-dasharray="3 4"/>
+            <path d="M385 80 L385 220" stroke="#6FA274" stroke-width="3"/>
+            <path d="M385 80 L570 220" stroke="#A6C7A8" stroke-width="2" stroke-dasharray="3 4"/>
+            <path d="M200 280 L130 420" stroke="#A6C7A8" stroke-width="2" stroke-dasharray="3 4"/>
+            <path d="M200 280 L290 420" stroke="#A6C7A8" stroke-width="2" stroke-dasharray="3 4"/>
+            <path d="M385 280 L385 420" stroke="#6FA274" stroke-width="3"/>
+            <path d="M570 280 L490 420" stroke="#A6C7A8" stroke-width="2" stroke-dasharray="3 4"/>
+            <path d="M570 280 L640 420" stroke="#A6C7A8" stroke-width="2" stroke-dasharray="3 4"/>
+            <path d="M385 480 L290 600" stroke="#4F8BAC" stroke-width="3"/>
+            <path d="M385 480 L490 600" stroke="#A6C7A8" stroke-width="2" stroke-dasharray="3 4"/>
+          </svg>
+
+          <!-- Root node -->
+          <div class="absolute" style="left: 320px; top: 40px;">
+            <div class="specimen px-4 py-3 w-[130px] text-center" style="background:#3F6F4A; border-color:transparent;">
+              <div class="text-white font-semibold text-sm">Nombres P5</div>
+              <div class="latin text-[10px] text-sage-pale">Numerorum</div>
+            </div>
+          </div>
+
+          <!-- Tier 2 -->
+          <div class="absolute" style="left: 130px; top: 200px;">
+            <div class="specimen px-3 py-3 w-[140px] text-center">
+              <div class="font-semibold text-bark text-sm">Soustraction</div>
+              <div class="latin text-[10px]">Subtractio · 65%</div>
+              <div class="mt-2 h-1.5 rounded-full bg-mist overflow-hidden"><div class="h-full bg-sage" style="width:65%"></div></div>
+            </div>
+          </div>
+          <div class="absolute" style="left: 320px; top: 200px;">
+            <div class="specimen px-3 py-3 w-[140px] text-center" style="border-color:#6FA274; box-shadow:0 0 0 2px #C7E0B5;">
+              <div class="font-semibold text-bark text-sm">Multiplication</div>
+              <div class="latin text-[10px]">Multiplicatio · en cours</div>
+              <div class="mt-2 h-1.5 rounded-full bg-mist overflow-hidden"><div class="h-full bg-sage" style="width:48%"></div></div>
+            </div>
+          </div>
+          <div class="absolute" style="left: 510px; top: 200px;">
+            <div class="specimen px-3 py-3 w-[140px] text-center">
+              <div class="font-semibold text-bark text-sm">Division</div>
+              <div class="latin text-[10px]">Divisio · 22%</div>
+              <div class="mt-2 h-1.5 rounded-full bg-mist overflow-hidden"><div class="h-full bg-sky-deep" style="width:22%"></div></div>
+            </div>
+          </div>
+
+          <!-- Tier 3 -->
+          <div class="absolute" style="left: 60px; top: 400px;">
+            <div class="specimen px-3 py-3 w-[140px] text-center" style="background:#FAFCF7; opacity:0.7;">
+              <div class="font-semibold text-bark text-sm">Soustr. à retenue</div>
+              <div class="latin text-[10px]">— en sommeil</div>
+            </div>
+          </div>
+          <div class="absolute" style="left: 220px; top: 400px;">
+            <div class="specimen px-3 py-3 w-[140px] text-center">
+              <div class="font-semibold text-bark text-sm">Différences</div>
+              <div class="latin text-[10px]">— à arroser</div>
+            </div>
+          </div>
+          <div class="absolute" style="left: 320px; top: 400px;">
+            <div class="specimen px-3 py-3 w-[140px] text-center">
+              <div class="font-semibold text-bark text-sm">Tables de 7</div>
+              <div class="latin text-[10px]">en cours · 48%</div>
+              <div class="mt-2 h-1.5 rounded-full bg-mist overflow-hidden"><div class="h-full bg-sage" style="width:48%"></div></div>
+            </div>
+          </div>
+          <div class="absolute" style="left: 420px; top: 400px;">
+            <div class="specimen px-3 py-3 w-[140px] text-center">
+              <div class="font-semibold text-bark text-sm">Tables de 8</div>
+              <div class="latin text-[10px]">— bouton</div>
+            </div>
+          </div>
+          <div class="absolute" style="left: 580px; top: 400px;">
+            <div class="specimen px-3 py-3 w-[140px] text-center" style="background:#FAFCF7; opacity:0.7;">
+              <div class="font-semibold text-bark text-sm">Quotient</div>
+              <div class="latin text-[10px]">— graine</div>
+            </div>
+          </div>
+
+          <!-- Tier 4 -->
+          <div class="absolute" style="left: 220px; top: 580px;">
+            <div class="specimen px-3 py-3 w-[140px] text-center" style="border-color:#4F8BAC; box-shadow: 0 0 0 2px #DCEDF4;">
+              <div class="font-semibold text-bark text-sm">Mult. à 2 chiffres</div>
+              <div class="latin text-[10px]">Suggéré aujourd'hui</div>
+              <div class="mt-2 inline-flex chip chip-sky">À arroser</div>
+            </div>
+          </div>
+          <div class="absolute" style="left: 420px; top: 580px;">
+            <div class="specimen px-3 py-3 w-[140px] text-center" style="background:#FAFCF7; opacity:0.7;">
+              <div class="font-semibold text-bark text-sm">Mult. par 10</div>
+              <div class="latin text-[10px]">— graine</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom legend / CTA -->
+        <div class="px-8 mt-6 flex items-center justify-between">
+          <div class="flex items-center gap-3 text-xs text-stem">
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-sage"></span> En croissance</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-sky-deep"></span> À arroser</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-twig"></span> En sommeil</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-honey"></span> Floraison</span>
+          </div>
+          <button class="pill">Soigner « Tables de 7 » →</button>
+        </div>
+      </div>
+    </div>
+    <p class="text-stem text-sm font-semibold">③ Carte · tablette — DAG botanique des compétences</p>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- ③ CARTE — BROWSER (parent dashboard view of skills)             -->
+  <!-- ============================================================== -->
+  <section id="s-carte-web" class="preview-frame flex flex-col items-center gap-3" data-name="03-carte-browser">
+    <div class="browser">
+      <div class="browser-chrome">
+        <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
+        <div class="url">pedagogia.be / noé / carte</div>
+      </div>
+      <div class="browser-screen" style="background:#F6F8F3;">
+        <div class="flex h-full">
+          <aside class="w-60 bg-bone border-r border-sage/15 px-5 py-6">
+            <div class="flex items-center gap-2 mb-8">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3F6F4A" stroke-width="1.6" stroke-linecap="round"><path d="M12 22V10"/><path d="M12 10c0-4 4-6 8-6 0 4-2 8-8 8z"/><path d="M12 14c0-3-3-5-6-5 0 3 1.5 6 6 6z"/></svg>
+              <span class="font-display text-bark">PédagogIA</span>
+            </div>
+            <div class="flex items-center gap-2 mb-6 px-2">
+              <div class="w-9 h-9 rounded-full bg-sage-leaf flex items-center justify-center text-sage-deep font-display font-semibold">N</div>
+              <div>
+                <div class="text-bark text-sm font-semibold">Noé</div>
+                <div class="latin text-[10px]">P5 · 10 ans</div>
+              </div>
+            </div>
+            <nav class="space-y-1 text-sm">
+              <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-bark hover:bg-mist">Aujourd'hui</a>
+              <a class="flex items-center gap-2 px-3 py-2 rounded-lg bg-sage-pale text-sage-deep font-semibold">Carte</a>
+              <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-bark hover:bg-mist">Herbier</a>
+              <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-bark hover:bg-mist">Historique</a>
+              <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-bark hover:bg-mist">Diagnostic</a>
+            </nav>
+          </aside>
+
+          <div class="flex-1 px-12 py-10 overflow-hidden">
+            <div class="flex items-end justify-between">
+              <div>
+                <div class="latin text-sm text-stem">Champ 3 · Arithmétique · P5</div>
+                <h1 class="font-display text-bark text-4xl mt-1">Carte des espèces</h1>
+              </div>
+              <div class="flex gap-2">
+                <button class="pill pill-ghost">Filtrer · domaine</button>
+                <button class="pill">Lancer une séance →</button>
+              </div>
+            </div>
+
+            <div class="mt-8 grid grid-cols-12 gap-6">
+              <!-- DAG canvas -->
+              <div class="col-span-8 relative rounded-2xl border border-sage/15 paper-grid" style="height: 580px;">
+                <svg class="absolute inset-0 w-full h-full" viewBox="0 0 800 580" fill="none">
+                  <path d="M400 60 L200 180" stroke="#A6C7A8" stroke-width="2" stroke-dasharray="3 4"/>
+                  <path d="M400 60 L400 180" stroke="#6FA274" stroke-width="3"/>
+                  <path d="M400 60 L600 180" stroke="#A6C7A8" stroke-width="2" stroke-dasharray="3 4"/>
+                  <path d="M400 240 L260 360" stroke="#6FA274" stroke-width="3"/>
+                  <path d="M400 240 L540 360" stroke="#4F8BAC" stroke-width="3"/>
+                  <path d="M260 420 L260 480" stroke="#A6C7A8" stroke-width="2" stroke-dasharray="3 4"/>
+                </svg>
+                <div class="absolute" style="left:340px; top:30px;">
+                  <div class="specimen px-4 py-3 w-[120px] text-center" style="background:#3F6F4A; border-color:transparent;">
+                    <div class="text-white font-semibold text-sm">Nombres P5</div>
+                  </div>
+                </div>
+                <div class="absolute" style="left:140px; top:160px;">
+                  <div class="specimen px-3 py-3 w-[120px] text-center">
+                    <div class="font-semibold text-bark text-sm">Soustraction</div>
+                    <div class="latin text-[10px]">65%</div>
+                  </div>
+                </div>
+                <div class="absolute" style="left:340px; top:160px;">
+                  <div class="specimen px-3 py-3 w-[120px] text-center" style="border-color:#6FA274;">
+                    <div class="font-semibold text-bark text-sm">Multiplication</div>
+                    <div class="latin text-[10px]">en cours · 48%</div>
+                  </div>
+                </div>
+                <div class="absolute" style="left:540px; top:160px;">
+                  <div class="specimen px-3 py-3 w-[120px] text-center">
+                    <div class="font-semibold text-bark text-sm">Division</div>
+                    <div class="latin text-[10px]">22%</div>
+                  </div>
+                </div>
+                <div class="absolute" style="left:200px; top:340px;">
+                  <div class="specimen px-3 py-3 w-[120px] text-center">
+                    <div class="font-semibold text-bark text-sm">Tables de 7</div>
+                    <div class="latin text-[10px]">48%</div>
+                  </div>
+                </div>
+                <div class="absolute" style="left:480px; top:340px;">
+                  <div class="specimen px-3 py-3 w-[120px] text-center" style="border-color:#4F8BAC;">
+                    <div class="font-semibold text-bark text-sm">Quotient</div>
+                    <div class="latin text-[10px]">À arroser</div>
+                  </div>
+                </div>
+                <div class="absolute" style="left:200px; top:460px;">
+                  <div class="specimen px-3 py-3 w-[120px] text-center" style="opacity:0.7;">
+                    <div class="font-semibold text-bark text-sm">Tables de 8</div>
+                    <div class="latin text-[10px]">— graine</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right rail -->
+              <aside class="col-span-4 space-y-4">
+                <div class="p-4 rounded-xl bg-bone border border-sage/15">
+                  <div class="latin text-xs text-stem">Sélectionné</div>
+                  <div class="font-display text-bark text-xl mt-1">Tables de 7</div>
+                  <div class="latin text-xs">Multiplicatio · per septem</div>
+                  <div class="mt-3 h-2 rounded-full bg-mist overflow-hidden"><div class="h-full bg-sage" style="width:48%"></div></div>
+                  <div class="mt-1 flex justify-between text-xs text-stem"><span>Maîtrise</span><span class="font-mono text-bark">48%</span></div>
+                  <div class="mt-4 text-bark text-sm leading-relaxed">14 questions vues · 8 justes · 6 erreurs analysées par le jardinier.</div>
+                  <button class="mt-4 pill w-full" style="justify-content:center;">Soigner cette plante →</button>
+                </div>
+                <div class="p-4 rounded-xl bg-sky-soft border border-sky/30">
+                  <div class="latin text-xs text-sky-deep">Conseil du jardinier</div>
+                  <p class="text-bark text-sm mt-1">Avant les tables de 7, revoir la table de 4 — Noé y trébuche encore une fois sur trois.</p>
+                </div>
+                <div class="p-4 rounded-xl bg-bone border border-sage/15">
+                  <div class="font-semibold text-bark text-sm">Aujourd'hui</div>
+                  <div class="mt-2 space-y-2 text-sm text-stem">
+                    <div class="flex justify-between"><span>Séances</span><span class="text-bark font-mono">2</span></div>
+                    <div class="flex justify-between"><span>Questions</span><span class="text-bark font-mono">24</span></div>
+                    <div class="flex justify-between"><span>Justes</span><span class="text-bark font-mono">19</span></div>
+                    <div class="flex justify-between"><span>Temps</span><span class="text-bark font-mono">12 min</span></div>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-stem text-sm font-semibold">③ Carte · navigateur — vue détaillée d'une espèce</p>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- ④ ÉTABLI — TABLET (exercise)                                    -->
+  <!-- ============================================================== -->
+  <section id="s-exercice" class="preview-frame flex flex-col items-center gap-3" data-name="04-etabli-tablet">
+    <div class="tablet">
+      <div class="tablet-screen" style="background:#FFFFFF;">
+        <!-- Top bar -->
+        <div class="px-8 pt-10 flex items-center justify-between">
+          <button class="pill pill-ghost text-xs" style="padding:6px 12px;">← Carte</button>
+          <div class="text-center">
+            <div class="latin text-xs text-stem">Établi · Multiplicatio</div>
+            <div class="font-semibold text-bark">Tables de 7 · question 5/10</div>
+          </div>
+          <span class="chip">12 min restantes</span>
+        </div>
+
+        <!-- Progress dots -->
+        <div class="px-8 mt-4 flex justify-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-sage"></span>
+          <span class="w-3 h-3 rounded-full bg-sage"></span>
+          <span class="w-3 h-3 rounded-full bg-sage"></span>
+          <span class="w-3 h-3 rounded-full bg-sage"></span>
+          <span class="w-3 h-3 rounded-full bg-sage-deep ring-4 ring-sage-pale"></span>
+          <span class="w-3 h-3 rounded-full bg-mist"></span>
+          <span class="w-3 h-3 rounded-full bg-mist"></span>
+          <span class="w-3 h-3 rounded-full bg-mist"></span>
+          <span class="w-3 h-3 rounded-full bg-mist"></span>
+          <span class="w-3 h-3 rounded-full bg-mist"></span>
+        </div>
+
+        <!-- Question card — set on a "potting bench" -->
+        <div class="mx-8 mt-10 paper-rule rounded-2xl border border-sage/15 p-12 text-center relative">
+          <span class="absolute top-4 left-4 latin text-xs text-stem">Question</span>
+          <span class="absolute top-4 right-4 chip">×</span>
+          <div class="font-display text-bark text-[44px] leading-tight">Combien font</div>
+          <div class="font-mono text-sage-deep text-[88px] font-semibold mt-3 tracking-tight">7 × 8</div>
+          <div class="font-display text-bark text-[44px] leading-tight">?</div>
+
+          <!-- Answer field -->
+          <div class="mt-10 inline-flex items-center gap-4 bg-bone border-2 border-sage rounded-2xl px-8 py-4">
+            <span class="font-mono text-bark text-5xl">56</span>
+            <span class="w-1 h-12 bg-sage animate-pulse"></span>
+          </div>
+        </div>
+
+        <!-- Numeric keypad -->
+        <div class="mx-8 mt-8 grid grid-cols-3 gap-3">
+          <button class="bg-bone border border-sage/15 rounded-xl py-5 font-mono text-bark text-2xl shadow-leaf">1</button>
+          <button class="bg-bone border border-sage/15 rounded-xl py-5 font-mono text-bark text-2xl shadow-leaf">2</button>
+          <button class="bg-bone border border-sage/15 rounded-xl py-5 font-mono text-bark text-2xl shadow-leaf">3</button>
+          <button class="bg-bone border border-sage/15 rounded-xl py-5 font-mono text-bark text-2xl shadow-leaf">4</button>
+          <button class="bg-bone border border-sage/15 rounded-xl py-5 font-mono text-bark text-2xl shadow-leaf">5</button>
+          <button class="bg-bone border border-sage/15 rounded-xl py-5 font-mono text-bark text-2xl shadow-leaf">6</button>
+          <button class="bg-bone border border-sage/15 rounded-xl py-5 font-mono text-bark text-2xl shadow-leaf">7</button>
+          <button class="bg-bone border border-sage/15 rounded-xl py-5 font-mono text-bark text-2xl shadow-leaf">8</button>
+          <button class="bg-bone border border-sage/15 rounded-xl py-5 font-mono text-bark text-2xl shadow-leaf">9</button>
+          <button class="bg-mist border border-sage/15 rounded-xl py-5 font-mono text-stem text-2xl">⌫</button>
+          <button class="bg-bone border border-sage/15 rounded-xl py-5 font-mono text-bark text-2xl shadow-leaf">0</button>
+          <button class="bg-sage text-white rounded-xl py-5 font-semibold text-lg shadow-leaf">Vérifier</button>
+        </div>
+
+        <!-- Bottom hint button -->
+        <div class="px-8 mt-6 flex items-center justify-between">
+          <button class="pill pill-ghost">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v3"/><path d="M12 19v3"/><circle cx="12" cy="12" r="4"/></svg>
+            Demander un indice
+          </button>
+          <span class="text-xs text-stem latin">— le jardinier veille</span>
+        </div>
+      </div>
+    </div>
+    <p class="text-stem text-sm font-semibold">④ Établi · tablette — exercice de calcul</p>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- ④ ÉTABLI — BROWSER                                              -->
+  <!-- ============================================================== -->
+  <section id="s-exercice-web" class="preview-frame flex flex-col items-center gap-3" data-name="04-etabli-browser">
+    <div class="browser">
+      <div class="browser-chrome">
+        <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
+        <div class="url">pedagogia.be / noé / établi / tables-de-7</div>
+      </div>
+      <div class="browser-screen" style="background:#F6F8F3;">
+        <div class="flex h-full">
+          <aside class="w-56 bg-bone border-r border-sage/15 px-4 py-6">
+            <div class="flex items-center gap-2 mb-8">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3F6F4A" stroke-width="1.6" stroke-linecap="round"><path d="M12 22V10"/><path d="M12 10c0-4 4-6 8-6 0 4-2 8-8 8z"/></svg>
+              <span class="font-display text-bark">PédagogIA</span>
+            </div>
+            <div class="text-xs text-stem latin uppercase tracking-wider">Séance en cours</div>
+            <div class="mt-3 p-3 rounded-xl bg-sage-pale">
+              <div class="font-semibold text-bark text-sm">Tables de 7</div>
+              <div class="text-xs text-sage-deep mt-0.5">Question 5 sur 10</div>
+              <div class="mt-2 h-1.5 rounded-full bg-bone overflow-hidden"><div class="h-full bg-sage-deep" style="width:50%"></div></div>
+            </div>
+            <div class="mt-6 space-y-1 text-sm">
+              <div class="px-3 py-1.5 text-stem">① 7×4 = 28 ✓</div>
+              <div class="px-3 py-1.5 text-stem">② 7×6 = 42 ✓</div>
+              <div class="px-3 py-1.5 text-stem">③ 7×3 = 21 ✓</div>
+              <div class="px-3 py-1.5 text-rose font-medium">④ 7×9 = ?</div>
+              <div class="px-3 py-1.5 rounded-lg bg-sage text-white font-semibold">⑤ 7×8 = ?</div>
+              <div class="px-3 py-1.5 text-twig">⑥ —</div>
+              <div class="px-3 py-1.5 text-twig">⑦ —</div>
+            </div>
+          </aside>
+
+          <div class="flex-1 flex items-center justify-center px-16">
+            <div class="w-full max-w-3xl">
+              <div class="text-center latin text-stem">Établi · Multiplicatio · per septem</div>
+              <div class="mt-8 paper-rule rounded-2xl border border-sage/15 px-16 py-14 text-center">
+                <div class="font-display text-bark text-3xl">Combien font</div>
+                <div class="font-mono text-sage-deep text-[120px] font-semibold mt-3 leading-none">7 × 8</div>
+                <div class="font-display text-bark text-3xl">?</div>
+                <div class="mt-10 inline-flex items-center gap-4 bg-bone border-2 border-sage rounded-2xl px-12 py-5">
+                  <span class="font-mono text-bark text-6xl">56</span>
+                  <span class="w-1 h-14 bg-sage"></span>
+                </div>
+              </div>
+              <div class="mt-8 flex justify-between items-center">
+                <button class="pill pill-ghost">Demander un indice</button>
+                <div class="flex gap-3">
+                  <button class="pill pill-ghost">Passer</button>
+                  <button class="pill" style="padding:14px 30px;">Vérifier ma réponse →</button>
+                </div>
+              </div>
+              <p class="text-center latin text-xs text-stem mt-6">Tape le nombre, ou utilise le clavier de la tablette.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-stem text-sm font-semibold">④ Établi · navigateur — vue clavier physique</p>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- ⑤ JARDINIER — TABLET (wrong-answer feedback + AI investigation) -->
+  <!-- ============================================================== -->
+  <section id="s-correction" class="preview-frame flex flex-col items-center gap-3" data-name="05-jardinier-tablet">
+    <div class="tablet">
+      <div class="tablet-screen" style="background:#FFFFFF;">
+        <div class="px-8 pt-10">
+          <div class="flex items-center justify-between">
+            <button class="pill pill-ghost text-xs" style="padding:6px 12px;">← Établi</button>
+            <span class="chip" style="background:#FBF1D6; color:#8A6A1F; border-color:rgba(232,198,106,.4);">Le jardinier observe</span>
+          </div>
+        </div>
+
+        <!-- Wrong answer banner — soft -->
+        <div class="mx-8 mt-6 p-5 rounded-2xl border border-sage/15" style="background: linear-gradient(180deg,#FFF5F4 0%, #FAFCF7 70%);">
+          <div class="flex items-start gap-3">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#B05A55" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
+            <div class="flex-1">
+              <div class="font-display text-bark text-2xl">Pas tout à fait — <em>encore une feuille</em>.</div>
+              <p class="text-stem mt-1">Tu as répondu <span class="font-mono text-bark font-semibold">54</span>. La bonne réponse est <span class="font-mono text-sage-deep font-semibold">56</span>.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calcul posé décomposé (botanical illustration) -->
+        <div class="mx-8 mt-6 p-6 rounded-2xl border border-sage/15 bg-paper">
+          <div class="latin text-xs text-stem uppercase tracking-wider">Décomposition</div>
+          <div class="mt-3 flex items-center gap-3 font-mono text-bark text-2xl">
+            <span class="px-3 py-1 rounded-lg bg-sage-pale">7 × 8</span>
+            <span>=</span>
+            <span class="px-3 py-1 rounded-lg bg-sky-soft">7 × 4</span>
+            <span>+</span>
+            <span class="px-3 py-1 rounded-lg bg-sky-soft">7 × 4</span>
+          </div>
+          <div class="mt-2 flex items-center gap-3 font-mono text-bark text-2xl">
+            <span class="invisible">7 × 8</span>
+            <span>=</span>
+            <span class="px-3 py-1 rounded-lg bg-sky-soft">28</span>
+            <span>+</span>
+            <span class="px-3 py-1 rounded-lg bg-sky-soft">28</span>
+            <span>=</span>
+            <span class="px-3 py-1 rounded-lg bg-sage text-white">56</span>
+          </div>
+          <p class="text-stem text-sm mt-4 leading-relaxed">
+            Si tu connais <em>7 × 4 = 28</em>, tu peux dédoubler pour obtenir <em>7 × 8</em>.
+          </p>
+        </div>
+
+        <!-- AI investigation — the gardener thinks aloud -->
+        <div class="mx-8 mt-6 p-5 rounded-2xl border border-sky/30 bg-sky-soft">
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-full bg-bone border border-sky/30 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4F8BAC" stroke-width="1.6" stroke-linecap="round"><path d="M12 2v3"/><circle cx="12" cy="12" r="4"/><path d="M12 19v3"/></svg>
+            </div>
+            <div class="flex-1">
+              <div class="latin text-xs text-sky-deep">Le jardinier réfléchit</div>
+              <p class="text-bark text-[15px] mt-1 leading-relaxed">
+                Tu as donné <strong>54</strong> au lieu de <strong>56</strong>. Souvent, c'est
+                la <em>table de 4</em> qui flanche d'abord. Essayons : combien font
+                <span class="font-mono">7 × 4</span> ?
+              </p>
+              <div class="mt-3 flex gap-2 flex-wrap">
+                <button class="pill pill-ghost text-xs" style="padding:6px 14px;">21</button>
+                <button class="pill pill-ghost text-xs" style="padding:6px 14px;">24</button>
+                <button class="pill pill-ghost text-xs" style="padding:6px 14px; background:#C7E0B5; color:#2B3A2E; border-color:#6FA274;">28</button>
+                <button class="pill pill-ghost text-xs" style="padding:6px 14px;">32</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom CTAs -->
+        <div class="absolute bottom-12 left-8 right-8 flex justify-between items-center">
+          <button class="pill pill-ghost">Voir une autre stratégie</button>
+          <button class="pill">Continuer la séance →</button>
+        </div>
+      </div>
+    </div>
+    <p class="text-stem text-sm font-semibold">⑤ Jardinier · tablette — feedback + investigation IA</p>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- ⑤ JARDINIER — BROWSER                                           -->
+  <!-- ============================================================== -->
+  <section id="s-correction-web" class="preview-frame flex flex-col items-center gap-3" data-name="05-jardinier-browser">
+    <div class="browser">
+      <div class="browser-chrome">
+        <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
+        <div class="url">pedagogia.be / noé / établi / tables-de-7 / correction</div>
+      </div>
+      <div class="browser-screen" style="background:#F6F8F3;">
+        <div class="px-16 py-10 grid grid-cols-12 gap-8 h-full">
+          <div class="col-span-7">
+            <div class="latin text-stem">Question 5 — 7 × 8</div>
+            <h2 class="font-display text-bark text-4xl mt-1">Pas tout à fait — <em>encore une feuille</em>.</h2>
+            <p class="text-stem mt-2 text-lg">Réponse donnée <span class="font-mono text-bark font-semibold">54</span> · réponse attendue <span class="font-mono text-sage-deep font-semibold">56</span>.</p>
+
+            <div class="mt-8 p-8 rounded-2xl border border-sage/15 bg-bone">
+              <div class="latin text-xs text-stem uppercase tracking-wider">Stratégie · doublage</div>
+              <div class="mt-4 grid grid-cols-3 gap-4 text-center">
+                <div class="p-4 rounded-xl bg-sky-soft border border-sky/30">
+                  <div class="latin text-xs text-sky-deep">Étape 1</div>
+                  <div class="font-mono text-bark text-3xl mt-1">7 × 4</div>
+                  <div class="font-mono text-sage-deep text-2xl mt-2 font-semibold">28</div>
+                </div>
+                <div class="p-4 rounded-xl bg-sky-soft border border-sky/30">
+                  <div class="latin text-xs text-sky-deep">Étape 2</div>
+                  <div class="font-mono text-bark text-3xl mt-1">28 + 28</div>
+                  <div class="font-mono text-sage-deep text-2xl mt-2 font-semibold">56</div>
+                </div>
+                <div class="p-4 rounded-xl bg-sage text-white">
+                  <div class="latin text-xs text-sage-pale">Résultat</div>
+                  <div class="font-mono text-3xl mt-1">7 × 8</div>
+                  <div class="font-mono text-2xl mt-2 font-semibold">56</div>
+                </div>
+              </div>
+              <p class="text-stem text-sm mt-5 leading-relaxed">
+                <em>« Si je sais 7 × 4, je sais 7 × 8 — il suffit de dédoubler. »</em>
+                Cette stratégie marche pour toutes les paires (×2 et ×4, ×3 et ×6, etc.).
+              </p>
+            </div>
+
+            <div class="mt-6 flex gap-3">
+              <button class="pill pill-ghost">Voir « calcul posé »</button>
+              <button class="pill pill-ghost">Voir « rectangle »</button>
+              <button class="pill">Continuer →</button>
+            </div>
+          </div>
+
+          <aside class="col-span-5">
+            <div class="p-6 rounded-2xl bg-sky-soft border border-sky/30">
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-full bg-bone border border-sky/30 flex items-center justify-center">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4F8BAC" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3"/><path d="M12 19v3"/><path d="M2 12h3"/><path d="M19 12h3"/></svg>
+                </div>
+                <div>
+                  <div class="latin text-xs text-sky-deep">Le jardinier enquête · Claude Haiku 4.5</div>
+                  <div class="font-display text-bark text-xl mt-0.5">Hypothèse — table de 4 fragile</div>
+                </div>
+              </div>
+              <p class="text-bark text-[15px] mt-3 leading-relaxed">
+                Sur les 6 erreurs récentes, 4 viennent du même endroit : la table de 4.
+                Sans elle, le doublage de 7 × 4 → 7 × 8 ne tient pas. Probons-la.
+              </p>
+              <div class="mt-4 grid grid-cols-4 gap-2">
+                <button class="rounded-xl border border-sky/40 bg-bone py-3 font-mono text-bark">21</button>
+                <button class="rounded-xl border border-sky/40 bg-bone py-3 font-mono text-bark">24</button>
+                <button class="rounded-xl border-2 border-sage bg-sage-leaf py-3 font-mono text-bark font-semibold">28</button>
+                <button class="rounded-xl border border-sky/40 bg-bone py-3 font-mono text-bark">32</button>
+              </div>
+              <div class="latin text-xs text-stem mt-3">Réponds, et le jardinier ajuste la suite.</div>
+            </div>
+
+            <div class="mt-5 p-5 rounded-2xl border border-sage/15 bg-bone">
+              <div class="latin text-xs text-stem uppercase tracking-wider">Plantes voisines</div>
+              <div class="mt-3 space-y-2 text-sm">
+                <div class="flex justify-between"><span class="text-bark">Table de 4</span><span class="font-mono text-rose">62%</span></div>
+                <div class="flex justify-between"><span class="text-bark">Table de 7</span><span class="font-mono text-bark">48%</span></div>
+                <div class="flex justify-between"><span class="text-bark">Doublage</span><span class="font-mono text-bark">71%</span></div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+    <p class="text-stem text-sm font-semibold">⑤ Jardinier · navigateur — page de correction détaillée</p>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- ⑥ HERBIER — TABLET (bulletin / dashboard)                       -->
+  <!-- ============================================================== -->
+  <section id="s-bulletin" class="preview-frame flex flex-col items-center gap-3" data-name="06-herbier-tablet">
+    <div class="tablet">
+      <div class="tablet-screen" style="background:#FFFFFF;">
+        <div class="px-8 pt-10 flex items-center justify-between">
+          <div>
+            <div class="latin text-sm text-stem">Noé · P5</div>
+            <h2 class="font-display text-bark text-4xl mt-1">Mon herbier</h2>
+          </div>
+          <div class="flex gap-2">
+            <span class="chip chip-honey">Rang · Pousse</span>
+            <span class="chip">320 XP</span>
+          </div>
+        </div>
+
+        <!-- KPI row -->
+        <div class="px-8 mt-8 grid grid-cols-3 gap-4">
+          <div class="p-4 rounded-xl bg-paper border border-sage/15">
+            <div class="latin text-xs text-stem">Plantes en croissance</div>
+            <div class="font-display text-bark text-4xl mt-1 font-semibold">7</div>
+            <div class="text-stem text-xs mt-1">+2 cette semaine</div>
+          </div>
+          <div class="p-4 rounded-xl bg-paper border border-sage/15">
+            <div class="latin text-xs text-stem">Floraisons</div>
+            <div class="font-display text-bark text-4xl mt-1 font-semibold">3</div>
+            <div class="text-honey text-xs mt-1">+1 hier</div>
+          </div>
+          <div class="p-4 rounded-xl bg-paper border border-sage/15">
+            <div class="latin text-xs text-stem">Jours de suite</div>
+            <div class="font-display text-bark text-4xl mt-1 font-semibold">15</div>
+            <div class="text-stem text-xs mt-1">~ 11 min / jour</div>
+          </div>
+        </div>
+
+        <!-- Streak strip -->
+        <div class="mx-8 mt-8 p-5 rounded-2xl bg-paper border border-sage/15">
+          <div class="flex items-center justify-between">
+            <div class="font-semibold text-bark">Cette semaine</div>
+            <span class="latin text-xs text-stem">Lun → Dim</span>
+          </div>
+          <div class="mt-4 grid grid-cols-7 gap-3">
+            <!-- Days with leaf icons -->
+            <div class="flex flex-col items-center gap-1">
+              <div class="w-12 h-12 rounded-full bg-sage flex items-center justify-center">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M12 22V10"/><path d="M12 10c0-4 4-6 8-6 0 4-2 8-8 8z"/></svg>
+              </div>
+              <span class="text-xs text-stem">L</span>
+            </div>
+            <div class="flex flex-col items-center gap-1">
+              <div class="w-12 h-12 rounded-full bg-sage flex items-center justify-center">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M12 22V10"/><path d="M12 10c0-4 4-6 8-6 0 4-2 8-8 8z"/></svg>
+              </div>
+              <span class="text-xs text-stem">M</span>
+            </div>
+            <div class="flex flex-col items-center gap-1">
+              <div class="w-12 h-12 rounded-full bg-sage flex items-center justify-center">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M12 22V10"/><path d="M12 10c0-4 4-6 8-6 0 4-2 8-8 8z"/></svg>
+              </div>
+              <span class="text-xs text-stem">M</span>
+            </div>
+            <div class="flex flex-col items-center gap-1">
+              <div class="w-12 h-12 rounded-full bg-sage flex items-center justify-center">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M12 22V10"/><path d="M12 10c0-4 4-6 8-6 0 4-2 8-8 8z"/></svg>
+              </div>
+              <span class="text-xs text-stem">J</span>
+            </div>
+            <div class="flex flex-col items-center gap-1">
+              <div class="w-12 h-12 rounded-full bg-sage flex items-center justify-center">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M12 22V10"/><path d="M12 10c0-4 4-6 8-6 0 4-2 8-8 8z"/></svg>
+              </div>
+              <span class="text-xs text-stem">V</span>
+            </div>
+            <div class="flex flex-col items-center gap-1">
+              <div class="w-12 h-12 rounded-full bg-honey flex items-center justify-center">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+              </div>
+              <span class="text-xs text-bark font-semibold">S</span>
+            </div>
+            <div class="flex flex-col items-center gap-1">
+              <div class="w-12 h-12 rounded-full bg-mist border border-sage/15 flex items-center justify-center">
+                <span class="text-stem text-xs">·</span>
+              </div>
+              <span class="text-xs text-stem">D</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pressed-flower badges -->
+        <div class="mx-8 mt-6">
+          <div class="flex justify-between items-center">
+            <h3 class="font-display text-bark text-xl">Plantes maîtrisées</h3>
+            <a class="text-xs text-sage-deep font-semibold latin">Voir tout →</a>
+          </div>
+          <div class="mt-3 grid grid-cols-4 gap-3">
+            <div class="p-3 rounded-xl bg-paper border border-sage/15 text-center">
+              <div class="h-16 flex items-center justify-center">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#3F6F4A" stroke-width="1.4" stroke-linecap="round"><path d="M12 22V12"/><path d="M12 12c0-3 3-5 6-5 0 3-2 5-6 5z"/><path d="M12 16c0-3-3-5-6-5 0 3 2 5 6 5z"/></svg>
+              </div>
+              <div class="text-xs font-semibold text-bark mt-1">Tables de 4</div>
+              <div class="latin text-[10px] text-stem">acquise · 7 mars</div>
+            </div>
+            <div class="p-3 rounded-xl bg-paper border border-sage/15 text-center">
+              <div class="h-16 flex items-center justify-center">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#4F8BAC" stroke-width="1.4" stroke-linecap="round"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2" fill="#E8C66A"/></svg>
+              </div>
+              <div class="text-xs font-semibold text-bark mt-1">Add. à retenue</div>
+              <div class="latin text-[10px] text-stem">acquise · 12 mars</div>
+            </div>
+            <div class="p-3 rounded-xl bg-paper border border-sage/15 text-center">
+              <div class="h-16 flex items-center justify-center">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#3F6F4A" stroke-width="1.4" stroke-linecap="round"><path d="M12 22V8"/><path d="M5 8c0-4 7-6 7-6s7 2 7 6c0 4-7 6-7 6S5 12 5 8z"/></svg>
+              </div>
+              <div class="text-xs font-semibold text-bark mt-1">Tables de 5</div>
+              <div class="latin text-[10px] text-stem">acquise · 28 mars</div>
+            </div>
+            <div class="p-3 rounded-xl bg-mist border border-dashed border-sage/30 text-center opacity-70">
+              <div class="h-16 flex items-center justify-center">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#5C6B5F" stroke-width="1.4" stroke-linecap="round"><circle cx="12" cy="12" r="3"/></svg>
+              </div>
+              <div class="text-xs font-semibold text-stem mt-1">Tables de 7</div>
+              <div class="latin text-[10px] text-stem">— en cours</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-stem text-sm font-semibold">⑥ Herbier · tablette — bulletin enfant</p>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- ⑥ HERBIER — BROWSER (parent dashboard)                          -->
+  <!-- ============================================================== -->
+  <section id="s-bulletin-web" class="preview-frame flex flex-col items-center gap-3" data-name="06-herbier-browser">
+    <div class="browser">
+      <div class="browser-chrome">
+        <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
+        <div class="url">pedagogia.be / parents / noé / herbier</div>
+      </div>
+      <div class="browser-screen" style="background:#F6F8F3;">
+        <div class="flex h-full">
+          <aside class="w-56 bg-bone border-r border-sage/15 px-4 py-6">
+            <div class="flex items-center gap-2 mb-8">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3F6F4A" stroke-width="1.6" stroke-linecap="round"><path d="M12 22V10"/><path d="M12 10c0-4 4-6 8-6 0 4-2 8-8 8z"/></svg>
+              <span class="font-display text-bark">PédagogIA</span>
+            </div>
+            <div class="text-xs latin uppercase tracking-wider text-stem mb-2">Espace parent</div>
+            <nav class="space-y-1 text-sm">
+              <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-bark hover:bg-mist">Vue d'ensemble</a>
+              <a class="flex items-center gap-2 px-3 py-2 rounded-lg bg-sage-pale text-sage-deep font-semibold">Herbier de Noé</a>
+              <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-bark hover:bg-mist">Herbier d'Aya</a>
+              <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-bark hover:bg-mist">Herbier de Margaux</a>
+              <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-bark hover:bg-mist">Exports PDF</a>
+              <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-bark hover:bg-mist">Réglages</a>
+            </nav>
+          </aside>
+
+          <div class="flex-1 px-12 py-8 overflow-hidden">
+            <div class="flex items-end justify-between">
+              <div>
+                <div class="latin text-stem text-sm">Bulletin · semaine 12 → 18 avril 2026</div>
+                <h1 class="font-display text-bark text-4xl mt-1">Herbier de Noé</h1>
+              </div>
+              <div class="flex gap-2">
+                <button class="pill pill-ghost">Exporter PDF</button>
+                <button class="pill pill-ghost">Exporter JSON</button>
+              </div>
+            </div>
+
+            <!-- KPIs -->
+            <div class="mt-7 grid grid-cols-4 gap-5">
+              <div class="p-5 rounded-2xl bg-bone border border-sage/15">
+                <div class="latin text-xs text-stem">Rang actuel</div>
+                <div class="font-display text-bark text-3xl mt-1 font-semibold">Pousse</div>
+                <div class="text-honey text-xs mt-1">prochain · Floraison à 500 XP</div>
+              </div>
+              <div class="p-5 rounded-2xl bg-bone border border-sage/15">
+                <div class="latin text-xs text-stem">XP cumulés</div>
+                <div class="font-display text-bark text-3xl mt-1 font-semibold font-mono">320</div>
+                <div class="text-stem text-xs mt-1">+62 cette semaine</div>
+              </div>
+              <div class="p-5 rounded-2xl bg-bone border border-sage/15">
+                <div class="latin text-xs text-stem">Plantes maîtrisées</div>
+                <div class="font-display text-bark text-3xl mt-1 font-semibold">12 / 38</div>
+                <div class="text-stem text-xs mt-1">Champ 3 · Arithmétique</div>
+              </div>
+              <div class="p-5 rounded-2xl bg-bone border border-sage/15">
+                <div class="latin text-xs text-stem">Jours de suite</div>
+                <div class="font-display text-bark text-3xl mt-1 font-semibold font-mono">15</div>
+                <div class="text-stem text-xs mt-1">moy · 11 min / jour</div>
+              </div>
+            </div>
+
+            <div class="mt-7 grid grid-cols-12 gap-6">
+              <!-- Activity chart -->
+              <div class="col-span-8 p-6 rounded-2xl bg-bone border border-sage/15">
+                <div class="flex justify-between items-center">
+                  <div>
+                    <div class="latin text-xs text-stem">Croissance · 14 derniers jours</div>
+                    <div class="font-display text-bark text-xl mt-0.5">Questions par jour</div>
+                  </div>
+                  <div class="flex gap-2 text-xs">
+                    <span class="chip">Vues</span>
+                    <span class="chip" style="background:#C7E0B5;">Justes</span>
+                  </div>
+                </div>
+                <!-- Bar chart in SVG -->
+                <svg viewBox="0 0 700 220" class="w-full mt-4">
+                  <line x1="0" y1="200" x2="700" y2="200" stroke="#A1AEA3" stroke-width="1"/>
+                  <line x1="0" y1="150" x2="700" y2="150" stroke="#A1AEA3" stroke-dasharray="2 4" stroke-width="0.5"/>
+                  <line x1="0" y1="100" x2="700" y2="100" stroke="#A1AEA3" stroke-dasharray="2 4" stroke-width="0.5"/>
+                  <line x1="0" y1="50" x2="700" y2="50" stroke="#A1AEA3" stroke-dasharray="2 4" stroke-width="0.5"/>
+                  <!-- bars -->
+                  <g>
+                    <rect x="20"  y="120" width="30" height="80" rx="4" fill="#ECF1E7"/><rect x="20"  y="140" width="30" height="60" rx="4" fill="#6FA274"/>
+                    <rect x="65"  y="100" width="30" height="100" rx="4" fill="#ECF1E7"/><rect x="65"  y="120" width="30" height="80" rx="4" fill="#6FA274"/>
+                    <rect x="110" y="80" width="30" height="120" rx="4" fill="#ECF1E7"/><rect x="110" y="105" width="30" height="95" rx="4" fill="#6FA274"/>
+                    <rect x="155" y="60" width="30" height="140" rx="4" fill="#ECF1E7"/><rect x="155" y="78" width="30" height="122" rx="4" fill="#6FA274"/>
+                    <rect x="200" y="110" width="30" height="90" rx="4" fill="#ECF1E7"/><rect x="200" y="128" width="30" height="72" rx="4" fill="#6FA274"/>
+                    <rect x="245" y="140" width="30" height="60" rx="4" fill="#ECF1E7"/><rect x="245" y="155" width="30" height="45" rx="4" fill="#6FA274"/>
+                    <rect x="290" y="180" width="30" height="20" rx="4" fill="#ECF1E7"/>
+                    <rect x="335" y="120" width="30" height="80" rx="4" fill="#ECF1E7"/><rect x="335" y="135" width="30" height="65" rx="4" fill="#6FA274"/>
+                    <rect x="380" y="80" width="30" height="120" rx="4" fill="#ECF1E7"/><rect x="380" y="100" width="30" height="100" rx="4" fill="#6FA274"/>
+                    <rect x="425" y="55" width="30" height="145" rx="4" fill="#ECF1E7"/><rect x="425" y="72" width="30" height="128" rx="4" fill="#6FA274"/>
+                    <rect x="470" y="40" width="30" height="160" rx="4" fill="#ECF1E7"/><rect x="470" y="55" width="30" height="145" rx="4" fill="#6FA274"/>
+                    <rect x="515" y="70" width="30" height="130" rx="4" fill="#ECF1E7"/><rect x="515" y="90" width="30" height="110" rx="4" fill="#6FA274"/>
+                    <rect x="560" y="90" width="30" height="110" rx="4" fill="#ECF1E7"/><rect x="560" y="115" width="30" height="85" rx="4" fill="#6FA274"/>
+                    <rect x="605" y="50" width="30" height="150" rx="4" fill="#ECF1E7"/><rect x="605" y="68" width="30" height="132" rx="4" fill="#6FA274"/>
+                  </g>
+                </svg>
+              </div>
+
+              <!-- Recent badges -->
+              <div class="col-span-4 p-6 rounded-2xl bg-bone border border-sage/15">
+                <div class="flex justify-between items-center">
+                  <div class="font-display text-bark text-xl">Floraisons récentes</div>
+                </div>
+                <div class="mt-4 space-y-3">
+                  <div class="flex items-center gap-3 p-3 rounded-xl bg-sage-pale">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3F6F4A" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 4v3M12 17v3M4 12h3M17 12h3M6 6l2 2M16 16l2 2M6 18l2-2M16 8l2-2"/></svg>
+                    <div class="flex-1">
+                      <div class="font-semibold text-bark text-sm">Tables de 5 — fleurie</div>
+                      <div class="latin text-xs text-stem">28 mars · +60 XP</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3 p-3 rounded-xl bg-sky-soft">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4F8BAC" stroke-width="1.5" stroke-linecap="round"><path d="M12 22V12"/><path d="M12 12c0-4 4-6 8-6 0 4-2 8-8 8z"/></svg>
+                    <div class="flex-1">
+                      <div class="font-semibold text-bark text-sm">10 jours de suite</div>
+                      <div class="latin text-xs text-stem">12 mars · +30 XP</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3 p-3 rounded-xl bg-paper border border-sage/15">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3F6F4A" stroke-width="1.5" stroke-linecap="round"><path d="M12 22V8"/><path d="M5 8c0-4 7-6 7-6s7 2 7 6c0 4-7 6-7 6S5 12 5 8z"/></svg>
+                    <div class="flex-1">
+                      <div class="font-semibold text-bark text-sm">Add. à retenue — fleurie</div>
+                      <div class="latin text-xs text-stem">12 mars · +60 XP</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-stem text-sm font-semibold">⑥ Herbier · navigateur — bulletin parent</p>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- ⑦ FLORAISON — TABLET                                            -->
+  <!-- ============================================================== -->
+  <section id="s-celebration" class="preview-frame flex flex-col items-center gap-3" data-name="07-floraison-tablet">
+    <div class="tablet">
+      <div class="tablet-screen water relative overflow-hidden">
+        <!-- Decorative top SVG: rising sun + leaves -->
+        <svg class="absolute top-0 left-1/2 -translate-x-1/2 -mt-12" width="400" height="400" viewBox="0 0 400 400" fill="none">
+          <circle cx="200" cy="200" r="160" fill="#FBF1D6"/>
+          <circle cx="200" cy="200" r="110" fill="#F4E2A8"/>
+          <circle cx="200" cy="200" r="70" fill="#E8C66A"/>
+        </svg>
+
+        <div class="relative pt-24 px-10 text-center">
+          <div class="latin text-sm text-sky-deep">Florilegium</div>
+          <h1 class="font-display font-semibold text-bark text-[64px] leading-none mt-2">
+            <em>Floraison</em>
+          </h1>
+          <p class="text-stem mt-3 text-lg max-w-md mx-auto">
+            La table de 5 a fleuri. Une plante de plus dans ton herbier.
+          </p>
+
+          <!-- Bloom card -->
+          <div class="mt-10 mx-auto w-fit p-8 rounded-3xl bg-bone border border-sage/15 shadow-glasspane">
+            <svg width="180" height="180" viewBox="0 0 180 180" fill="none" stroke="#3F6F4A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M90 170V100"/>
+              <ellipse cx="90" cy="60" rx="30" ry="35" fill="#F8C8C2" stroke="#B05A55"/>
+              <ellipse cx="60" cy="80" rx="22" ry="30" fill="#F8C8C2" stroke="#B05A55" transform="rotate(-30 60 80)"/>
+              <ellipse cx="120" cy="80" rx="22" ry="30" fill="#F8C8C2" stroke="#B05A55" transform="rotate(30 120 80)"/>
+              <ellipse cx="65" cy="40" rx="20" ry="28" fill="#F8C8C2" stroke="#B05A55" transform="rotate(-60 65 40)"/>
+              <ellipse cx="115" cy="40" rx="20" ry="28" fill="#F8C8C2" stroke="#B05A55" transform="rotate(60 115 40)"/>
+              <circle cx="90" cy="60" r="14" fill="#E8C66A" stroke="#8A6A1F"/>
+              <path d="M70 130c-15 0-25-10-25-25 15 0 25 10 25 25z" fill="#C7E0B5"/>
+              <path d="M110 140c15 0 25-10 25-25-15 0-25 10-25 25z" fill="#C7E0B5"/>
+            </svg>
+            <div class="mt-5">
+              <div class="font-display text-bark text-3xl">Tables de 5</div>
+              <div class="latin text-sm text-stem">Multiplicatio · per quinque</div>
+            </div>
+            <div class="mt-4 flex justify-center gap-2">
+              <span class="chip chip-honey">+60 XP</span>
+              <span class="chip">28 mars</span>
+            </div>
+          </div>
+
+          <!-- XP progress -->
+          <div class="mt-10 mx-auto max-w-md">
+            <div class="flex justify-between text-xs text-stem latin">
+              <span>Rang · Pousse</span><span>500 XP → Floraison</span>
+            </div>
+            <div class="mt-2 h-3 rounded-full bg-bone border border-sage/15 overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-sage to-honey" style="width:64%"></div>
+            </div>
+            <div class="mt-2 text-center text-bark font-mono text-sm">320 / 500 XP</div>
+          </div>
+
+          <!-- CTA -->
+          <div class="mt-12 flex justify-center gap-3">
+            <button class="pill pill-ghost">Partager avec papa & maman</button>
+            <button class="pill" style="font-size:16px; padding:14px 24px;">Continuer la séance →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-stem text-sm font-semibold">⑦ Floraison · tablette — célébration de rang acquis</p>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- ⑦ FLORAISON — BROWSER                                           -->
+  <!-- ============================================================== -->
+  <section id="s-celebration-web" class="preview-frame flex flex-col items-center gap-3" data-name="07-floraison-browser">
+    <div class="browser">
+      <div class="browser-chrome">
+        <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
+        <div class="url">pedagogia.be / noé / floraison</div>
+      </div>
+      <div class="browser-screen water relative overflow-hidden">
+        <svg class="absolute top-0 right-0 -mt-20 -mr-20 opacity-60" width="600" height="600" viewBox="0 0 600 600" fill="none">
+          <circle cx="300" cy="300" r="240" fill="#FBF1D6"/>
+          <circle cx="300" cy="300" r="160" fill="#F4E2A8"/>
+        </svg>
+
+        <div class="relative grid grid-cols-2 h-full">
+          <div class="px-20 flex flex-col justify-center">
+            <div class="latin text-sky-deep">Florilegium · 28 mars 2026</div>
+            <h1 class="font-display font-semibold text-bark text-[110px] leading-[0.9] mt-3">
+              <em class="text-sage-deep">Floraison.</em>
+            </h1>
+            <p class="text-stem mt-6 text-xl max-w-lg leading-relaxed">
+              Noé vient de maîtriser la <strong>table de 5</strong>. Une plante
+              de plus dans son herbier — et un pas de plus vers le rang
+              <em>Floraison</em>.
+            </p>
+
+            <div class="mt-10 max-w-lg">
+              <div class="flex justify-between text-sm text-stem latin">
+                <span>Rang · Pousse</span><span>500 XP → Floraison</span>
+              </div>
+              <div class="mt-2 h-3 rounded-full bg-bone border border-sage/15 overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-sage to-honey" style="width:64%"></div>
+              </div>
+              <div class="mt-2 text-bark font-mono text-sm">320 / 500 XP · +60 aujourd'hui</div>
+            </div>
+
+            <div class="mt-10 flex gap-3">
+              <button class="pill pill-ghost">Partager le PDF aux parents</button>
+              <button class="pill" style="font-size:16px; padding:16px 26px;">Continuer la séance →</button>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-center">
+            <div class="p-10 rounded-3xl bg-bone border border-sage/15 shadow-glasspane">
+              <svg width="280" height="280" viewBox="0 0 180 180" fill="none" stroke="#3F6F4A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M90 170V100"/>
+                <ellipse cx="90" cy="60" rx="30" ry="35" fill="#F8C8C2" stroke="#B05A55"/>
+                <ellipse cx="60" cy="80" rx="22" ry="30" fill="#F8C8C2" stroke="#B05A55" transform="rotate(-30 60 80)"/>
+                <ellipse cx="120" cy="80" rx="22" ry="30" fill="#F8C8C2" stroke="#B05A55" transform="rotate(30 120 80)"/>
+                <ellipse cx="65" cy="40" rx="20" ry="28" fill="#F8C8C2" stroke="#B05A55" transform="rotate(-60 65 40)"/>
+                <ellipse cx="115" cy="40" rx="20" ry="28" fill="#F8C8C2" stroke="#B05A55" transform="rotate(60 115 40)"/>
+                <circle cx="90" cy="60" r="14" fill="#E8C66A" stroke="#8A6A1F"/>
+                <path d="M70 130c-15 0-25-10-25-25 15 0 25 10 25 25z" fill="#C7E0B5"/>
+                <path d="M110 140c15 0 25-10 25-25-15 0-25 10-25 25z" fill="#C7E0B5"/>
+              </svg>
+              <div class="mt-6 text-center">
+                <div class="font-display text-bark text-3xl">Tables de 5</div>
+                <div class="latin text-sm text-stem">Multiplicatio · per quinque</div>
+                <div class="mt-3 flex justify-center gap-2">
+                  <span class="chip chip-honey">+60 XP</span>
+                  <span class="chip">acquise</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-stem text-sm font-semibold">⑦ Floraison · navigateur — célébration grand format</p>
+  </section>
+
+</main>
+
+<!-- ========== TOKENS ========== -->
+<section id="tokens" class="max-w-7xl mx-auto px-6 pb-12">
+  <p class="uppercase tracking-widest text-stem text-xs font-semibold">Jetons de design</p>
+  <h2 class="font-display text-3xl text-bark mt-1">Ce qui fait <em>Le Jardin</em></h2>
+
+  <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+
+    <!-- Palette -->
+    <div class="p-6 rounded-2xl bg-bone border border-sage/15">
+      <h3 class="font-display font-semibold text-bark text-lg">Palette</h3>
+      <p class="text-stem text-xs mt-1">Blanc papier, vert sage, ciel lavé. Trois familles, jamais plus de trois ensemble.</p>
+      <ul class="mt-5 space-y-3 text-sm">
+        <li class="flex items-center gap-3">
+          <span class="w-10 h-10 rounded-lg border border-bark/10" style="background:#FFFFFF"></span>
+          <div class="flex-1"><div class="font-semibold text-bark">Bone</div><div class="text-stem text-xs">surface principale</div></div>
+          <span class="font-mono text-xs text-stem">#FFFFFF</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <span class="w-10 h-10 rounded-lg" style="background:#F6F8F3"></span>
+          <div class="flex-1"><div class="font-semibold text-bark">Chalk</div><div class="text-stem text-xs">fond de page</div></div>
+          <span class="font-mono text-xs text-stem">#F6F8F3</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <span class="w-10 h-10 rounded-lg" style="background:#6FA274"></span>
+          <div class="flex-1"><div class="font-semibold text-bark">Sage</div><div class="text-stem text-xs">primaire · validation</div></div>
+          <span class="font-mono text-xs text-stem">#6FA274</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <span class="w-10 h-10 rounded-lg" style="background:#3F6F4A"></span>
+          <div class="flex-1"><div class="font-semibold text-bark">Sage deep</div><div class="text-stem text-xs">titres · accent</div></div>
+          <span class="font-mono text-xs text-stem">#3F6F4A</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <span class="w-10 h-10 rounded-lg" style="background:#C7E0B5"></span>
+          <div class="flex-1"><div class="font-semibold text-bark">Sage leaf</div><div class="text-stem text-xs">chips · halos</div></div>
+          <span class="font-mono text-xs text-stem">#C7E0B5</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <span class="w-10 h-10 rounded-lg" style="background:#B8DCEA"></span>
+          <div class="flex-1"><div class="font-semibold text-bark">Sky</div><div class="text-stem text-xs">accent · IA · indices</div></div>
+          <span class="font-mono text-xs text-stem">#B8DCEA</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <span class="w-10 h-10 rounded-lg" style="background:#4F8BAC"></span>
+          <div class="flex-1"><div class="font-semibold text-bark">Sky deep</div><div class="text-stem text-xs">liens · jardinier IA</div></div>
+          <span class="font-mono text-xs text-stem">#4F8BAC</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <span class="w-10 h-10 rounded-lg" style="background:#2B3A2E"></span>
+          <div class="flex-1"><div class="font-semibold text-bark">Bark</div><div class="text-stem text-xs">texte principal · 13:1 sur Chalk</div></div>
+          <span class="font-mono text-xs text-stem">#2B3A2E</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <span class="w-10 h-10 rounded-lg" style="background:#E8C66A"></span>
+          <div class="flex-1"><div class="font-semibold text-bark">Honey</div><div class="text-stem text-xs">XP · floraison · mérite (rare)</div></div>
+          <span class="font-mono text-xs text-stem">#E8C66A</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <span class="w-10 h-10 rounded-lg" style="background:#E8A6A1"></span>
+          <div class="flex-1"><div class="font-semibold text-bark">Rose tea</div><div class="text-stem text-xs">erreur douce — jamais de rouge vif</div></div>
+          <span class="font-mono text-xs text-stem">#E8A6A1</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Typography -->
+    <div class="p-6 rounded-2xl bg-bone border border-sage/15">
+      <h3 class="font-display font-semibold text-bark text-lg">Typographie</h3>
+      <p class="text-stem text-xs mt-1">Une serif chaude pour le savoir, un sans clair pour le geste, un mono pour les chiffres.</p>
+
+      <div class="mt-5 space-y-5">
+        <div>
+          <div class="latin text-xs text-stem uppercase tracking-wider">Display · Fraunces</div>
+          <div class="font-display text-bark text-3xl mt-1">Cultiver le <em>calcul</em></div>
+          <div class="text-stem text-xs mt-1">Serif optical-size, italique pour les noms latins.</div>
+        </div>
+        <div>
+          <div class="latin text-xs text-stem uppercase tracking-wider">UI · Inter</div>
+          <div class="font-body font-semibold text-bark text-lg mt-1">Vérifier ma réponse</div>
+          <div class="text-stem text-xs mt-1">14–16 px pour le corps, 600 pour les boutons.</div>
+        </div>
+        <div>
+          <div class="latin text-xs text-stem uppercase tracking-wider">Numérique · JetBrains Mono</div>
+          <div class="font-mono text-bark text-2xl mt-1">347 + 185 = 532</div>
+          <div class="text-stem text-xs mt-1">Tabular figures pour aligner les calculs.</div>
+        </div>
+        <div>
+          <div class="latin text-xs text-stem uppercase tracking-wider">Latin botanique · Fraunces italic</div>
+          <div class="latin text-base mt-1">Multiplicatio · per septem · Hortus mathematicus</div>
+          <div class="text-stem text-xs mt-1">Sous-titres et étiquettes — clin d'œil savant, jamais cryptique.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Principes -->
+    <div class="p-6 rounded-2xl bg-bone border border-sage/15">
+      <h3 class="font-display font-semibold text-bark text-lg">Principes</h3>
+      <ol class="mt-4 space-y-3 text-sm text-bark">
+        <li><span class="font-semibold text-sage-deep">1. Le blanc est la matière.</span> 60% de blanc respiré, 25% de vert pâle, 15% d'accents. Pas de fonds bruyants.</li>
+        <li><span class="font-semibold text-sage-deep">2. Le sage = vivant, le ciel = pensé.</span> Vert pour la croissance, bleu pour l'IA et les indices. Honey, rare, pour la floraison.</li>
+        <li><span class="font-semibold text-sage-deep">3. Le calcul a sa typo.</span> Les chiffres en JetBrains Mono — bord franc, espacement constant.</li>
+        <li><span class="font-semibold text-sage-deep">4. Le latin signe.</span> Fraunces italique sur les étiquettes — Hortus, Multiplicatio. Erudition, pas pédanterie.</li>
+        <li><span class="font-semibold text-sage-deep">5. L'erreur est une feuille tombée.</span> Rose-thé, jamais rouge. Le jardinier observe, ne réprimande pas.</li>
+        <li><span class="font-semibold text-sage-deep">6. Une plante, un état.</span> En sommeil · à arroser · en croissance · floraison. Quatre tons, jamais cinq.</li>
+        <li><span class="font-semibold text-sage-deep">7. La serre est calme.</span> Animations 200 ms, ombres douces, pas de paillettes — la croissance est lente par nature.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Anti-patterns -->
+  <div class="mt-8 p-6 rounded-2xl border-2 border-dashed border-rose/50 bg-rose/5">
+    <h3 class="font-display font-semibold text-bark uppercase tracking-wider text-sm">À éviter</h3>
+    <ul class="mt-3 text-sm text-bark grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-6">
+      <li>· Claymorphisme, pastels acidulés, formes "rebondies".</li>
+      <li>· Mascotte permanente — pas de Lumi, pas de tournesol qui parle.</li>
+      <li>· Emojis dans l'UI (boutons, chips, titres). Toujours du SVG.</li>
+      <li>· Plus de trois couleurs simultanées dans un même composant.</li>
+      <li>· Rouge vif pour l'erreur. Toujours rose-thé, ton observateur.</li>
+      <li>· Indigo / violet — explicitement écartés (clash avec sage + sky).</li>
+      <li>· Dégradés arc-en-ciel — au plus, sage → honey pour la barre XP.</li>
+      <li>· Texte en majuscules pour de longs labels (réservé aux micro-tags).</li>
+      <li>· Lorem ipsum — chaque exemple porte une vraie phrase, un vrai prénom, un vrai calcul.</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="max-w-7xl mx-auto px-6 pb-16 pt-2 text-center text-stem text-xs latin">
+  Le Jardin de PédagogIA · preview statique · Tailwind CDN · v1
+</footer>
+
+</body>
+</html>

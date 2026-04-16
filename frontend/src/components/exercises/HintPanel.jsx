@@ -1,34 +1,30 @@
 import { useState } from "react"
 import Icon from "../ui/Icon"
+import Button from "../ui/Button"
 import { buildHint, hintLabels, nextHintLevel } from "../../lib/hints"
 
 export default function HintPanel({ exercise }) {
   const [level, setLevel] = useState(null)
-
   const reveal = () => setLevel((cur) => nextHintLevel(cur))
-
   if (!exercise) return null
   const more = nextHintLevel(level) !== null
 
   return (
-    <div className="mt-4 bg-secondary-container/20 rounded-xl p-4 text-left">
+    <div className="mt-4 rounded-xl p-4 text-left bg-sky-soft/60 border border-sky/30">
       {level && (
         <div className="mb-3">
-          <p className="font-headline font-bold text-secondary mb-1 flex items-center gap-2">
-            <Icon name="lightbulb" fill className="text-secondary" />
-            {hintLabels[level]}
-          </p>
-          <p className="text-on-surface-variant">{buildHint(exercise, level)}</p>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="chip chip-sky">{hintLabels[level]}</span>
+            <span className="latin text-[11px]">Suggestio</span>
+          </div>
+          <p className="text-sm text-bark">{buildHint(exercise, level)}</p>
         </div>
       )}
       {more && (
-        <button
-          onClick={reveal}
-          className="bg-secondary-container/40 hover:bg-secondary-container/60 text-on-secondary-container font-headline font-bold w-full py-2 rounded-lg flex items-center justify-center gap-2 cursor-pointer"
-        >
+        <Button variant="ghost" size="sm" onClick={reveal} className="w-full">
           <Icon name="lightbulb" />
           {level === null ? "Demander un indice" : "Indice suivant"}
-        </button>
+        </Button>
       )}
     </div>
   )

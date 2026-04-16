@@ -1,74 +1,105 @@
-# Charte Design : L'Équilibre Sophistiqué
-**Document de Direction Artistique pour Junior Designers**
+# Charte Design — Le Jardin de PédagogIA
+*Hortus Mathematicus · v1*
 
-## 1. Étoile du Nord : Le Curateur Savant
-Pour un public de 12 ans, nous devons rejeter l'esthétique "jouet" tout en évitant la froideur institutionnelle. Notre direction créative est **"Le Curateur Savant"**. 
+Référence visuelle : `design/JARDIN.html` + `design/jardin-screens/`.
 
-Le design ne doit pas ressembler à un manuel scolaire, mais à une plateforme de curation moderne. Nous brisons la structure rigide des grilles traditionnelles par une **asymétrie intentionnelle** : des éléments qui se chevauchent légèrement, des échelles typographiques contrastées et une profondeur de champ créée par des couches de verre translucide. L'objectif est de créer un sentiment d'autorité ludique.
+## 1. Étoile du Nord — La Serre Savante
 
----
+PedagogIA est une serre calme. Chaque compétence est une plante, chaque séance un soin, chaque rang acquis une floraison. Le design parle de croissance lente, de patience, d'érudition douce. Pas de mascotte qui saute, pas de confettis arc-en-ciel, pas de pastel bonbon — l'enfant apprend en tant qu'apprenti jardinier, pas en tant qu'utilisateur d'un jeu vidéo.
 
-## 2. Palette Chromatique & Textures
-La couleur n'est pas un simple remplissage ; c'est un outil de hiérarchisation.
+**Public :** 6–12 ans (FWB, P1–P6). **Surfaces :** tablette 834×1194 + navigateur 1440×900.
 
-*   **Primaire (Bleu Azur) :** `#0059b6` – Notre ancrage "Sérieux". À utiliser pour les actions structurantes.
-*   **Secondaire (Jaune Tournesol) :** `#705900` – L'accent "Ludique". Éveille l'attention sans agresser.
-*   **Tertiaire (Vert Menthe) :** `#00694b` – La couleur de la validation et du progrès.
+## 2. Palette
 
-### Les Règles d'Or de la Couleur :
-1.  **La Règle du "Sans-Ligne" :** Il est formellement interdit d'utiliser des bordures pleines de 1px pour sectionner l'espace. La séparation des contenus doit se faire exclusivement par le changement de ton du fond (ex: une section `surface-container-low` sur un fond `surface`) ou par des transitions tonales subtiles.
-2.  **Hiérarchie des Surfaces :** Utilisez les jetons `surface-container` (Lowest à Highest) comme des feuilles de papier fin empilées. Plus un élément est interactif ou important, plus sa surface doit monter en gamme (ex: un conteneur `highest` sur un fond `low`).
-3.  **Signature Visuelle "Gradiant Soul" :** Pour les boutons principaux (CTA) et les en-têtes, utilisez un dégradé linéaire subtil allant de `primary` à `primary-container`. Cela apporte une vibration organique que le plat ne permet pas.
-4.  **Effet "Glass" :** Pour les éléments flottants (modales, menus contextuels), utilisez les couleurs de surface avec une opacité de 80% et un `backdrop-blur` (flou d'arrière-plan) de 12px.
+Trois familles, jamais plus de trois ensemble dans un même composant.
 
----
+| Jeton | Hex | Rôle |
+|---|---|---|
+| `bone` | `#FFFFFF` | surface principale |
+| `chalk` | `#F6F8F3` | fond de page |
+| `mist` | `#ECF1E7` | surface secondaire |
+| `paper` | `#FAFCF7` | carte / tag |
+| `sage` | `#6FA274` | primaire, validation |
+| `sage-deep` | `#3F6F4A` | titres, accent |
+| `sage-soft` | `#A6C7A8` | trait atténué |
+| `sage-leaf` | `#C7E0B5` | chips, halos, twine |
+| `sky` | `#B8DCEA` | accent IA / indices |
+| `sky-soft` | `#DCEDF4` | fond sky |
+| `sky-deep` | `#4F8BAC` | liens, jardinier IA |
+| `bark` | `#2B3A2E` | texte principal (13:1 sur chalk) |
+| `stem` | `#5C6B5F` | texte secondaire |
+| `twig` | `#A1AEA3` | texte tertiaire / trait |
+| `honey` | `#E8C66A` | XP, floraison, mérite (rare) |
+| `rose` | `#E8A6A1` | erreur douce — jamais de rouge vif |
 
-## 3. Typographie Éditoriale
-Le contraste est notre meilleur allié pour guider l'œil du pré-ado.
+## 3. Typographie
 
-*   **Titres (Plus Jakarta Sans) :** Une police géométrique et moderne. Utilisez les échelles `display-lg` et `headline-lg` avec une approche éditoriale : n'hésitez pas à utiliser des tailles très grandes pour les titres de sections afin de créer un impact visuel fort.
-*   **Corps de texte (Be Vietnam Pro) :** Une lisibilité absolue. Son aspect "amical" vient de ses courbes ouvertes.
-*   **Hiérarchie :** Le passage d'un `headline-md` à un `body-md` doit être franc. L'espace blanc (le vide) autour de la typographie est aussi important que le texte lui-même.
+| Usage | Famille | Poids | Particularité |
+|---|---|---|---|
+| Display | **Fraunces** | 400 / 500 / 600 | italique pour les étiquettes latines (*Hortus*, *Multiplicatio*) |
+| UI | **Inter** | 400 / 500 / 600 / 700 | 14–16 px corps, 600 boutons |
+| Numérique | **JetBrains Mono** | 500 | chiffres tabulaires pour aligner les calculs |
 
----
+Chargement self-hosted via `@fontsource/*`. Pas de Google Fonts CDN.
 
-## 4. Élévation & Profondeur Naturelle
-Nous remplaçons la structure rigide par une **stratification tonale**.
+## 4. Sept Principes
 
-*   **Le Principe d'Empilement :** Pour créer du relief, posez une carte `surface-container-lowest` sur une section `surface-container-low`. La différence de luminosité crée une séparation naturelle et douce.
-*   **Ombres Ambiantes :** Si un élément doit "flotter", utilisez des ombres ultra-diffuses. 
-    *   *Shadow-key :* Blur 24px, Opacité 6%.
-    *   *Shadow-color :* Utilisez une version teintée du `on-surface` plutôt que du noir pur pour simuler une lumière naturelle.
-*   **La Bordure Fantôme (Ghost Border) :** Si une limite est requise pour l'accessibilité, utilisez le token `outline-variant` à 15% d'opacité. Jamais d'opacité à 100%.
+1. **Le blanc est la matière.** 60 % blanc respiré, 25 % vert pâle, 15 % accents. Pas de fonds bruyants.
+2. **Le sage = vivant, le ciel = pensé.** Vert pour la croissance, bleu pour l'IA et les indices. Honey, rare, pour la floraison.
+3. **Le calcul a sa typo.** Les chiffres en JetBrains Mono — bord franc, espacement constant.
+4. **Le latin signe.** Fraunces italique sur les étiquettes — *Hortus*, *Multiplicatio*. Érudition, pas pédanterie.
+5. **L'erreur est une feuille tombée.** Rose-thé, jamais rouge. Le jardinier observe, ne réprimande pas.
+6. **Une plante, un état.** *En sommeil · à arroser · en croissance · floraison.* Quatre tons, jamais cinq.
+7. **La serre est calme.** Animations 200 ms, ombres douces, pas de paillettes — la croissance est lente par nature.
 
----
+## 5. Vocabulaire des écrans
 
-## 5. Composants Signature
+| № | Écran | Métaphore | Fond par défaut |
+|---|---|---|---|
+| ① | Welcome | **Serre** | `.greenhouse` |
+| ② | ChildPicker | **Carnets** (pots de plantes) | `bg-chalk` |
+| ③ | SkillTree | **Carte** (DAG de spécimens) | `.paper-grid` |
+| ④ | Exercise | **Établi** (papier ligné) | `.paper-rule` |
+| ⑤ | FeedbackMessage | **Jardinier** (IA, sky-deep) | `bg-mist` |
+| ⑥ | Profile | **Herbier** (fleurs pressées) | `bg-chalk` |
+| ⑦ | Célébration | **Floraison** | `.water` |
 
-### Boutons
-*   **Primaire :** Rayon `xl` (1.5rem), dégradé `primary` vers `primary-container`, ombre douce colorée.
-*   **États :** Au survol (hover), l'élément doit subir une légère translation verticale (-2px) pour simuler une réaction physique.
+## 6. Primitives CSS
 
-### Cartes & Listes
-*   **Interdiction des Diviseurs :** Ne séparez jamais deux éléments de liste par une ligne. Utilisez un espacement généreux (Spacing Scale) ou une alternance très légère de teintes de fond.
-*   **Asymétrie :** Sur les listes de modules de cours, alternez légèrement l'alignement des icônes ou la largeur des cartes pour briser la monotonie.
+Définies dans `frontend/src/App.css` :
 
-### Champs de Saisie (Inputs)
-*   Utilisez la surface `surface-container-low`. Lors du focus, ne changez pas la bordure de manière agressive ; augmentez légèrement la luminosité du fond et appliquez une "bordure fantôme" `primary`.
+- `.greenhouse`, `.paper-grid`, `.paper-rule`, `.water` — fonds / textures
+- `.tag` (+ `::before` point de ficelle), `.chip` (+ `-sky` / `-honey` / `-bark`)
+- `.pill` (+ `-ghost` / `-bark`), `.navlink`
+- `.pot` (+ `.pot-soil`), `.specimen`
+- `.latin`
 
-### Composant Spécifique : La Pastille de Progression
-Pour l'aspect éducatif, utilisez des "Orbes de Savoir" : des cercles parfaits utilisant la couleur `tertiary` avec un effet de verre (glassmorphism) pour indiquer les leçons terminées.
+Ombres : `--shadow-leaf` · `--shadow-dew` · `--shadow-tag` · `--shadow-glasspane`.
 
----
+## 7. Bibliothèque React
 
-## 6. Do's & Don'ts
+Dans `frontend/src/components/ui/` — chaque composant sous 80 lignes :
 
-| À Faire (Do) | À Éviter (Don't) |
-| :--- | :--- |
-| Utiliser des rayons de coins généreux (`xl`) pour la douceur. | Utiliser des coins saillants qui rappellent l'administration. |
-| Créer du contraste par la taille de la police (très grand vs petit). | Utiliser uniquement le gras (Bold) pour hiérarchiser. |
-| Séparer les sections par des changements de couleur de fond. | Utiliser des lignes horizontales (diviseurs) systématiques. |
-| Privilégier les micro-interactions de "rebond" (Spring physics). | Utiliser des animations linéaires et rigides. |
-| Utiliser des ombres teintées et presque invisibles. | Utiliser des ombres portées noires et dures ("Drop shadows"). |
+`Button` · `Card` · `Chip` · `Input` · `Heading` + `LatinLabel` · `Icon` (wrapper lucide-react) · `Pot` · `ProgressBar` · `SkillNode` · `Floraison`.
 
-**Note de Direction :** Le succès de ce système réside dans sa capacité à paraître simple tout en étant techniquement complexe dans sa gestion des blancs et des transparences. Ne remplissez pas l'espace ; laissez le design respirer.
+Règle : Tailwind d'abord ; CSS custom seulement pour les effets (textures, ombres, tags à ficelle).
+
+## 8. À éviter
+
+- Claymorphisme, pastels acidulés, formes "rebondies"
+- Mascotte permanente (pas de Lumi, pas de tournesol qui parle)
+- Emojis dans l'UI (boutons, chips, titres) — toujours du SVG (via `lucide-react`)
+- Plus de trois couleurs simultanées dans un même composant
+- Rouge vif pour l'erreur — toujours rose-thé
+- Indigo / violet — écartés (clash avec sage + sky)
+- Dégradés arc-en-ciel — au plus, sage → honey pour la barre XP
+- Texte en majuscules pour de longs labels (réservé aux micro-tags)
+- Lorem ipsum — chaque exemple porte un vrai prénom, un vrai calcul
+
+## 9. Accessibilité
+
+- Contraste bark sur chalk = 13:1 (AAA texte)
+- Contraste sage-deep sur paper ≥ 7:1 (AAA UI)
+- `prefers-reduced-motion` : toutes les transitions → 0 ms
+- Focus ring : `ring-2 ring-sky` pour inputs + nav-links
+- Aucune information transmise par la couleur seule — toujours doublée d'un label (*en sommeil*, *à arroser*…)

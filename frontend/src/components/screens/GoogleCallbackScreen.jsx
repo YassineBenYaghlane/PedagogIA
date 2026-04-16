@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react"
 import { useNavigate, useSearchParams } from "react-router"
 import { useAuthStore } from "../../stores/authStore"
+import Button from "../ui/Button"
+import Card from "../ui/Card"
+import { Heading, LatinLabel } from "../ui/Heading"
 
 export default function GoogleCallbackScreen() {
   const navigate = useNavigate()
@@ -11,8 +14,8 @@ export default function GoogleCallbackScreen() {
   const initialError = oauthError
     ? "Connexion Google annulée"
     : !code
-    ? "Code Google manquant"
-    : null
+      ? "Code Google manquant"
+      : null
   const [error, setError] = useState(initialError)
   const ran = useRef(false)
 
@@ -25,22 +28,28 @@ export default function GoogleCallbackScreen() {
   }, [code, initialError, googleLogin, navigate])
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="bg-white rounded-2xl shadow-xl p-8 text-center max-w-md">
+    <div className="min-h-screen water flex items-center justify-center p-6">
+      <Card variant="specimen" className="p-8 text-center max-w-md space-y-5">
         {error ? (
           <>
-            <p className="text-red-600 font-medium mb-4">{error}</p>
-            <button
-              onClick={() => navigate("/login", { replace: true })}
-              className="rounded-lg bg-blue-600 text-white font-semibold px-4 py-2 hover:bg-blue-700"
-            >
+            <LatinLabel>Iter interruptum</LatinLabel>
+            <Heading level={3} className="mt-1">
+              {error}
+            </Heading>
+            <Button onClick={() => navigate("/login", { replace: true })}>
               Retour à la connexion
-            </button>
+            </Button>
           </>
         ) : (
-          <p className="text-slate-700">Connexion en cours…</p>
+          <>
+            <LatinLabel>Ingressus</LatinLabel>
+            <Heading level={3} className="mt-1">
+              Connexion en cours…
+            </Heading>
+            <p className="text-stem">Le jardinier prépare ta serre.</p>
+          </>
         )}
-      </div>
+      </Card>
     </div>
   )
 }

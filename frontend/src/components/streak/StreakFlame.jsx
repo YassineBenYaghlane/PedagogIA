@@ -5,17 +5,24 @@ export default function StreakFlame({ currentStreak = 0 }) {
   const active = currentStreak > 0
   return (
     <div
-      className={`inline-flex items-center gap-2 rounded-full px-3 py-1 ${active ? "bg-secondary-container/40" : "bg-surface-container-low"}`}
+      className={`inline-flex items-center gap-2 rounded-full px-3 py-1 ${active ? "bg-honey-soft border border-honey/40" : "bg-mist border border-sage/15"}`}
       data-testid="streak-flame"
     >
-      <span
-        className={`material-symbols-outlined ${active ? "text-[#c08000]" : "text-on-surface-variant"}`}
-        style={{ fontVariationSettings: "'FILL' 1", opacity: op, fontSize: "20px" }}
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={active ? "#8A6A1F" : "#A1AEA3"}
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        style={{ opacity: op }}
         aria-hidden="true"
       >
-        local_fire_department
-      </span>
-      <span className="font-headline font-bold text-sm text-on-surface">
+        <path d="M12 2c4 5 6 8 6 12a6 6 0 0 1-12 0c0-4 2-7 6-12z" fill={active ? "#E8C66A" : "none"} />
+      </svg>
+      <span className="font-display font-semibold text-sm text-bark">
         {currentStreak} {currentStreak <= 1 ? "jour" : "jours"}
       </span>
     </div>

@@ -1,71 +1,68 @@
 @import "tailwindcss";
 
 @theme {
-  /* --- Couleurs Design System --- */
-  --color-primary: #0059b6;
-  --color-primary-container: #68a0ff;
-  --color-primary-dim: #004da0;
-  --color-primary-fixed: #68a0ff;
-  --color-primary-fixed-dim: #4b92ff;
-  --color-on-primary: #eff2ff;
-  --color-on-primary-container: #00224d;
-  --color-on-primary-fixed: #000000;
-  --color-on-primary-fixed-variant: #002b5e;
+  /* --- JARDIN palette --- */
+  --color-bone: #ffffff;
+  --color-chalk: #f6f8f3;
+  --color-mist: #ecf1e7;
+  --color-paper: #fafcf7;
 
-  --color-secondary: #705900;
-  --color-secondary-container: #fecb00;
-  --color-secondary-dim: #624d00;
-  --color-secondary-fixed: #fecb00;
-  --color-secondary-fixed-dim: #eebe00;
-  --color-on-secondary: #fff1d5;
-  --color-on-secondary-container: #584500;
-  --color-on-secondary-fixed: #413200;
-  --color-on-secondary-fixed-variant: #634e00;
+  --color-sage: #6fa274;
+  --color-sage-soft: #a6c7a8;
+  --color-sage-pale: #d6e6d2;
+  --color-sage-leaf: #c7e0b5;
+  --color-sage-deep: #3f6f4a;
 
-  --color-tertiary: #00694b;
-  --color-tertiary-container: #8cfece;
-  --color-tertiary-dim: #005b41;
-  --color-tertiary-fixed: #8cfece;
-  --color-tertiary-fixed-dim: #7eefc0;
-  --color-on-tertiary: #c7ffe3;
-  --color-on-tertiary-container: #006145;
-  --color-on-tertiary-fixed: #004d36;
-  --color-on-tertiary-fixed-variant: #006d4e;
+  --color-sky: #b8dcea;
+  --color-sky-soft: #dcedf4;
+  --color-sky-deep: #4f8bac;
 
-  --color-error: #b31b25;
-  --color-error-container: #fb5151;
-  --color-error-dim: #9f0519;
-  --color-on-error: #ffefee;
-  --color-on-error-container: #570008;
+  --color-bark: #2b3a2e;
+  --color-stem: #5c6b5f;
+  --color-twig: #a1aea3;
 
-  --color-background: #f7f5ff;
-  --color-on-background: #222d51;
-  --color-surface: #f7f5ff;
-  --color-surface-dim: #c9d3ff;
-  --color-surface-bright: #f7f5ff;
-  --color-surface-tint: #0059b6;
-  --color-surface-variant: #d4dbff;
-  --color-surface-container: #e4e7ff;
-  --color-surface-container-low: #eff0ff;
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-container-high: #dce1ff;
-  --color-surface-container-highest: #d4dbff;
-  --color-on-surface: #222d51;
-  --color-on-surface-variant: #505a81;
-  --color-outline: #6b759e;
-  --color-outline-variant: #a1abd7;
-  --color-inverse-surface: #010b2f;
-  --color-inverse-on-surface: #919bc6;
-  --color-inverse-primary: #448fff;
+  --color-honey: #e8c66a;
+  --color-honey-soft: #fbf1d6;
+  --color-rose: #e8a6a1;
+  --color-rose-soft: #f7dfdc;
 
-  /* --- Typographie --- */
-  --font-headline: "Plus Jakarta Sans", sans-serif;
-  --font-body: "Be Vietnam Pro", sans-serif;
-  --font-label: "Plus Jakarta Sans", sans-serif;
+  /* --- JARDIN typography --- */
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Menlo", monospace;
 
-  /* --- Rayons de coins --- */
-  --radius-DEFAULT: 0.25rem;
-  --radius-lg: 0.5rem;
-  --radius-xl: 1.5rem;
+  /* --- JARDIN shadows --- */
+  --shadow-leaf: 0 1px 0 rgba(43, 58, 46, 0.04), 0 8px 24px -16px rgba(63, 111, 74, 0.25);
+  --shadow-dew: 0 1px 0 rgba(43, 58, 46, 0.05), 0 12px 32px -22px rgba(79, 139, 172, 0.4);
+  --shadow-tag: 0 2px 0 rgba(43, 58, 46, 0.06), 0 6px 14px -10px rgba(43, 58, 46, 0.2);
+  --shadow-glasspane: inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 30px 60px -40px rgba(63, 111, 74, 0.3);
+
+  /* --- Radii --- */
+  --radius-DEFAULT: 0.5rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.125rem;
+  --radius-2xl: 1.5rem;
   --radius-full: 9999px;
+
+}
+
+html,
+body {
+  background: var(--color-chalk);
+  color: var(--color-bark);
+  font-family: var(--font-body);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0ms !important;
+    transition-duration: 0ms !important;
+  }
 }

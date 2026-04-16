@@ -9,10 +9,10 @@ export default function NumberLine({ max = 20, highlight = [] }) {
           return (
             <div key={n} className="flex flex-col items-center gap-1">
               <div
-                className={`rounded-full ${active ? "bg-primary" : "bg-surface-container"}`}
+                className={`rounded-full ${active ? "bg-sage" : "bg-mist"}`}
                 style={{ width: active ? 14 : 8, height: active ? 14 : 8 }}
               />
-              <span className={`text-[10px] font-headline ${active ? "text-primary font-bold" : "text-on-surface-variant"}`}>
+              <span className={`text-[10px] font-mono tabular-nums ${active ? "text-sage-deep font-semibold" : "text-stem"}`}>
                 {n}
               </span>
             </div>

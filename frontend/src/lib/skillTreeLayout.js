@@ -3,31 +3,31 @@ import { MarkerType } from "@xyflow/react"
 export const GRADES = ["P1", "P2", "P3", "P4", "P5", "P6"]
 
 export const GRADE_COLORS = {
-  P1: { bg: "#c9f7e3", border: "#00694b", text: "#00694b", minimap: "#00694b" },
-  P2: { bg: "#ffe89a", border: "#8a6d00", text: "#8a6d00", minimap: "#8a6d00" },
-  P3: { bg: "#b8d1ff", border: "#0059b6", text: "#0059b6", minimap: "#0059b6" },
-  P4: { bg: "#e9d2ff", border: "#7b3d96", text: "#7b3d96", minimap: "#7b3d96" },
-  P5: { bg: "#ffd4b8", border: "#b64600", text: "#b64600", minimap: "#b64600" },
-  P6: { bg: "#dde2ff", border: "#505a81", text: "#505a81", minimap: "#505a81" },
+  P1: { bg: "#D6E6D2", border: "#3F6F4A", text: "#3F6F4A", minimap: "#6FA274" },
+  P2: { bg: "#C7E0B5", border: "#3F6F4A", text: "#3F6F4A", minimap: "#3F6F4A" },
+  P3: { bg: "#DCEDF4", border: "#4F8BAC", text: "#2F6A88", minimap: "#4F8BAC" },
+  P4: { bg: "#FBF1D6", border: "#8A6A1F", text: "#8A6A1F", minimap: "#E8C66A" },
+  P5: { bg: "#F7DFDC", border: "#B7615C", text: "#B7615C", minimap: "#E8A6A1" },
+  P6: { bg: "#ECF1E7", border: "#5C6B5F", text: "#2B3A2E", minimap: "#5C6B5F" },
 }
 
-const ICON_BY_PREFIX = [
-  ["num_", "123"],
-  ["add_", "add"],
-  ["soustr_", "remove"],
-  ["mult_", "close"],
-  ["div_", "percent"],
-  ["prop_", "swap_horiz"],
-  ["cm_", "psychology"],
-  ["ce_", "edit_note"],
-  ["estimation_", "query_stats"],
+const FAMILY_BY_PREFIX = [
+  ["num_", "numeri"],
+  ["add_", "additio"],
+  ["soustr_", "subtractio"],
+  ["mult_", "multiplicatio"],
+  ["div_", "divisio"],
+  ["prop_", "proportio"],
+  ["cm_", "mens"],
+  ["ce_", "scriptum"],
+  ["estimation_", "aestimatio"],
 ]
 
-function iconFor(id) {
-  for (const [prefix, icon] of ICON_BY_PREFIX) {
-    if (id.startsWith(prefix)) return icon
+function familyFor(id) {
+  for (const [prefix, name] of FAMILY_BY_PREFIX) {
+    if (id.startsWith(prefix)) return name
   }
-  return "school"
+  return "scientia"
 }
 
 function mockStatus(skill) {
@@ -171,7 +171,7 @@ export function buildGraph(skills, nextId) {
     data: {
       ...s,
       colors: GRADE_COLORS[s.grade],
-      icon: iconFor(s.id),
+      family: familyFor(s.id),
       status: mockStatus(s),
       isNext: s.id === nextId,
     },
@@ -184,8 +184,8 @@ export function buildGraph(skills, nextId) {
       source: pid,
       target: s.id,
       type: "smoothstep",
-      style: { stroke: "#c2c7dd", strokeWidth: 1.5, strokeDasharray: "6 6" },
-      markerEnd: { type: MarkerType.ArrowClosed, color: "#c2c7dd", width: 14, height: 14 },
+      style: { stroke: "#A1AEA3", strokeWidth: 1.5, strokeDasharray: "4 5" },
+      markerEnd: { type: MarkerType.ArrowClosed, color: "#A1AEA3", width: 12, height: 12 },
     }))
   )
 

@@ -39,6 +39,7 @@ Rules:
 - **Never modify `raw/`.** Source of truth. Read-only for you.
 - **You own `wiki/` entirely.** Create, update, rename, delete pages as needed.
 - Unsure where a page belongs? `entities/` for proper nouns (a person, a curriculum, a tool), `concepts/` for common nouns (mastery learning, DAG, spaced repetition), `questions/` for analyses/comparisons the user asked for.
+- **`raw/` is gitignored and can be heavy** (PDFs, image dumps, long transcripts). Don't enumerate or grep `raw/` to explore it. Only read the specific file the user points at when they ask to ingest. If you need a filename, ask the user rather than listing the directory.
 
 ## Page conventions
 

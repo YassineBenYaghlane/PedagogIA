@@ -1,8 +1,11 @@
+import { useContext } from "react"
 import { Handle, Position } from "@xyflow/react"
+import { SkillTreeHoverContext } from "../../lib/skillTreeHoverContext"
 
 const PLANT_STATE = {
   completed: "floraison",
   in_progress: "croissance",
+  review: "arroser",
   locked: "sommeil",
 }
 
@@ -11,6 +14,13 @@ const STATE_LABEL = {
   croissance: "En croissance",
   arroser: "À arroser",
   sommeil: "En sommeil",
+}
+
+const STATE_LATIN = {
+  floraison: "en fleurs",
+  croissance: "en croissance",
+  arroser: "à revoir",
+  sommeil: "en sommeil",
 }
 
 const PLANT_SVG = {
@@ -44,41 +54,106 @@ const PLANT_SVG = {
   ),
 }
 
-export default function SkillNode({ data }) {
-  const { label, colors, status, isNext, family } = data
+export default function SkillNode({ id, data }) {
+  const { hoveredId, prereqs } = useContext(SkillTreeHoverContext)
+  const isPrereqOfHover = prereqs.has(id)
+  const isHoverTarget = hoveredId === id
+  const {
+    label, status, isNext, family,
+    masteryLevel = 0, totalAttempts = 0, unlocked = true,
+  } = data
   const baseState = PLANT_STATE[status] ?? "sommeil"
-  const state = isNext ? "arroser" : baseState
+  const state = isNext && status !== "completed" ? "arroser" : baseState
+  const pct = Math.round(masteryLevel * 100)
+  const isLocked = !unlocked
+  const isBloom = state === "floraison"
+  const isCroissance = state === "croissance"
 
-  const ringClass = state === "arroser" ? "border-sky-deep" : "border-transparent"
-  const opacity = state === "sommeil" ? 0.75 : 1
+  const cardStyle = {}
+  if (state === "floraison") {
+    cardStyle.background = "#3F6F4A"
+    cardStyle.borderColor = "transparent"
+  } else if (isCroissance) {
+    cardStyle.borderColor = "#6FA274"
+    cardStyle.borderWidth = 2
+  } else if (state === "arroser") {
+    cardStyle.borderColor = "#4F8BAC"
+    cardStyle.borderWidth = 2
+  }
+
+  const dim = state === "sommeil" && totalAttempts === 0
+  const barFill = state === "arroser" ? "#4F8BAC" : "#6FA274"
 
   return (
-    <div className="relative flex flex-col items-center" style={{ width: 140, opacity }}>
-      {isNext && (
+    <div
+      className="group relative flex flex-col items-center"
+      style={{ width: 140, opacity: dim && !isPrereqOfHover && !isHoverTarget ? 0.75 : 1 }}
+    >
+      {isNext && state !== "floraison" && (
         <div className="absolute -top-7 chip chip-sky whitespace-nowrap z-10 !text-[10px]">
           À arroser aujourd'hui
         </div>
       )}
+      {isCroissance && !isNext && (
+        <div className="absolute -top-7 chip whitespace-nowrap z-10 !text-[10px] bg-sage-leaf text-sage-deep border border-sage/30">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-sage-deep" />
+          Tu travailles ici
+        </div>
+      )}
+      {isLocked && !isNext && !isCroissance && (
+        <div
+          className="absolute -top-7 chip whitespace-nowrap z-10 !text-[10px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
+          role="tooltip"
+        >
+          Pas encore accessible
+        </div>
+      )}
+      {isPrereqOfHover && (
+        <div className="absolute inset-0 rounded-[0.875rem] pointer-events-none prereq-glow z-0" />
+      )}
       <div
-        className={`specimen ${ringClass} cursor-pointer transition-transform hover:-translate-y-0.5 w-full px-3 pt-3 pb-2`}
-        style={{
-          borderWidth: state === "arroser" ? 2 : 1,
-        }}
+        className={`specimen relative w-full px-3 pt-3 pb-2.5 transition-transform duration-200 origin-center group-hover:scale-[1.06] group-hover:z-10 ${isCroissance ? "specimen-croissance" : ""} ${isLocked ? "cursor-help" : "cursor-pointer"}`}
+        style={cardStyle}
       >
         <div
-          className="rounded-md h-14 flex items-center justify-center"
-          style={{ backgroundColor: `${colors.bg}90` }}
+          className="rounded-md h-11 flex items-center justify-center"
+          style={{ backgroundColor: isBloom ? "rgba(255,255,255,0.1)" : "rgba(198,224,181,0.35)" }}
         >
-          <svg viewBox="0 0 32 32" className="w-9 h-9">
+          <svg viewBox="0 0 32 32" className="w-7 h-7">
             {PLANT_SVG[state]}
           </svg>
         </div>
         <div className="mt-2 text-center">
-          <div className="text-[11px] font-semibold leading-tight text-bark">{label}</div>
-          <div className="latin text-[9px] leading-tight mt-0.5">{family}</div>
+          <div
+            className="text-[11px] font-semibold leading-tight"
+            style={{ color: isBloom ? "#ffffff" : "#2B3A2E" }}
+          >
+            {label}
+          </div>
+          <div
+            className="latin text-[9px] leading-tight mt-0.5"
+            style={{ color: isBloom ? "rgba(255,255,255,0.75)" : undefined }}
+          >
+            {family} · {totalAttempts > 0 ? `${pct}%` : STATE_LATIN[state]}
+          </div>
+        </div>
+        <div
+          className="mt-2 h-1 rounded-full overflow-hidden"
+          style={{ background: isBloom ? "rgba(255,255,255,0.25)" : "#ECF1E7" }}
+        >
+          <div
+            className="h-full transition-all duration-500"
+            style={{
+              width: `${Math.max(isBloom ? 100 : pct, 0)}%`,
+              background: isBloom ? "#E8C66A" : barFill
+            }}
+          />
         </div>
       </div>
-      <div className="mt-1 text-[9px] font-semibold uppercase tracking-wider" style={{ color: colors.text }}>
+      <div
+        className="mt-1 text-[9px] font-semibold uppercase tracking-wider"
+        style={{ color: state === "arroser" ? "#4F8BAC" : state === "floraison" ? "#8A6A1F" : "#5C6B5F" }}
+      >
         {STATE_LABEL[state]}
       </div>
       <Handle type="target" position={Position.Top} className="!opacity-0 !bg-transparent" />

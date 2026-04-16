@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import { diagnosticApi } from "../api/diagnostic"
+import { invalidateSkillTree } from "../lib/queryClient"
 import { useAuthStore } from "./authStore"
 import { useBadgeStore } from "./badgeStore"
 
@@ -50,6 +51,7 @@ export const useDiagnosticStore = create((set, get) => ({
         useAuthStore.getState().applyGamification(studentId, res.gamification)
         useBadgeStore.getState().push(res.gamification.newly_earned_badges)
       }
+      invalidateSkillTree(studentId)
       set({ feedback: res.feedback, loading: false })
     } catch (err) {
       set({ error: err.message, loading: false })

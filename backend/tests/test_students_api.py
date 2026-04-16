@@ -74,3 +74,89 @@ def test_unauthenticated_cannot_list_or_create(api):
     assert api.get("/api/students/").status_code in (401, 403)
     res = api.post("/api/students/", {"display_name": "X", "grade": "P1"}, format="json")
     assert res.status_code in (401, 403)
+
+
+@pytest.mark.django_db
+def test_skill_tree_endpoint_returns_all_skills(auth_client):
+    from apps.skills.models import Skill
+
+    student = auth_client.post(
+        "/api/students/", {"display_name": "A", "grade": "P1"}, format="json"
+    ).json()
+
+    res = auth_client.get(f"/api/students/{student['id']}/skill-tree/")
+    assert res.status_code == 200
+    payload = res.json()
+    assert len(payload) == Skill.objects.count()
+    row = payload[0]
+    assert set(row.keys()) == {
+        "skill_id",
+        "status",
+        "mastery_level",
+        "total_attempts",
+        "consecutive_correct",
+        "last_practiced_at",
+        "next_review_at",
+    }
+    assert all(r["status"] == "not_started" for r in payload)
+    assert all(r["mastery_level"] == 0.0 for r in payload)
+
+
+@pytest.mark.django_db
+def test_skill_tree_reflects_mastery(auth_client):
+    from apps.skills.models import Skill
+    from apps.students.models import Student
+    from apps.students.services.mastery import update_mastery
+
+    student = auth_client.post(
+        "/api/students/", {"display_name": "A", "grade": "P1"}, format="json"
+    ).json()
+    skill = Skill.objects.get(id="add_avec_retenue_20")
+    update_mastery(Student.objects.get(id=student["id"]), skill, is_correct=True)
+
+    res = auth_client.get(f"/api/students/{student['id']}/skill-tree/")
+    row = next(r for r in res.json() if r["skill_id"] == "add_avec_retenue_20")
+    assert row["status"] == "in_progress"
+    assert row["total_attempts"] == 1
+    assert row["consecutive_correct"] == 1
+    assert row["mastery_level"] > 0
+    assert row["last_practiced_at"] is not None
+
+
+@pytest.mark.django_db
+def test_skill_tree_scoped_to_owner(auth_client, other_user, api):
+    mine = auth_client.post(
+        "/api/students/", {"display_name": "Mine", "grade": "P1"}, format="json"
+    ).json()
+    api.force_authenticate(other_user)
+    res = api.get(f"/api/students/{mine['id']}/skill-tree/")
+    assert res.status_code == 404
+
+
+@pytest.mark.django_db
+def test_new_p5_student_has_prior_grades_mastered(auth_client):
+    from apps.skills.models import Skill
+
+    student = auth_client.post(
+        "/api/students/", {"display_name": "Aïda", "grade": "P5"}, format="json"
+    ).json()
+    res = auth_client.get(f"/api/students/{student['id']}/skill-tree/")
+    by_id = {r["skill_id"]: r for r in res.json()}
+
+    prior_ids = list(Skill.objects.filter(grade__lt="P5").values_list("id", flat=True))
+    current_ids = list(Skill.objects.filter(grade__gte="P5").values_list("id", flat=True))
+    assert prior_ids, "expected prior-grade skills to exist"
+    for sid in prior_ids:
+        assert by_id[sid]["status"] == "mastered"
+        assert by_id[sid]["mastery_level"] == 1.0
+    for sid in current_ids:
+        assert by_id[sid]["status"] == "not_started"
+
+
+@pytest.mark.django_db
+def test_new_p1_student_has_nothing_seeded(auth_client):
+    student = auth_client.post(
+        "/api/students/", {"display_name": "Bébé", "grade": "P1"}, format="json"
+    ).json()
+    res = auth_client.get(f"/api/students/{student['id']}/skill-tree/")
+    assert all(r["status"] == "not_started" for r in res.json())

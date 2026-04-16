@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import { exercisesApi } from "../api/exercises"
+import { invalidateSkillTree } from "../lib/queryClient"
 import { useAuthStore } from "./authStore"
 import { useBadgeStore } from "./badgeStore"
 
@@ -60,6 +61,7 @@ export const useSessionStore = create((set, get) => ({
         useAuthStore.getState().applyGamification(studentId, res.gamification)
         useBadgeStore.getState().push(res.gamification.newly_earned_badges)
       }
+      invalidateSkillTree(studentId)
       set({
         feedback: res.feedback,
         lastAttemptId: res.attempt?.id || null,

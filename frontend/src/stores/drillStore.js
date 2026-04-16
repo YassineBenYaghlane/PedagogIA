@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import { drillApi } from "../api/drill"
+import { invalidateSkillTree } from "../lib/queryClient"
 import { useAuthStore } from "./authStore"
 import { useBadgeStore } from "./badgeStore"
 
@@ -56,6 +57,7 @@ export const useDrillStore = create((set, get) => ({
         useAuthStore.getState().applyGamification(studentId, res.gamification)
         useBadgeStore.getState().push(res.gamification.newly_earned_badges)
       }
+      invalidateSkillTree(studentId)
       set({
         feedback: res.feedback,
         streak: nextStreak,

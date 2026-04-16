@@ -30,16 +30,23 @@ function familyFor(id) {
   return "scientia"
 }
 
-function mockStatus(skill) {
-  if (skill.grade === "P1") return "completed"
-  if (skill.grade === "P2") return "in_progress"
-  return "locked"
+const BACKEND_TO_UI_STATUS = {
+  mastered: "completed",
+  in_progress: "in_progress",
+  needs_review: "review",
+  not_started: "locked"
+}
+
+function skillStatus(skill, stateById) {
+  const state = stateById?.get(skill.id)
+  if (!state) return "locked"
+  return BACKEND_TO_UI_STATUS[state.status] ?? "locked"
 }
 
 export const NODE_WIDTH = 140
 export const NODE_GAP_X = 24
 export const SUBROW_HEIGHT = 170
-export const BAND_GAP = 60
+export const BAND_GAP = 110
 export const BAND_PAD_TOP = 40
 const LANE_LABEL_X = -180
 
@@ -82,7 +89,7 @@ function orderByBarycenter(skills, positions, successors, useSuccessors) {
   return withBary.map(({ s }) => s)
 }
 
-export function buildGraph(skills, nextId) {
+export function buildGraph(skills, nextId, stateById) {
   const byGrade = new Map(GRADES.map((g) => [g, []]))
   for (const s of skills) {
     if (byGrade.has(s.grade)) byGrade.get(s.grade).push(s)
@@ -129,12 +136,26 @@ export function buildGraph(skills, nextId) {
     yAcc += BAND_GAP
   }
 
+  let maxRowSize = 1
+  for (const grade of GRADES) {
+    const info = gradeInfo.get(grade)
+    for (let r = 0; r < info.rowCount; r++) {
+      const sz = (info.rows.get(r) ?? []).length
+      if (sz > maxRowSize) maxRowSize = sz
+    }
+  }
+  const stride = NODE_WIDTH + NODE_GAP_X
+  const rowCenter = (maxRowSize * stride - NODE_GAP_X) / 2
+
   const positions = new Map()
   const placeRow = (rowSkills, grade, r, useSucc) => {
     const ordered = orderByBarycenter(rowSkills, positions, successors, useSucc)
+    if (!ordered.length) return
+    const rowWidth = ordered.length * stride - NODE_GAP_X
+    const startX = rowCenter - rowWidth / 2
     ordered.forEach((s, i) => {
       positions.set(s.id, {
-        x: i * (NODE_WIDTH + NODE_GAP_X),
+        x: startX + i * stride,
         y: gradeYStart.get(grade) + r * SUBROW_HEIGHT,
       })
     })
@@ -164,29 +185,52 @@ export function buildGraph(skills, nextId) {
   const allX = [...positions.values()].map((p) => p.x)
   const maxX = allX.length ? Math.max(...allX) : 0
 
-  const nodes = skills.map((s) => ({
-    id: s.id,
-    type: "skillNode",
-    position: positions.get(s.id),
-    data: {
-      ...s,
-      colors: GRADE_COLORS[s.grade],
-      family: familyFor(s.id),
-      status: mockStatus(s),
-      isNext: s.id === nextId,
-    },
-    draggable: false,
-  }))
+  const isMastered = (id) => stateById?.get(id)?.status === "mastered"
+  const hasAttempts = (id) => (stateById?.get(id)?.total_attempts ?? 0) > 0
+  const isUnlocked = (s) =>
+    hasAttempts(s.id) ||
+    s.prerequisites.length === 0 ||
+    s.prerequisites.every(isMastered)
+
+  const nodes = skills.map((s) => {
+    const state = stateById?.get(s.id)
+    return {
+      id: s.id,
+      type: "skillNode",
+      position: positions.get(s.id),
+      data: {
+        ...s,
+        colors: GRADE_COLORS[s.grade],
+        family: familyFor(s.id),
+        status: skillStatus(s, stateById),
+        masteryLevel: state?.mastery_level ?? 0,
+        totalAttempts: state?.total_attempts ?? 0,
+        unlocked: isUnlocked(s),
+        isNext: s.id === nextId,
+      },
+      draggable: false,
+    }
+  })
 
   const edges = skills.flatMap((s) =>
-    s.prerequisites.map((pid) => ({
-      id: `${pid}->${s.id}`,
-      source: pid,
-      target: s.id,
-      type: "smoothstep",
-      style: { stroke: "#A1AEA3", strokeWidth: 1.5, strokeDasharray: "4 5" },
-      markerEnd: { type: MarkerType.ArrowClosed, color: "#A1AEA3", width: 12, height: 12 },
-    }))
+    s.prerequisites.map((pid) => {
+      const lit = isMastered(pid) && isMastered(s.id)
+      const active = isMastered(pid) && !isMastered(s.id) &&
+        (stateById?.get(s.id)?.status === "in_progress" || s.id === nextId)
+      let stroke = "#A1AEA3"
+      let width = 1.5
+      let dash = "4 5"
+      if (lit) { stroke = "#6FA274"; width = 2.5; dash = "0" }
+      else if (active) { stroke = "#4F8BAC"; width = 2; dash = "0" }
+      return {
+        id: `${pid}->${s.id}`,
+        source: pid,
+        target: s.id,
+        type: "smoothstep",
+        style: { stroke, strokeWidth: width, strokeDasharray: dash },
+        markerEnd: { type: MarkerType.ArrowClosed, color: stroke, width: 12, height: 12 },
+      }
+    })
   )
 
   const laneNodes = GRADES.map((grade) => {
@@ -204,35 +248,17 @@ export function buildGraph(skills, nextId) {
       },
       draggable: false,
       selectable: false,
+      style: { pointerEvents: "none" },
     }
   })
 
-  return { nodes: [...laneNodes, ...nodes], edges, successors }
-}
+  const lastGrade = GRADES[GRADES.length - 1]
+  const bounds = {
+    minX: LANE_LABEL_X,
+    maxX: maxX + NODE_WIDTH + 40,
+    minY: 0,
+    maxY: gradeYEnd.get(lastGrade) + 40,
+  }
 
-export function collectRelated(id, skills, successors) {
-  const byId = new Map(skills.map((s) => [s.id, s]))
-  const ancestors = new Set()
-  const stackA = [id]
-  while (stackA.length) {
-    const cur = stackA.pop()
-    for (const p of byId.get(cur)?.prerequisites ?? []) {
-      if (!ancestors.has(p)) {
-        ancestors.add(p)
-        stackA.push(p)
-      }
-    }
-  }
-  const descendants = new Set()
-  const stackD = [id]
-  while (stackD.length) {
-    const cur = stackD.pop()
-    for (const c of successors.get(cur) ?? []) {
-      if (!descendants.has(c)) {
-        descendants.add(c)
-        stackD.push(c)
-      }
-    }
-  }
-  return { ancestors, descendants }
+  return { nodes: [...laneNodes, ...nodes], edges, bounds }
 }

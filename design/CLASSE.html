@@ -1,0 +1,1030 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>La Classe de PédagogIA — Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          serif: ['"Instrument Serif"', 'ui-serif', 'Georgia', 'serif'],
+          display: ['"Bricolage Grotesque"', 'ui-sans-serif', 'system-ui'],
+          body: ['Inter', 'ui-sans-serif', 'system-ui'],
+          hand: ['Caveat', 'ui-serif', 'cursive'],
+        },
+        colors: {
+          paper: '#FAF8F0',
+          cream: '#FFFEF8',
+          chalk: '#F1EEE3',
+          ink: '#141414',
+          graphite: '#2A2A2A',
+          pencil: '#5F5F5F',
+          rule: '#CDCBBF',
+          seyes: '#5B9FE0',
+          seyesDeep: '#2E6BA6',
+          navy: {
+            DEFAULT: '#1B3A6F',
+            deep: '#0E2449',
+          },
+          mustard: '#E8A33D',
+          tomato: '#E4572E',
+          rouge: '#DC2A2A',
+          sage: '#7AA887',
+          lilac: '#B7A7D6',
+        },
+      }
+    }
+  }
+</script>
+<style>
+  html, body { background: #EDE9DA; }
+  body { font-family: 'Inter', system-ui, sans-serif; color: #141414; }
+  html { scroll-behavior: smooth; }
+
+  /* Seyès-style horizontal ruled paper */
+  .cahier {
+    background-color: #FFFEF8;
+    background-image:
+      repeating-linear-gradient(to bottom,
+        rgba(91,159,224,0) 0px, rgba(91,159,224,0) 23px,
+        rgba(91,159,224,.28) 23px, rgba(91,159,224,.28) 24px);
+  }
+  .cahier-margin {
+    background-color: #FFFEF8;
+    background-image:
+      repeating-linear-gradient(to bottom,
+        rgba(91,159,224,0) 0px, rgba(91,159,224,0) 23px,
+        rgba(91,159,224,.28) 23px, rgba(91,159,224,.28) 24px),
+      linear-gradient(to right,
+        transparent 0, transparent 40px,
+        rgba(220,42,42,.45) 40px, rgba(220,42,42,.45) 41px,
+        transparent 41px);
+  }
+  .plain { background: #FAF8F0; }
+
+  /* Phone frame */
+  .phone {
+    width: 380px; height: 760px;
+    border-radius: 44px;
+    background: #141414;
+    padding: 10px;
+    box-shadow: 0 40px 80px -40px rgba(14,36,73,.5), 0 2px 0 0 rgba(255,255,255,.05) inset;
+    position: relative;
+  }
+  .phone-screen {
+    width: 100%; height: 100%;
+    border-radius: 34px;
+    overflow: hidden;
+    position: relative;
+    background: #FFFEF8;
+  }
+  .notch {
+    position: absolute; top: 14px; left: 50%;
+    transform: translateX(-50%);
+    width: 100px; height: 26px;
+    background: #141414;
+    border-radius: 20px;
+    z-index: 20;
+  }
+  .phone-status {
+    position: absolute; top: 14px; left: 0; right: 0;
+    display: flex; justify-content: space-between;
+    padding: 0 28px;
+    font-weight: 600; font-size: 13px; color: #141414;
+    z-index: 25; pointer-events: none;
+  }
+
+  /* Big red teacher stamp */
+  .stamp-red {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    border: 3px solid #DC2A2A;
+    color: #DC2A2A;
+    font-family: 'Bricolage Grotesque';
+    font-weight: 800;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    transform: rotate(-8deg);
+    padding: 10px 20px;
+    border-radius: 6px;
+    background: rgba(255,255,248,.85);
+    box-shadow: 2px 2px 0 rgba(220,42,42,.2);
+  }
+  .stamp-rosette {
+    position: relative;
+    width: 140px; height: 140px;
+    display: grid; place-items: center;
+    filter: drop-shadow(0 12px 24px rgba(220,42,42,.2));
+  }
+
+  /* Teacher's red pen mark */
+  .pen-mark {
+    color: #DC2A2A;
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+  }
+  .redline { border-left: 3px solid #DC2A2A; }
+
+  /* Buttons */
+  .btn-primary {
+    background: #1B3A6F;
+    color: #FFFEF8;
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    letter-spacing: .01em;
+    box-shadow: 0 3px 0 #0E2449, 0 12px 24px -14px rgba(14,36,73,.6);
+    transition: transform 180ms ease, box-shadow 180ms ease;
+    cursor: pointer;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 0 #0E2449; }
+  .btn-primary:active { transform: translateY(2px); box-shadow: 0 1px 0 #0E2449; }
+
+  .btn-accent {
+    background: #E4572E;
+    color: #FFFEF8;
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    box-shadow: 0 3px 0 #B6391A;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: #1B3A6F;
+    border: 2px solid #1B3A6F;
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+  }
+
+  /* Cahier card (colored notebook cover) */
+  .cahier-card {
+    background: #FFFEF8;
+    border-radius: 14px;
+    box-shadow: 0 2px 0 rgba(20,20,20,.12), 0 14px 30px -18px rgba(14,36,73,.35);
+    overflow: hidden;
+    position: relative;
+  }
+  .tab {
+    position: absolute; left: 16px; top: -1px;
+    background: #DC2A2A;
+    width: 28px; height: 14px;
+    border-radius: 0 0 4px 4px;
+  }
+  .tab.blue { background: #1B3A6F; }
+  .tab.mustard { background: #E8A33D; }
+
+  /* Chip */
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px; font-weight: 700; letter-spacing: .02em;
+    background: #F1EEE3;
+    color: #2A2A2A;
+    border: 1px solid rgba(20,20,20,.06);
+  }
+  .chip-navy { background: #1B3A6F; color: #FFFEF8; border-color: transparent; }
+  .chip-mustard { background: #FDEBC9; color: #7B5510; border-color: rgba(123,85,16,.12); }
+  .chip-tomato { background: #FBDBD0; color: #8A2E13; border-color: rgba(138,46,19,.12); }
+  .chip-sage { background: #DFE9DB; color: #3E5C36; border-color: rgba(62,92,54,.12); }
+  .chip-seyes { background: #D8E7F7; color: #1E4E82; border-color: rgba(30,78,130,.14); }
+
+  /* Circled number (chapter marker) */
+  .chapter-n {
+    display: grid; place-items: center;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: #1B3A6F;
+    color: #FFFEF8;
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .chapter-n.mustard { background: #E8A33D; color: #141414; }
+  .chapter-n.tomato { background: #E4572E; color: #FFFEF8; }
+  .chapter-n.sage { background: #7AA887; color: #FFFEF8; }
+  .chapter-n.pencil { background: #FFFEF8; color: #5F5F5F; border: 2px dashed #CDCBBF; }
+
+  /* Key (numeric keypad) */
+  .key {
+    background: #FFFEF8;
+    border: 1.5px solid #141414;
+    border-radius: 12px;
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 22px;
+    color: #141414;
+    box-shadow: 0 3px 0 #141414;
+    transition: transform 100ms ease;
+    cursor: pointer;
+  }
+  .key:active { transform: translateY(3px); box-shadow: none; }
+  .key-accent { background: #1B3A6F; color: #FFFEF8; border-color: #0E2449; box-shadow: 0 3px 0 #0E2449; }
+
+  /* Shapes decoration */
+  .blob-blue { background: #1B3A6F; }
+  .blob-tomato { background: #E4572E; }
+  .blob-mustard { background: #E8A33D; }
+  .blob-sage { background: #7AA887; }
+
+  /* Nav */
+  .navlink {
+    padding: 10px 14px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 13px;
+    color: #2A2A2A;
+    background: #FFFEF8;
+    border: 1.5px solid #141414;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: 'Bricolage Grotesque';
+    transition: transform 120ms ease, background 120ms ease;
+    box-shadow: 0 2px 0 #141414;
+  }
+  .navlink:hover { transform: translateY(-1px); box-shadow: 0 3px 0 #141414; }
+  .navlink.active { background: #1B3A6F; color: #FFFEF8; border-color: #0E2449; box-shadow: 0 2px 0 #0E2449; }
+
+  /* Ruler tick progress */
+  .ruler { display: flex; gap: 4px; }
+  .tick { width: 20px; height: 6px; border-radius: 2px; background: #DEDCCE; }
+  .tick.done { background: #1B3A6F; }
+  .tick.current { background: #E4572E; }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0ms !important; transition-duration: 0ms !important; }
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- ============ HEADER ============ -->
+<header class="max-w-7xl mx-auto px-6 pt-10 pb-6 relative">
+  <div class="flex items-start justify-between gap-6 flex-wrap">
+    <div class="relative">
+      <!-- decorative shape -->
+      <div class="absolute -left-4 -top-3 w-12 h-12 rounded-full blob-mustard opacity-80 -z-0"></div>
+      <div class="flex items-center gap-2 text-navy relative">
+        <span class="w-8 h-8 grid place-items-center rounded-full bg-navy text-cream font-display font-bold text-sm">P</span>
+        <span class="font-serif italic text-2xl text-navy">La Classe de PédagogIA</span>
+      </div>
+      <h1 class="font-display font-extrabold text-4xl md:text-5xl text-ink mt-4 leading-[1.02] tracking-tight">
+        Une direction <span class="relative inline-block">
+          <span class="relative z-10">studieuse</span>
+          <span class="absolute left-0 right-0 bottom-1 h-3 bg-mustard -z-0"></span>
+        </span>, pas ennuyeuse.
+      </h1>
+      <p class="text-graphite mt-3 max-w-xl">Proposition <span class="chip chip-navy">Classe · v1</span> — papier réglé Seyès, bleu marine, tomate, moutarde. Toujours 6-12 ans, mobile-first, unifié.</p>
+    </div>
+    <div class="flex flex-col gap-2 items-end">
+      <span class="chip chip-tomato">Ton · scolaire + pop</span>
+      <span class="chip chip-navy">Instrument Serif + Bricolage</span>
+      <span class="chip chip-sage">Contraste · AA garanti</span>
+    </div>
+  </div>
+</header>
+
+<!-- ============ NAV ============ -->
+<nav class="sticky top-0 z-40 backdrop-blur-md bg-paper/85 border-b-2 border-ink">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex gap-2 overflow-x-auto">
+    <a href="#s-accueil" class="navlink">① Accueil</a>
+    <a href="#s-cahiers" class="navlink">② Cahiers</a>
+    <a href="#s-programme" class="navlink">③ Programme</a>
+    <a href="#s-exercice" class="navlink">④ Exercice</a>
+    <a href="#s-correction" class="navlink">⑤ Correction</a>
+    <a href="#s-bulletin" class="navlink">⑥ Bulletin</a>
+    <a href="#s-bravo" class="navlink">⑦ Bravo !</a>
+    <a href="#tokens" class="navlink">⚙ Jetons</a>
+  </div>
+</nav>
+
+<!-- ============ GRID ============ -->
+<main class="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 place-items-center">
+
+  <!-- ============================================================= -->
+  <!-- 1. ACCUEIL                                                     -->
+  <!-- ============================================================= -->
+  <section id="s-accueil" class="flex flex-col items-center gap-3">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="phone-status"><span>9:41</span><span>●●● ◧</span></div>
+      <div class="phone-screen cahier">
+        <div class="h-full flex flex-col relative overflow-hidden">
+          <!-- decorative shapes -->
+          <div class="absolute -top-8 -right-8 w-40 h-40 rounded-full blob-tomato opacity-90"></div>
+          <div class="absolute top-24 -left-6 w-20 h-20 rounded-full blob-mustard opacity-90"></div>
+          <div class="absolute bottom-32 right-4 w-12 h-12 rotate-45 blob-sage opacity-90"></div>
+
+          <div class="pt-14 px-6 flex items-center justify-between relative">
+            <div class="flex items-center gap-2 text-navy">
+              <span class="w-7 h-7 grid place-items-center rounded-full bg-navy text-cream font-display font-bold text-[11px]">P</span>
+              <span class="font-serif italic text-[15px] text-navy">La Classe</span>
+            </div>
+            <span class="chip">FR · BE</span>
+          </div>
+
+          <div class="mt-10 px-6 relative">
+            <p class="text-pencil text-[11px] font-bold tracking-[.18em] uppercase">Maths · P1 → P6</p>
+            <h2 class="font-serif text-[40px] leading-[1.02] text-ink mt-3 tracking-tight">
+              <span class="italic">Apprendre</span><br/>
+              <span class="relative inline-block">
+                <span class="relative z-10">les maths</span>
+                <span class="absolute left-0 right-0 bottom-1 h-3 bg-mustard -z-0"></span>
+              </span><br/>
+              comme <span class="font-display font-extrabold not-italic">en&nbsp;classe</span>.
+            </h2>
+            <p class="text-graphite mt-4 text-[14px] leading-relaxed font-medium">Mais en mieux. Un prof patient, des leçons qui s'adaptent, des récompenses qui comptent.</p>
+          </div>
+
+          <!-- hero visual: giant operation -->
+          <div class="relative mt-6 mx-6">
+            <div class="cahier-card p-5 redline">
+              <div class="flex items-center justify-between">
+                <p class="text-pencil text-[11px] font-bold tracking-[.18em] uppercase">Aujourd'hui</p>
+                <span class="pen-mark text-xl">✓</span>
+              </div>
+              <div class="mt-2 font-serif text-[44px] leading-none tracking-tight text-ink">
+                7 + 5 = <span class="text-tomato italic">12</span>
+              </div>
+              <p class="text-pencil mt-2 text-[12px]">12 min de classe · 4 exercices</p>
+            </div>
+          </div>
+
+          <div class="px-6 mt-auto pb-8 relative">
+            <button class="btn-primary w-full">Commencer la classe</button>
+            <button class="btn-ghost w-full mt-2">J'ai déjà un cahier</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-graphite text-sm font-semibold">① Accueil — <span class="text-pencil font-normal">couverture de cahier</span></p>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 2. CAHIERS                                                     -->
+  <!-- ============================================================= -->
+  <section id="s-cahiers" class="flex flex-col items-center gap-3">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="phone-status"><span>9:41</span><span>●●● ◧</span></div>
+      <div class="phone-screen plain">
+        <div class="h-full flex flex-col">
+          <div class="pt-14 px-5 flex items-center justify-between">
+            <button class="w-9 h-9 rounded-full bg-cream border-2 border-ink grid place-items-center shadow-[0_2px_0_#141414]">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="#141414" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <span class="chip">Compte · Leïla</span>
+          </div>
+
+          <div class="px-5 mt-4 relative">
+            <p class="text-pencil text-[11px] font-bold tracking-[.18em] uppercase">Mon cahier</p>
+            <h2 class="font-serif text-[32px] text-ink mt-1 tracking-tight">
+              Choisis ton <span class="italic">cahier</span>
+            </h2>
+            <span class="absolute -top-1 right-4 w-10 h-10 rounded-full blob-mustard opacity-90 -z-0"></span>
+          </div>
+
+          <div class="px-5 mt-5 space-y-3">
+
+            <!-- Cahier 1 : Noé — bleu -->
+            <div class="cahier-card relative p-4 flex gap-3 items-center" style="border-top: 10px solid #1B3A6F;">
+              <div class="tab"></div>
+              <div class="w-14 h-16 rounded-md relative overflow-hidden" style="background: repeating-linear-gradient(to bottom, #1B3A6F 0 5px, #2B4E8A 5px 10px);">
+                <span class="absolute inset-0 grid place-items-center font-serif italic text-cream text-[22px]">N</span>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <h3 class="font-display font-extrabold text-[17px] text-ink">Noé</h3>
+                  <span class="chip chip-navy">P3 · 8 ans</span>
+                </div>
+                <div class="mt-1 flex items-center gap-3 text-[12px] text-graphite font-medium">
+                  <span class="pen-mark text-base">5 jours ✓</span>
+                  <span>·</span>
+                  <span>Élève émérite</span>
+                </div>
+                <div class="mt-2 h-2 rounded-full bg-chalk overflow-hidden border border-rule">
+                  <div class="h-full blob-blue" style="width: 62%"></div>
+                </div>
+              </div>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#141414" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+
+            <!-- Cahier 2 : Aya — tomate -->
+            <div class="cahier-card relative p-4 flex gap-3 items-center" style="border-top: 10px solid #E4572E;">
+              <div class="tab mustard"></div>
+              <div class="w-14 h-16 rounded-md relative overflow-hidden" style="background: repeating-linear-gradient(to bottom, #E4572E 0 5px, #F26D48 5px 10px);">
+                <span class="absolute inset-0 grid place-items-center font-serif italic text-cream text-[22px]">A</span>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <h3 class="font-display font-extrabold text-[17px] text-ink">Aya</h3>
+                  <span class="chip chip-tomato">P1 · 6 ans</span>
+                </div>
+                <div class="mt-1 text-[12px] text-graphite font-medium">Tout premier pas</div>
+                <div class="mt-2 h-2 rounded-full bg-chalk overflow-hidden border border-rule">
+                  <div class="h-full blob-tomato" style="width: 18%"></div>
+                </div>
+              </div>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#141414" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+
+            <!-- Cahier 3 : Margaux — moutarde -->
+            <div class="cahier-card relative p-4 flex gap-3 items-center opacity-90" style="border-top: 10px solid #E8A33D;">
+              <div class="tab blue"></div>
+              <div class="w-14 h-16 rounded-md relative overflow-hidden" style="background: repeating-linear-gradient(to bottom, #E8A33D 0 5px, #F0B65B 5px 10px);">
+                <span class="absolute inset-0 grid place-items-center font-serif italic text-ink text-[22px]">M</span>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <h3 class="font-display font-extrabold text-[17px] text-ink">Margaux</h3>
+                  <span class="chip chip-mustard">P5 · 11 ans</span>
+                </div>
+                <div class="mt-1 text-[12px] text-pencil font-medium">Pause depuis 3 semaines</div>
+                <div class="mt-2 h-2 rounded-full bg-chalk overflow-hidden border border-rule">
+                  <div class="h-full blob-mustard" style="width: 84%"></div>
+                </div>
+              </div>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#141414" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+
+            <button class="w-full p-4 rounded-xl border-2 border-dashed border-ink/40 text-ink font-display font-extrabold flex items-center justify-center gap-2">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+              Nouveau cahier
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-graphite text-sm font-semibold">② Cahiers — <span class="text-pencil font-normal">un cahier par élève</span></p>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 3. PROGRAMME                                                   -->
+  <!-- ============================================================= -->
+  <section id="s-programme" class="flex flex-col items-center gap-3">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="phone-status"><span>9:41</span><span>●●● ◧</span></div>
+      <div class="phone-screen plain">
+        <div class="h-full flex flex-col">
+          <div class="pt-14 px-5 flex items-center justify-between">
+            <button class="w-9 h-9 rounded-full bg-cream border-2 border-ink grid place-items-center shadow-[0_2px_0_#141414]">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="#141414" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="flex flex-col items-center leading-tight">
+              <span class="font-display font-extrabold text-ink text-[15px]">Programme</span>
+              <span class="text-[11px] text-pencil font-medium">Arithmétique · P2</span>
+            </div>
+            <button class="w-9 h-9 rounded-full bg-cream border-2 border-ink grid place-items-center shadow-[0_2px_0_#141414]">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="5" cy="12" r="1.8" fill="#141414"/><circle cx="12" cy="12" r="1.8" fill="#141414"/><circle cx="19" cy="12" r="1.8" fill="#141414"/></svg>
+            </button>
+          </div>
+
+          <div class="px-5 mt-4 flex gap-2 text-[11px]">
+            <button class="chip chip-navy">Tout</button>
+            <button class="chip">À voir</button>
+            <button class="chip chip-tomato">En cours</button>
+            <button class="chip chip-sage">Acquis</button>
+          </div>
+
+          <!-- Curriculum list with chapter numbers -->
+          <div class="flex-1 mt-4 px-5 space-y-3 overflow-y-auto pb-4">
+
+            <div class="flex items-start gap-3">
+              <div class="chapter-n sage">1</div>
+              <div class="flex-1 cahier-card p-3">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-display font-extrabold text-[14px] text-ink">Compter jusqu'à 20</h4>
+                  <span class="pen-mark text-xl leading-none">✓</span>
+                </div>
+                <div class="mt-1 h-1.5 rounded-full bg-chalk"><div class="h-full rounded-full bg-sage" style="width: 100%"></div></div>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="chapter-n sage">2</div>
+              <div class="flex-1 cahier-card p-3">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-display font-extrabold text-[14px] text-ink">Additions &lt; 20</h4>
+                  <span class="pen-mark text-xl leading-none">✓</span>
+                </div>
+                <div class="mt-1 h-1.5 rounded-full bg-chalk"><div class="h-full rounded-full bg-sage" style="width: 100%"></div></div>
+              </div>
+            </div>
+
+            <!-- active chapter: raised, tomato -->
+            <div class="flex items-start gap-3">
+              <div class="chapter-n tomato">3</div>
+              <div class="flex-1 p-4 rounded-xl bg-navy text-cream shadow-[0_4px_0_#0E2449] relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-tomato opacity-50"></div>
+                <div class="flex items-center justify-between relative">
+                  <h4 class="font-display font-extrabold text-[15px]">Addition à retenue</h4>
+                  <span class="chip chip-tomato">en cours</span>
+                </div>
+                <p class="text-[12px] text-cream/80 mt-1 relative">3 exercices sur 8 · 62 % de maîtrise</p>
+                <div class="mt-3 h-1.5 rounded-full bg-white/20 relative overflow-hidden">
+                  <div class="h-full bg-tomato" style="width: 62%"></div>
+                </div>
+                <div class="mt-3 flex gap-2 relative">
+                  <button class="bg-mustard text-ink font-display font-extrabold text-[12px] px-3 py-1.5 rounded-lg shadow-[0_2px_0_#B67D21]">Continuer</button>
+                  <button class="border border-cream/30 text-cream font-display font-semibold text-[12px] px-3 py-1.5 rounded-lg">Diagnostic</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="chapter-n">4</div>
+              <div class="flex-1 cahier-card p-3">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-display font-extrabold text-[14px] text-ink">Soustraction à retenue</h4>
+                  <span class="chip">bientôt</span>
+                </div>
+                <div class="mt-1 h-1.5 rounded-full bg-chalk"><div class="h-full rounded-full bg-navy" style="width: 12%"></div></div>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="chapter-n pencil">5</div>
+              <div class="flex-1 cahier-card p-3 opacity-60">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-display font-extrabold text-[14px] text-pencil">Tables de multiplication</h4>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2" stroke="#5F5F5F" stroke-width="1.8"/><path d="M8 10V7a4 4 0 018 0v3" stroke="#5F5F5F" stroke-width="1.8"/></svg>
+                </div>
+                <p class="text-[11px] text-pencil mt-1">À débloquer après le chap. 3</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="chapter-n pencil">6</div>
+              <div class="flex-1 cahier-card p-3 opacity-60">
+                <h4 class="font-display font-extrabold text-[14px] text-pencil">Partages simples</h4>
+                <p class="text-[11px] text-pencil mt-1">Verrouillé</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-graphite text-sm font-semibold">③ Programme — <span class="text-pencil font-normal">chapitres comme dans un manuel</span></p>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 4. EXERCICE                                                    -->
+  <!-- ============================================================= -->
+  <section id="s-exercice" class="flex flex-col items-center gap-3">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="phone-status"><span>9:41</span><span>●●● ◧</span></div>
+      <div class="phone-screen cahier-margin">
+        <div class="h-full flex flex-col relative">
+          <div class="pt-14 px-5 flex items-center justify-between">
+            <button class="w-9 h-9 rounded-full bg-cream border-2 border-ink grid place-items-center shadow-[0_2px_0_#141414]">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="#141414" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="flex flex-col items-center leading-tight">
+              <span class="font-display font-extrabold text-ink text-[14px]">Addition à retenue</span>
+              <span class="text-[11px] text-pencil font-medium">Ch. 3 · Exercice 4 / 8</span>
+            </div>
+            <button class="w-9 h-9 rounded-full bg-mustard border-2 border-ink grid place-items-center shadow-[0_2px_0_#141414]">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18h6M10 22h4M12 2a7 7 0 00-4 12c1 1 1.5 2 1.5 3h5c0-1 .5-2 1.5-3a7 7 0 00-4-12z" stroke="#141414" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+
+          <div class="px-5 mt-3 pl-12">
+            <div class="ruler">
+              <span class="tick done"></span><span class="tick done"></span><span class="tick done"></span><span class="tick current"></span>
+              <span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span>
+            </div>
+          </div>
+
+          <!-- Question zone: like a page in a notebook -->
+          <div class="relative flex-1 mt-4">
+            <!-- margin number -->
+            <div class="absolute left-2 top-3 font-serif italic text-rouge text-[22px] leading-none rotate-[-4deg]">№ 4</div>
+
+            <div class="ml-12 mr-5">
+              <p class="text-pencil text-[11px] font-bold tracking-[.18em] uppercase">Calcule</p>
+              <div class="mt-2 font-serif text-ink text-[52px] tracking-tight leading-none">
+                347 <span class="text-tomato">+</span> 185
+              </div>
+              <p class="mt-3 text-graphite text-[13px] font-medium">Si besoin, décompose en centaines, dizaines, unités.</p>
+
+              <!-- Answer input -->
+              <div class="mt-4">
+                <div class="flex items-end gap-2">
+                  <span class="text-pencil text-[12px] font-bold uppercase tracking-wider">Réponse</span>
+                  <span class="flex-1 border-b-2 border-dashed border-ink/30"></span>
+                </div>
+                <div class="mt-2 font-serif text-[40px] text-ink leading-none tracking-tight">
+                  5<span class="text-pencil">|</span><span class="text-pencil/40">_ _</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- keypad pinned bottom -->
+            <div class="absolute left-3 right-3 bottom-3 grid grid-cols-4 gap-2">
+              <button class="key h-11 col-span-1">1</button>
+              <button class="key h-11 col-span-1">2</button>
+              <button class="key h-11 col-span-1">3</button>
+              <button class="key h-11 col-span-1 bg-chalk">←</button>
+              <button class="key h-11">4</button>
+              <button class="key h-11">5</button>
+              <button class="key h-11">6</button>
+              <button class="key h-11 bg-chalk">C</button>
+              <button class="key h-11">7</button>
+              <button class="key h-11">8</button>
+              <button class="key h-11">9</button>
+              <button class="key key-accent h-11 row-span-2">Corriger</button>
+              <button class="key h-11 col-span-3">0</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-graphite text-sm font-semibold">④ Exercice — <span class="text-pencil font-normal">page de cahier Seyès</span></p>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 5. CORRECTION                                                  -->
+  <!-- ============================================================= -->
+  <section id="s-correction" class="flex flex-col items-center gap-3">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="phone-status"><span>9:41</span><span>●●● ◧</span></div>
+      <div class="phone-screen cahier-margin">
+        <div class="h-full flex flex-col relative">
+          <div class="pt-14 px-5 flex items-center justify-between">
+            <span class="chip chip-tomato">Presque !</span>
+            <span class="text-[11px] text-pencil font-medium">Correction · № 4</span>
+          </div>
+
+          <div class="px-5 mt-3 pl-12">
+            <h2 class="font-serif text-ink text-[30px] leading-tight tracking-tight">
+              On <span class="italic text-navy">corrige</span><br/>ensemble.
+            </h2>
+            <p class="text-graphite text-[13px] mt-2 font-medium">
+              Ta réponse : <span class="font-serif text-[20px] text-rouge">522</span> · Bonne réponse : <span class="font-serif text-[20px] text-sage">532</span>
+            </p>
+          </div>
+
+          <div class="px-5 mt-4 flex-1 overflow-y-auto pl-12 pb-4 space-y-3">
+            <!-- Étape 1 -->
+            <div class="cahier-card p-3 relative">
+              <div class="flex items-center gap-2">
+                <span class="chapter-n" style="width:24px;height:24px;font-size:12px;">1</span>
+                <p class="font-display font-extrabold text-ink text-[13px]">Décomposer chaque nombre</p>
+              </div>
+              <div class="mt-2 font-serif text-ink text-[18px] leading-snug">
+                347 = <span class="text-navy">300</span> + <span class="text-navy">40</span> + <span class="text-navy">7</span><br/>
+                185 = <span class="text-navy">100</span> + <span class="text-navy">80</span> + <span class="text-navy">5</span>
+              </div>
+            </div>
+
+            <!-- Étape 2 — teacher pen highlight on the tricky line -->
+            <div class="cahier-card p-3 relative">
+              <div class="flex items-center gap-2">
+                <span class="chapter-n tomato" style="width:24px;height:24px;font-size:12px;">2</span>
+                <p class="font-display font-extrabold text-ink text-[13px]">Additionner par colonnes</p>
+              </div>
+              <div class="mt-2 font-serif text-ink text-[17px] leading-[1.5]">
+                Centaines : 300 + 100 = <span class="text-sage">400</span><br/>
+                <span class="relative inline-block">
+                  <span class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-7 bg-mustard/50 -z-0"></span>
+                  <span class="relative">Dizaines : 40 + 80 = <span class="text-rouge font-display not-italic">120</span></span>
+                </span><br/>
+                Unités : 7 + 5 = <span class="text-sage">12</span>
+              </div>
+              <p class="pen-mark text-[18px] mt-2 rotate-[-4deg] inline-block">↑ retenue !</p>
+            </div>
+
+            <!-- Note du professeur (AI) -->
+            <div class="relative rounded-xl bg-navy text-cream p-4 shadow-[0_4px_0_#0E2449] overflow-hidden">
+              <div class="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-mustard opacity-25"></div>
+              <div class="flex items-center gap-2 text-mustard text-[11px] font-display font-extrabold uppercase tracking-wider relative">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3l2 5 5 .7-3.6 3.6.9 5L12 14.6 7.7 16.8l.9-5L5 8.2l5-.5 2-4.7z" stroke="currentColor" stroke-width="1.6"/></svg>
+                Note du prof
+              </div>
+              <p class="mt-2 text-[13.5px] leading-relaxed text-cream/95 relative">
+                La <span class="font-display font-extrabold text-mustard">retenue des dizaines</span> t'a fait hésiter. 4 petits exercices ciblés et tu auras la main sûre.
+              </p>
+              <div class="mt-3 flex gap-2 relative">
+                <button class="btn-accent text-[12px] py-2 px-3">Exercices ciblés →</button>
+                <button class="border-2 border-cream/40 text-cream font-display font-extrabold text-[12px] px-3 py-2 rounded-xl">Refaire</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-graphite text-sm font-semibold">⑤ Correction — <span class="text-pencil font-normal">stylo rouge + note du prof IA</span></p>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 6. BULLETIN                                                    -->
+  <!-- ============================================================= -->
+  <section id="s-bulletin" class="flex flex-col items-center gap-3">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="phone-status"><span>9:41</span><span>●●● ◧</span></div>
+      <div class="phone-screen plain">
+        <div class="h-full flex flex-col relative overflow-hidden">
+          <div class="pt-14 px-5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-navy text-mustard grid place-items-center font-serif italic text-[17px] border-2 border-ink shadow-[0_2px_0_#141414]">N</div>
+              <div class="leading-tight">
+                <div class="font-display font-extrabold text-ink text-[15px]">Noé</div>
+                <div class="text-[11px] text-pencil font-medium">P3 · 8 ans</div>
+              </div>
+            </div>
+            <button class="w-9 h-9 rounded-full bg-cream border-2 border-ink grid place-items-center shadow-[0_2px_0_#141414]">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="5" cy="12" r="1.8" fill="#141414"/><circle cx="12" cy="12" r="1.8" fill="#141414"/><circle cx="19" cy="12" r="1.8" fill="#141414"/></svg>
+            </button>
+          </div>
+
+          <div class="px-5 mt-3">
+            <div class="flex items-end justify-between">
+              <div>
+                <p class="text-pencil text-[11px] font-bold tracking-[.18em] uppercase">Bulletin de bord</p>
+                <h2 class="font-serif text-ink text-[28px] tracking-tight leading-tight">Trimestre <span class="italic">en cours</span></h2>
+              </div>
+              <span class="chip chip-navy">Avr. 2026</span>
+            </div>
+          </div>
+
+          <!-- Big rank card -->
+          <div class="px-5 mt-3">
+            <div class="rounded-xl bg-navy text-cream p-4 shadow-[0_4px_0_#0E2449] relative overflow-hidden">
+              <div class="absolute -right-8 -top-8 w-28 h-28 rounded-full bg-tomato opacity-60"></div>
+              <div class="absolute -left-4 -bottom-4 w-20 h-20 rotate-45 bg-mustard opacity-50"></div>
+              <div class="relative flex items-center gap-3">
+                <div class="stamp-red" style="transform:rotate(-6deg); font-size:11px; padding:6px 10px; border-width:2px; background:#FFFEF8;">NIV. 7</div>
+                <div class="flex-1">
+                  <div class="text-[11px] text-mustard font-display font-extrabold uppercase tracking-wider">Rang actuel</div>
+                  <h3 class="font-serif text-[24px] leading-none tracking-tight">Élève <span class="italic">émérite</span></h3>
+                </div>
+              </div>
+              <div class="mt-4 relative">
+                <div class="flex items-baseline justify-between">
+                  <span class="font-serif text-[26px] leading-none">472 <span class="text-mustard text-[13px] font-body font-semibold">XP</span></span>
+                  <span class="text-[11px] text-cream/75 font-medium">128 → <span class="font-display font-extrabold text-mustard">Premier de la classe</span></span>
+                </div>
+                <div class="mt-2 h-2.5 rounded-full bg-white/15 overflow-hidden relative">
+                  <div class="h-full bg-mustard" style="width: 78%"></div>
+                  <div class="absolute top-1/2 -translate-y-1/2 w-[3px] h-4 bg-cream" style="left: 78%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="px-5 mt-3 grid grid-cols-3 gap-2">
+            <div class="cahier-card p-3 text-center">
+              <div class="font-serif text-[22px] text-tomato leading-none">5</div>
+              <p class="text-[10px] text-pencil font-bold uppercase tracking-wide mt-1">jours · 🔥</p>
+            </div>
+            <div class="cahier-card p-3 text-center">
+              <div class="font-serif text-[22px] text-navy leading-none">18</div>
+              <p class="text-[10px] text-pencil font-bold uppercase tracking-wide mt-1">sessions</p>
+            </div>
+            <div class="cahier-card p-3 text-center">
+              <div class="font-serif text-[22px] text-sage leading-none">84%</div>
+              <p class="text-[10px] text-pencil font-bold uppercase tracking-wide mt-1">justesse</p>
+            </div>
+          </div>
+
+          <div class="px-5 mt-3">
+            <p class="text-pencil text-[11px] font-bold tracking-[.18em] uppercase">Récompenses</p>
+            <div class="mt-2 grid grid-cols-4 gap-2">
+              <div class="flex flex-col items-center gap-1">
+                <div class="w-12 h-12 rounded-full bg-sage grid place-items-center text-cream border-2 border-ink shadow-[0_2px_0_#141414]">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <span class="text-[10px] text-graphite font-bold leading-tight text-center">Additions</span>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="w-12 h-12 rounded-full bg-mustard grid place-items-center text-ink border-2 border-ink shadow-[0_2px_0_#141414]">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3l2 5 5 .7-3.6 3.6.9 5L12 14.6 7.7 16.8l.9-5L5 8.2l5-.5 2-4.7z" stroke="currentColor" stroke-width="1.8"/></svg>
+                </div>
+                <span class="text-[10px] text-graphite font-bold leading-tight text-center">Compas d'or</span>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="w-12 h-12 rounded-full bg-tomato grid place-items-center text-cream border-2 border-ink shadow-[0_2px_0_#141414]">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3c3 4 5 6 5 10a5 5 0 01-10 0c0-4 2-6 5-10z" stroke="currentColor" stroke-width="1.8"/></svg>
+                </div>
+                <span class="text-[10px] text-graphite font-bold leading-tight text-center">5 jours</span>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="w-12 h-12 rounded-full bg-chalk grid place-items-center text-pencil border-2 border-dashed border-pencil">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 10V7a4 4 0 018 0v3" stroke="currentColor" stroke-width="1.8"/></svg>
+                </div>
+                <span class="text-[10px] text-pencil font-bold leading-tight text-center">À venir</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="px-5 mt-auto pb-4">
+            <div class="flex items-center justify-between">
+              <p class="text-pencil text-[11px] font-bold tracking-[.18em] uppercase">Dernières leçons</p>
+              <a class="text-[12px] text-navy font-display font-extrabold">Tout voir →</a>
+            </div>
+            <div class="mt-2 space-y-2">
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-cream border border-rule">
+                <div>
+                  <div class="text-[13px] font-display font-extrabold text-ink">Addition à retenue</div>
+                  <div class="text-[11px] text-pencil">mar. 16 · 12 min</div>
+                </div>
+                <span class="chip chip-sage">6/8 ✓</span>
+              </div>
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-cream border border-rule">
+                <div>
+                  <div class="text-[13px] font-display font-extrabold text-ink">Tables de 4</div>
+                  <div class="text-[11px] text-pencil">lun. 15 · 8 min</div>
+                </div>
+                <span class="chip chip-mustard">5/8</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-graphite text-sm font-semibold">⑥ Bulletin — <span class="text-pencil font-normal">format bulletin scolaire</span></p>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 7. BRAVO                                                       -->
+  <!-- ============================================================= -->
+  <section id="s-bravo" class="flex flex-col items-center gap-3">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="phone-status"><span>9:41</span><span style="color:#FFFEF8">●●● ◧</span></div>
+      <div class="phone-screen" style="background: #1B3A6F;">
+        <div class="h-full flex flex-col text-cream relative overflow-hidden">
+          <!-- confetti shapes -->
+          <svg viewBox="0 0 380 760" class="absolute inset-0 w-full h-full pointer-events-none">
+            <g>
+              <rect x="30" y="90" width="14" height="14" fill="#E8A33D" transform="rotate(20 37 97)"/>
+              <circle cx="340" cy="110" r="8" fill="#E4572E"/>
+              <rect x="310" y="180" width="10" height="10" fill="#7AA887" transform="rotate(45 315 185)"/>
+              <circle cx="50" cy="240" r="5" fill="#E8A33D"/>
+              <rect x="340" y="320" width="14" height="14" fill="#FFFEF8" transform="rotate(15 347 327)"/>
+              <circle cx="30" cy="420" r="7" fill="#E4572E"/>
+              <rect x="80" y="540" width="10" height="10" fill="#E8A33D" transform="rotate(30 85 545)"/>
+              <circle cx="330" cy="580" r="6" fill="#7AA887"/>
+              <rect x="60" y="680" width="12" height="12" fill="#FFFEF8" transform="rotate(25 66 686)"/>
+              <circle cx="310" cy="700" r="5" fill="#E8A33D"/>
+            </g>
+          </svg>
+
+          <div class="pt-14 px-6 flex items-center justify-between relative">
+            <span class="font-serif italic text-mustard text-[14px]">La Classe</span>
+            <button class="text-cream/70 text-[13px] font-display font-semibold">Passer</button>
+          </div>
+
+          <div class="flex-1 flex flex-col items-center justify-center px-6 text-center relative">
+            <p class="uppercase tracking-[.28em] text-mustard text-[11px] font-display font-extrabold">Nouveau rang</p>
+
+            <!-- Medal rosette -->
+            <div class="stamp-rosette mt-5">
+              <svg viewBox="0 0 140 140" class="absolute inset-0 w-full h-full">
+                <!-- ribbon -->
+                <polygon points="52,100 40,130 60,120 70,130 80,120 100,130 88,100" fill="#E4572E" stroke="#FFFEF8" stroke-width="2"/>
+                <!-- outer medal -->
+                <circle cx="70" cy="64" r="50" fill="#E8A33D" stroke="#FFFEF8" stroke-width="3"/>
+                <!-- inner -->
+                <circle cx="70" cy="64" r="40" fill="none" stroke="#FFFEF8" stroke-width="1.5" stroke-dasharray="3 3"/>
+              </svg>
+              <div class="relative text-center">
+                <div class="font-serif italic text-[13px] text-ink leading-none">Classe</div>
+                <div class="font-display font-extrabold text-[14px] text-ink leading-tight tracking-tight mt-0.5">1<sup>er</sup> de la</div>
+                <div class="font-display font-extrabold text-[14px] text-ink leading-tight tracking-tight">classe</div>
+              </div>
+            </div>
+
+            <!-- Big red BRAVO stamp -->
+            <div class="mt-6">
+              <span class="stamp-red text-[28px] px-6 py-2">BRAVO&nbsp;!</span>
+            </div>
+
+            <h2 class="mt-6 font-serif text-[30px] leading-tight text-cream tracking-tight">Premier de la Classe</h2>
+            <p class="mt-2 text-cream/80 text-[14px] max-w-[280px] font-medium">Tu montes au <span class="text-mustard font-display font-extrabold">niveau 8</span>. Un nouveau chapitre s'ouvre.</p>
+
+            <!-- new unlock -->
+            <div class="mt-6 cahier-card p-3 pl-4 pr-4 w-full max-w-[280px] text-left">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-sage grid place-items-center text-cream border-2 border-ink">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div>
+                  <div class="text-[10px] text-pencil font-display font-extrabold uppercase tracking-wider">Chapitre débloqué</div>
+                  <div class="font-display font-extrabold text-[14px] text-ink">Soustraction à retenue</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="px-6 pb-10 relative">
+            <button class="w-full py-3.5 rounded-xl font-display font-extrabold text-ink bg-mustard border-2 border-cream shadow-[0_4px_0_#FFFEF8]">Continuer</button>
+            <button class="w-full mt-2 py-3 text-cream/75 text-[13px] font-display font-semibold">Partager avec mon parent</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-graphite text-sm font-semibold">⑦ Bravo ! — <span class="text-pencil font-normal">médaille + tampon rouge</span></p>
+  </section>
+</main>
+
+<!-- ============ DESIGN TOKENS ============ -->
+<section id="tokens" class="max-w-7xl mx-auto px-6 pb-20">
+  <div class="flex items-end justify-between flex-wrap gap-4">
+    <div>
+      <p class="uppercase tracking-[.18em] text-pencil text-[12px] font-display font-extrabold">Jetons de design</p>
+      <h2 class="font-serif text-ink text-4xl mt-1 tracking-tight">Ce qui fait <span class="italic text-navy">la Classe</span></h2>
+    </div>
+    <p class="text-graphite max-w-xl font-medium">Un esprit de manuel scolaire revisité : papier Seyès, typographie double (sérif racée + sans bold), encre rouge du prof et accents pop (bleu marine, tomate, moutarde, sauge).</p>
+  </div>
+
+  <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Palette -->
+    <div class="cahier-card p-5">
+      <h3 class="font-display font-extrabold text-ink text-lg">Palette</h3>
+      <div class="mt-4 space-y-2">
+        <div class="flex items-center gap-3"><span class="w-10 h-10 rounded-lg border border-rule" style="background:#FFFEF8"></span><div class="flex-1"><div class="font-display font-bold text-ink text-[13px]">Cream</div><div class="text-[11px] text-pencil">#FFFEF8 · fond papier</div></div></div>
+        <div class="flex items-center gap-3"><span class="w-10 h-10 rounded-lg bg-seyes"></span><div class="flex-1"><div class="font-display font-bold text-ink text-[13px]">Seyès</div><div class="text-[11px] text-pencil">#5B9FE0 · lignes du cahier</div></div></div>
+        <div class="flex items-center gap-3"><span class="w-10 h-10 rounded-lg bg-navy"></span><div class="flex-1"><div class="font-display font-bold text-ink text-[13px]">Navy</div><div class="text-[11px] text-pencil">#1B3A6F · primaire</div></div></div>
+        <div class="flex items-center gap-3"><span class="w-10 h-10 rounded-lg bg-tomato"></span><div class="flex-1"><div class="font-display font-bold text-ink text-[13px]">Tomate</div><div class="text-[11px] text-pencil">#E4572E · accent pop</div></div></div>
+        <div class="flex items-center gap-3"><span class="w-10 h-10 rounded-lg bg-mustard"></span><div class="flex-1"><div class="font-display font-bold text-ink text-[13px]">Moutarde</div><div class="text-[11px] text-pencil">#E8A33D · XP & récompenses</div></div></div>
+        <div class="flex items-center gap-3"><span class="w-10 h-10 rounded-lg bg-sage"></span><div class="flex-1"><div class="font-display font-bold text-ink text-[13px]">Sauge</div><div class="text-[11px] text-pencil">#7AA887 · validation</div></div></div>
+        <div class="flex items-center gap-3"><span class="w-10 h-10 rounded-lg bg-rouge"></span><div class="flex-1"><div class="font-display font-bold text-ink text-[13px]">Rouge prof</div><div class="text-[11px] text-pencil">#DC2A2A · corrections, stampe</div></div></div>
+      </div>
+    </div>
+
+    <!-- Typo -->
+    <div class="cahier-card p-5">
+      <h3 class="font-display font-extrabold text-ink text-lg">Typographie</h3>
+      <div class="mt-4 space-y-4">
+        <div>
+          <p class="font-serif text-ink text-[30px] leading-tight">Instrument Serif <span class="italic">italique</span></p>
+          <p class="text-[12px] text-pencil mt-1">titres · grands nombres · 24–48px</p>
+        </div>
+        <div>
+          <p class="font-display font-extrabold text-ink text-[18px]">Bricolage Grotesque</p>
+          <p class="text-[12px] text-pencil mt-0.5">boutons · chips · sous-titres · bold</p>
+        </div>
+        <div>
+          <p class="font-body text-ink text-[14px] leading-relaxed">Inter — corps de texte, lisibilité avant tout. 14–16px, interlignage 1.5.</p>
+        </div>
+        <div>
+          <p class="font-hand text-rouge text-[22px] leading-none">Caveat — notes au stylo</p>
+          <p class="text-[12px] text-pencil mt-1">pour l'ambiance stylo rouge du prof, avec parcimonie</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Principes -->
+    <div class="cahier-card p-5">
+      <h3 class="font-display font-extrabold text-ink text-lg">Principes</h3>
+      <ul class="mt-3 space-y-2 text-[13px] text-graphite font-medium">
+        <li class="flex gap-2"><span class="text-tomato font-bold">1.</span><span><span class="font-display font-extrabold text-ink">Papier avant tout.</span> Les surfaces actives portent les lignes Seyès — on est dans un cahier, pas dans un dashboard.</span></li>
+        <li class="flex gap-2"><span class="text-tomato font-bold">2.</span><span><span class="font-display font-extrabold text-ink">Le prof parle en rouge.</span> L'encre rouge est réservée aux corrections, tampons, accents émotionnels.</span></li>
+        <li class="flex gap-2"><span class="text-tomato font-bold">3.</span><span><span class="font-display font-extrabold text-ink">Bord net, ombre d'imprimerie.</span> Cartes avec bordure 1.5px noire + ombre décalée (style sticker).</span></li>
+        <li class="flex gap-2"><span class="text-tomato font-bold">4.</span><span><span class="font-display font-extrabold text-ink">Chapitres, pas nodes.</span> Le programme est structuré comme un manuel : chapitres numérotés, progression linéaire assumée.</span></li>
+        <li class="flex gap-2"><span class="text-tomato font-bold">5.</span><span><span class="font-display font-extrabold text-ink">La récompense est un bulletin.</span> Pas une pluie d'emojis. Un rang, un tampon, une médaille.</span></li>
+        <li class="flex gap-2"><span class="text-tomato font-bold">6.</span><span><span class="font-display font-extrabold text-ink">Formes géométriques pop.</span> Cercles, triangles, carrés de couleur — assez pour égayer, jamais pour distraire.</span></li>
+        <li class="flex gap-2"><span class="text-tomato font-bold">7.</span><span><span class="font-display font-extrabold text-ink">Mobile d'abord.</span> Tout reste confortable à 375px, avec des hit-targets de 44px minimum.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Anti-patterns -->
+  <div class="mt-8 p-5 rounded-xl border-2 border-dashed border-rouge/30 bg-rouge/5">
+    <div class="flex items-center gap-2">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.3 3.86l-8.1 14.04A2 2 0 003.9 21h16.2a2 2 0 001.7-3.1L13.7 3.86a2 2 0 00-3.4 0z" stroke="#DC2A2A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="font-display font-extrabold text-rouge uppercase tracking-wide text-[12px]">À éviter</span>
+    </div>
+    <ul class="mt-2 text-[13px] text-graphite font-medium grid grid-cols-1 md:grid-cols-2 gap-y-1 gap-x-6">
+      <li>· Papier Seyès partout — on le garde pour exercices / corrections.</li>
+      <li>· Plus de 3 couleurs pop simultanées dans un même composant.</li>
+      <li>· Ombres noires dures ; préférer ombres décalées "sticker".</li>
+      <li>· Emojis 🎉 dans l'UI — un tampon rouge fait le boulot.</li>
+      <li>· Rouge criard pour une simple info — réservé au prof.</li>
+      <li>· Mascotte animée permanente — on reste dans l'édition.</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="max-w-7xl mx-auto px-6 pb-16 text-center text-pencil text-[12px] font-medium">
+  La Classe de PédagogIA · preview statique · Tailwind CDN · Instrument Serif + Bricolage Grotesque · 2026
+</footer>
+
+</body>
+</html>

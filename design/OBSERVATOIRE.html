@@ -1,0 +1,1198 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>L'Observatoire de PédagogIA — Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          display: ['Fraunces', 'ui-serif', 'Georgia', 'serif'],
+          body: ['Inter', 'ui-sans-serif', 'system-ui'],
+          mono: ['JetBrains Mono', 'ui-monospace'],
+        },
+        colors: {
+          void: '#e6dec2',
+          abyss: '#efe7cf',
+          midnight: '#f7f1df',
+          slate: '#f2ead2',
+          dusk: '#e8dfc3',
+          ivoire: '#1a1e3a',
+          cream: '#2c3256',
+          muted: '#6b6a5a',
+          dim: '#9c977f',
+          nebula: {
+            DEFAULT: '#4e3f7a',
+            deep: '#2e2352',
+            pale: '#7a68a8',
+          },
+          gold: {
+            DEFAULT: '#9a6f1c',
+            pale: '#b8862a',
+            deep: '#6b4a10',
+          },
+          cyan: {
+            star: '#2d6d8a',
+            soft: '#4e8aa8',
+          },
+          aurora: '#4d6a3c',
+          ember: '#9c4a3a',
+        },
+      },
+    },
+  }
+</script>
+<style>
+  html, body { background: #e6dec2; }
+  body { font-family: 'Inter', system-ui, sans-serif; color: #1a1e3a; }
+  html { scroll-behavior: smooth; }
+
+  /* ---------- Celestial paper backgrounds ---------- */
+  .sky {
+    background:
+      radial-gradient(ellipse 90% 60% at 20% 10%, rgba(78,63,122,.08), transparent 60%),
+      radial-gradient(ellipse 80% 50% at 80% 85%, rgba(45,109,138,.06), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 50% 50%, rgba(154,111,28,.05), transparent 70%),
+      #efe7cf;
+  }
+  .sky-deep {
+    background:
+      radial-gradient(ellipse 70% 50% at 30% 20%, rgba(78,63,122,.07), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 75% 90%, rgba(45,109,138,.05), transparent 60%),
+      #ebe3cb;
+  }
+  /* Starfield on paper: dark ink dots instead of glowing pale stars */
+  .starfield {
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 14% 22%, rgba(26,30,58,.55), transparent),
+      radial-gradient(1px 1px at 28% 70%, rgba(78,63,122,.5), transparent),
+      radial-gradient(1.5px 1.5px at 45% 15%, rgba(154,111,28,.55), transparent),
+      radial-gradient(1px 1px at 62% 48%, rgba(26,30,58,.5), transparent),
+      radial-gradient(1px 1px at 78% 30%, rgba(45,109,138,.55), transparent),
+      radial-gradient(1.5px 1.5px at 88% 78%, rgba(26,30,58,.55), transparent),
+      radial-gradient(1px 1px at 8% 88%, rgba(78,63,122,.5), transparent),
+      radial-gradient(1px 1px at 35% 92%, rgba(154,111,28,.5), transparent),
+      radial-gradient(1px 1px at 55% 8%, rgba(26,30,58,.5), transparent),
+      radial-gradient(1px 1px at 92% 12%, rgba(45,109,138,.5), transparent),
+      radial-gradient(1px 1px at 18% 52%, rgba(26,30,58,.45), transparent),
+      radial-gradient(1px 1px at 72% 62%, rgba(78,63,122,.4), transparent);
+    pointer-events: none;
+  }
+  .starfield-dense {
+    background-image:
+      radial-gradient(1px 1px at 8% 12%, rgba(26,30,58,.5), transparent),
+      radial-gradient(1px 1px at 22% 38%, rgba(78,63,122,.45), transparent),
+      radial-gradient(1.5px 1.5px at 31% 72%, rgba(154,111,28,.55), transparent),
+      radial-gradient(1px 1px at 42% 25%, rgba(26,30,58,.45), transparent),
+      radial-gradient(1px 1px at 49% 58%, rgba(45,109,138,.5), transparent),
+      radial-gradient(2px 2px at 58% 18%, rgba(26,30,58,.6), transparent),
+      radial-gradient(1px 1px at 66% 82%, rgba(78,63,122,.4), transparent),
+      radial-gradient(1px 1px at 74% 42%, rgba(154,111,28,.5), transparent),
+      radial-gradient(1px 1px at 81% 68%, rgba(26,30,58,.45), transparent),
+      radial-gradient(1.5px 1.5px at 88% 28%, rgba(45,109,138,.5), transparent),
+      radial-gradient(1px 1px at 94% 88%, rgba(26,30,58,.5), transparent),
+      radial-gradient(1px 1px at 12% 82%, rgba(78,63,122,.4), transparent),
+      radial-gradient(1px 1px at 38% 92%, rgba(26,30,58,.4), transparent),
+      radial-gradient(1px 1px at 55% 5%, rgba(45,109,138,.5), transparent),
+      radial-gradient(1px 1px at 68% 48%, rgba(154,111,28,.5), transparent),
+      radial-gradient(1px 1px at 85% 52%, rgba(26,30,58,.4), transparent),
+      radial-gradient(1px 1px at 15% 62%, rgba(78,63,122,.4), transparent),
+      radial-gradient(1px 1px at 28% 15%, rgba(26,30,58,.5), transparent);
+  }
+  /* Soft day-mode shadows (paper emboss) instead of luminous glows */
+  .glow-gold { box-shadow: 0 10px 24px -10px rgba(154,111,28,.4), 0 2px 0 0 rgba(255,255,255,.4) inset, 0 0 0 1px rgba(154,111,28,.25); }
+  .glow-nebula { box-shadow: 0 10px 24px -10px rgba(78,63,122,.4), 0 2px 0 0 rgba(255,255,255,.3) inset, 0 0 0 1px rgba(78,63,122,.25); }
+  .glow-cyan { box-shadow: 0 10px 22px -10px rgba(45,109,138,.4), 0 2px 0 0 rgba(255,255,255,.3) inset, 0 0 0 1px rgba(45,109,138,.25); }
+
+  .orb-gold {
+    background: radial-gradient(circle at 35% 30%, #f0d285 0%, #c8952e 55%, #7a5a13 100%);
+  }
+  .orb-nebula {
+    background: radial-gradient(circle at 30% 30%, #a998cf 0%, #6f5fa3 55%, #352955 100%);
+  }
+  .orb-cyan {
+    background: radial-gradient(circle at 35% 30%, #8fb4ca 0%, #4e8aa8 55%, #1f4a60 100%);
+  }
+  .orb-ember {
+    background: radial-gradient(circle at 35% 30%, #d89280 0%, #a55d4a 55%, #6b3426 100%);
+  }
+
+  /* ---------- Tablet frame (834 × 1194) ---------- */
+  .tablet {
+    width: 834px; height: 1194px;
+    border-radius: 44px;
+    background: #2a2e45;
+    padding: 14px;
+    box-shadow:
+      0 60px 120px -50px rgba(46,35,82,.35),
+      0 0 0 1px rgba(255,255,255,.06) inset,
+      0 2px 0 0 rgba(255,255,255,.04) inset;
+    position: relative;
+    transform: scale(0.55);
+    transform-origin: top left;
+    margin-bottom: -540px;
+    margin-right: -375px;
+  }
+  .tablet::before {
+    content: ""; position: absolute;
+    top: 8px; left: 50%; transform: translateX(-50%);
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #0a0a10; box-shadow: 0 0 0 2px #2a2e45;
+  }
+  .tablet-screen {
+    width: 100%; height: 100%;
+    border-radius: 32px;
+    overflow: hidden;
+    background: #efe7cf;
+    position: relative;
+  }
+
+  /* ---------- Browser frame (1440 × 900) ---------- */
+  .browser {
+    width: 1440px; height: 900px;
+    border-radius: 14px;
+    background: #d5cdb5;
+    overflow: hidden;
+    box-shadow:
+      0 40px 100px -30px rgba(78,63,122,.3),
+      0 0 0 1px rgba(0,0,0,.06) inset;
+    transform: scale(0.42);
+    transform-origin: top left;
+    margin-bottom: -524px;
+    margin-right: -836px;
+  }
+  .browser-chrome {
+    height: 40px;
+    background: linear-gradient(to bottom, #e8dfc3, #d5cdb5);
+    display: flex; align-items: center;
+    padding: 0 16px; gap: 8px;
+    border-bottom: 1px solid rgba(26,30,58,.1);
+  }
+  .browser-chrome .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .browser-chrome .red { background: #c9504b; }
+  .browser-chrome .amber { background: #c9952e; }
+  .browser-chrome .green { background: #5a8a4c; }
+  .browser-chrome .url {
+    flex: 1; margin: 0 12px;
+    background: #faf5e6; height: 24px; border-radius: 6px;
+    display: flex; align-items: center; padding: 0 12px;
+    font: 500 12px/1 'JetBrains Mono', ui-monospace;
+    color: #4a4b3a;
+    border: 1px solid rgba(26,30,58,.08);
+    letter-spacing: .02em;
+  }
+  .browser-screen {
+    width: 100%; height: calc(100% - 40px);
+    background: #efe7cf; overflow: hidden; position: relative;
+  }
+
+  /* ---------- UI components ---------- */
+  .card-cosmos {
+    background: linear-gradient(180deg, rgba(251,246,223,.95), rgba(247,241,223,.95));
+    border: 1px solid rgba(26,30,58,.1);
+    backdrop-filter: blur(4px);
+    box-shadow: 0 1px 0 0 rgba(255,255,255,.7) inset, 0 8px 20px -14px rgba(46,35,82,.2);
+  }
+  .card-glass {
+    background: rgba(251,246,223,.72);
+    border: 1px solid rgba(26,30,58,.12);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 1px 0 0 rgba(255,255,255,.6) inset, 0 6px 18px -12px rgba(46,35,82,.2);
+  }
+  .btn-primary {
+    background: linear-gradient(180deg, #5f4f93, #3f3470);
+    color: #f7f1df;
+    font-weight: 600;
+    border: 1px solid rgba(46,35,82,.5);
+    box-shadow: 0 6px 14px -6px rgba(46,35,82,.45), 0 1px 0 0 rgba(255,255,255,.18) inset;
+  }
+  .btn-gold {
+    background: linear-gradient(180deg, #c8952e, #9a6f1c);
+    color: #faf5e6;
+    font-weight: 600;
+    border: 1px solid rgba(107,74,16,.55);
+    box-shadow: 0 6px 14px -6px rgba(107,74,16,.45), 0 1px 0 0 rgba(255,255,255,.25) inset;
+  }
+  .chip {
+    background: rgba(78,63,122,.08);
+    border: 1px solid rgba(78,63,122,.28);
+    color: #4e3f7a;
+    font-size: 11px;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .chip-gold {
+    background: rgba(154,111,28,.08);
+    border: 1px solid rgba(154,111,28,.35);
+    color: #7a5a13;
+  }
+  .chip-cyan {
+    background: rgba(45,109,138,.08);
+    border: 1px solid rgba(45,109,138,.3);
+    color: #2d6d8a;
+  }
+
+  /* Constellation SVG line */
+  .constellation-line {
+    stroke: rgba(78,63,122,.4);
+    stroke-width: 1;
+    stroke-dasharray: 2 4;
+    fill: none;
+  }
+  .constellation-line-active {
+    stroke: rgba(154,111,28,.75);
+    stroke-width: 1.3;
+    stroke-dasharray: none;
+  }
+
+  /* Keypad */
+  .keypad-btn {
+    background: linear-gradient(180deg, #fbf6e7, #f2ead2);
+    border: 1px solid rgba(26,30,58,.15);
+    color: #1a1e3a;
+    font-weight: 500;
+    transition: all 150ms;
+    box-shadow: 0 1px 0 0 rgba(255,255,255,.7) inset, 0 2px 4px -2px rgba(46,35,82,.15);
+  }
+  .keypad-btn:hover { border-color: rgba(154,111,28,.5); }
+
+  /* ---------- Nav ---------- */
+  .navlink {
+    padding: 9px 14px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: .03em;
+    color: #4e3f7a;
+    background: rgba(251,246,223,.8);
+    border: 1px solid rgba(78,63,122,.25);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 180ms;
+  }
+  .navlink:hover { border-color: rgba(154,111,28,.55); color: #7a5a13; background: rgba(251,246,223,1); }
+
+  /* Monospace numeric */
+  .tabular { font-variant-numeric: tabular-nums; font-family: 'JetBrains Mono', ui-monospace; }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0ms !important; transition-duration: 0ms !important; }
+  }
+
+  /* Twinkle */
+  @keyframes twinkle {
+    0%, 100% { opacity: .6; }
+    50% { opacity: 1; }
+  }
+  .twinkle { animation: twinkle 3s ease-in-out infinite; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- Background starfield for the whole page -->
+<div class="fixed inset-0 starfield starfield-dense opacity-40 pointer-events-none"></div>
+
+<!-- ========== HEADER ========== -->
+<header class="relative max-w-7xl mx-auto px-6 pt-14 pb-8">
+  <div class="flex items-start justify-between gap-6 flex-wrap">
+    <div class="max-w-2xl">
+      <div class="font-display italic text-lg text-nebula-pale tracking-wide">L'Observatoire</div>
+      <h1 class="font-display font-light text-4xl md:text-6xl text-ivoire mt-3 leading-[1.05]">
+        Apprendre, c'est <em class="font-normal text-gold-pale">cartographier</em> le ciel.
+      </h1>
+      <p class="text-muted mt-4 max-w-xl leading-relaxed">
+        Une proposition contemplative pour PedagogIA, pensée comme une page d'atlas céleste. Papier crème,
+        encre indigo, or profond pour les étoiles acquises. Le thème possède aussi sa version nocturne —
+        même carte, ciel retourné.
+      </p>
+    </div>
+    <div class="flex flex-col gap-2 items-end">
+      <span class="px-3 py-1.5 rounded-full bg-nebula/20 text-nebula-pale text-[11px] font-semibold tracking-widest uppercase border border-nebula/30">Observatoire · v1</span>
+      <span class="px-3 py-1.5 rounded-full chip chip-gold text-[11px]">6–12 ans · FWB</span>
+      <span class="px-3 py-1.5 rounded-full chip chip-cyan text-[11px]">AA · 7.1:1</span>
+      <span class="px-3 py-1.5 rounded-full chip text-[11px]">React 19 · Tailwind</span>
+    </div>
+  </div>
+</header>
+
+<!-- ========== NAV ========== -->
+<nav class="sticky top-0 z-40 backdrop-blur-xl bg-abyss/80 border-b border-nebula/15">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex gap-2 overflow-x-auto">
+    <a href="#s-accueil" class="navlink">① Accueil</a>
+    <a href="#s-profils" class="navlink">② Explorateurs</a>
+    <a href="#s-carte" class="navlink">③ Carte céleste</a>
+    <a href="#s-exercice" class="navlink">④ Exercice</a>
+    <a href="#s-correction" class="navlink">⑤ Correction</a>
+    <a href="#s-bulletin" class="navlink">⑥ Bulletin</a>
+    <a href="#s-celebration" class="navlink">⑦ Étoile acquise</a>
+    <a href="#tokens" class="navlink">⚙ Jetons</a>
+  </div>
+</nav>
+
+<!-- ========== FRAMES GRID ========== -->
+<main class="max-w-7xl mx-auto px-6 py-14 grid grid-cols-1 gap-16 place-items-center relative">
+
+  <!-- ========================================================= -->
+  <!-- ① ACCUEIL — tablet -->
+  <!-- ========================================================= -->
+  <section id="s-accueil" class="preview-frame flex flex-col items-center gap-3" data-name="01-accueil">
+    <div class="tablet">
+      <div class="tablet-screen sky">
+        <div class="absolute inset-0 starfield starfield-dense opacity-70"></div>
+
+        <!-- Top bar -->
+        <div class="absolute top-0 inset-x-0 flex justify-between items-center px-8 py-6 z-10">
+          <div class="flex items-center gap-2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9a6f1c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2l2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 2z"/>
+            </svg>
+            <span class="font-display italic text-ivoire text-lg">PedagogIA</span>
+          </div>
+          <div class="flex gap-2">
+            <span class="chip chip-cyan px-2.5 py-1 rounded-full">v1.0</span>
+          </div>
+        </div>
+
+        <!-- Hero -->
+        <div class="absolute inset-0 flex flex-col items-center justify-center px-12 text-center z-10">
+          <!-- Central gold orb -->
+          <div class="relative mb-10">
+            <div class="w-40 h-40 rounded-full orb-gold glow-gold"></div>
+            <div class="absolute -inset-8 border border-gold/20 rounded-full"></div>
+            <div class="absolute -inset-16 border border-gold/10 rounded-full"></div>
+            <!-- Tiny satellite orbs -->
+            <div class="absolute top-4 -right-12 w-5 h-5 rounded-full orb-nebula glow-nebula"></div>
+            <div class="absolute -bottom-4 -left-10 w-3 h-3 rounded-full orb-cyan glow-cyan"></div>
+          </div>
+
+          <p class="font-display italic text-nebula-pale text-base tracking-[.2em] uppercase mb-4">Observatoire</p>
+          <h1 class="font-display font-light text-ivoire text-5xl leading-tight mb-6">
+            Le ciel attend<br/>
+            <em class="text-gold-pale font-normal">tes premières étoiles.</em>
+          </h1>
+          <p class="text-muted text-base leading-relaxed max-w-sm mb-10">
+            Un voyage à travers les mathématiques. Chaque exercice éclaire une étoile de plus sur ta carte.
+          </p>
+
+          <button class="btn-gold px-8 py-3.5 rounded-full text-sm tracking-wide">Commencer l'exploration</button>
+          <button class="mt-4 text-muted text-sm underline decoration-dotted underline-offset-4 hover:text-nebula-pale">J'ai déjà un compte</button>
+        </div>
+
+        <!-- Bottom marker -->
+        <div class="absolute bottom-8 inset-x-0 flex justify-center items-center gap-2 z-10">
+          <span class="tabular text-dim text-xs">LAT 50°50'N · LON 4°21'E · BRUXELLES</span>
+        </div>
+      </div>
+    </div>
+    <p class="text-muted text-sm font-semibold tracking-wide">① Accueil · tablette · entrée dans l'Observatoire</p>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- ② PROFILS — tablet -->
+  <!-- ========================================================= -->
+  <section id="s-profils" class="preview-frame flex flex-col items-center gap-3" data-name="02-explorateurs">
+    <div class="tablet">
+      <div class="tablet-screen sky">
+        <div class="absolute inset-0 starfield starfield-dense opacity-60"></div>
+
+        <!-- Header -->
+        <div class="absolute top-0 inset-x-0 px-10 pt-10 z-10">
+          <p class="chip px-3 py-1 rounded-full inline-block">Choix de l'explorateur</p>
+          <h2 class="font-display font-light text-ivoire text-4xl mt-5 leading-tight">Qui observe<br/><em class="text-gold-pale font-normal">le ciel ce soir ?</em></h2>
+        </div>
+
+        <!-- Explorer cards -->
+        <div class="absolute inset-x-0 top-60 px-10 z-10 grid grid-cols-2 gap-5">
+          <div class="card-glass rounded-3xl p-6 flex flex-col items-center text-center relative overflow-hidden">
+            <div class="w-24 h-24 rounded-full orb-gold glow-gold mb-5"></div>
+            <h3 class="font-display text-2xl text-ivoire">Noé</h3>
+            <p class="text-muted text-xs tabular mt-1">8 ans · P3</p>
+            <div class="mt-4 flex gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-gold"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-gold"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-gold"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-dim/40"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-dim/40"></span>
+            </div>
+            <p class="text-gold-pale tabular text-xs mt-3">14 étoiles · 340 pts</p>
+          </div>
+
+          <div class="card-glass rounded-3xl p-6 flex flex-col items-center text-center relative overflow-hidden">
+            <div class="w-24 h-24 rounded-full orb-nebula glow-nebula mb-5"></div>
+            <h3 class="font-display text-2xl text-ivoire">Margaux</h3>
+            <p class="text-muted text-xs tabular mt-1">10 ans · P5</p>
+            <div class="mt-4 flex gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-nebula-pale"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-nebula-pale"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-nebula-pale"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-nebula-pale"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-nebula-pale"></span>
+            </div>
+            <p class="text-nebula-pale tabular text-xs mt-3">38 étoiles · 1 120 pts</p>
+          </div>
+
+          <div class="card-glass rounded-3xl p-6 flex flex-col items-center text-center relative overflow-hidden">
+            <div class="w-24 h-24 rounded-full orb-cyan glow-cyan mb-5"></div>
+            <h3 class="font-display text-2xl text-ivoire">Aya</h3>
+            <p class="text-muted text-xs tabular mt-1">6 ans · P1</p>
+            <div class="mt-4 flex gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-cyan-soft"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-cyan-soft"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-dim/40"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-dim/40"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-dim/40"></span>
+            </div>
+            <p class="text-cyan-soft tabular text-xs mt-3">6 étoiles · 80 pts</p>
+          </div>
+
+          <button class="card-glass rounded-3xl p-6 flex flex-col items-center text-center border-dashed text-muted hover:border-gold/40 hover:text-gold-pale transition-all">
+            <div class="w-24 h-24 rounded-full border-2 border-dashed border-nebula/30 flex items-center justify-center mb-5">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <path d="M12 5v14M5 12h14"/>
+              </svg>
+            </div>
+            <h3 class="font-display text-xl">Nouvel explorateur</h3>
+            <p class="text-xs mt-1 opacity-70">Ajouter un profil enfant</p>
+          </button>
+        </div>
+
+        <!-- Footer -->
+        <div class="absolute bottom-8 inset-x-0 flex justify-center z-10">
+          <button class="text-muted text-xs tracking-wide underline decoration-dotted underline-offset-4">Espace parent →</button>
+        </div>
+      </div>
+    </div>
+    <p class="text-muted text-sm font-semibold tracking-wide">② Explorateurs · tablette · choix du profil enfant</p>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- ③ CARTE CÉLESTE — browser -->
+  <!-- ========================================================= -->
+  <section id="s-carte" class="preview-frame flex flex-col items-center gap-3" data-name="03-carte-celeste">
+    <div class="browser">
+      <div class="browser-chrome">
+        <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
+        <div class="url">pedagogia.be / carte · Noé (P3) · Champ 3 — Arithmétique</div>
+      </div>
+      <div class="browser-screen sky">
+        <div class="absolute inset-0 starfield starfield-dense opacity-60"></div>
+
+        <!-- Top chrome -->
+        <div class="absolute top-0 inset-x-0 flex justify-between items-center px-10 py-6 z-10 border-b border-nebula/10">
+          <div class="flex items-center gap-6">
+            <div class="flex items-center gap-2">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9a6f1c" stroke-width="1.5"><path d="M12 2l2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="font-display italic text-ivoire text-base">PedagogIA</span>
+            </div>
+            <nav class="flex gap-5 text-sm">
+              <a class="text-gold-pale font-semibold">Carte céleste</a>
+              <a class="text-muted hover:text-ivoire">Mission du jour</a>
+              <a class="text-muted hover:text-ivoire">Carnet de bord</a>
+              <a class="text-muted hover:text-ivoire">Bulletin</a>
+            </nav>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="chip chip-gold px-3 py-1 rounded-full tabular">14 ★ · 340 pts</span>
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-full orb-gold"></div>
+              <span class="text-ivoire text-sm">Noé</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="absolute left-0 top-[73px] bottom-0 w-[260px] px-6 py-8 border-r border-nebula/10 z-10">
+          <p class="chip px-2.5 py-1 rounded-full inline-block text-[10px]">Progression</p>
+          <div class="mt-5">
+            <p class="font-display text-ivoire text-xl">Champ 3</p>
+            <p class="text-muted text-sm mt-1">Arithmétique — P3</p>
+          </div>
+
+          <div class="mt-7 space-y-4">
+            <div>
+              <div class="flex justify-between text-xs tabular mb-1.5">
+                <span class="text-nebula-pale">Numération</span>
+                <span class="text-gold-pale">68%</span>
+              </div>
+              <div class="h-1 bg-slate rounded-full overflow-hidden"><div class="h-full bg-gold rounded-full" style="width:68%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs tabular mb-1.5">
+                <span class="text-nebula-pale">Addition</span>
+                <span class="text-gold-pale">82%</span>
+              </div>
+              <div class="h-1 bg-slate rounded-full overflow-hidden"><div class="h-full bg-gold rounded-full" style="width:82%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs tabular mb-1.5">
+                <span class="text-nebula-pale">Soustraction</span>
+                <span class="text-muted">54%</span>
+              </div>
+              <div class="h-1 bg-slate rounded-full overflow-hidden"><div class="h-full bg-nebula rounded-full" style="width:54%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs tabular mb-1.5">
+                <span class="text-dim">Multiplication</span>
+                <span class="text-dim">12%</span>
+              </div>
+              <div class="h-1 bg-slate rounded-full overflow-hidden"><div class="h-full bg-cyan-star/50 rounded-full" style="width:12%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs tabular mb-1.5">
+                <span class="text-dim">Division</span>
+                <span class="text-dim">—</span>
+              </div>
+              <div class="h-1 bg-slate rounded-full overflow-hidden"><div class="h-full bg-dim/30 rounded-full" style="width:0%"></div></div>
+            </div>
+          </div>
+
+          <div class="mt-10 card-cosmos rounded-2xl p-4">
+            <p class="text-[10px] text-muted uppercase tracking-widest">Mission du jour</p>
+            <p class="font-display text-ivoire text-sm mt-2 leading-snug">Observer <em class="text-gold-pale">3 étoiles</em> dans les tables de 4</p>
+            <button class="mt-4 btn-primary w-full py-2 rounded-full text-xs">Commencer →</button>
+          </div>
+        </aside>
+
+        <!-- Main star map -->
+        <div class="absolute left-[260px] right-0 top-[73px] bottom-0 overflow-hidden">
+          <div class="absolute inset-0 starfield opacity-40"></div>
+
+          <!-- Constellation SVG -->
+          <svg class="absolute inset-0 w-full h-full" viewBox="0 0 1180 827" preserveAspectRatio="xMidYMid slice">
+            <!-- Connecting lines -->
+            <g class="constellation-line-active">
+              <line x1="180" y1="160" x2="340" y2="220" />
+              <line x1="340" y1="220" x2="480" y2="180" />
+              <line x1="340" y1="220" x2="420" y2="360" />
+              <line x1="420" y1="360" x2="600" y2="340" />
+              <line x1="480" y1="180" x2="620" y2="140" />
+            </g>
+            <g class="constellation-line">
+              <line x1="600" y1="340" x2="780" y2="400" />
+              <line x1="600" y1="340" x2="720" y2="520" />
+              <line x1="780" y1="400" x2="940" y2="360" />
+              <line x1="720" y1="520" x2="880" y2="600" />
+              <line x1="880" y1="600" x2="1020" y2="560" />
+              <line x1="420" y1="360" x2="280" y2="500" />
+              <line x1="280" y1="500" x2="420" y2="620" />
+            </g>
+
+            <!-- Mastered stars (gold) -->
+            <g>
+              <circle cx="180" cy="160" r="8" fill="#9a6f1c" />
+              <circle cx="180" cy="160" r="18" fill="#9a6f1c" opacity=".15" />
+              <circle cx="340" cy="220" r="9" fill="#9a6f1c" />
+              <circle cx="340" cy="220" r="20" fill="#9a6f1c" opacity=".15" />
+              <circle cx="480" cy="180" r="7" fill="#9a6f1c" />
+              <circle cx="480" cy="180" r="16" fill="#9a6f1c" opacity=".15" />
+              <circle cx="620" cy="140" r="8" fill="#9a6f1c" />
+              <circle cx="620" cy="140" r="18" fill="#9a6f1c" opacity=".15" />
+              <circle cx="420" cy="360" r="10" fill="#9a6f1c" />
+              <circle cx="420" cy="360" r="22" fill="#9a6f1c" opacity=".2" />
+            </g>
+
+            <!-- Current star (nebula, active glow) -->
+            <g>
+              <circle cx="600" cy="340" r="22" fill="#4e3f7a" opacity=".25" />
+              <circle cx="600" cy="340" r="32" fill="#4e3f7a" opacity=".12" />
+              <circle cx="600" cy="340" r="12" fill="#7a68a8" />
+              <circle cx="600" cy="340" r="6" fill="#1a1e3a" />
+            </g>
+
+            <!-- Available but not mastered (pale cyan) -->
+            <g>
+              <circle cx="780" cy="400" r="7" fill="#2d6d8a" opacity=".7" />
+              <circle cx="780" cy="400" r="14" fill="#2d6d8a" opacity=".1" />
+              <circle cx="720" cy="520" r="6" fill="#2d6d8a" opacity=".7" />
+              <circle cx="280" cy="500" r="7" fill="#2d6d8a" opacity=".7" />
+              <circle cx="420" cy="620" r="6" fill="#2d6d8a" opacity=".6" />
+            </g>
+
+            <!-- Locked (dim) -->
+            <g opacity=".35">
+              <circle cx="940" cy="360" r="5" fill="#6b6a5a" />
+              <circle cx="880" cy="600" r="5" fill="#6b6a5a" />
+              <circle cx="1020" cy="560" r="5" fill="#6b6a5a" />
+            </g>
+
+            <!-- Labels -->
+            <g font-family="Fraunces, serif" font-size="14" font-style="italic" fill="#1a1e3a">
+              <text x="200" y="145">Compter jusqu'à 100</text>
+              <text x="360" y="205">Dizaines &amp; unités</text>
+              <text x="500" y="165">Additions simples</text>
+              <text x="440" y="345">Addition avec retenue</text>
+            </g>
+            <g font-family="Fraunces, serif" font-size="16" font-style="italic" fill="#7a68a8">
+              <text x="625" y="330">Tables de 4</text>
+              <text x="625" y="348" font-size="11" fill="#6b6a5a" font-style="normal">en cours</text>
+            </g>
+            <g font-family="Fraunces, serif" font-size="13" font-style="italic" fill="#4e8aa8">
+              <text x="800" y="395">Tables de 5</text>
+              <text x="740" y="515">Distributivité</text>
+              <text x="298" y="495">Soustraction posée</text>
+            </g>
+            <g font-family="Fraunces, serif" font-size="12" fill="#9c977f" opacity=".8">
+              <text x="955" y="355">Tables de 6</text>
+              <text x="895" y="595">Division</text>
+              <text x="1035" y="555">Tables de 7</text>
+            </g>
+          </svg>
+
+          <!-- Floating info card -->
+          <div class="absolute bottom-8 right-8 card-cosmos rounded-2xl p-5 w-[280px] z-10">
+            <p class="chip px-2 py-1 rounded-full inline-block text-[10px]">Étoile en cours</p>
+            <h3 class="font-display text-ivoire text-xl mt-3">Tables de 4</h3>
+            <p class="text-muted text-xs mt-2 leading-relaxed">Dernière séance il y a 2 jours — maîtrise à <span class="text-gold-pale tabular">64%</span>.</p>
+            <div class="mt-4 flex gap-2">
+              <button class="btn-gold px-4 py-2 rounded-full text-xs flex-1">Continuer</button>
+              <button class="chip px-3 py-2 rounded-full text-[10px]">Indice</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-muted text-sm font-semibold tracking-wide">③ Carte céleste · navigateur · arbre de compétences en constellations</p>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- ④ EXERCICE — tablet -->
+  <!-- ========================================================= -->
+  <section id="s-exercice" class="preview-frame flex flex-col items-center gap-3" data-name="04-exercice">
+    <div class="tablet">
+      <div class="tablet-screen sky-deep">
+        <div class="absolute inset-0 starfield opacity-40"></div>
+
+        <!-- Top bar -->
+        <div class="absolute top-0 inset-x-0 flex justify-between items-center px-8 py-5 z-10 border-b border-nebula/10">
+          <button class="flex items-center gap-2 text-muted text-sm">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
+            Carte céleste
+          </button>
+          <div class="flex items-center gap-3">
+            <span class="chip chip-gold px-2.5 py-1 rounded-full text-[10px]">Question 3 · 10</span>
+            <div class="w-24 h-1 bg-slate rounded-full overflow-hidden"><div class="h-full bg-gold rounded-full" style="width:30%"></div></div>
+          </div>
+        </div>
+
+        <!-- Skill header -->
+        <div class="absolute top-24 inset-x-0 px-10 z-10">
+          <p class="chip px-3 py-1 rounded-full inline-block text-[10px]">Tables de 4 · compétence en cours</p>
+          <h2 class="font-display font-light text-ivoire text-3xl mt-5 leading-tight">
+            Trouve le <em class="text-gold-pale font-normal">nombre manquant</em>.
+          </h2>
+        </div>
+
+        <!-- Question canvas -->
+        <div class="absolute inset-x-8 top-60 card-cosmos rounded-3xl p-10 z-10">
+          <div class="flex items-center justify-center gap-4 tabular text-5xl font-display text-ivoire">
+            <span>4</span>
+            <span class="text-nebula-pale">×</span>
+            <span class="text-gold-pale">7</span>
+            <span class="text-nebula-pale">=</span>
+            <div class="w-24 h-20 rounded-2xl border-2 border-dashed border-gold/50 bg-gold/5 flex items-center justify-center text-gold-pale">
+              <span class="tabular">28</span>
+            </div>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-nebula/10 flex items-center justify-between">
+            <button class="flex items-center gap-2 text-nebula-pale text-sm">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              Demander un indice
+            </button>
+            <span class="tabular text-dim text-xs">Essai 1 sur 3</span>
+          </div>
+        </div>
+
+        <!-- Keypad -->
+        <div class="absolute inset-x-8 bottom-32 z-10">
+          <div class="grid grid-cols-3 gap-3">
+            <button class="keypad-btn h-16 rounded-2xl tabular text-2xl">1</button>
+            <button class="keypad-btn h-16 rounded-2xl tabular text-2xl">2</button>
+            <button class="keypad-btn h-16 rounded-2xl tabular text-2xl">3</button>
+            <button class="keypad-btn h-16 rounded-2xl tabular text-2xl">4</button>
+            <button class="keypad-btn h-16 rounded-2xl tabular text-2xl">5</button>
+            <button class="keypad-btn h-16 rounded-2xl tabular text-2xl">6</button>
+            <button class="keypad-btn h-16 rounded-2xl tabular text-2xl">7</button>
+            <button class="keypad-btn h-16 rounded-2xl tabular text-2xl bg-gold/15 border-gold/40 text-gold-pale">8</button>
+            <button class="keypad-btn h-16 rounded-2xl tabular text-2xl">9</button>
+            <button class="keypad-btn h-16 rounded-2xl text-dim text-sm">Effacer</button>
+            <button class="keypad-btn h-16 rounded-2xl tabular text-2xl">0</button>
+            <button class="h-16 rounded-2xl btn-gold text-sm">Valider</button>
+          </div>
+        </div>
+
+        <!-- Bottom streak -->
+        <div class="absolute bottom-6 inset-x-0 flex justify-center items-center gap-3 z-10">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#9a6f1c" class="twinkle"><path d="M12 2l2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 2z"/></svg>
+          <span class="tabular text-gold-pale text-xs">5 jours d'observation consécutifs</span>
+        </div>
+      </div>
+    </div>
+    <p class="text-muted text-sm font-semibold tracking-wide">④ Exercice · tablette · 4 × 7 = ?</p>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- ⑤ CORRECTION / FEEDBACK — tablet -->
+  <!-- ========================================================= -->
+  <section id="s-correction" class="preview-frame flex flex-col items-center gap-3" data-name="05-correction">
+    <div class="tablet">
+      <div class="tablet-screen sky-deep">
+        <div class="absolute inset-0 starfield opacity-30"></div>
+
+        <!-- Soft orbital ring behind card -->
+        <div class="absolute top-40 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full border border-nebula/15 pointer-events-none"></div>
+
+        <!-- Top bar -->
+        <div class="absolute top-0 inset-x-0 flex justify-between items-center px-8 py-5 z-10 border-b border-nebula/10">
+          <button class="flex items-center gap-2 text-muted text-sm">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
+            Pause
+          </button>
+          <span class="chip px-2.5 py-1 rounded-full text-[10px]">Investigation en cours</span>
+        </div>
+
+        <!-- Status -->
+        <div class="absolute inset-x-8 top-24 z-10 text-center">
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-ember/10 border border-ember/30 mb-6">
+            <div class="w-2 h-2 rounded-full orb-ember glow-cyan" style="box-shadow:0 0 16px -4px rgba(229,163,163,.8)"></div>
+            <span class="text-ember text-xs uppercase tracking-widest font-semibold">Pas encore</span>
+          </div>
+          <h2 class="font-display font-light text-ivoire text-3xl leading-tight">
+            Regardons ce qui s'est<br/><em class="text-nebula-pale font-normal">passé ensemble.</em>
+          </h2>
+        </div>
+
+        <!-- Recap card -->
+        <div class="absolute inset-x-8 top-72 card-cosmos rounded-3xl p-6 z-10">
+          <p class="text-muted text-xs uppercase tracking-widest">Ta réponse</p>
+          <div class="mt-3 flex items-center gap-3 tabular text-2xl font-display">
+            <span class="text-ivoire">4 × 7 =</span>
+            <span class="text-ember line-through decoration-ember/60">32</span>
+          </div>
+          <p class="mt-4 text-muted text-xs uppercase tracking-widest">Réponse attendue</p>
+          <div class="mt-2 flex items-center gap-3 tabular text-2xl font-display">
+            <span class="text-ivoire">4 × 7 =</span>
+            <span class="text-gold-pale">28</span>
+          </div>
+        </div>
+
+        <!-- AI investigation card -->
+        <div class="absolute inset-x-8 top-[560px] card-glass rounded-3xl p-6 z-10 border-nebula/30">
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full orb-nebula glow-nebula flex-shrink-0 mt-1"></div>
+            <div class="flex-1">
+              <p class="chip px-2 py-0.5 rounded-full inline-block text-[10px]">Astronome · Claude</p>
+              <p class="text-ivoire text-sm mt-3 leading-relaxed">
+                « 32 est la réponse pour <em class="text-gold-pale">4 × 8</em>. Tu as peut-être compté une fois de trop.
+                On reprend doucement avec les <em class="text-nebula-pale">tables de 4</em> ? »
+              </p>
+              <div class="mt-4 p-4 rounded-2xl bg-slate/50 border border-nebula/15">
+                <p class="text-[11px] text-muted uppercase tracking-widest">Décomposition</p>
+                <div class="mt-2 tabular text-sm text-cream leading-relaxed">
+                  4 × 7 = 4 × 5 + 4 × 2<br/>
+                  <span class="text-nebula-pale">= 20 + 8</span><br/>
+                  <span class="text-gold-pale">= 28</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="absolute bottom-8 inset-x-8 grid grid-cols-2 gap-3 z-10">
+          <button class="keypad-btn py-3 rounded-full text-sm">Réessayer</button>
+          <button class="btn-primary py-3 rounded-full text-sm">Question suivante →</button>
+        </div>
+      </div>
+    </div>
+    <p class="text-muted text-sm font-semibold tracking-wide">⑤ Correction · tablette · investigation IA, sans rouge vif</p>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- ⑥ BULLETIN — browser -->
+  <!-- ========================================================= -->
+  <section id="s-bulletin" class="preview-frame flex flex-col items-center gap-3" data-name="06-bulletin">
+    <div class="browser">
+      <div class="browser-chrome">
+        <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
+        <div class="url">pedagogia.be / bulletin · Noé · semaine du 13 au 19 avril</div>
+      </div>
+      <div class="browser-screen sky-deep">
+        <div class="absolute inset-0 starfield opacity-30"></div>
+
+        <!-- Top chrome -->
+        <div class="absolute top-0 inset-x-0 flex justify-between items-center px-10 py-5 z-10 border-b border-nebula/10">
+          <div class="flex items-center gap-6">
+            <div class="flex items-center gap-2">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9a6f1c" stroke-width="1.5"><path d="M12 2l2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="font-display italic text-ivoire text-base">PedagogIA</span>
+            </div>
+            <nav class="flex gap-5 text-sm">
+              <a class="text-muted">Carte céleste</a>
+              <a class="text-muted">Mission du jour</a>
+              <a class="text-muted">Carnet de bord</a>
+              <a class="text-gold-pale font-semibold">Bulletin</a>
+            </nav>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="chip chip-cyan px-3 py-1 rounded-full text-[11px]">Vue parent</span>
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-full orb-nebula"></div>
+              <span class="text-ivoire text-sm">Y. BenYaghlane</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Title -->
+        <div class="absolute top-[82px] inset-x-0 px-10 pt-8 z-10">
+          <div class="flex items-end justify-between">
+            <div>
+              <p class="chip px-3 py-1 rounded-full inline-block text-[10px]">Bulletin hebdomadaire</p>
+              <h2 class="font-display font-light text-ivoire text-4xl mt-4 leading-tight">Le ciel de <em class="text-gold-pale font-normal">Noé</em></h2>
+              <p class="text-muted text-sm mt-1 tabular">Du 13 au 19 avril 2026 — 5 séances · 68 min · 42 exercices</p>
+            </div>
+            <div class="flex gap-2">
+              <button class="chip px-4 py-2 rounded-full text-[11px]">Exporter PDF</button>
+              <button class="chip px-4 py-2 rounded-full text-[11px]">Partager</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI row -->
+        <div class="absolute inset-x-10 top-[250px] grid grid-cols-4 gap-4 z-10">
+          <div class="card-cosmos rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <p class="text-muted text-[10px] uppercase tracking-widest">Étoiles allumées</p>
+              <div class="w-6 h-6 rounded-full orb-gold"></div>
+            </div>
+            <p class="font-display tabular text-ivoire text-4xl mt-3">+4</p>
+            <p class="text-gold-pale text-xs tabular mt-2">14 au total · +28%</p>
+          </div>
+          <div class="card-cosmos rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <p class="text-muted text-[10px] uppercase tracking-widest">Points d'orbite</p>
+              <div class="w-6 h-6 rounded-full orb-nebula"></div>
+            </div>
+            <p class="font-display tabular text-ivoire text-4xl mt-3">340</p>
+            <p class="text-nebula-pale text-xs tabular mt-2">+120 cette semaine</p>
+          </div>
+          <div class="card-cosmos rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <p class="text-muted text-[10px] uppercase tracking-widest">Constance</p>
+              <div class="w-6 h-6 rounded-full orb-cyan"></div>
+            </div>
+            <p class="font-display tabular text-ivoire text-4xl mt-3">5 <span class="text-base text-muted">/7</span></p>
+            <p class="text-cyan-soft text-xs tabular mt-2">Jours d'observation</p>
+          </div>
+          <div class="card-cosmos rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <p class="text-muted text-[10px] uppercase tracking-widest">Rang céleste</p>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="#9a6f1c"><path d="M12 2l2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 2z"/></svg>
+            </div>
+            <p class="font-display text-ivoire text-xl mt-3">Apprenti-astronome</p>
+            <p class="text-muted text-xs tabular mt-2">Plus que 60 pts → <span class="text-gold-pale">Navigateur</span></p>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="absolute inset-x-10 top-[430px] card-cosmos rounded-2xl p-6 z-10 h-[340px]">
+          <div class="flex items-end justify-between mb-6">
+            <div>
+              <p class="chip px-2 py-1 rounded-full inline-block text-[10px]">Activité · 7 jours</p>
+              <h3 class="font-display text-ivoire text-xl mt-2">Éclats d'étoiles par jour</h3>
+            </div>
+            <div class="flex gap-4 text-xs">
+              <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-gold"></span><span class="text-muted">Réussies</span></div>
+              <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-ember"></span><span class="text-muted">À revoir</span></div>
+            </div>
+          </div>
+
+          <!-- Simple SVG bars + line -->
+          <svg viewBox="0 0 900 200" class="w-full h-[200px]">
+            <g font-family="JetBrains Mono, monospace" font-size="10" fill="#9c977f">
+              <line x1="0" y1="200" x2="900" y2="200" stroke="#c9c2a8" />
+              <!-- Bars gold + ember -->
+              <g>
+                <rect x="60" y="140" width="40" height="60" fill="#9a6f1c" rx="4"/>
+                <rect x="60" y="120" width="40" height="20" fill="#9c4a3a" rx="4"/>
+                <text x="80" y="218" text-anchor="middle">Lun</text>
+              </g>
+              <g>
+                <rect x="180" y="90" width="40" height="110" fill="#9a6f1c" rx="4"/>
+                <rect x="180" y="70" width="40" height="20" fill="#9c4a3a" rx="4"/>
+                <text x="200" y="218" text-anchor="middle">Mar</text>
+              </g>
+              <g>
+                <rect x="300" y="50" width="40" height="150" fill="#9a6f1c" rx="4"/>
+                <rect x="300" y="35" width="40" height="15" fill="#9c4a3a" rx="4"/>
+                <text x="320" y="218" text-anchor="middle">Mer</text>
+              </g>
+              <g>
+                <rect x="420" y="200" width="40" height="0" fill="#9a6f1c" rx="4"/>
+                <text x="440" y="218" text-anchor="middle" fill="#9c977f">Jeu</text>
+              </g>
+              <g>
+                <rect x="540" y="110" width="40" height="90" fill="#9a6f1c" rx="4"/>
+                <rect x="540" y="95" width="40" height="15" fill="#9c4a3a" rx="4"/>
+                <text x="560" y="218" text-anchor="middle">Ven</text>
+              </g>
+              <g>
+                <rect x="660" y="70" width="40" height="130" fill="#9a6f1c" rx="4"/>
+                <rect x="660" y="55" width="40" height="15" fill="#9c4a3a" rx="4"/>
+                <text x="680" y="218" text-anchor="middle">Sam</text>
+              </g>
+              <g>
+                <rect x="780" y="130" width="40" height="70" fill="#9a6f1c" rx="4"/>
+                <rect x="780" y="115" width="40" height="15" fill="#9c4a3a" rx="4"/>
+                <text x="800" y="218" text-anchor="middle">Dim</text>
+              </g>
+            </g>
+            <!-- Trend line -->
+            <path d="M80 130 L200 85 L320 45 L440 90 L560 105 L680 65 L800 125" fill="none" stroke="#4e3f7a" stroke-width="1.5" stroke-dasharray="3 4" />
+          </svg>
+        </div>
+
+        <!-- Recent note -->
+        <div class="absolute left-10 top-[790px] card-cosmos rounded-2xl p-5 z-10 w-[720px]">
+          <p class="text-muted text-[10px] uppercase tracking-widest">Note de l'astronome</p>
+          <p class="font-display italic text-ivoire text-lg mt-2 leading-relaxed">
+            « Noé progresse régulièrement sur l'addition avec retenue. Les tables de 4 demandent encore un peu de patience —
+            ciel serein pour les <em class="text-gold-pale">10 prochains jours</em>. »
+          </p>
+          <p class="text-dim text-xs tabular mt-3">Généré le 16 avril · Claude Haiku 4.5</p>
+        </div>
+
+        <div class="absolute right-10 top-[790px] card-cosmos rounded-2xl p-5 z-10 w-[320px]">
+          <p class="chip px-2 py-1 rounded-full inline-block text-[10px]">Recommandation</p>
+          <p class="font-display text-ivoire text-base mt-3 leading-snug">Réviser les <em class="text-nebula-pale">tables de 4</em> 10 min avant le coucher</p>
+          <button class="btn-gold w-full py-2 rounded-full text-xs mt-4">Planifier</button>
+        </div>
+      </div>
+    </div>
+    <p class="text-muted text-sm font-semibold tracking-wide">⑥ Bulletin · navigateur · vue parent, semaine du 13 au 19 avril</p>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- ⑦ CÉLÉBRATION — tablet -->
+  <!-- ========================================================= -->
+  <section id="s-celebration" class="preview-frame flex flex-col items-center gap-3" data-name="07-etoile-acquise">
+    <div class="tablet">
+      <div class="tablet-screen sky">
+        <div class="absolute inset-0 starfield starfield-dense opacity-80"></div>
+
+        <!-- Rays from center -->
+        <svg class="absolute inset-0 w-full h-full opacity-40" viewBox="0 0 834 1194">
+          <defs>
+            <radialGradient id="rays" cx="50%" cy="50%" r="60%">
+              <stop offset="0%" stop-color="#b8862a" stop-opacity=".5" />
+              <stop offset="100%" stop-color="#b8862a" stop-opacity="0" />
+            </radialGradient>
+          </defs>
+          <circle cx="417" cy="520" r="400" fill="url(#rays)" />
+          <g stroke="#9a6f1c" stroke-opacity=".2" stroke-width="1">
+            <line x1="417" y1="520" x2="417" y2="20" />
+            <line x1="417" y1="520" x2="817" y2="120" />
+            <line x1="417" y1="520" x2="817" y2="920" />
+            <line x1="417" y1="520" x2="417" y2="1120" />
+            <line x1="417" y1="520" x2="17" y2="920" />
+            <line x1="417" y1="520" x2="17" y2="120" />
+            <line x1="417" y1="520" x2="700" y2="250" />
+            <line x1="417" y1="520" x2="700" y2="790" />
+            <line x1="417" y1="520" x2="134" y2="250" />
+            <line x1="417" y1="520" x2="134" y2="790" />
+          </g>
+        </svg>
+
+        <!-- Top bar minimal -->
+        <div class="absolute top-8 right-8 z-20">
+          <button class="w-8 h-8 rounded-full bg-slate/70 border border-nebula/20 flex items-center justify-center text-muted">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 6l12 12M6 18L18 6"/></svg>
+          </button>
+        </div>
+
+        <!-- Center celebration -->
+        <div class="absolute inset-0 flex flex-col items-center justify-center px-10 text-center z-10">
+          <!-- Giant star orb with halos -->
+          <div class="relative mb-12">
+            <div class="absolute -inset-20 rounded-full border border-gold/10"></div>
+            <div class="absolute -inset-12 rounded-full border border-gold/20"></div>
+            <div class="absolute -inset-6 rounded-full border border-gold/30"></div>
+            <div class="w-48 h-48 rounded-full orb-gold glow-gold relative">
+              <svg class="absolute inset-0 w-full h-full p-10" viewBox="0 0 24 24" fill="#faf5e6">
+                <path d="M12 2l2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 2z"/>
+              </svg>
+            </div>
+            <!-- Floating sparks -->
+            <div class="absolute -top-6 -left-8 w-3 h-3 rounded-full bg-gold-pale twinkle"></div>
+            <div class="absolute top-4 -right-14 w-2 h-2 rounded-full bg-cyan-soft twinkle"></div>
+            <div class="absolute -bottom-6 left-10 w-2 h-2 rounded-full bg-nebula-pale twinkle"></div>
+            <div class="absolute bottom-12 -right-10 w-2.5 h-2.5 rounded-full bg-gold twinkle"></div>
+          </div>
+
+          <p class="font-display italic text-gold-pale text-base tracking-[.25em] uppercase mb-4">Nouvelle étoile</p>
+          <h1 class="font-display font-light text-ivoire text-5xl leading-tight mb-4">
+            Tables de 4<br/>
+            <em class="text-gold-pale font-normal">maîtrisées.</em>
+          </h1>
+          <p class="text-muted text-base leading-relaxed max-w-sm mb-8">
+            Ton ciel compte maintenant <span class="text-gold-pale tabular">15 étoiles</span>. Une nouvelle constellation
+            vient d'apparaître : <em class="text-nebula-pale">Multiplication</em>.
+          </p>
+
+          <div class="flex items-center gap-2 chip chip-gold px-4 py-2 rounded-full mb-10">
+            <span class="tabular">+80 pts</span>
+            <span class="opacity-60">·</span>
+            <span>Carnet de bord rempli</span>
+          </div>
+
+          <div class="flex gap-3">
+            <button class="keypad-btn px-6 py-3 rounded-full text-sm">Revoir la carte</button>
+            <button class="btn-gold px-8 py-3 rounded-full text-sm">Étoile suivante →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-muted text-sm font-semibold tracking-wide">⑦ Étoile acquise · tablette · moment de célébration sobre</p>
+  </section>
+
+</main>
+
+<!-- ========== TOKENS ========== -->
+<section id="tokens" class="relative max-w-7xl mx-auto px-6 pb-24 pt-4">
+  <p class="uppercase tracking-[.25em] text-nebula text-xs font-semibold">Jetons de design</p>
+  <h2 class="font-display font-light text-ivoire text-4xl mt-2">Ce qui fait <em class="text-gold font-normal">Observatoire</em> · mode jour</h2>
+
+  <div class="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Palette -->
+    <div class="card-cosmos p-6 rounded-2xl">
+      <h3 class="font-display text-ivoire text-xl">Palette</h3>
+      <p class="text-muted text-xs mt-1">Dominante sombre · accents pour le mérite.</p>
+      <div class="mt-5 space-y-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg sky border border-nebula/20"></div>
+          <div class="flex-1">
+            <p class="text-ivoire text-sm font-semibold">Parchemin</p>
+            <p class="tabular text-muted text-xs">#efe7cf · fond principal</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-midnight border border-nebula/20"></div>
+          <div class="flex-1">
+            <p class="text-ivoire text-sm font-semibold">Vélin</p>
+            <p class="tabular text-muted text-xs">#f7f1df · surface carte</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg orb-nebula"></div>
+          <div class="flex-1">
+            <p class="text-ivoire text-sm font-semibold">Encre indigo</p>
+            <p class="tabular text-muted text-xs">#4e3f7a · primaire, action</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg orb-gold"></div>
+          <div class="flex-1">
+            <p class="text-ivoire text-sm font-semibold">Or profond</p>
+            <p class="tabular text-muted text-xs">#9a6f1c · étoile, mérite, XP</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg orb-cyan"></div>
+          <div class="flex-1">
+            <p class="text-ivoire text-sm font-semibold">Bleu de Prusse</p>
+            <p class="tabular text-muted text-xs">#2d6d8a · étoiles disponibles</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg orb-ember"></div>
+          <div class="flex-1">
+            <p class="text-ivoire text-sm font-semibold">Rouille</p>
+            <p class="tabular text-muted text-xs">#9c4a3a · erreur douce</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg" style="background:#1a1e3a"></div>
+          <div class="flex-1">
+            <p class="text-ivoire text-sm font-semibold">Encre noire</p>
+            <p class="tabular text-muted text-xs">#1a1e3a · texte principal</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Typography -->
+    <div class="card-cosmos p-6 rounded-2xl">
+      <h3 class="font-display text-ivoire text-xl">Typographie</h3>
+      <p class="text-muted text-xs mt-1">Serif moderne + sans neutre + mono pour le chiffre.</p>
+
+      <div class="mt-6">
+        <p class="text-[10px] uppercase tracking-widest text-muted">Fraunces — Display</p>
+        <p class="font-display italic text-ivoire text-3xl mt-2 leading-tight">Cartographier<br/><em>le ciel.</em></p>
+        <p class="text-dim text-xs mt-2 tabular">400 · 500 italic · 600 · opsz variable</p>
+      </div>
+
+      <div class="mt-6 pt-6 border-t border-nebula/10">
+        <p class="text-[10px] uppercase tracking-widest text-muted">Inter — UI</p>
+        <p class="text-ivoire text-base font-semibold mt-2">Observer · Compter · Maîtriser</p>
+        <p class="text-muted text-sm mt-1 leading-relaxed">L'interface respire, les instructions restent claires. Poids 400 et 600 exclusivement.</p>
+      </div>
+
+      <div class="mt-6 pt-6 border-t border-nebula/10">
+        <p class="text-[10px] uppercase tracking-widest text-muted">JetBrains Mono — Chiffres</p>
+        <p class="tabular text-gold-pale text-lg mt-2">4 × 7 = 28 · 340 pts · 05:42</p>
+        <p class="text-dim text-xs mt-2">Tous les chiffres en tabular pour l'alignement. Coordonnées, scores, temps.</p>
+      </div>
+    </div>
+
+    <!-- Principes -->
+    <div class="card-cosmos p-6 rounded-2xl">
+      <h3 class="font-display text-ivoire text-xl">Principes</h3>
+      <p class="text-muted text-xs mt-1">Les règles qu'Observatoire refuse de briser.</p>
+      <ol class="mt-5 space-y-4 text-sm">
+        <li class="flex gap-3"><span class="tabular text-gold-pale flex-shrink-0 mt-0.5">01</span><p class="text-cream"><strong class="text-ivoire">L'or = le mérite.</strong> <span class="text-muted">Jamais pour du chrome, toujours pour une étoile acquise, un XP, une constance reconnue.</span></p></li>
+        <li class="flex gap-3"><span class="tabular text-gold-pale flex-shrink-0 mt-0.5">02</span><p class="text-cream"><strong class="text-ivoire">Le ciel avant l'UI.</strong> <span class="text-muted">Chaque surface respire un champ d'étoiles subtil. Jamais de fond plat pur.</span></p></li>
+        <li class="flex gap-3"><span class="tabular text-gold-pale flex-shrink-0 mt-0.5">03</span><p class="text-cream"><strong class="text-ivoire">L'erreur se contemple.</strong> <span class="text-muted">Pas de rouge vif ; un rouge naine douce, accompagné du regard calme de l'astronome.</span></p></li>
+        <li class="flex gap-3"><span class="tabular text-gold-pale flex-shrink-0 mt-0.5">04</span><p class="text-cream"><strong class="text-ivoire">Les compétences se relient.</strong> <span class="text-muted">Arbre de skills rendu en constellations avec traits pointillés — on voit la dépendance.</span></p></li>
+        <li class="flex gap-3"><span class="tabular text-gold-pale flex-shrink-0 mt-0.5">05</span><p class="text-cream"><strong class="text-ivoire">Le chiffre est sacré.</strong> <span class="text-muted">Toujours en mono, tabular, aligné. Les maths méritent la précision typographique.</span></p></li>
+        <li class="flex gap-3"><span class="tabular text-gold-pale flex-shrink-0 mt-0.5">06</span><p class="text-cream"><strong class="text-ivoire">La récompense est sobre.</strong> <span class="text-muted">Une étoile qui s'allume, un halo doré, un chiffre qui grimpe. Pas de confettis ni de fanfare.</span></p></li>
+        <li class="flex gap-3"><span class="tabular text-gold-pale flex-shrink-0 mt-0.5">07</span><p class="text-cream"><strong class="text-ivoire">L'âge adapte l'échelle, jamais le ton.</strong> <span class="text-muted">Police plus grande pour Aya (6 ans), mêmes mots, même respect.</span></p></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Anti-patterns -->
+  <div class="mt-8 p-6 rounded-2xl border border-dashed border-ember/40 bg-ember/5">
+    <div class="flex items-center gap-3">
+      <div class="w-3 h-3 rounded-full orb-ember"></div>
+      <h3 class="font-display italic text-ember tracking-widest uppercase text-sm">À éviter</h3>
+    </div>
+    <ul class="mt-4 text-sm text-cream grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-8 leading-relaxed">
+      <li><span class="text-dim tabular mr-2">01</span>Mascottes animées, compagnons parlants, «&nbsp;Lumi&nbsp;»</li>
+      <li><span class="text-dim tabular mr-2">02</span>Emojis dans les chips, boutons, headers — SVG uniquement</li>
+      <li><span class="text-dim tabular mr-2">03</span>Plus de 3 accents colorés dans un même écran</li>
+      <li><span class="text-dim tabular mr-2">04</span>Rouge vif pour l'erreur — naine rouge douce à la place</li>
+      <li><span class="text-dim tabular mr-2">05</span>Confettis, fanfares, sons de jackpot à la réussite</li>
+      <li><span class="text-dim tabular mr-2">06</span>Gradients arc-en-ciel — nébuleuses tons proches seulement</li>
+      <li><span class="text-dim tabular mr-2">07</span>Lorem ipsum — toujours du contenu FWB réel</li>
+      <li><span class="text-dim tabular mr-2">08</span>Contraste sous 4.5:1 sur fond sombre</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="relative max-w-7xl mx-auto px-6 pb-16 text-center">
+  <p class="font-display italic text-dim text-sm">L'Observatoire · preview statique · Tailwind CDN · Fraunces + Inter + JetBrains Mono</p>
+  <p class="text-dim text-xs tabular mt-2">PedagogIA · design direction #3 · 2026-04-16</p>
+</footer>
+
+</body>
+</html>

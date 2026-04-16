@@ -1,0 +1,1374 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Le Laboratoire — PédagogIA · Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          display: ['Inter Tight', 'Inter', 'ui-sans-serif', 'system-ui'],
+          body: ['Inter', 'ui-sans-serif', 'system-ui'],
+          mono: ['JetBrains Mono', 'ui-monospace'],
+        },
+        colors: {
+          paper: '#FAFCFB',
+          ice: '#EEF6F1',
+          mint: {
+            DEFAULT: '#B7E4CE',
+            soft: '#D5EEE0',
+            deep: '#6FB999',
+          },
+          sage: '#3F8C6D',
+          forest: '#2B6B52',
+          sky: {
+            DEFAULT: '#DCEEF4',
+            soft: '#EAF4F8',
+            deep: '#A8D3E0',
+          },
+          cyan: {
+            DEFAULT: '#4BA6C2',
+            deep: '#2E7D99',
+          },
+          graphite: '#1B2320',
+          ink: '#2A3430',
+          slate: '#687570',
+          rule: '#D5E2DB',
+          warn: '#C46A3C',
+        },
+      },
+    },
+  }
+</script>
+<style>
+  html, body { background: #F3F7F4; }
+  body { font-family: 'Inter', system-ui, sans-serif; color: #1B2320; }
+  html { scroll-behavior: smooth; }
+
+  /* ---------- Graph paper / lab backgrounds ---------- */
+  .lab-grid {
+    background-image:
+      linear-gradient(to right, rgba(63,140,109,.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(63,140,109,.06) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .lab-grid-fine {
+    background-image:
+      linear-gradient(to right, rgba(63,140,109,.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(63,140,109,.05) 1px, transparent 1px);
+    background-size: 12px 12px;
+  }
+  .lab-dots {
+    background-image: radial-gradient(rgba(63,140,109,.22) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  .wash-mint {
+    background:
+      radial-gradient(ellipse 70% 50% at 15% 10%, rgba(183,228,206,.35), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 85% 90%, rgba(220,238,244,.45), transparent 60%),
+      #FAFCFB;
+  }
+  .wash-sky {
+    background:
+      radial-gradient(ellipse 60% 40% at 80% 20%, rgba(168,211,224,.3), transparent 60%),
+      radial-gradient(ellipse 50% 35% at 10% 90%, rgba(183,228,206,.25), transparent 60%),
+      #FAFCFB;
+  }
+
+  /* ---------- Lab surfaces ---------- */
+  .surface {
+    background: #fff;
+    border: 1px solid #D5E2DB;
+    border-radius: 14px;
+  }
+  .surface-ice { background: #EEF6F1; border: 1px solid #D5E2DB; border-radius: 14px; }
+  .surface-sky { background: #EAF4F8; border: 1px solid #CDE3EB; border-radius: 14px; }
+  .stroke-rule { border: 1px solid #D5E2DB; }
+
+  /* ---------- Chips ---------- */
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 999px;
+    font-family: 'JetBrains Mono', ui-monospace;
+    font-size: 10.5px; font-weight: 500;
+    letter-spacing: .04em; text-transform: uppercase;
+    border: 1px solid #D5E2DB; background: #fff; color: #2B6B52;
+  }
+  .chip-mint { background: #D5EEE0; border-color: #B7E4CE; color: #2B6B52; }
+  .chip-sky { background: #EAF4F8; border-color: #CDE3EB; color: #2E7D99; }
+  .chip-ink { background: #1B2320; border-color: #1B2320; color: #D5EEE0; }
+  .chip-ghost { background: transparent; border-color: #D5E2DB; color: #687570; }
+
+  /* ---------- Data-readout style ---------- */
+  .readout { font-family: 'JetBrains Mono', ui-monospace; letter-spacing: .02em; }
+  .readout-tiny { font-family: 'JetBrains Mono', ui-monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: #687570; }
+  .num-display { font-family: 'Inter Tight', 'Inter', system-ui; font-feature-settings: "tnum" 1, "ss01" 1; font-variant-numeric: tabular-nums; }
+
+  /* ---------- Buttons ---------- */
+  .btn-primary {
+    background: #2B6B52; color: #fff;
+    border: 1px solid #2B6B52;
+    padding: 10px 18px; border-radius: 10px;
+    font-weight: 600; font-size: 13.5px;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: transform 200ms ease, background 200ms ease;
+  }
+  .btn-primary:hover { background: #3F8C6D; transform: translateY(-1px); }
+  .btn-secondary {
+    background: #fff; color: #2B6B52;
+    border: 1px solid #B7E4CE;
+    padding: 10px 18px; border-radius: 10px;
+    font-weight: 600; font-size: 13.5px;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-secondary:hover { background: #EEF6F1; }
+  .btn-ghost {
+    background: transparent; color: #687570;
+    border: 1px solid #D5E2DB;
+    padding: 10px 14px; border-radius: 10px;
+    font-weight: 500; font-size: 13px;
+  }
+
+  /* ---------- Gauge ring ---------- */
+  .gauge-ring {
+    --p: 62;
+    --c1: #6FB999;
+    --c0: #EEF6F1;
+    background:
+      conic-gradient(var(--c1) calc(var(--p)*1%), var(--c0) 0);
+    border-radius: 50%;
+    position: relative;
+  }
+  .gauge-ring::after {
+    content: ""; position: absolute; inset: 5px;
+    background: #fff; border-radius: 50%;
+    border: 1px solid #D5E2DB;
+  }
+  .gauge-ring > span {
+    position: absolute; inset: 0; z-index: 2;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Inter Tight', 'Inter'; font-weight: 600; font-size: 15px;
+    font-variant-numeric: tabular-nums; color: #2B6B52;
+  }
+
+  /* ---------- Tablet frame (834 × 1194) ---------- */
+  .tablet {
+    width: 834px; height: 1194px;
+    border-radius: 40px;
+    background: #15201C;
+    padding: 18px;
+    box-shadow: 0 60px 120px -60px rgba(27,35,32,.45), 0 2px 0 0 rgba(255,255,255,.05) inset;
+    position: relative;
+    transform: scale(0.55);
+    transform-origin: top left;
+    margin-bottom: -540px;
+    margin-right: -375px;
+  }
+  .tablet::before {
+    content: ""; position: absolute;
+    top: 8px; left: 50%; transform: translateX(-50%);
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #000; box-shadow: 0 0 0 2px #15201C;
+  }
+  .tablet-screen {
+    width: 100%; height: 100%;
+    border-radius: 24px;
+    overflow: hidden;
+    background: #FAFCFB;
+    position: relative;
+  }
+
+  /* ---------- Browser frame (1440 × 900) ---------- */
+  .browser {
+    width: 1440px; height: 900px;
+    border-radius: 14px;
+    background: #DDE5E0;
+    overflow: hidden;
+    box-shadow: 0 40px 80px -40px rgba(27,35,32,.4), 0 1px 0 0 rgba(255,255,255,.6) inset;
+    transform: scale(0.42);
+    transform-origin: top left;
+    margin-bottom: -524px;
+    margin-right: -836px;
+  }
+  .browser-chrome {
+    height: 40px;
+    background: linear-gradient(to bottom, #EEF3EF, #DDE5E0);
+    display: flex; align-items: center;
+    padding: 0 16px; gap: 8px;
+    border-bottom: 1px solid rgba(43,107,82,.12);
+  }
+  .browser-chrome .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .browser-chrome .red { background: #E88A7A; }
+  .browser-chrome .amber { background: #E8C17A; }
+  .browser-chrome .green { background: #8FC7A8; }
+  .browser-chrome .url {
+    flex: 1; margin: 0 12px;
+    background: #fff; height: 24px; border-radius: 6px;
+    display: flex; align-items: center; padding: 0 12px;
+    font: 500 11.5px/1 'JetBrains Mono', ui-monospace;
+    color: #687570;
+    border: 1px solid #D5E2DB;
+    letter-spacing: .03em;
+  }
+  .browser-screen {
+    width: 100%; height: calc(100% - 40px);
+    background: #FAFCFB; overflow: hidden; position: relative;
+  }
+
+  /* ---------- Nav ---------- */
+  .navlink {
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 12.5px;
+    color: #2B6B52;
+    background: #fff;
+    border: 1px solid #D5E2DB;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform 200ms;
+  }
+  .navlink:hover { transform: translateY(-1px); background: #EEF6F1; }
+  .navlink.active { background: #2B6B52; color: #fff; border-color: #2B6B52; }
+
+  /* ---------- Node (skill card) ---------- */
+  .node {
+    background: #fff; border: 1px solid #D5E2DB;
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .node.solid { border-color: #B7E4CE; box-shadow: 0 0 0 1px #D5EEE0 inset; }
+  .node.focus { border-color: #4BA6C2; box-shadow: 0 0 0 3px #EAF4F8; }
+  .node.todo { border-color: #D5E2DB; background: #FAFCFB; }
+
+  /* ---------- Keypad ---------- */
+  .key {
+    height: 64px; border-radius: 12px;
+    border: 1px solid #D5E2DB; background: #fff;
+    font-family: 'Inter Tight', 'Inter'; font-weight: 600; font-size: 22px;
+    color: #1B2320; font-variant-numeric: tabular-nums;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 150ms, background 150ms;
+  }
+  .key:hover { background: #EEF6F1; transform: translateY(-1px); }
+  .key-ok { background: #2B6B52; color: #fff; border-color: #2B6B52; font-weight: 700; }
+  .key-ok:hover { background: #3F8C6D; }
+  .key-ghost { background: #F3F7F4; color: #687570; }
+
+  /* ---------- Sparkline / bar ---------- */
+  .bar { height: 6px; border-radius: 999px; background: #EEF6F1; overflow: hidden; }
+  .bar > span { display: block; height: 100%; background: #6FB999; border-radius: 999px; }
+  .bar-sky > span { background: #4BA6C2; }
+  .bar-ink > span { background: #1B2320; }
+
+  /* ---------- Confetti (mint-only, subtle) ---------- */
+  .confetti-cell {
+    position: absolute;
+    width: 8px; height: 2px;
+    opacity: .7;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0ms !important; transition-duration: 0ms !important; }
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- ========== HEADER ========== -->
+<header class="max-w-7xl mx-auto px-6 pt-10 pb-6">
+  <div class="flex items-start justify-between gap-6 flex-wrap">
+    <div>
+      <div class="readout-tiny">Proposition · 05 / 05</div>
+      <div class="font-display text-xl text-sage mt-1 flex items-center gap-2">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v6l-4.5 7.5A2 2 0 0 0 6.2 20h11.6a2 2 0 0 0 1.7-3.5L15 9V3"/><path d="M8.5 15h7"/><path d="M9 3h6"/></svg>
+        Le Laboratoire
+      </div>
+      <h1 class="font-display font-semibold text-4xl md:text-5xl text-graphite mt-3 leading-[1.05]">
+        La science de <em class="text-sage not-italic">comprendre</em> les maths.
+      </h1>
+      <p class="text-slate mt-4 max-w-xl text-[15px] leading-relaxed">
+        Une paillasse propre, une loupe, des notes précises. Chaque erreur est une hypothèse à tester — pas un verdict. Un carnet blanc, du vert tendre, un peu de bleu ciel.
+      </p>
+    </div>
+    <div class="flex flex-col gap-2 items-end">
+      <span class="chip chip-ink">LABO · v1</span>
+      <span class="chip">Cible · 6–12 ans · FWB</span>
+      <span class="chip">Tablette + navigateur</span>
+      <span class="chip chip-sky">AA · 4.8:1</span>
+    </div>
+  </div>
+</header>
+
+<!-- ========== NAV ========== -->
+<nav class="sticky top-0 z-40 backdrop-blur-md bg-paper/85 border-y border-rule">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex gap-2 overflow-x-auto">
+    <a href="#s-accueil" class="navlink">01 Accueil</a>
+    <a href="#s-carnets" class="navlink">02 Carnets</a>
+    <a href="#s-carte" class="navlink">03 Carte</a>
+    <a href="#s-exercice" class="navlink">04 Exercice</a>
+    <a href="#s-correction" class="navlink">05 Correction</a>
+    <a href="#s-bulletin" class="navlink">06 Bulletin</a>
+    <a href="#s-celebration" class="navlink">07 Célébration</a>
+    <a href="#tokens" class="navlink">⚙ Jetons</a>
+  </div>
+</nav>
+
+<!-- ========== FRAMES ========== -->
+<main class="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 xl:grid-cols-2 gap-y-12 gap-x-10 place-items-start">
+
+  <!-- 01 — ACCUEIL (browser) -->
+  <section id="s-accueil" class="preview-frame flex flex-col items-start gap-3" data-name="01-accueil-browser">
+    <div class="browser">
+      <div class="browser-chrome">
+        <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
+        <div class="url">pedagogia.be</div>
+      </div>
+      <div class="browser-screen wash-mint">
+        <!-- Top nav bar -->
+        <div class="flex items-center justify-between px-12 py-6 border-b border-rule/60">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-forest text-white flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v6l-4.5 7.5A2 2 0 0 0 6.2 20h11.6a2 2 0 0 0 1.7-3.5L15 9V3"/><path d="M8.5 15h7"/><path d="M9 3h6"/></svg>
+            </div>
+            <div>
+              <div class="font-display font-semibold text-[15px] text-graphite">PédagogIA</div>
+              <div class="readout-tiny -mt-0.5">Laboratoire · FWB</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="chip">Méthode</span>
+            <span class="chip">Référentiel</span>
+            <span class="chip">Parents</span>
+            <button class="btn-secondary ml-2">Se connecter</button>
+            <button class="btn-primary">Ouvrir un carnet</button>
+          </div>
+        </div>
+        <!-- Hero -->
+        <div class="grid grid-cols-[1.1fr_1fr] gap-16 px-16 pt-14 pb-10">
+          <div>
+            <div class="inline-flex items-center gap-2 chip chip-mint">
+              <span class="w-1.5 h-1.5 rounded-full bg-sage"></span>
+              Méthode Champ 3 · Arithmétique
+            </div>
+            <h1 class="font-display font-semibold text-[58px] leading-[1.02] text-graphite mt-5">
+              La science<br/>de <em class="text-sage not-italic">comprendre</em><br/>les maths.
+            </h1>
+            <p class="text-slate text-[16px] leading-relaxed mt-6 max-w-md">
+              Un carnet de laboratoire pour chaque enfant. Nous observons,
+              formulons une hypothèse, testons — et la remplaçons quand elle
+              est fausse. Sans jugement.
+            </p>
+            <div class="flex items-center gap-3 mt-8">
+              <button class="btn-primary">Ouvrir un carnet
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+              </button>
+              <button class="btn-secondary">Voir la méthode</button>
+              <span class="readout-tiny ml-3">4 min · sans email</span>
+            </div>
+
+            <!-- KPI row -->
+            <div class="grid grid-cols-3 gap-6 mt-14">
+              <div>
+                <div class="readout-tiny">Notions</div>
+                <div class="num-display font-semibold text-3xl text-graphite mt-1">1 240</div>
+                <div class="text-slate text-[12px] mt-0.5">du P1 au P6</div>
+              </div>
+              <div>
+                <div class="readout-tiny">Référentiel</div>
+                <div class="num-display font-semibold text-3xl text-graphite mt-1">FWB</div>
+                <div class="text-slate text-[12px] mt-0.5">Mathématiques 2024</div>
+              </div>
+              <div>
+                <div class="readout-tiny">Publicités</div>
+                <div class="num-display font-semibold text-3xl text-graphite mt-1">0</div>
+                <div class="text-slate text-[12px] mt-0.5">jamais, par choix</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Specimen card -->
+          <div class="relative">
+            <div class="absolute inset-0 -m-6 lab-grid rounded-3xl opacity-70"></div>
+            <div class="relative surface p-7">
+              <div class="flex items-center justify-between">
+                <div class="chip chip-sky">Spécimen · 347 + 185</div>
+                <div class="readout-tiny">04 / 10</div>
+              </div>
+              <div class="mt-6 num-display text-[68px] font-semibold text-graphite leading-none tracking-tight text-center">
+                347 <span class="text-mint-deep">+</span> 185
+              </div>
+              <div class="mt-6 grid grid-cols-3 gap-3">
+                <button class="surface-ice rounded-lg py-3 font-semibold text-forest text-[13px]">Calcul posé</button>
+                <button class="bg-forest text-white rounded-lg py-3 font-semibold text-[13px]">Décomposition</button>
+                <button class="surface-ice rounded-lg py-3 font-semibold text-forest text-[13px]">Mental</button>
+              </div>
+              <div class="mt-6 surface-ice p-4 rounded-lg">
+                <div class="readout-tiny">Hypothèse</div>
+                <div class="text-graphite text-[14px] mt-1 leading-relaxed">
+                  On décompose : <span class="font-mono text-forest">300 + 100 = 400</span>,
+                  puis <span class="font-mono text-forest">47 + 85 = 132</span>.
+                  On réunit.
+                </div>
+              </div>
+              <div class="mt-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-6 h-6 rounded-full bg-mint-soft flex items-center justify-center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2B6B52" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+                  <span class="text-[12.5px] text-forest font-semibold">Vérifié par Aya · P5</span>
+                </div>
+                <div class="readout-tiny">3,2 s</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Footer strip -->
+        <div class="px-16 py-5 border-t border-rule/60 flex items-center justify-between">
+          <div class="flex items-center gap-3 readout text-[11px] text-slate">
+            <span>PROTOCOLE · 2026.04</span>
+            <span class="text-rule">│</span>
+            <span>OBSERVATION · CONTINUE</span>
+            <span class="text-rule">│</span>
+            <span>CORRECTION · SOCRATIQUE</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="chip chip-ghost">Belgique · FR</span>
+            <span class="chip chip-ghost">Sans pub</span>
+            <span class="chip chip-ghost">RGPD</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="readout-tiny mt-2">01 · Accueil · navigateur</p>
+  </section>
+
+  <!-- 02 — CARNETS (tablet) -->
+  <section id="s-carnets" class="preview-frame flex flex-col items-start gap-3" data-name="02-carnets-tablet">
+    <div class="tablet">
+      <div class="tablet-screen wash-mint">
+        <!-- Top bar -->
+        <div class="flex items-center justify-between px-8 pt-10 pb-6">
+          <div>
+            <div class="readout-tiny">Session · 16.04.26 · 14:32</div>
+            <h2 class="font-display text-[34px] font-semibold text-graphite mt-2">Choisir un carnet</h2>
+            <p class="text-slate text-[14px] mt-1">Un enfant, un carnet de laboratoire. Les données ne sortent jamais d'ici.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="chip">Parent · Margaux</span>
+            <button class="btn-ghost">Réglages</button>
+          </div>
+        </div>
+
+        <!-- Carnets grid -->
+        <div class="px-8 grid grid-cols-2 gap-5">
+          <!-- Carnet 1 -->
+          <div class="surface p-5 relative">
+            <div class="absolute top-5 right-5 chip chip-mint">ACTIF · 12J</div>
+            <div class="flex items-start gap-4">
+              <div class="w-16 h-16 rounded-2xl bg-sage text-white flex items-center justify-center num-display text-2xl font-semibold">N</div>
+              <div class="pt-1">
+                <div class="font-display text-[22px] font-semibold text-graphite">Noé</div>
+                <div class="readout text-[11.5px] text-slate uppercase tracking-wide mt-0.5">P3 · 8 ans</div>
+              </div>
+            </div>
+            <div class="mt-5 grid grid-cols-3 gap-3 text-center">
+              <div class="surface-ice p-3 rounded-lg">
+                <div class="readout-tiny">Notions solides</div>
+                <div class="num-display font-semibold text-xl text-graphite mt-1">142</div>
+              </div>
+              <div class="surface-ice p-3 rounded-lg">
+                <div class="readout-tiny">Série</div>
+                <div class="num-display font-semibold text-xl text-graphite mt-1">18</div>
+              </div>
+              <div class="surface-ice p-3 rounded-lg">
+                <div class="readout-tiny">XP</div>
+                <div class="num-display font-semibold text-xl text-graphite mt-1">3 420</div>
+              </div>
+            </div>
+            <div class="mt-4 flex items-center justify-between">
+              <div class="flex items-center gap-2 readout text-[11px] text-slate">
+                <span class="w-2 h-2 rounded-full bg-mint-deep"></span>
+                Dernière séance · hier · 22 min
+              </div>
+              <button class="btn-primary">Ouvrir</button>
+            </div>
+          </div>
+
+          <!-- Carnet 2 -->
+          <div class="surface p-5 relative">
+            <div class="absolute top-5 right-5 chip chip-sky">EN PAUSE</div>
+            <div class="flex items-start gap-4">
+              <div class="w-16 h-16 rounded-2xl bg-cyan-deep text-white flex items-center justify-center num-display text-2xl font-semibold">A</div>
+              <div class="pt-1">
+                <div class="font-display text-[22px] font-semibold text-graphite">Aya</div>
+                <div class="readout text-[11.5px] text-slate uppercase tracking-wide mt-0.5">P5 · 10 ans</div>
+              </div>
+            </div>
+            <div class="mt-5 grid grid-cols-3 gap-3 text-center">
+              <div class="surface-ice p-3 rounded-lg">
+                <div class="readout-tiny">Notions solides</div>
+                <div class="num-display font-semibold text-xl text-graphite mt-1">268</div>
+              </div>
+              <div class="surface-ice p-3 rounded-lg">
+                <div class="readout-tiny">Série</div>
+                <div class="num-display font-semibold text-xl text-graphite mt-1">0</div>
+              </div>
+              <div class="surface-ice p-3 rounded-lg">
+                <div class="readout-tiny">XP</div>
+                <div class="num-display font-semibold text-xl text-graphite mt-1">8 140</div>
+              </div>
+            </div>
+            <div class="mt-4 flex items-center justify-between">
+              <div class="flex items-center gap-2 readout text-[11px] text-slate">
+                <span class="w-2 h-2 rounded-full bg-sky-deep"></span>
+                Dernière séance · il y a 4 j
+              </div>
+              <button class="btn-secondary">Reprendre</button>
+            </div>
+          </div>
+
+          <!-- Carnet 3 -->
+          <div class="surface p-5 relative">
+            <div class="absolute top-5 right-5 chip">DIAGNOSTIC · EN COURS</div>
+            <div class="flex items-start gap-4">
+              <div class="w-16 h-16 rounded-2xl bg-graphite text-mint flex items-center justify-center num-display text-2xl font-semibold">L</div>
+              <div class="pt-1">
+                <div class="font-display text-[22px] font-semibold text-graphite">Liam</div>
+                <div class="readout text-[11.5px] text-slate uppercase tracking-wide mt-0.5">P1 · 6 ans</div>
+              </div>
+            </div>
+            <div class="mt-5 surface-ice p-4 rounded-lg">
+              <div class="readout-tiny">Étalonnage en cours</div>
+              <div class="flex items-center gap-3 mt-2">
+                <div class="bar flex-1"><span style="width:35%"></span></div>
+                <span class="num-display text-[13px] font-semibold text-forest">7 / 20</span>
+              </div>
+              <div class="text-slate text-[12px] mt-2 leading-relaxed">
+                On cherche le bon point de départ. Encore 13 questions — 4 minutes environ.
+              </div>
+            </div>
+            <div class="mt-4 flex items-center justify-between">
+              <span class="readout-tiny">EST. P1·M2</span>
+              <button class="btn-primary">Continuer</button>
+            </div>
+          </div>
+
+          <!-- New carnet -->
+          <button class="surface-ice border-2 border-dashed border-mint-deep/40 rounded-[14px] p-5 text-left flex flex-col justify-center items-center gap-3 min-h-[240px]">
+            <div class="w-12 h-12 rounded-full bg-white border border-rule flex items-center justify-center">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2B6B52" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            </div>
+            <div class="font-display text-[17px] font-semibold text-forest">Nouveau carnet</div>
+            <div class="text-slate text-[12.5px] text-center max-w-[200px]">Diagnostic en 4 minutes. On trouve le bon point de départ.</div>
+          </button>
+        </div>
+
+        <!-- Protocol strip -->
+        <div class="mx-8 mt-8 surface-sky p-4 rounded-lg flex items-start gap-3">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2E7D99" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+            <div>
+              <div class="readout text-[11px] text-cyan-deep font-semibold uppercase tracking-wider">Protocole parental</div>
+              <div class="text-graphite text-[13px] leading-relaxed mt-1">
+                Vous recevez un résumé hebdomadaire. Un seul enfant connecté à la fois.
+                Les erreurs sont analysées par Claude, jamais partagées.
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+    <p class="readout-tiny mt-2">02 · Carnets · tablette</p>
+  </section>
+
+  <!-- 03 — CARTE (browser) -->
+  <section id="s-carte" class="preview-frame flex flex-col items-start gap-3" data-name="03-carte-browser">
+    <div class="browser">
+      <div class="browser-chrome">
+        <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
+        <div class="url">pedagogia.be / carnet / noe / carte</div>
+      </div>
+      <div class="browser-screen lab-grid">
+        <div class="grid grid-cols-[260px_1fr_300px] h-full">
+          <!-- Sidebar -->
+          <aside class="bg-white border-r border-rule p-6">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-sage text-white flex items-center justify-center num-display font-semibold">N</div>
+              <div>
+                <div class="font-display text-[15px] font-semibold text-graphite">Noé</div>
+                <div class="readout-tiny">P3 · Carnet actif</div>
+              </div>
+            </div>
+            <div class="mt-6">
+              <div class="readout-tiny mb-2">Champs</div>
+              <ul class="text-[13px] space-y-1.5">
+                <li class="flex justify-between px-2 py-1.5 rounded-md bg-ice text-forest font-semibold"><span>Champ 3 · Arithmétique</span><span class="readout text-[11px]">142</span></li>
+                <li class="flex justify-between px-2 py-1.5 rounded-md hover:bg-ice text-slate"><span>Champ 1 · Nombres</span><span class="readout text-[11px]">98</span></li>
+                <li class="flex justify-between px-2 py-1.5 rounded-md hover:bg-ice text-slate"><span>Champ 2 · Grandeurs</span><span class="readout text-[11px]">36</span></li>
+                <li class="flex justify-between px-2 py-1.5 rounded-md hover:bg-ice text-slate"><span>Champ 4 · Espace</span><span class="readout text-[11px] italic">—</span></li>
+              </ul>
+            </div>
+            <div class="mt-6">
+              <div class="readout-tiny mb-2">Niveau</div>
+              <div class="flex gap-1">
+                <span class="chip chip-mint">P1</span>
+                <span class="chip chip-mint">P2</span>
+                <span class="chip chip-ink">P3</span>
+                <span class="chip chip-ghost">P4</span>
+                <span class="chip chip-ghost">P5</span>
+                <span class="chip chip-ghost">P6</span>
+              </div>
+            </div>
+            <div class="mt-6">
+              <div class="readout-tiny mb-2">Légende</div>
+              <ul class="text-[12px] text-slate space-y-1.5">
+                <li class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-mint border border-mint-deep"></span>Solide · ≥ 85 %</li>
+                <li class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-sky border border-sky-deep"></span>En cours</li>
+                <li class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-white border border-rule"></span>À explorer</li>
+                <li class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-warn/20 border border-warn/60"></span>Fragile</li>
+              </ul>
+            </div>
+          </aside>
+
+          <!-- Map -->
+          <div class="relative p-8 overflow-hidden">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="font-display text-[26px] font-semibold text-graphite">Champ 3 · Arithmétique</h2>
+                <p class="text-slate text-[13px] mt-1">Carte des notions du P1 au P3. 142 acquis · 4 en cours · 1 fragile.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="btn-ghost">Vue compacte</button>
+                <button class="btn-primary">Séance du jour
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Node grid -->
+            <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 800 600" preserveAspectRatio="none">
+              <path d="M 120 180 C 180 180, 180 260, 260 260" stroke="#B7E4CE" stroke-width="1.5" fill="none"/>
+              <path d="M 260 260 C 340 260, 340 180, 420 180" stroke="#B7E4CE" stroke-width="1.5" fill="none"/>
+              <path d="M 260 260 C 340 260, 340 340, 420 340" stroke="#4BA6C2" stroke-width="1.5" fill="none" stroke-dasharray="4 4"/>
+              <path d="M 420 180 C 500 180, 500 260, 580 260" stroke="#D5E2DB" stroke-width="1.5" fill="none"/>
+              <path d="M 420 340 C 500 340, 500 420, 580 420" stroke="#D5E2DB" stroke-width="1.5" fill="none"/>
+              <path d="M 580 260 C 660 260, 660 340, 720 340" stroke="#D5E2DB" stroke-width="1.5" fill="none"/>
+            </svg>
+
+            <div class="relative mt-6 grid grid-cols-4 gap-6">
+              <!-- col 1 -->
+              <div class="space-y-4 pt-6">
+                <div class="node solid">
+                  <div class="flex items-center justify-between">
+                    <span class="readout-tiny">P1·A1</span>
+                    <span class="num-display text-[11px] font-semibold text-forest">100%</span>
+                  </div>
+                  <div class="text-[13px] font-semibold text-graphite mt-1">Compter jusqu'à 20</div>
+                  <div class="bar mt-2"><span style="width:100%"></span></div>
+                </div>
+                <div class="node solid">
+                  <div class="flex items-center justify-between">
+                    <span class="readout-tiny">P2·A1</span>
+                    <span class="num-display text-[11px] font-semibold text-forest">94%</span>
+                  </div>
+                  <div class="text-[13px] font-semibold text-graphite mt-1">Addition à 2 chiffres</div>
+                  <div class="bar mt-2"><span style="width:94%"></span></div>
+                </div>
+              </div>
+              <!-- col 2 -->
+              <div class="space-y-4 pt-16">
+                <div class="node solid">
+                  <div class="flex items-center justify-between">
+                    <span class="readout-tiny">P2·A3</span>
+                    <span class="num-display text-[11px] font-semibold text-forest">88%</span>
+                  </div>
+                  <div class="text-[13px] font-semibold text-graphite mt-1">Soustraction sans retenue</div>
+                  <div class="bar mt-2"><span style="width:88%"></span></div>
+                </div>
+                <div class="node focus">
+                  <div class="flex items-center justify-between">
+                    <span class="readout-tiny text-cyan-deep">P3·A2 · FOCUS</span>
+                    <span class="num-display text-[11px] font-semibold text-cyan-deep">62%</span>
+                  </div>
+                  <div class="text-[13px] font-semibold text-graphite mt-1">Addition à retenue</div>
+                  <div class="bar bar-sky mt-2"><span style="width:62%"></span></div>
+                </div>
+              </div>
+              <!-- col 3 -->
+              <div class="space-y-4 pt-6">
+                <div class="node">
+                  <div class="flex items-center justify-between">
+                    <span class="readout-tiny">P3·A3</span>
+                    <span class="num-display text-[11px] font-semibold text-slate">41%</span>
+                  </div>
+                  <div class="text-[13px] font-semibold text-graphite mt-1">Soustraction à retenue</div>
+                  <div class="bar mt-2"><span style="width:41%;background:#C46A3C"></span></div>
+                  <div class="readout-tiny mt-2 text-warn">FRAGILE · 3 essais</div>
+                </div>
+                <div class="node todo">
+                  <div class="flex items-center justify-between">
+                    <span class="readout-tiny">P3·M1</span>
+                    <span class="num-display text-[11px] font-semibold text-slate">0%</span>
+                  </div>
+                  <div class="text-[13px] font-semibold text-graphite mt-1">Tables de multiplication</div>
+                  <div class="bar mt-2"><span style="width:0%"></span></div>
+                </div>
+              </div>
+              <!-- col 4 -->
+              <div class="space-y-4 pt-16">
+                <div class="node todo opacity-70">
+                  <div class="flex items-center justify-between">
+                    <span class="readout-tiny">P3·A4</span>
+                    <span class="num-display text-[11px] font-semibold text-slate">—</span>
+                  </div>
+                  <div class="text-[13px] font-semibold text-slate mt-1">Ordres de grandeur</div>
+                  <div class="readout-tiny mt-2">PRÉREQUIS · A2</div>
+                </div>
+                <div class="node todo opacity-60">
+                  <div class="flex items-center justify-between">
+                    <span class="readout-tiny">P4·A1</span>
+                    <span class="num-display text-[11px] font-semibold text-slate">—</span>
+                  </div>
+                  <div class="text-[13px] font-semibold text-slate mt-1">Division posée</div>
+                  <div class="readout-tiny mt-2">VERROUILLÉ</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right rail -->
+          <aside class="bg-white border-l border-rule p-6">
+            <div class="readout-tiny">Séance recommandée</div>
+            <div class="mt-3 surface-ice p-4 rounded-lg">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-cyan-deep"></span>
+                <span class="readout text-[11px] font-semibold text-cyan-deep">P3·A2 · FOCUS</span>
+              </div>
+              <div class="font-display text-[17px] font-semibold text-graphite mt-2">Addition à retenue</div>
+              <div class="text-slate text-[12.5px] mt-1 leading-relaxed">
+                12 exercices · environ 18 min. On cible la retenue dans les dizaines.
+              </div>
+              <button class="btn-primary w-full justify-center mt-4">Commencer</button>
+            </div>
+
+            <div class="readout-tiny mt-8">Dernières observations</div>
+            <ul class="mt-3 space-y-3 text-[12.5px]">
+              <li class="surface p-3 rounded-lg">
+                <div class="flex items-center justify-between">
+                  <span class="readout text-[10.5px] text-slate uppercase">15.04 · 17:42</span>
+                  <span class="chip chip-mint">+12 XP</span>
+                </div>
+                <div class="text-graphite mt-1.5">Retenue des unités : maîtrisée.</div>
+              </li>
+              <li class="surface p-3 rounded-lg">
+                <div class="flex items-center justify-between">
+                  <span class="readout text-[10.5px] text-slate uppercase">14.04 · 18:05</span>
+                  <span class="chip" style="background:#F8E7D9;border-color:#E8C3A8;color:#8C3F1C">HYPOTHÈSE</span>
+                </div>
+                <div class="text-graphite mt-1.5">Soustraction : confusion place des dizaines.</div>
+              </li>
+              <li class="surface p-3 rounded-lg">
+                <div class="flex items-center justify-between">
+                  <span class="readout text-[10.5px] text-slate uppercase">13.04 · 17:20</span>
+                  <span class="chip chip-sky">SÉRIE · 18</span>
+                </div>
+                <div class="text-graphite mt-1.5">4 séances consécutives tenues.</div>
+              </li>
+            </ul>
+          </aside>
+        </div>
+      </div>
+    </div>
+    <p class="readout-tiny mt-2">03 · Carte des compétences · navigateur</p>
+  </section>
+
+  <!-- 04 — EXERCICE (tablet) -->
+  <section id="s-exercice" class="preview-frame flex flex-col items-start gap-3" data-name="04-exercice-tablet">
+    <div class="tablet">
+      <div class="tablet-screen wash-sky">
+        <!-- Top bar -->
+        <div class="flex items-center justify-between px-8 pt-8 pb-4 border-b border-rule">
+          <div class="flex items-center gap-3">
+            <button class="w-9 h-9 rounded-lg border border-rule bg-white flex items-center justify-center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2B6B52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <div>
+              <div class="readout-tiny">P3·A2 · Focus du jour</div>
+              <div class="font-display text-[19px] font-semibold text-graphite">Addition à retenue</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="chip chip-sky"><span class="w-1.5 h-1.5 rounded-full bg-cyan-deep"></span>04 / 10</span>
+            <span class="chip"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="9"/></svg>3:12</span>
+            <button class="btn-ghost">Indice</button>
+          </div>
+        </div>
+
+        <!-- Progress strip -->
+        <div class="px-8 pt-4">
+          <div class="flex gap-1.5">
+            <span class="flex-1 h-1.5 rounded-full bg-mint-deep"></span>
+            <span class="flex-1 h-1.5 rounded-full bg-mint-deep"></span>
+            <span class="flex-1 h-1.5 rounded-full bg-mint-deep"></span>
+            <span class="flex-1 h-1.5 rounded-full bg-cyan"></span>
+            <span class="flex-1 h-1.5 rounded-full bg-ice"></span>
+            <span class="flex-1 h-1.5 rounded-full bg-ice"></span>
+            <span class="flex-1 h-1.5 rounded-full bg-ice"></span>
+            <span class="flex-1 h-1.5 rounded-full bg-ice"></span>
+            <span class="flex-1 h-1.5 rounded-full bg-ice"></span>
+            <span class="flex-1 h-1.5 rounded-full bg-ice"></span>
+          </div>
+        </div>
+
+        <!-- Question area -->
+        <div class="px-8 pt-8">
+          <div class="surface p-6">
+            <div class="flex items-center justify-between">
+              <div class="readout-tiny">Question 04</div>
+              <div class="flex gap-2">
+                <button class="chip">Calcul posé</button>
+                <button class="chip chip-ink">Décomposition</button>
+                <button class="chip">Mental</button>
+              </div>
+            </div>
+            <div class="text-center mt-6">
+              <div class="readout-tiny">Combien font</div>
+              <div class="num-display text-[84px] font-semibold text-graphite leading-none tracking-tight mt-2">
+                347 <span class="text-sage">+</span> 185 <span class="text-slate">=</span> <span class="text-mint-deep">?</span>
+              </div>
+            </div>
+
+            <!-- Decomposition scratchpad -->
+            <div class="mt-8 grid grid-cols-3 gap-3">
+              <div class="surface-ice p-4 rounded-lg text-center">
+                <div class="readout-tiny">Centaines</div>
+                <div class="num-display text-2xl font-semibold text-graphite mt-1">300 + 100</div>
+                <div class="readout text-[12px] text-sage font-semibold mt-1">= 400</div>
+              </div>
+              <div class="surface-ice p-4 rounded-lg text-center">
+                <div class="readout-tiny">Dizaines + Unités</div>
+                <div class="num-display text-2xl font-semibold text-graphite mt-1">47 + 85</div>
+                <div class="readout text-[12px] text-sage font-semibold mt-1">= <span class="underline decoration-wavy decoration-cyan">?</span></div>
+              </div>
+              <div class="surface-ice p-4 rounded-lg text-center">
+                <div class="readout-tiny">Total</div>
+                <div class="num-display text-2xl font-semibold text-graphite mt-1">400 + ?</div>
+                <div class="readout text-[12px] text-sage font-semibold mt-1">= ?</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Answer field -->
+          <div class="mt-6 surface p-5 flex items-center gap-5">
+            <div class="readout-tiny">Ta réponse</div>
+            <div class="flex-1 text-right num-display font-semibold text-[44px] text-graphite tracking-tight">
+              5<span class="text-cyan">3</span><span class="text-slate">_</span>
+            </div>
+            <button class="btn-secondary" style="padding:14px 18px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18"/><path d="m11 6-6 6 6 6"/></svg>
+              Effacer
+            </button>
+          </div>
+
+          <!-- Keypad -->
+          <div class="mt-5 grid grid-cols-4 gap-3">
+            <button class="key">1</button>
+            <button class="key">2</button>
+            <button class="key">3</button>
+            <button class="key key-ghost">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><path d="m18 9-6 6"/><path d="m12 9 6 6"/></svg>
+            </button>
+            <button class="key">4</button>
+            <button class="key">5</button>
+            <button class="key">6</button>
+            <button class="key key-ghost">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>
+            </button>
+            <button class="key">7</button>
+            <button class="key">8</button>
+            <button class="key">9</button>
+            <button class="key key-ghost">?</button>
+            <button class="key key-ghost">,</button>
+            <button class="key">0</button>
+            <button class="key key-ghost">.</button>
+            <button class="key key-ok">
+              Corriger
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="margin-left:6px"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="readout-tiny mt-2">04 · Exercice · tablette</p>
+  </section>
+
+  <!-- 05 — CORRECTION (tablet) -->
+  <section id="s-correction" class="preview-frame flex flex-col items-start gap-3" data-name="05-correction-tablet">
+    <div class="tablet">
+      <div class="tablet-screen wash-mint">
+        <!-- Top -->
+        <div class="flex items-center justify-between px-8 pt-8 pb-3 border-b border-rule">
+          <div>
+            <div class="readout-tiny">Observation · Q04 · 16.04.26 · 14:41</div>
+            <div class="font-display text-[19px] font-semibold text-graphite">Hypothèse à tester</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="chip" style="background:#F8E7D9;border-color:#E8C3A8;color:#8C3F1C">ÉCART DÉTECTÉ</span>
+            <span class="chip chip-sky">CLAUDE · HAIKU 4.5</span>
+          </div>
+        </div>
+
+        <!-- Observation panel -->
+        <div class="px-8 pt-6">
+          <div class="surface p-5">
+            <div class="readout-tiny">Ta réponse</div>
+            <div class="flex items-end justify-between mt-2">
+              <div class="num-display text-[56px] font-semibold text-graphite leading-none">
+                347 + 185 = <span class="text-warn">422</span>
+              </div>
+              <div class="readout-tiny text-slate">attendu · <span class="text-sage font-semibold">532</span></div>
+            </div>
+            <div class="mt-4 grid grid-cols-2 gap-3">
+              <div class="surface-ice p-3 rounded-lg">
+                <div class="readout-tiny">Étape 1 — Centaines</div>
+                <div class="num-display text-[15px] text-graphite">300 + 100 = <span class="text-sage font-semibold">400</span></div>
+                <div class="readout text-[11px] text-sage mt-0.5">✓ correct</div>
+              </div>
+              <div class="surface-ice p-3 rounded-lg">
+                <div class="readout-tiny text-warn">Étape 2 — Reste</div>
+                <div class="num-display text-[15px] text-graphite">47 + 85 = <span class="text-warn font-semibold">22</span></div>
+                <div class="readout text-[11px] text-warn mt-0.5">↯ retenue oubliée</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Investigation -->
+          <div class="mt-5 surface-sky p-5 rounded-[14px]">
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-lg bg-cyan-deep text-white flex items-center justify-center shrink-0">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+              </div>
+              <div class="flex-1">
+                <div class="readout text-[11px] font-semibold text-cyan-deep uppercase tracking-wider">Enquête pédagogique</div>
+                <div class="text-graphite text-[15px] mt-2 leading-relaxed">
+                  Quand tu fais <span class="font-mono text-cyan-deep">47 + 85</span>,
+                  tu trouves 22. Je pense que tu as additionné
+                  <span class="font-mono text-cyan-deep">4 + 8 = 12</span>
+                  puis <span class="font-mono text-cyan-deep">7 + 5 = 12</span>
+                  sans garder le <em>10</em> qui passe à la colonne suivante.
+                  On regarde ensemble ?
+                </div>
+                <div class="mt-4 flex gap-2">
+                  <button class="btn-primary">Oui, montre-moi</button>
+                  <button class="btn-secondary">Je réessaie seul</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Prerequisite branch -->
+          <div class="mt-5 surface p-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="readout-tiny">Branche de prérequis</div>
+                <div class="font-display text-[15px] font-semibold text-graphite mt-1">Position de la retenue · P2·A3</div>
+              </div>
+              <button class="btn-ghost">Voir la carte</button>
+            </div>
+            <div class="mt-4 flex items-center gap-2">
+              <div class="flex-1 surface-ice p-3 rounded-lg text-center">
+                <div class="readout-tiny">Prérequis</div>
+                <div class="text-[12.5px] font-semibold text-graphite mt-0.5">Valeur de position</div>
+                <div class="readout text-[11px] text-sage mt-1">✓ 96%</div>
+              </div>
+              <svg width="20" height="14" viewBox="0 0 20 14" fill="none"><path d="M1 7h14m-4-4 4 4-4 4" stroke="#6FB999" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <div class="flex-1 surface-sky p-3 rounded-lg text-center">
+                <div class="readout-tiny text-cyan-deep">Hypothèse</div>
+                <div class="text-[12.5px] font-semibold text-graphite mt-0.5">Retenue des dizaines</div>
+                <div class="readout text-[11px] text-cyan-deep mt-1">? à tester</div>
+              </div>
+              <svg width="20" height="14" viewBox="0 0 20 14" fill="none"><path d="M1 7h14m-4-4 4 4-4 4" stroke="#D5E2DB" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 3"/></svg>
+              <div class="flex-1 node todo text-center py-3">
+                <div class="readout-tiny">Cible</div>
+                <div class="text-[12.5px] font-semibold text-slate mt-0.5">Addition à retenue</div>
+                <div class="readout text-[11px] text-slate mt-1">62%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer actions -->
+          <div class="mt-5 flex items-center justify-between">
+            <div class="readout-tiny">3 hypothèses testées aujourd'hui · 2 validées</div>
+            <div class="flex gap-2">
+              <button class="btn-secondary">Question suivante</button>
+              <button class="btn-primary">Variante guidée
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="readout-tiny mt-2">05 · Correction · tablette</p>
+  </section>
+
+  <!-- 06 — BULLETIN (browser) -->
+  <section id="s-bulletin" class="preview-frame flex flex-col items-start gap-3" data-name="06-bulletin-browser">
+    <div class="browser">
+      <div class="browser-chrome">
+        <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
+        <div class="url">pedagogia.be / carnet / noe / bulletin</div>
+      </div>
+      <div class="browser-screen">
+        <div class="grid grid-cols-[260px_1fr] h-full">
+          <!-- Sidebar -->
+          <aside class="bg-ice border-r border-rule p-6">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-sage text-white flex items-center justify-center num-display font-semibold">N</div>
+              <div>
+                <div class="font-display text-[15px] font-semibold text-graphite">Noé</div>
+                <div class="readout-tiny">P3 · 34 jours actifs</div>
+              </div>
+            </div>
+            <nav class="mt-8 space-y-1 text-[13px]">
+              <a class="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-white text-slate"><span class="w-4 h-4"></span>Accueil</a>
+              <a class="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-white text-slate"><span class="w-4 h-4"></span>Carte</a>
+              <a class="flex items-center gap-2 px-3 py-2 rounded-md bg-white font-semibold text-forest border border-rule"><span class="w-4 h-4"></span>Bulletin</a>
+              <a class="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-white text-slate"><span class="w-4 h-4"></span>Collection</a>
+              <a class="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-white text-slate"><span class="w-4 h-4"></span>Parents</a>
+            </nav>
+            <div class="mt-8 surface p-3 rounded-lg">
+              <div class="readout-tiny">Rang</div>
+              <div class="font-display text-[17px] font-semibold text-graphite mt-1">Apprenti-Chercheur</div>
+              <div class="bar mt-2"><span style="width:74%"></span></div>
+              <div class="readout-tiny mt-2">3 420 / 4 600 XP</div>
+            </div>
+          </aside>
+
+          <!-- Main -->
+          <div class="p-8">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="readout-tiny">Bulletin · 30 derniers jours</div>
+                <h2 class="font-display text-[28px] font-semibold text-graphite mt-1">Ce qui a bougé chez Noé</h2>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="chip">7 j</span>
+                <span class="chip chip-ink">30 j</span>
+                <span class="chip">90 j</span>
+                <button class="btn-secondary">Exporter · PDF</button>
+              </div>
+            </div>
+
+            <!-- KPIs -->
+            <div class="grid grid-cols-4 gap-4 mt-6">
+              <div class="surface p-4">
+                <div class="readout-tiny">Notions solides</div>
+                <div class="flex items-baseline gap-2 mt-1">
+                  <span class="num-display text-3xl font-semibold text-graphite">142</span>
+                  <span class="readout text-[12px] text-sage">+ 11</span>
+                </div>
+                <div class="bar mt-3"><span style="width:76%"></span></div>
+              </div>
+              <div class="surface p-4">
+                <div class="readout-tiny">Série</div>
+                <div class="flex items-baseline gap-2 mt-1">
+                  <span class="num-display text-3xl font-semibold text-graphite">18</span>
+                  <span class="readout text-[12px] text-slate">jours</span>
+                </div>
+                <div class="bar bar-sky mt-3"><span style="width:60%"></span></div>
+              </div>
+              <div class="surface p-4">
+                <div class="readout-tiny">Temps / séance</div>
+                <div class="flex items-baseline gap-2 mt-1">
+                  <span class="num-display text-3xl font-semibold text-graphite">22</span>
+                  <span class="readout text-[12px] text-slate">min · méd.</span>
+                </div>
+                <div class="bar mt-3"><span style="width:48%"></span></div>
+              </div>
+              <div class="surface p-4">
+                <div class="readout-tiny">Précision</div>
+                <div class="flex items-baseline gap-2 mt-1">
+                  <span class="num-display text-3xl font-semibold text-graphite">84</span>
+                  <span class="readout text-[12px] text-sage">% · + 3</span>
+                </div>
+                <div class="bar mt-3"><span style="width:84%"></span></div>
+              </div>
+            </div>
+
+            <!-- Chart + focus -->
+            <div class="grid grid-cols-[2fr_1fr] gap-4 mt-5">
+              <div class="surface p-5">
+                <div class="flex items-center justify-between">
+                  <div class="readout-tiny">Acquisition par jour · 30 j</div>
+                  <div class="flex gap-2">
+                    <span class="chip chip-mint"><span class="w-1.5 h-1.5 rounded-full bg-sage"></span>Solide</span>
+                    <span class="chip chip-sky"><span class="w-1.5 h-1.5 rounded-full bg-cyan-deep"></span>En cours</span>
+                  </div>
+                </div>
+                <svg viewBox="0 0 600 160" class="w-full h-40 mt-3">
+                  <defs>
+                    <pattern id="grid1" width="30" height="20" patternUnits="userSpaceOnUse">
+                      <path d="M 30 0 L 0 0 0 20" fill="none" stroke="#D5E2DB" stroke-width="0.5"/>
+                    </pattern>
+                  </defs>
+                  <rect width="600" height="160" fill="url(#grid1)"/>
+                  <path d="M 0 130 L 20 120 L 40 125 L 60 110 L 80 105 L 100 95 L 120 100 L 140 85 L 160 80 L 180 78 L 200 72 L 220 68 L 240 60 L 260 65 L 280 55 L 300 50 L 320 46 L 340 42 L 360 48 L 380 38 L 400 32 L 420 28 L 440 30 L 460 22 L 480 18 L 500 22 L 520 16 L 540 12 L 560 14 L 580 8 L 600 6"
+                        fill="none" stroke="#3F8C6D" stroke-width="2.5" stroke-linejoin="round"/>
+                  <path d="M 0 130 L 20 120 L 40 125 L 60 110 L 80 105 L 100 95 L 120 100 L 140 85 L 160 80 L 180 78 L 200 72 L 220 68 L 240 60 L 260 65 L 280 55 L 300 50 L 320 46 L 340 42 L 360 48 L 380 38 L 400 32 L 420 28 L 440 30 L 460 22 L 480 18 L 500 22 L 520 16 L 540 12 L 560 14 L 580 8 L 600 6 L 600 160 L 0 160 Z"
+                        fill="#D5EEE0" opacity="0.6"/>
+                  <path d="M 0 140 L 40 138 L 80 125 L 120 128 L 160 118 L 200 115 L 240 105 L 280 108 L 320 98 L 360 95 L 400 90 L 440 92 L 480 82 L 520 78 L 560 80 L 600 72"
+                        fill="none" stroke="#4BA6C2" stroke-width="1.8" stroke-dasharray="4 3"/>
+                  <circle cx="600" cy="6" r="4" fill="#2B6B52"/>
+                  <circle cx="600" cy="72" r="3" fill="#2E7D99"/>
+                </svg>
+                <div class="flex justify-between readout text-[10.5px] text-slate mt-1 uppercase tracking-wider">
+                  <span>17 mars</span><span>25 mars</span><span>02 avr</span><span>09 avr</span><span>15 avr</span>
+                </div>
+              </div>
+              <div class="surface p-5">
+                <div class="readout-tiny">Focus de la semaine</div>
+                <div class="font-display text-[17px] font-semibold text-graphite mt-1">P3·A2 · Addition à retenue</div>
+                <div class="flex items-center gap-4 mt-4">
+                  <div class="gauge-ring" style="--p:62; width:72px; height:72px"><span>62%</span></div>
+                  <div class="text-[12.5px] text-slate leading-relaxed">
+                    Noé progresse : <span class="font-semibold text-sage">+ 14 pts</span> en 7 j.
+                    Objectif 85 % pour débloquer <span class="font-mono text-graphite">P3·A3</span>.
+                  </div>
+                </div>
+                <div class="mt-4 space-y-1.5">
+                  <div class="flex items-center gap-2 text-[12px]"><span class="w-4 h-4 rounded-full bg-mint-soft flex items-center justify-center"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#2B6B52" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span>Unités · acquis</span></div>
+                  <div class="flex items-center gap-2 text-[12px]"><span class="w-4 h-4 rounded-full bg-sky flex items-center justify-center"><span class="w-1 h-1 rounded-full bg-cyan-deep"></span></span><span>Dizaines · en cours</span></div>
+                  <div class="flex items-center gap-2 text-[12px] text-slate"><span class="w-4 h-4 rounded-full border border-rule"></span><span>Centaines · à venir</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent sessions -->
+            <div class="surface mt-5">
+              <div class="px-5 py-3 border-b border-rule flex items-center justify-between">
+                <div class="readout-tiny">Journal des séances</div>
+                <span class="chip chip-ghost">7 dernières</span>
+              </div>
+              <table class="w-full text-[12.5px]">
+                <thead class="readout text-[10.5px] text-slate uppercase tracking-wider">
+                  <tr class="border-b border-rule">
+                    <th class="text-left px-5 py-2.5 font-medium">Date</th>
+                    <th class="text-left px-5 py-2.5 font-medium">Mode</th>
+                    <th class="text-left px-5 py-2.5 font-medium">Notion</th>
+                    <th class="text-right px-5 py-2.5 font-medium">Exos</th>
+                    <th class="text-right px-5 py-2.5 font-medium">Précision</th>
+                    <th class="text-right px-5 py-2.5 font-medium">XP</th>
+                  </tr>
+                </thead>
+                <tbody class="text-graphite">
+                  <tr class="border-b border-rule/60"><td class="px-5 py-2.5 readout text-[11px] text-slate">16.04 · 14:32</td><td class="px-5 py-2.5">Drill</td><td class="px-5 py-2.5">P3·A2 · Addition à retenue</td><td class="px-5 py-2.5 text-right num-display">10</td><td class="px-5 py-2.5 text-right num-display text-sage font-semibold">80%</td><td class="px-5 py-2.5 text-right num-display">+ 120</td></tr>
+                  <tr class="border-b border-rule/60"><td class="px-5 py-2.5 readout text-[11px] text-slate">15.04 · 17:42</td><td class="px-5 py-2.5">Libre</td><td class="px-5 py-2.5">P2·A3 · Soustraction</td><td class="px-5 py-2.5 text-right num-display">8</td><td class="px-5 py-2.5 text-right num-display text-sage font-semibold">100%</td><td class="px-5 py-2.5 text-right num-display">+ 96</td></tr>
+                  <tr class="border-b border-rule/60"><td class="px-5 py-2.5 readout text-[11px] text-slate">14.04 · 18:05</td><td class="px-5 py-2.5">Drill</td><td class="px-5 py-2.5">P3·A2 · Addition à retenue</td><td class="px-5 py-2.5 text-right num-display">12</td><td class="px-5 py-2.5 text-right num-display text-warn font-semibold">58%</td><td class="px-5 py-2.5 text-right num-display">+ 72</td></tr>
+                  <tr class="border-b border-rule/60"><td class="px-5 py-2.5 readout text-[11px] text-slate">13.04 · 17:20</td><td class="px-5 py-2.5">Diagnostic</td><td class="px-5 py-2.5">Champ 3 · mise à jour</td><td class="px-5 py-2.5 text-right num-display">15</td><td class="px-5 py-2.5 text-right num-display text-sage font-semibold">87%</td><td class="px-5 py-2.5 text-right num-display">+ 180</td></tr>
+                  <tr><td class="px-5 py-2.5 readout text-[11px] text-slate">12.04 · 16:40</td><td class="px-5 py-2.5">Libre</td><td class="px-5 py-2.5">P2·A1 · Addition 2 chiffres</td><td class="px-5 py-2.5 text-right num-display">10</td><td class="px-5 py-2.5 text-right num-display text-sage font-semibold">92%</td><td class="px-5 py-2.5 text-right num-display">+ 110</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="readout-tiny mt-2">06 · Bulletin · navigateur</p>
+  </section>
+
+  <!-- 07 — CÉLÉBRATION (tablet) -->
+  <section id="s-celebration" class="preview-frame flex flex-col items-start gap-3" data-name="07-celebration-tablet">
+    <div class="tablet">
+      <div class="tablet-screen wash-mint relative overflow-hidden">
+        <!-- Confetti (mint only, subtle) -->
+        <div class="absolute inset-0 pointer-events-none">
+          <span class="confetti-cell" style="top:12%;left:8%;background:#6FB999;transform:rotate(24deg)"></span>
+          <span class="confetti-cell" style="top:18%;left:78%;background:#4BA6C2;transform:rotate(-18deg)"></span>
+          <span class="confetti-cell" style="top:28%;left:22%;background:#B7E4CE;transform:rotate(42deg);width:14px"></span>
+          <span class="confetti-cell" style="top:36%;left:62%;background:#2B6B52;transform:rotate(-8deg)"></span>
+          <span class="confetti-cell" style="top:44%;left:14%;background:#A8D3E0;transform:rotate(28deg);width:12px"></span>
+          <span class="confetti-cell" style="top:56%;left:82%;background:#6FB999;transform:rotate(-36deg)"></span>
+          <span class="confetti-cell" style="top:66%;left:28%;background:#4BA6C2;transform:rotate(12deg);width:10px"></span>
+          <span class="confetti-cell" style="top:74%;left:68%;background:#B7E4CE;transform:rotate(-22deg)"></span>
+          <span class="confetti-cell" style="top:82%;left:18%;background:#2E7D99;transform:rotate(8deg)"></span>
+          <span class="confetti-cell" style="top:88%;left:74%;background:#6FB999;transform:rotate(-44deg);width:14px"></span>
+        </div>
+
+        <!-- Top meta -->
+        <div class="flex items-center justify-between px-8 pt-8 relative z-10">
+          <div class="readout-tiny">Observation · 16.04.26 · 14:52</div>
+          <button class="btn-ghost">Passer</button>
+        </div>
+
+        <div class="px-8 pt-16 text-center relative z-10">
+          <div class="chip chip-ink mx-auto">PALIER ATTEINT</div>
+
+          <!-- Medal / badge -->
+          <div class="mt-8 mx-auto w-48 h-48 relative">
+            <div class="absolute inset-0 rounded-full bg-mint-soft border border-mint-deep/40"></div>
+            <div class="absolute inset-4 rounded-full bg-white border border-rule flex items-center justify-center">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#2B6B52" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 3h12l-3 9H9L6 3z"/>
+                <circle cx="12" cy="17" r="4"/>
+                <path d="M9 3 6 9" opacity=".5"/>
+                <path d="M15 3l3 6" opacity=".5"/>
+                <path d="M12 15v4" opacity=".3"/>
+              </svg>
+            </div>
+            <!-- Radial ticks -->
+            <svg class="absolute inset-0" viewBox="0 0 200 200">
+              <g stroke="#6FB999" stroke-width="1.2" stroke-linecap="round">
+                <line x1="100" y1="4" x2="100" y2="14"/>
+                <line x1="100" y1="186" x2="100" y2="196"/>
+                <line x1="4" y1="100" x2="14" y2="100"/>
+                <line x1="186" y1="100" x2="196" y2="100"/>
+                <line x1="32" y1="32" x2="40" y2="40"/>
+                <line x1="168" y1="32" x2="160" y2="40"/>
+                <line x1="32" y1="168" x2="40" y2="160"/>
+                <line x1="168" y1="168" x2="160" y2="160"/>
+              </g>
+            </svg>
+          </div>
+
+          <div class="readout text-[12px] font-semibold text-sage uppercase tracking-widest mt-8">Nouveau rang</div>
+          <h1 class="font-display text-[52px] font-semibold text-graphite leading-tight mt-2">Chercheur</h1>
+          <p class="text-slate text-[15px] max-w-sm mx-auto mt-3 leading-relaxed">
+            Tu es passé d'<em class="text-forest">Apprenti-Chercheur</em> à <em class="text-forest">Chercheur</em>.
+            Dix notions stabilisées cette semaine, dont la plus difficile.
+          </p>
+
+          <!-- Stats readout -->
+          <div class="grid grid-cols-3 gap-4 max-w-lg mx-auto mt-10">
+            <div class="surface p-4">
+              <div class="readout-tiny">XP gagnée</div>
+              <div class="num-display text-2xl font-semibold text-graphite mt-1">+ 420</div>
+            </div>
+            <div class="surface p-4">
+              <div class="readout-tiny">Notions</div>
+              <div class="num-display text-2xl font-semibold text-graphite mt-1">+ 10</div>
+            </div>
+            <div class="surface p-4">
+              <div class="readout-tiny">Série</div>
+              <div class="num-display text-2xl font-semibold text-graphite mt-1">18 j</div>
+            </div>
+          </div>
+
+          <!-- Badge unlocked -->
+          <div class="surface-sky mt-6 mx-auto max-w-lg p-4 rounded-[14px] flex items-center gap-4 text-left">
+            <div class="w-12 h-12 rounded-xl bg-white border border-rule flex items-center justify-center shrink-0">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2E7D99" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 15 9l7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+            </div>
+            <div>
+              <div class="readout text-[10.5px] font-semibold text-cyan-deep uppercase tracking-widest">Vignette débloquée</div>
+              <div class="font-display text-[16px] font-semibold text-graphite mt-0.5">Retenue maîtrisée · niveau bronze</div>
+              <div class="text-slate text-[12.5px] mt-0.5">Trouvée en résolvant 10 additions à retenue d'affilée.</div>
+            </div>
+          </div>
+
+          <div class="mt-8 flex justify-center gap-3">
+            <button class="btn-secondary">Voir la collection</button>
+            <button class="btn-primary">Continuer
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="readout-tiny mt-2">07 · Célébration · tablette</p>
+  </section>
+
+</main>
+
+<!-- ========== TOKENS ========== -->
+<section id="tokens" class="max-w-7xl mx-auto px-6 pb-20">
+  <div class="flex items-end justify-between border-b border-rule pb-4">
+    <div>
+      <p class="readout-tiny">Jetons de design · LABO · v1</p>
+      <h2 class="font-display text-3xl font-semibold text-graphite mt-1">Ce qui fait <em class="text-sage not-italic">Le Laboratoire</em></h2>
+    </div>
+    <span class="chip chip-ghost">Tailwind · Inter · JetBrains Mono</span>
+  </div>
+
+  <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Palette -->
+    <div class="surface p-5">
+      <h3 class="font-display font-semibold text-graphite text-lg">Palette</h3>
+      <p class="readout-tiny mt-1">AA vérifié · texte graphite sur paper 13.4:1</p>
+      <div class="mt-4 grid grid-cols-2 gap-2 text-[11px]">
+        <div class="rounded-md overflow-hidden border border-rule"><div class="h-12" style="background:#FAFCFB"></div><div class="p-2 readout"><div class="font-semibold text-graphite">Paper</div><div class="text-slate">#FAFCFB</div></div></div>
+        <div class="rounded-md overflow-hidden border border-rule"><div class="h-12" style="background:#EEF6F1"></div><div class="p-2 readout"><div class="font-semibold text-graphite">Ice</div><div class="text-slate">#EEF6F1</div></div></div>
+        <div class="rounded-md overflow-hidden border border-rule"><div class="h-12" style="background:#B7E4CE"></div><div class="p-2 readout"><div class="font-semibold text-graphite">Mint</div><div class="text-slate">#B7E4CE</div></div></div>
+        <div class="rounded-md overflow-hidden border border-rule"><div class="h-12" style="background:#3F8C6D"></div><div class="p-2 readout"><div class="font-semibold text-graphite">Sage</div><div class="text-slate">#3F8C6D</div></div></div>
+        <div class="rounded-md overflow-hidden border border-rule"><div class="h-12" style="background:#2B6B52"></div><div class="p-2 readout"><div class="font-semibold text-graphite">Forest</div><div class="text-slate">#2B6B52</div></div></div>
+        <div class="rounded-md overflow-hidden border border-rule"><div class="h-12" style="background:#DCEEF4"></div><div class="p-2 readout"><div class="font-semibold text-graphite">Sky</div><div class="text-slate">#DCEEF4</div></div></div>
+        <div class="rounded-md overflow-hidden border border-rule"><div class="h-12" style="background:#4BA6C2"></div><div class="p-2 readout"><div class="font-semibold text-graphite">Cyan</div><div class="text-slate">#4BA6C2</div></div></div>
+        <div class="rounded-md overflow-hidden border border-rule"><div class="h-12" style="background:#1B2320"></div><div class="p-2 readout"><div class="font-semibold text-graphite">Graphite</div><div class="text-slate">#1B2320</div></div></div>
+      </div>
+      <div class="mt-4 readout-tiny">Accent d'alerte · <span class="font-semibold text-warn">Warn · #C46A3C</span> · réservé aux écarts détectés</div>
+    </div>
+
+    <!-- Typography -->
+    <div class="surface p-5">
+      <h3 class="font-display font-semibold text-graphite text-lg">Typographie</h3>
+      <p class="readout-tiny mt-1">Sans pour tout · mono pour les chiffres et les étiquettes</p>
+      <div class="mt-4 space-y-4">
+        <div>
+          <div class="readout-tiny">Inter Tight · display / titres</div>
+          <div class="font-display text-3xl font-semibold text-graphite mt-1 tracking-tight">Comprendre les maths</div>
+          <div class="font-display text-sm text-slate mt-0.5">H1 58 · H2 28 · H3 17 · tracking -1</div>
+        </div>
+        <div>
+          <div class="readout-tiny">Inter · corps</div>
+          <div class="text-[15px] text-graphite mt-1 leading-relaxed">Une paillasse propre, une loupe, des notes précises.</div>
+          <div class="text-[12px] text-slate mt-0.5">Body 15/24 · UI 13/18 · caption 11.5</div>
+        </div>
+        <div>
+          <div class="readout-tiny">JetBrains Mono · readout</div>
+          <div class="readout text-[13px] text-sage mt-1 font-semibold">P3·A2 · 62% · +14pts · 18 JOURS</div>
+          <div class="text-[12px] text-slate mt-0.5">Uppercase · tracking .04em · chiffres tabulaires</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Principes -->
+    <div class="surface p-5">
+      <h3 class="font-display font-semibold text-graphite text-lg">Principes</h3>
+      <ol class="mt-4 space-y-2 text-[13.5px] text-graphite">
+        <li class="flex gap-3"><span class="readout text-[11px] text-sage font-semibold mt-0.5">01</span>Le blanc est une structure, pas un reste. On respire autour de chaque donnée.</li>
+        <li class="flex gap-3"><span class="readout text-[11px] text-sage font-semibold mt-0.5">02</span>Chiffres en mono, prose en Inter. L'œil distingue le fait du commentaire.</li>
+        <li class="flex gap-3"><span class="readout text-[11px] text-sage font-semibold mt-0.5">03</span>Une erreur est une <em>hypothèse à tester</em>. Jamais rouge vif, jamais de ✗.</li>
+        <li class="flex gap-3"><span class="readout text-[11px] text-sage font-semibold mt-0.5">04</span>Vert tendre pour la progression, bleu ciel pour l'investigation, graphite pour l'ancrage.</li>
+        <li class="flex gap-3"><span class="readout text-[11px] text-sage font-semibold mt-0.5">05</span>Filets 1 px. Rayons 10–14 px. Ombres portées très longues, très douces.</li>
+        <li class="flex gap-3"><span class="readout text-[11px] text-sage font-semibold mt-0.5">06</span>Microcopies datées : <span class="readout text-[11px] text-slate">16.04 · 14:32</span>. Le carnet garde tout.</li>
+        <li class="flex gap-3"><span class="readout text-[11px] text-sage font-semibold mt-0.5">07</span>Animations courtes (150–250 ms) · respectent <span class="font-mono">prefers-reduced-motion</span>.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Anti-patterns -->
+  <div class="mt-8 p-5 rounded-xl border border-dashed border-warn/50 bg-warn/5">
+    <h3 class="font-display font-semibold text-warn uppercase tracking-widest text-[11px]">À éviter</h3>
+    <ul class="mt-3 text-[13px] text-graphite grid grid-cols-1 md:grid-cols-2 gap-y-1.5 gap-x-8">
+      <li>· Dégradés arc-en-ciel, néons, surfaces « glass » brillantes</li>
+      <li>· Rouge vif pour les erreurs (utiliser Warn · terracotta doux)</li>
+      <li>· Emojis en UI (chips, boutons, headers) — SVG Heroicons uniquement</li>
+      <li>· Mascottes animées, personnages cartoon, Lumi</li>
+      <li>· Serifs décoratifs — l'identité est sans et mono</li>
+      <li>· Plus de 3 accents simultanés dans un même bloc</li>
+      <li>· Typographie non tabulaire pour les chiffres</li>
+      <li>· Cases pleines sans filet 1 px · pas d'ombres colorées</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="max-w-7xl mx-auto px-6 pb-16 text-center">
+  <div class="readout-tiny">LE LABORATOIRE · PROTOCOLE V1 · 2026.04 · TAILWIND + INTER + JETBRAINS MONO</div>
+</footer>
+
+</body>
+</html>

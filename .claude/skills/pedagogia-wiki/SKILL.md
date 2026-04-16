@@ -1,16 +1,16 @@
 ---
 name: pedagogia-wiki
-description: Interact with the PedagogIA LLM-maintained knowledge base at `vault/vault/pedagogia/`. Use this skill whenever the user says "ingest this", "add to the wiki", "add to the knowledge base", "file this", "check the wiki", "lint the wiki", "what does the wiki say about X", or drops a file into `vault/vault/pedagogia/raw/`. Also use it — even without explicit wiki vocabulary — whenever the user asks a question whose answer likely lives in accumulated project knowledge rather than the codebase: FWB curriculum / *Référentiel de Mathématiques*, didactique pedagogy, spaced repetition, mastery learning, Socratic method, skill tree / DAG rationale, JARDIN design philosophy, product/UX decisions, user research, competitor notes, team decisions, external articles or papers about adaptive learning. The wiki is the *why / what-if* layer; the repo's code is the *how*. Skipping this skill when a wiki page exists means re-deriving knowledge the user has already curated.
+description: Interact with the PedagogIA LLM-maintained knowledge base at `vault/`. Use this skill whenever the user says "ingest this", "add to the wiki", "add to the knowledge base", "file this", "check the wiki", "lint the wiki", "what does the wiki say about X", or drops a file into `vault/raw/`. Also use it — even without explicit wiki vocabulary — whenever the user asks a question whose answer likely lives in accumulated project knowledge rather than the codebase: FWB curriculum / *Référentiel de Mathématiques*, didactique pedagogy, spaced repetition, mastery learning, Socratic method, skill tree / DAG rationale, JARDIN design philosophy, product/UX decisions, user research, competitor notes, team decisions, external articles or papers about adaptive learning. The wiki is the *why / what-if* layer; the repo's code is the *how*. Skipping this skill when a wiki page exists means re-deriving knowledge the user has already curated.
 ---
 
 # PedagogIA Wiki
 
 An LLM-maintained, human-curated knowledge base for the PedagogIA project. The human drops sources into `raw/`; you summarize, cross-reference, and file them into `wiki/`. Over time the wiki becomes a compounding synthesis of everything that informs the project.
 
-Location: `vault/vault/pedagogia/` (inside the Obsidian vault checked into the repo).
+Location: `vault/` (inside the Obsidian vault checked into the repo).
 
 ```
-vault/vault/pedagogia/
+vault/
 ├── CLAUDE.md          # schema & workflows — the authoritative reference
 ├── README.md          # human quick reference
 ├── raw/               # immutable source documents (never edit)
@@ -27,9 +27,9 @@ vault/vault/pedagogia/
 
 ## First thing, always
 
-**Read `vault/vault/pedagogia/CLAUDE.md` in full** at the start of any wiki interaction. It defines the page conventions, YAML frontmatter, linking style, log/index formats, and is the source of truth for all workflows. The rest of this skill is a shortcut — that file is the spec.
+**Read `vault/CLAUDE.md` in full** at the start of any wiki interaction. It defines the page conventions, YAML frontmatter, linking style, log/index formats, and is the source of truth for all workflows. The rest of this skill is a shortcut — that file is the spec.
 
-Then skim `vault/vault/pedagogia/wiki/index.md` to see what's already in the wiki. This avoids creating duplicate entity/concept pages.
+Then skim `vault/wiki/index.md` to see what's already in the wiki. This avoids creating duplicate entity/concept pages.
 
 ## Three workflows
 
@@ -81,7 +81,7 @@ Every wiki page starts with YAML frontmatter (`title`, `type`, `created`, `updat
 
 Don't editorialize in source summaries — save opinion and synthesis for `overview.md` and `questions/`. When uncertain, mark with `?` or a `> Unresolved:` callout rather than guessing.
 
-The full spec (frontmatter fields, page body shapes, exact log header, index format) lives in `vault/vault/pedagogia/CLAUDE.md`. Read it.
+The full spec (frontmatter fields, page body shapes, exact log header, index format) lives in `vault/CLAUDE.md`. Read it.
 
 ## Domain-question mode (no explicit wiki verb)
 

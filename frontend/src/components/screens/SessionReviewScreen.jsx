@@ -5,7 +5,7 @@ import Card from "../ui/Card"
 import Chip from "../ui/Chip"
 import { Heading, LatinLabel } from "../ui/Heading"
 import { useAuthStore } from "../../stores/authStore"
-import { downloadSessionExport, fetchSession, fetchSessionAttempts } from "../../api/sessions"
+import { fetchSession, fetchSessionAttempts } from "../../api/sessions"
 import { downloadDiagnosticPdf } from "../../api/history"
 
 const MODE_LABELS = {
@@ -228,16 +228,6 @@ export default function SessionReviewScreen() {
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={() => downloadSessionExport(session.id)}
-              className="p-2 rounded-md text-stem hover:text-bark hover:bg-sage-leaf/40 transition-colors cursor-pointer"
-              title="Exporter la session (JSON)"
-              aria-label="Exporter la session"
-              data-testid="session-review-export"
-            >
-              <Icon name="download" size={18} />
-            </button>
             {session.mode === "diagnostic" && (
               <button
                 type="button"
@@ -247,7 +237,7 @@ export default function SessionReviewScreen() {
                 aria-label="Exporter le diagnostic PDF"
                 data-testid="session-review-diagnostic-pdf"
               >
-                <Icon name="description" size={18} />
+                <Icon name="download" size={18} />
               </button>
             )}
             {totals && (

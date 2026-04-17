@@ -37,6 +37,8 @@ Then skim `vault/wiki/index.md` to see what's already in the wiki. This avoids c
 
 Trigger phrases: *"ingest this"*, *"add to the wiki"*, *"add to the knowledge base"*, *"file this"*, *"process this source"*, or the user simply dropping a file into `raw/` and asking you to look at it.
 
+`vault/raw/` is **gitignored and potentially heavy** (PDFs, image dumps, long transcripts). Don't enumerate or grep it to browse — only read the specific file the user points at. If you don't know the filename, ask the user instead of listing the directory.
+
 Before writing anything, read the source fully and **discuss takeaways in chat**. The user is interactive and wants to steer emphasis before pages are committed. Filing in silence is a failure mode — the synthesis is where the human adds value.
 
 Then the standard ingest sequence (detail in the wiki's `CLAUDE.md`):

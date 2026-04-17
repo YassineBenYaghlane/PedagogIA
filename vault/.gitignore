@@ -2,3 +2,9 @@
 .obsidian/workspace-mobile.json
 .obsidian/workspaces.json
 .obsidian/cache
+
+raw/*
+!raw/.gitkeep
+!raw/assets/
+raw/assets/*
+!raw/assets/.gitkeep

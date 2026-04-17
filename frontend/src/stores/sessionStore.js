@@ -21,6 +21,8 @@ export const useSessionStore = create((set, get) => ({
   ...INITIAL,
 
   start: async (studentId, lockedSkillId = null) => {
+    const { sessionId, loading } = get()
+    if (sessionId || loading) return
     set({ ...INITIAL, loading: true, lockedSkillId })
     try {
       const session = await exercisesApi.createSession(studentId)

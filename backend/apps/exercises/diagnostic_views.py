@@ -6,10 +6,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from apps.sessions.models import Session
+from apps.skills.models import Skill
 from apps.students.models import Student
 
 from .diagnostic import (
-    DIAGNOSTIC_LENGTH,
+    DIAGNOSTIC_MAX_LENGTH,
     build_result,
     get_exercise_for_slot,
     select_next_slot,
@@ -29,17 +30,21 @@ def _get_session(request, session_id: str) -> Session:
 
 def _build_question(session: Session) -> dict | None:
     attempts = list(
-        Attempt.objects.filter(session=session).select_related("skill").order_by("responded_at")
+        Attempt.objects.filter(session=session)
+        .select_related("skill", "template")
+        .order_by("responded_at")
     )
     slot = select_next_slot(session.student, attempts)
     if slot is None:
         return None
     exercise = get_exercise_for_slot(slot)
+    skill_grade = Skill.objects.filter(id=slot.skill_id).values_list("grade", flat=True).first()
     return {
         "index": len(attempts),
-        "total": DIAGNOSTIC_LENGTH,
-        "skill": {"id": slot.skill_id},
+        "total": DIAGNOSTIC_MAX_LENGTH,
+        "skill": {"id": slot.skill_id, "grade": skill_grade},
         "difficulty": slot.difficulty,
+        "cursor": {"grade": skill_grade, "difficulty": slot.difficulty},
         "exercise": GeneratedExerciseSerializer(exercise).data,
     }
 
@@ -57,7 +62,7 @@ def start(request):
         {
             "session_id": str(session.id),
             "student_id": str(student.id),
-            "length": DIAGNOSTIC_LENGTH,
+            "length": DIAGNOSTIC_MAX_LENGTH,
             "question": question,
         },
         status=201,

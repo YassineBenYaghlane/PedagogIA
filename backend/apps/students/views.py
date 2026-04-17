@@ -1,8 +1,12 @@
+import json
+
+from django.http import HttpResponse
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from apps.common.permissions import IsOwner
+from apps.sessions.exports import build_full_json, build_pdf
 from apps.skills.models import Skill
 
 from .models import Student, StudentSkillState
@@ -45,3 +49,22 @@ class StudentViewSet(ModelViewSet):
                 }
             )
         return Response(payload)
+
+    @action(detail=True, methods=["get"], url_path="export.json")
+    def export_json(self, request, pk=None):
+        student = self.get_object()
+        data = build_full_json(student)
+        body = json.dumps(data, ensure_ascii=False, indent=2).encode("utf-8")
+        filename = f"pedagogia-{student.display_name}.json"
+        resp = HttpResponse(body, content_type="application/json; charset=utf-8")
+        resp["Content-Disposition"] = f'attachment; filename="{filename}"'
+        return resp
+
+    @action(detail=True, methods=["get"], url_path="export.pdf")
+    def export_pdf(self, request, pk=None):
+        student = self.get_object()
+        body = build_pdf(student)
+        filename = f"pedagogia-{student.display_name}.pdf"
+        resp = HttpResponse(body, content_type="application/pdf")
+        resp["Content-Disposition"] = f'attachment; filename="{filename}"'
+        return resp

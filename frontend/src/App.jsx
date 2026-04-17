@@ -12,6 +12,8 @@ import DiagnosticScreen from "./components/screens/DiagnosticScreen"
 import DrillScreen from "./components/screens/DrillScreen"
 import ProfileScreen from "./components/screens/ProfileScreen"
 import DebugInputsScreen from "./components/screens/DebugInputsScreen"
+import HistoryScreen from "./components/screens/HistoryScreen"
+import DiagnosticReviewScreen from "./components/screens/DiagnosticReviewScreen"
 import BadgeToast from "./components/badges/BadgeToast"
 import "./App.css"
 
@@ -48,6 +50,8 @@ export default function App() {
         <Route path="/drill" element={<RequireAuth><DrillScreen /></RequireAuth>} />
         <Route path="/skill-tree" element={<RequireAuth><SkillTreeScreen /></RequireAuth>} />
         <Route path="/profile" element={<RequireAuth><ProfileScreen /></RequireAuth>} />
+        <Route path="/history" element={<RequireAuth><HistoryScreen /></RequireAuth>} />
+        <Route path="/history/diagnostic/:sessionId" element={<RequireAuth><DiagnosticReviewScreen /></RequireAuth>} />
         <Route path="/debug/inputs" element={<RequireAuth><DebugInputsScreen /></RequireAuth>} />
       </Routes>
     </>

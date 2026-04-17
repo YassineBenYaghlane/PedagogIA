@@ -1,7 +1,7 @@
 import Icon from "../ui/Icon"
 
 const DIGITS = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
-const MAX_LEN = 8
+const MAX_LEN = 12
 
 export default function NumberPad({ value, onChange, onSubmit, disabled }) {
   const press = (k) => {

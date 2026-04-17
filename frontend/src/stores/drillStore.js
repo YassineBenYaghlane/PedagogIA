@@ -17,6 +17,8 @@ export const useDrillStore = create((set, get) => ({
   error: null,
 
   start: async (studentId) => {
+    const { sessionId, loading } = get()
+    if (sessionId || loading) return
     set({
       loading: true,
       error: null,

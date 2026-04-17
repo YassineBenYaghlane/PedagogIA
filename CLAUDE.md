@@ -33,6 +33,10 @@ npm run test:e2e:ui     # Playwright UI runner
 
 API docs: `/api/docs/` (drf-spectacular Swagger). Health: `/api/health/`.
 
+## Production
+
+Live at `https://collegia.be` (Hetzner cx23, `nbg1`). Two-image split (`pedagogia-backend` + `pedagogia-frontend`) built in CI and pushed to GHCR; server pulls `:latest` and restarts via SSH on every push to `main`. Caddy owns TLS + SPA + reverse proxy. Full map in [`docs/architecture.md`](docs/architecture.md); server bootstrap in [`prod/bootstrap.md`](prod/bootstrap.md).
+
 ## Architecture
 
 ### Backend — Django 5 + DRF + Claude API
@@ -158,4 +162,4 @@ Metaphor: a calm botanical greenhouse. Each skill is a plant, each session a car
 
 ## Open work (high-level)
 
-Open issues focus on UX/gamification (XP & ranks, badges, streaks, knowledge map, age-adaptive UI), data export & session history, PWA/offline support, and production deployment (VPS + HTTPS). Check `gh issue list` for the current state.
+Open issues focus on UX/gamification (XP & ranks, badges, streaks, knowledge map, age-adaptive UI), data export & session history, and PWA/offline support. Production is live; follow-ups tracked as infra issues. Check `gh issue list` for the current state.

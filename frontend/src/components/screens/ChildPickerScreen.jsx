@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate } from "react-router"
+import { Link, useNavigate } from "react-router"
 import { useAuthStore } from "../../stores/authStore"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
@@ -55,13 +55,22 @@ export default function ChildPickerScreen() {
             </Heading>
             <p className="text-stem mt-3">Choisis le carnet de ton jardin.</p>
           </div>
-          <button
-            onClick={logout}
-            data-testid="logout"
-            className="text-stem hover:text-bark text-sm cursor-pointer"
-          >
-            Se déconnecter
-          </button>
+          <div className="flex flex-col items-end gap-2">
+            <Link
+              to="/dashboard"
+              data-testid="go-parent-dashboard"
+              className="text-stem hover:text-bark text-sm"
+            >
+              Espace parent →
+            </Link>
+            <button
+              onClick={logout}
+              data-testid="logout"
+              className="text-stem hover:text-bark text-sm cursor-pointer"
+            >
+              Se déconnecter
+            </button>
+          </div>
         </header>
 
         <section

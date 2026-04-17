@@ -16,8 +16,9 @@ import {
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import Icon from "../../ui/Icon"
+import Button from "../../ui/Button"
 
-function Card({ id, label }) {
+function DragCard({ id, label }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id })
   const style = {
@@ -31,7 +32,7 @@ function Card({ id, label }) {
       style={style}
       {...attributes}
       {...listeners}
-      className="px-5 py-4 rounded-xl bg-surface-container-low border border-outline-variant font-headline text-2xl font-bold text-on-surface shadow-ambient cursor-grab active:cursor-grabbing touch-none select-none"
+      className="specimen px-5 py-4 bg-bone hover:bg-mist text-bark font-mono text-2xl font-semibold tabular-nums cursor-grab active:cursor-grabbing touch-none select-none"
     >
       {label}
     </div>
@@ -63,19 +64,19 @@ export default function DragOrderInput({ exercise, disabled, onSubmit }) {
         <SortableContext items={items} strategy={horizontalListSortingStrategy}>
           <div className="flex flex-wrap gap-3 justify-center">
             {items.map((it) => (
-              <Card key={it} id={it} label={it} />
+              <DragCard key={it} id={it} label={it} />
             ))}
           </div>
         </SortableContext>
       </DndContext>
-      <button
-        type="button"
+      <Button
+        size="lg"
         disabled={disabled}
         onClick={() => onSubmit(JSON.stringify(items))}
-        className="gradient-soul text-on-primary font-headline font-bold text-xl w-full mt-5 py-4 rounded-xl shadow-[0_12px_24px_rgba(0,89,182,0.3)] spring-hover cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
+        className="w-full mt-5"
       >
         Valider <Icon name="check" />
-      </button>
+      </Button>
     </div>
   )
 }

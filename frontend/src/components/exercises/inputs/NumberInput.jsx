@@ -42,11 +42,11 @@ export default function NumberInput({ disabled, onSubmit }) {
   return (
     <div className="mt-4" data-testid="number-input">
       <div
-        className="w-full text-center font-headline text-5xl font-extrabold p-4 rounded-xl bg-surface-container-low text-on-surface min-h-[5rem] flex items-center justify-center tabular-nums"
+        className="w-full text-center font-mono text-5xl font-semibold p-4 rounded-xl bg-paper text-bark border-2 border-sage/30 min-h-[5rem] flex items-center justify-center tabular-nums"
         aria-live="polite"
         data-testid="exercise-input"
       >
-        {value || <span className="text-outline-variant text-3xl">—</span>}
+        {value || <span className="text-twig text-3xl">—</span>}
       </div>
       <NumberPad value={value} onChange={setValue} onSubmit={submit} disabled={disabled} />
     </div>

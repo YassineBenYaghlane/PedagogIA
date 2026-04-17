@@ -1,5 +1,6 @@
 import { useState } from "react"
 import Icon from "../../ui/Icon"
+import Button from "../../ui/Button"
 
 export default function DecompositionInput({ exercise, disabled, onSubmit }) {
   const places = exercise?.params?.places ?? ["dizaines", "unités"]
@@ -25,7 +26,7 @@ export default function DecompositionInput({ exercise, disabled, onSubmit }) {
 
   return (
     <form onSubmit={submit} className="mt-4" data-testid="decomposition-input">
-      <div className="flex flex-wrap items-center justify-center gap-2 text-on-surface">
+      <div className="flex flex-wrap items-center justify-center gap-2 text-bark">
         {places.map((place, idx) => (
           <span key={place} className="flex items-center gap-2">
             <input
@@ -35,23 +36,24 @@ export default function DecompositionInput({ exercise, disabled, onSubmit }) {
               onChange={(e) => update(place, e.target.value)}
               disabled={disabled}
               autoFocus={idx === 0}
-              className="w-16 text-center font-headline text-3xl font-bold p-3 rounded-xl bg-surface-container-low border border-transparent focus:border-primary/30 focus:bg-surface-container-lowest outline-none disabled:opacity-60"
+              className="w-16 text-center font-mono text-3xl font-semibold p-3 rounded-xl bg-paper text-bark border-2 border-sage/30 focus:border-sage focus:outline-none focus:ring-4 focus:ring-sage-pale/60 tabular-nums disabled:opacity-60"
               aria-label={place}
             />
-            <span className="font-headline text-lg">{place}</span>
+            <span className="font-display text-lg text-stem">{place}</span>
             {idx < places.length - 1 && (
-              <span className="font-headline text-2xl">+</span>
+              <span className="font-mono text-2xl text-bark">+</span>
             )}
           </span>
         ))}
       </div>
-      <button
+      <Button
         type="submit"
+        size="lg"
         disabled={disabled || !allFilled}
-        className="gradient-soul text-on-primary font-headline font-bold text-xl w-full mt-5 py-4 rounded-xl shadow-[0_12px_24px_rgba(0,89,182,0.3)] spring-hover cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
+        className="w-full mt-5"
       >
         Valider <Icon name="check" />
-      </button>
+      </Button>
     </form>
   )
 }

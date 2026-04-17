@@ -1,5 +1,6 @@
 import { useRef, useState } from "react"
 import Icon from "../../ui/Icon"
+import Button from "../../ui/Button"
 
 const MARGIN = 40
 const WIDTH = 600
@@ -90,7 +91,7 @@ export default function PointOnLineInput({ exercise, disabled, onSubmit }) {
           y2={lineY}
           stroke="currentColor"
           strokeWidth="2"
-          className="text-outline"
+          className="text-twig"
         />
         {ticks.map((t) => {
           const labeled = labeledTicks.has(t)
@@ -103,14 +104,14 @@ export default function PointOnLineInput({ exercise, disabled, onSubmit }) {
                 y2={lineY + (labeled ? 10 : 5)}
                 stroke="currentColor"
                 strokeWidth={labeled ? 2 : 1}
-                className="text-outline"
+                className="text-twig"
               />
               {labeled && (
                 <text
                   x={toX(t)}
                   y={lineY + 30}
                   textAnchor="middle"
-                  className="fill-on-surface-variant"
+                  className="fill-stem font-mono"
                   style={{ fontSize: 14 }}
                 >
                   {t}
@@ -120,18 +121,18 @@ export default function PointOnLineInput({ exercise, disabled, onSubmit }) {
           )
         })}
         {value !== null && (
-          <circle cx={toX(value)} cy={lineY} r={14} className="fill-primary" />
+          <circle cx={toX(value)} cy={lineY} r={14} className="fill-sage" />
         )}
       </svg>
 
-      <button
-        type="button"
+      <Button
+        size="lg"
         disabled={disabled || value === null}
         onClick={() => onSubmit(String(value))}
-        className="gradient-soul text-on-primary font-headline font-bold text-xl w-full mt-4 py-4 rounded-xl shadow-[0_12px_24px_rgba(0,89,182,0.3)] spring-hover cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
+        className="w-full mt-4"
       >
         Valider <Icon name="check" />
-      </button>
+      </Button>
     </div>
   )
 }

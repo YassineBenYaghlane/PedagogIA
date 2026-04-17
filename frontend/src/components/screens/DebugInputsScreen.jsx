@@ -36,32 +36,26 @@ export default function DebugInputsScreen() {
     <div className="min-h-screen bg-chalk p-6">
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="font-headline text-3xl font-extrabold text-on-surface">
+          <h1 className="font-display text-3xl font-semibold text-bark">
             Debug — Types d'exercices
           </h1>
           <div className="flex gap-3">
-            <button
-              onClick={load}
-              className="px-4 py-2 rounded-lg bg-surface-container-low text-on-surface font-headline cursor-pointer spring-hover"
-            >
+            <button onClick={load} className="navlink">
               Régénérer
             </button>
-            <Link
-              to="/"
-              className="px-4 py-2 rounded-lg bg-surface-container-low text-on-surface font-headline cursor-pointer spring-hover"
-            >
+            <Link to="/" className="navlink">
               Retour
             </Link>
           </div>
         </div>
 
-        {loading && <p className="text-center text-on-surface-variant">Chargement…</p>}
-        {error && <p className="text-center text-error">Erreur : {error}</p>}
+        {loading && <p className="text-center text-stem">Chargement…</p>}
+        {error && <p className="text-center text-rose">Erreur : {error}</p>}
 
         <div className="grid gap-6">
           {samples.map((s, i) => (
             <section key={`${s.input_type}-${i}`} className="flex flex-col items-center gap-2">
-              <div className="font-headline text-xs uppercase tracking-wide text-on-surface-variant">
+              <div className="latin text-xs uppercase tracking-wide text-stem">
                 {s.input_type} · {s.skill_id} · difficulty {s.difficulty}
               </div>
               <ExerciseCard
@@ -75,8 +69,10 @@ export default function DebugInputsScreen() {
               />
               {submitted[i] && (
                 <div
-                  className={`mt-2 px-4 py-2 rounded-lg font-headline ${
-                    submitted[i].ok ? "bg-primary/10 text-primary" : "bg-error/10 text-error"
+                  className={`mt-2 px-4 py-2 rounded-lg font-display ${
+                    submitted[i].ok
+                      ? "bg-sage-pale/40 text-sage-deep"
+                      : "bg-rose-soft text-rose"
                   }`}
                 >
                   Ta réponse : <b>{String(submitted[i].answer)}</b> · attendue :{" "}

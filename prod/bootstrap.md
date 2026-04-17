@@ -84,3 +84,32 @@ In Google Cloud Console → Credentials → the OAuth 2.0 client:
 
 Push to `main` → GH Actions builds both images → pushes to GHCR → SSHes
 here → `pull && up -d --remove-orphans`. No manual steps after this.
+
+## 8. Nightly Postgres backups
+
+Backups go to the Hetzner Storage Box `pedagogia-backups` (`u578869.your-storagebox.de`, `fsn1`), encrypted with [age](https://age-encryption.org). Retention 7 daily + 4 weekly + 3 monthly. Restore runbook: [`deploy/restore.md`](../deploy/restore.md). Runs via user cron (no sudo required — the `pedagogia` account doesn't have passwordless sudo).
+
+```bash
+# On the VPS, as pedagogia:
+ssh-keygen -t ed25519 -f ~/.ssh/storagebox_ed25519 -N "" -C "pedagogia-vps-backup"
+# Register the public key with the Storage Box via `hcloud storage-box update --ssh-key ...` from the laptop.
+
+mkdir -p ~/bin ~/backups
+cd /tmp && curl -fsSL https://github.com/FiloSottile/age/releases/download/v1.2.0/age-v1.2.0-linux-amd64.tar.gz \
+  | tar -xz && mv age/age age/age-keygen ~/bin/ && rm -rf age
+
+# Append to /opt/pedagogia/.env.prod:
+#   STORAGE_BOX_HOST=u578869.your-storagebox.de
+#   STORAGE_BOX_USER=u578869
+#   BACKUP_AGE_RECIPIENT=<age public key from 1Password>
+
+# scp backup.sh from repo to /opt/pedagogia/backup.sh, chmod +x.
+
+# Install cron entry:
+(crontab -l 2>/dev/null; echo "0 3 * * * /opt/pedagogia/backup.sh >> /home/pedagogia/backup.log 2>&1") | crontab -
+
+# Verify with a manual run:
+/opt/pedagogia/backup.sh
+```
+
+Age private key is **not** stored on the VPS — it lives in 1Password ("collegia — storage box + backup keys"). Losing it means the existing dumps become unrecoverable. Losing the VPS does not affect dumps; losing Hetzner Falkenstein does not affect the server.

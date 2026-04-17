@@ -10,7 +10,7 @@ import { Heading, LatinLabel } from "../ui/Heading"
 
 const MODE_LABELS = {
   learn: "Entraînement",
-  diagnostic: "Diagnostic",
+  diagnostic: "Test de Niveau",
   drill: "Automatismes",
   exam: "Examen",
 }

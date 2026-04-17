@@ -124,7 +124,7 @@ export default function WelcomeScreen() {
             size="md"
             onClick={() => navigate("/diagnostic")}
           >
-            <Icon name="insights" /> Diagnostic
+            <Icon name="insights" /> Test de Niveau
           </Button>
           <Button
             data-testid="start-exam"

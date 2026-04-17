@@ -110,7 +110,7 @@ function VerdictHero({ verdict, child, overallPct, totalCorrect, totalAttempts }
               <span className="font-mono tabular-nums">{confAnim}%</span>
             </p>
           ) : (
-            <p className="mt-2 text-stem">Niveau non établi — refaites le diagnostic pour affiner.</p>
+            <p className="mt-2 text-stem">Niveau non établi — refaites le test de niveau pour affiner.</p>
           )}
           {verdict?.narrative && (
             <p className="mt-3 text-sm text-bark/75 leading-relaxed">{verdict.narrative}</p>

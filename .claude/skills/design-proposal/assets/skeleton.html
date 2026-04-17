@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>THEME NAME — Preview</title>
+<!-- Swap fonts to match the chosen metaphor. This pairing is just a placeholder. -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..500&family=Inter:wght@400..700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          display: ['Fraunces', 'serif'],
+          body: ['Inter', 'ui-sans-serif', 'system-ui'],
+        },
+        colors: {
+          /* Replace with your theme palette — these are neutral placeholders. */
+          surface: '#FBFBF8',
+          ink: '#141414',
+          primary: '#1B3A6F',
+          accent: '#E4572E',
+          muted: '#6A6A6A',
+        },
+      },
+    },
+  }
+</script>
+<style>
+  html, body { background: #EDE9DA; }
+  body { font-family: 'Inter', system-ui, sans-serif; color: #141414; }
+  html { scroll-behavior: smooth; }
+
+  /* ---------- Tablet frame (834 × 1194) ---------- */
+  .tablet {
+    width: 834px; height: 1194px;
+    border-radius: 40px;
+    background: #1a1a1a;
+    padding: 18px;
+    box-shadow: 0 60px 120px -60px rgba(0,0,0,.4), 0 2px 0 0 rgba(255,255,255,.05) inset;
+    position: relative;
+    transform: scale(0.55);
+    transform-origin: top left;
+    margin-bottom: -540px; /* compensate scale so layout tightens */
+    margin-right: -375px;
+  }
+  .tablet::before {
+    content: ""; position: absolute;
+    top: 8px; left: 50%; transform: translateX(-50%);
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #000; box-shadow: 0 0 0 2px #1a1a1a;
+  }
+  .tablet-screen {
+    width: 100%; height: 100%;
+    border-radius: 24px;
+    overflow: hidden;
+    background: #fff;
+    position: relative;
+  }
+
+  /* ---------- Browser frame (1440 × 900) ---------- */
+  .browser {
+    width: 1440px; height: 900px;
+    border-radius: 14px;
+    background: #d8d8d8;
+    overflow: hidden;
+    box-shadow: 0 40px 80px -40px rgba(0,0,0,.35), 0 1px 0 0 rgba(255,255,255,.6) inset;
+    transform: scale(0.42);
+    transform-origin: top left;
+    margin-bottom: -524px;
+    margin-right: -836px;
+  }
+  .browser-chrome {
+    height: 40px;
+    background: linear-gradient(to bottom, #ececec, #d8d8d8);
+    display: flex; align-items: center;
+    padding: 0 16px; gap: 8px;
+    border-bottom: 1px solid rgba(0,0,0,.08);
+  }
+  .browser-chrome .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .browser-chrome .red { background: #ff5f57; }
+  .browser-chrome .amber { background: #febc2e; }
+  .browser-chrome .green { background: #28c840; }
+  .browser-chrome .url {
+    flex: 1; margin: 0 12px;
+    background: #fff; height: 24px; border-radius: 6px;
+    display: flex; align-items: center; padding: 0 12px;
+    font: 500 12px/1 ui-sans-serif, system-ui;
+    color: #666;
+    border: 1px solid rgba(0,0,0,.06);
+  }
+  .browser-screen {
+    width: 100%; height: calc(100% - 40px);
+    background: #fff; overflow: hidden; position: relative;
+  }
+
+  /* ---------- Nav ---------- */
+  .navlink {
+    padding: 10px 14px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 13px;
+    color: #141414;
+    background: #fff;
+    border: 1px solid rgba(0,0,0,.1);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .navlink:hover { transform: translateY(-1px); }
+  .navlink.active { background: #1B3A6F; color: #fff; border-color: transparent; }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0ms !important; transition-duration: 0ms !important; }
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- ========== HEADER ========== -->
+<header class="max-w-7xl mx-auto px-6 pt-10 pb-6">
+  <div class="flex items-start justify-between gap-6 flex-wrap">
+    <div>
+      <div class="font-display italic text-xl text-primary">THEME NAME</div>
+      <h1 class="font-display font-semibold text-4xl md:text-5xl text-ink mt-3 leading-tight">
+        One-sentence <em>metaphor</em> that commits.
+      </h1>
+      <p class="text-muted mt-3 max-w-xl">The single idea behind this direction, and why it fits PedagogIA's audience.</p>
+    </div>
+    <div class="flex flex-col gap-2 items-end">
+      <span class="px-2 py-1 rounded-full bg-primary text-white text-xs font-semibold">THEME · v1</span>
+      <span class="px-2 py-1 rounded-full bg-surface text-xs font-semibold">Cible · 6–12 ans · FWB</span>
+      <span class="px-2 py-1 rounded-full bg-surface text-xs font-semibold">AA · 4.5:1</span>
+    </div>
+  </div>
+</header>
+
+<!-- ========== NAV ========== -->
+<nav class="sticky top-0 z-40 backdrop-blur-md bg-surface/85 border-b border-black/10">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex gap-2 overflow-x-auto">
+    <a href="#s-accueil" class="navlink">① Accueil</a>
+    <a href="#s-profil" class="navlink">② Profil</a>
+    <a href="#s-carte" class="navlink">③ Carte</a>
+    <a href="#s-exercice" class="navlink">④ Exercice</a>
+    <a href="#s-correction" class="navlink">⑤ Correction</a>
+    <a href="#s-bulletin" class="navlink">⑥ Bulletin</a>
+    <a href="#s-celebration" class="navlink">⑦ Célébration</a>
+    <a href="#tokens" class="navlink">⚙ Jetons</a>
+  </div>
+</nav>
+
+<!-- ========== FRAMES GRID ==========
+  Each frame is a <section class="preview-frame" data-name="NN-slug">.
+  The shoot.mjs script screenshots each one individually.
+  Show each screen twice (tablet + browser) for full coverage, OR pick the right frame per screen.
+-->
+<main class="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 xl:grid-cols-2 gap-12 place-items-center">
+
+  <!-- Example: Accueil in a tablet frame -->
+  <section id="s-accueil" class="preview-frame flex flex-col items-center gap-3" data-name="01-accueil-tablet">
+    <div class="tablet">
+      <div class="tablet-screen">
+        <!-- App content for this screen goes here -->
+        <div class="h-full flex items-center justify-center text-muted">
+          <p class="font-display text-3xl">Accueil — tablet</p>
+        </div>
+      </div>
+    </div>
+    <p class="text-muted text-sm font-semibold">① Accueil · tablette</p>
+  </section>
+
+  <!-- Example: same screen in a browser frame -->
+  <section id="s-accueil-web" class="preview-frame flex flex-col items-center gap-3" data-name="01-accueil-browser">
+    <div class="browser">
+      <div class="browser-chrome">
+        <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
+        <div class="url">pedagogia.be</div>
+      </div>
+      <div class="browser-screen">
+        <div class="h-full flex items-center justify-center text-muted">
+          <p class="font-display text-4xl">Accueil — browser</p>
+        </div>
+      </div>
+    </div>
+    <p class="text-muted text-sm font-semibold">① Accueil · navigateur</p>
+  </section>
+
+  <!-- Repeat for: ② Profil, ③ Carte, ④ Exercice, ⑤ Correction, ⑥ Bulletin, ⑦ Célébration -->
+
+</main>
+
+<!-- ========== TOKENS ========== -->
+<section id="tokens" class="max-w-7xl mx-auto px-6 pb-16">
+  <p class="uppercase tracking-widest text-muted text-xs font-semibold">Jetons de design</p>
+  <h2 class="font-display text-3xl text-ink mt-1">Ce qui fait <em>THEME NAME</em></h2>
+
+  <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Palette -->
+    <div class="p-5 rounded-xl bg-white border border-black/10">
+      <h3 class="font-display font-semibold text-ink text-lg">Palette</h3>
+      <!-- swatches -->
+    </div>
+    <!-- Typography -->
+    <div class="p-5 rounded-xl bg-white border border-black/10">
+      <h3 class="font-display font-semibold text-ink text-lg">Typographie</h3>
+      <!-- specimens -->
+    </div>
+    <!-- Principes -->
+    <div class="p-5 rounded-xl bg-white border border-black/10">
+      <h3 class="font-display font-semibold text-ink text-lg">Principes</h3>
+      <!-- numbered list of 5-7 rules -->
+    </div>
+  </div>
+
+  <!-- Anti-patterns -->
+  <div class="mt-8 p-5 rounded-xl border-2 border-dashed border-accent/40 bg-accent/5">
+    <h3 class="font-display font-semibold text-accent uppercase tracking-wide text-sm">À éviter</h3>
+    <ul class="mt-2 text-sm text-ink grid grid-cols-1 md:grid-cols-2 gap-y-1 gap-x-6">
+      <li>· Mascottes animées permanentes</li>
+      <li>· Emojis dans l'UI (chips, boutons, headers)</li>
+      <li>· Plus de 3 couleurs pop simultanées</li>
+      <li>· Rouge vif pour l'erreur</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="max-w-7xl mx-auto px-6 pb-16 text-center text-muted text-xs">
+  THEME NAME · preview statique · Tailwind CDN
+</footer>
+
+</body>
+</html>

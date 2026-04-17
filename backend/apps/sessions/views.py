@@ -9,7 +9,7 @@ from apps.exercises.serializers import AttemptCreateSerializer, AttemptReadSeria
 from apps.exercises.services import record_attempt
 from apps.students.models import Student
 
-from .exports import build_diagnostic_pdf, session_summaries
+from .exports import build_diagnostic_pdf, build_session_pdf, session_summaries
 from .models import Session
 from .serializers import SessionSerializer
 
@@ -32,6 +32,17 @@ class SessionViewSet(ModelViewSet):
             student = get_object_or_404(Student, id=student_id, user=request.user)
             return Response(session_summaries(student))
         return super().list(request, *args, **kwargs)
+
+    @action(detail=True, methods=["get"], url_path="session.pdf")
+    def session_pdf(self, request, pk=None):
+        session = self.get_object()
+        pdf_bytes = build_session_pdf(session)
+        filename = (
+            f"session-{session.mode}-{session.student.display_name}-{session.started_at.date()}.pdf"
+        )
+        response = HttpResponse(pdf_bytes, content_type="application/pdf")
+        response["Content-Disposition"] = f'attachment; filename="{filename}"'
+        return response
 
     @action(detail=True, methods=["get"], url_path="diagnostic.pdf")
     def diagnostic_pdf(self, request, pk=None):

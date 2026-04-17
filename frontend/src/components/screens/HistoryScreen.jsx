@@ -8,8 +8,8 @@ import { useAuthStore } from "../../stores/authStore"
 import {
   fetchSessionSummaries,
   downloadStudentExport,
-  downloadDiagnosticPdf,
 } from "../../api/history"
+import { downloadSessionPdf } from "../../api/sessions"
 
 const MODE_LABELS = {
   learn: "Entraînement",
@@ -60,35 +60,33 @@ function SessionRow({ row, onOpen, onOpenDiagnostic }) {
       </div>
       <div className="flex items-center gap-2 shrink-0">
         {isDiagnostic && (
-          <>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                onOpenDiagnostic(row)
-              }}
-              className="p-2 rounded-md text-stem hover:text-bark hover:bg-sage-leaf/40 transition-colors cursor-pointer"
-              title="Voir le verdict du diagnostic"
-              aria-label="Voir le verdict du diagnostic"
-              data-testid="history-row-verdict"
-            >
-              <Icon name="flag" size={18} />
-            </button>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                downloadDiagnosticPdf(row.id)
-              }}
-              className="p-2 rounded-md text-stem hover:text-bark hover:bg-sage-leaf/40 transition-colors cursor-pointer"
-              title="Exporter le diagnostic (PDF)"
-              aria-label="Exporter le diagnostic PDF"
-              data-testid="history-row-pdf"
-            >
-              <Icon name="download" size={18} />
-            </button>
-          </>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onOpenDiagnostic(row)
+            }}
+            className="p-2 rounded-md text-stem hover:text-bark hover:bg-sage-leaf/40 transition-colors cursor-pointer"
+            title="Voir le verdict du diagnostic"
+            aria-label="Voir le verdict du diagnostic"
+            data-testid="history-row-verdict"
+          >
+            <Icon name="flag" size={18} />
+          </button>
         )}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            downloadSessionPdf(row.id)
+          }}
+          className="p-2 rounded-md text-stem hover:text-bark hover:bg-sage-leaf/40 transition-colors cursor-pointer"
+          title="Exporter la session (PDF)"
+          aria-label="Exporter la session PDF"
+          data-testid="history-row-pdf"
+        >
+          <Icon name="download" size={18} />
+        </button>
         <div className="text-right w-32">
           <div className={`font-mono tabular-nums font-semibold ${tone}`}>
             {row.total_attempts ? `${pct}%` : "—"}

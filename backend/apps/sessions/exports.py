@@ -337,6 +337,150 @@ def build_pdf(student: Student) -> bytes:
     return buffer.getvalue()
 
 
+def build_session_pdf(session: Session) -> bytes:
+    """A4 per-session report: summary + ordered question / student answer / correct answer list."""
+    from apps.exercises.serializers import render_prompt
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        leftMargin=2 * cm,
+        rightMargin=2 * cm,
+        topMargin=2 * cm,
+        bottomMargin=2 * cm,
+        title=f"Session — {session.student.display_name}",
+    )
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        "SessTitle",
+        parent=styles["Heading1"],
+        fontSize=20,
+        leading=24,
+        textColor=colors.HexColor("#2B3A2E"),
+        spaceAfter=6,
+    )
+    subtitle_style = ParagraphStyle(
+        "SessSubtitle",
+        parent=styles["Normal"],
+        fontSize=11,
+        textColor=colors.HexColor("#5C6B5F"),
+        spaceAfter=14,
+    )
+    section_style = ParagraphStyle(
+        "SessSection",
+        parent=styles["Heading2"],
+        fontSize=13,
+        leading=17,
+        textColor=colors.HexColor("#3F6F4A"),
+        spaceBefore=10,
+        spaceAfter=6,
+    )
+    body_style = ParagraphStyle(
+        "SessBody",
+        parent=styles["Normal"],
+        fontSize=10.5,
+        leading=14,
+        textColor=colors.HexColor("#2B3A2E"),
+    )
+
+    mode_label = MODE_LABELS.get(session.mode, session.mode)
+    started = session.started_at.strftime("%d/%m/%Y %H:%M") if session.started_at else "—"
+    duration = None
+    if session.started_at and session.ended_at:
+        duration = int((session.ended_at - session.started_at).total_seconds())
+    duration_str = (
+        (f"{duration // 60}m{duration % 60:02d}s" if duration else "—")
+        if duration is not None
+        else "—"
+    )
+
+    attempts = list(session.attempts.select_related("skill", "template").order_by("responded_at"))
+    total = len(attempts)
+    correct = sum(1 for a in attempts if a.is_correct)
+    pct = round(correct / total * 100) if total else 0
+
+    story = [
+        Paragraph(f"{mode_label} — {session.student.display_name}", title_style),
+        Paragraph(f"Réalisée le {started} · Durée : {duration_str}", subtitle_style),
+        Paragraph("Vue d’ensemble", section_style),
+    ]
+    overview_rows = [
+        ["Exercices", f"{total}"],
+        ["Réponses correctes", f"{correct}"],
+        ["Réussite", f"{pct} %"],
+    ]
+    overview_table = Table(overview_rows, colWidths=[6 * cm, 10 * cm])
+    overview_table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#ECF1E7")),
+                ("TEXTCOLOR", (0, 0), (-1, -1), colors.HexColor("#2B3A2E")),
+                ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+                ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#C7E0B5")),
+                ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#C7E0B5")),
+                ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                ("TOPPADDING", (0, 0), (-1, -1), 6),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+            ]
+        )
+    )
+    story.append(overview_table)
+
+    if attempts:
+        story.append(Paragraph("Questions", section_style))
+        header = ["#", "Question", "Réponse élève", "Bonne réponse", ""]
+        rows = [header]
+        for i, a in enumerate(attempts, start=1):
+            prompt = render_prompt(a.template.template, a.exercise_params or {}) or (
+                a.skill.label if a.skill else ""
+            )
+            status = "✓" if a.is_correct else "✗"
+            rows.append(
+                [
+                    str(i),
+                    Paragraph(prompt or "—", body_style),
+                    Paragraph(str(a.student_answer or "—"), body_style),
+                    Paragraph(str(a.correct_answer or "—"), body_style),
+                    status,
+                ]
+            )
+        table = Table(
+            rows,
+            colWidths=[1 * cm, 8 * cm, 3.5 * cm, 3.5 * cm, 1 * cm],
+            repeatRows=1,
+        )
+        style_cmds = [
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#6FA274")),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#C7E0B5")),
+            ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#C7E0B5")),
+            ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            ("ALIGN", (0, 0), (0, -1), "CENTER"),
+            ("ALIGN", (4, 0), (4, -1), "CENTER"),
+            ("LEFTPADDING", (0, 0), (-1, -1), 6),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+            ("TOPPADDING", (0, 0), (-1, -1), 5),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+            ("FONTSIZE", (0, 1), (-1, -1), 9.5),
+        ]
+        for i, a in enumerate(attempts, start=1):
+            if not a.is_correct:
+                style_cmds.append(("BACKGROUND", (0, i), (-1, i), colors.HexColor("#FCEBE9")))
+                style_cmds.append(("TEXTCOLOR", (4, i), (4, i), colors.HexColor("#C26B65")))
+            else:
+                style_cmds.append(("TEXTCOLOR", (4, i), (4, i), colors.HexColor("#3F6F4A")))
+        table.setStyle(TableStyle(style_cmds))
+        story.append(table)
+    else:
+        story.append(Paragraph("Aucune question enregistrée.", body_style))
+
+    doc.build(story)
+    return buffer.getvalue()
+
+
 def build_diagnostic_pdf(session: Session) -> bytes:
     """A4 rendering of the diagnostic result for a single session."""
     if session.mode != "diagnostic":

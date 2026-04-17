@@ -3,6 +3,7 @@ import Icon from "../ui/Icon"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import { Heading, LatinLabel } from "../ui/Heading"
+import { downloadDiagnosticPdf } from "../../api/history"
 
 const BUCKET_STYLES = {
   green: { ring: "stroke-sage", fill: "bg-sage", text: "text-sage-deep", soft: "bg-sage-leaf/40", label: "En croissance" },
@@ -214,7 +215,14 @@ function groupByGrade(skills) {
   return groups
 }
 
-export default function DiagnosticResult({ result, child, onBack }) {
+export default function DiagnosticResult({
+  result,
+  child,
+  onBack,
+  backLabel = "Retour à la serre",
+  backIcon = "home",
+}) {
+  const sessionId = result?.session_id
   const years = result.years || []
   const verdict = result.verdict
   const groups = useMemo(() => groupByGrade(result.skills), [result.skills])
@@ -292,9 +300,26 @@ export default function DiagnosticResult({ result, child, onBack }) {
           ))}
         </div>
 
-        <Button onClick={onBack} size="lg" className="w-full" data-testid="diagnostic-done">
-          <Icon name="home" /> Retour à la serre
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button
+            onClick={onBack}
+            size="lg"
+            className="flex-1"
+            data-testid="diagnostic-done"
+          >
+            <Icon name={backIcon} /> {backLabel}
+          </Button>
+          {sessionId && (
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => downloadDiagnosticPdf(sessionId)}
+              data-testid="diagnostic-export-pdf"
+            >
+              <Icon name="download" /> Exporter PDF
+            </Button>
+          )}
+        </div>
       </Card>
     </div>
   )

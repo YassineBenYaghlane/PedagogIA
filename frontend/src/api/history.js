@@ -14,3 +14,13 @@ export function downloadStudentExport(studentId, format) {
   a.click()
   a.remove()
 }
+
+export function downloadDiagnosticPdf(sessionId) {
+  const a = document.createElement("a")
+  a.href = `/api/sessions/${sessionId}/diagnostic.pdf/`
+  a.rel = "noopener"
+  a.target = "_self"
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+}

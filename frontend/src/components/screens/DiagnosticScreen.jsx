@@ -85,6 +85,7 @@ export default function DiagnosticScreen() {
             busy={loading}
             onSubmit={submit}
             onNext={loadNext}
+            mode="diagnostic"
           />
         </div>
         {current && (

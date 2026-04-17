@@ -32,7 +32,7 @@ function renderInput(inputType, props) {
 
 export default function ExerciseCard({
   exercise, skill, grade, feedback, onSubmit, onNext, busy,
-  explanation, explaining, onExplain,
+  explanation, explaining, onExplain, mode,
 }) {
   const nextRef = useRef(null)
 
@@ -71,7 +71,7 @@ export default function ExerciseCard({
           onSubmit,
         })}
 
-      {!feedback && <HintPanel exercise={exercise} />}
+      {!feedback && mode !== "diagnostic" && <HintPanel exercise={exercise} />}
 
       <FeedbackMessage
         feedback={feedback}

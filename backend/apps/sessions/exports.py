@@ -9,6 +9,8 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm
 from reportlab.platypus import (
+    ListFlowable,
+    ListItem,
     Paragraph,
     SimpleDocTemplate,
     Spacer,
@@ -16,11 +18,23 @@ from reportlab.platypus import (
     TableStyle,
 )
 
+from apps.exercises.diagnostic import build_result as build_diagnostic_result
 from apps.exercises.models import Attempt
 from apps.skills.models import Skill
 from apps.students.models import Student, StudentSkillState
 
 from .models import Session
+
+LEVEL_COPY = {
+    "P1": "1ʳᵉ primaire",
+    "P2": "2ᵉ primaire",
+    "P3": "3ᵉ primaire",
+    "P4": "4ᵉ primaire",
+    "P5": "5ᵉ primaire",
+    "P6": "6ᵉ primaire",
+}
+
+BUCKET_COPY = {"green": "En croissance", "orange": "À arroser", "red": "Graine"}
 
 MODE_LABELS = {"learn": "Entraînement", "diagnostic": "Diagnostic", "drill": "Automatismes"}
 
@@ -270,6 +284,235 @@ def build_pdf(student: Student) -> bytes:
             )
         )
         story.append(sess_table)
+
+    doc.build(story)
+    return buffer.getvalue()
+
+
+def build_diagnostic_pdf(session: Session) -> bytes:
+    """A4 rendering of the diagnostic result for a single session."""
+    if session.mode != "diagnostic":
+        raise ValueError("session is not a diagnostic")
+
+    data = build_diagnostic_result(session)
+    student = session.student
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        leftMargin=2 * cm,
+        rightMargin=2 * cm,
+        topMargin=2 * cm,
+        bottomMargin=2 * cm,
+        title=f"Diagnostic — {student.display_name}",
+    )
+
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        "DiagTitle",
+        parent=styles["Heading1"],
+        fontSize=22,
+        leading=26,
+        textColor=colors.HexColor("#2B3A2E"),
+        spaceAfter=6,
+    )
+    subtitle_style = ParagraphStyle(
+        "DiagSubtitle",
+        parent=styles["Normal"],
+        fontSize=11,
+        textColor=colors.HexColor("#5C6B5F"),
+        spaceAfter=16,
+    )
+    section_style = ParagraphStyle(
+        "DiagSection",
+        parent=styles["Heading2"],
+        fontSize=14,
+        leading=18,
+        textColor=colors.HexColor("#3F6F4A"),
+        spaceBefore=14,
+        spaceAfter=8,
+    )
+    body_style = ParagraphStyle(
+        "DiagBody",
+        parent=styles["Normal"],
+        fontSize=10.5,
+        leading=14,
+        textColor=colors.HexColor("#2B3A2E"),
+    )
+
+    ended_at = session.ended_at or session.started_at
+    date_str = ended_at.strftime("%d/%m/%Y") if ended_at else "—"
+
+    story = [
+        Paragraph(f"Diagnostic — {student.display_name}", title_style),
+        Paragraph(f"Réalisé le {date_str} · Niveau déclaré : {student.grade}", subtitle_style),
+    ]
+
+    # Verdict block
+    verdict = data.get("verdict") or {}
+    level = verdict.get("level")
+    confidence = round((verdict.get("confidence") or 0) * 100)
+    narrative = verdict.get("narrative")
+
+    if level:
+        story.append(Paragraph("Verdict", section_style))
+        verdict_rows = [
+            ["Niveau FWB", f"{level} — {LEVEL_COPY.get(level, level)}"],
+            ["Confiance", f"{confidence} %"],
+        ]
+        verdict_table = Table(verdict_rows, colWidths=[5 * cm, 11 * cm])
+        verdict_table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#ECF1E7")),
+                    ("TEXTCOLOR", (0, 0), (-1, -1), colors.HexColor("#2B3A2E")),
+                    ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+                    ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#C7E0B5")),
+                    ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#C7E0B5")),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                    ("TOPPADDING", (0, 0), (-1, -1), 6),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                ]
+            )
+        )
+        story.append(verdict_table)
+        if narrative:
+            story.append(Spacer(1, 6))
+            story.append(Paragraph(narrative, body_style))
+    else:
+        story.append(Paragraph("Verdict", section_style))
+        story.append(
+            Paragraph("Niveau non établi — refaites le diagnostic pour affiner.", body_style)
+        )
+
+    # Overall stats
+    total = data.get("total_attempts", 0)
+    correct = data.get("total_correct", 0)
+    overall_pct = round((data.get("overall_rate") or 0) * 100)
+
+    story.append(Paragraph("Vue d’ensemble", section_style))
+    stats_rows = [
+        ["Exercices", f"{total}"],
+        ["Réponses correctes", f"{correct}"],
+        ["Réussite", f"{overall_pct} %"],
+    ]
+    stats_table = Table(stats_rows, colWidths=[6 * cm, 10 * cm])
+    stats_table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#ECF1E7")),
+                ("TEXTCOLOR", (0, 0), (-1, -1), colors.HexColor("#2B3A2E")),
+                ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+                ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#C7E0B5")),
+                ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#C7E0B5")),
+                ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                ("TOPPADDING", (0, 0), (-1, -1), 6),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+            ]
+        )
+    )
+    story.append(stats_table)
+
+    # Year mastery
+    years = data.get("years") or []
+    if years:
+        story.append(Paragraph("Maîtrise par année", section_style))
+        year_rows = [["Année", "Exercices", "Réussite", "Diff. max", "État"]]
+        for y in years:
+            rate_pct = round((y.get("rate") or 0) * 100)
+            year_rows.append(
+                [
+                    y["grade"],
+                    f"{y['correct']}/{y['n']}",
+                    f"{rate_pct} %",
+                    f"d{y.get('max_difficulty', 1)}",
+                    BUCKET_COPY.get(y.get("bucket", "orange"), ""),
+                ]
+            )
+        year_table = Table(year_rows, colWidths=[2.5 * cm, 3 * cm, 3 * cm, 2.5 * cm, 5 * cm])
+        year_table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#6FA274")),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#C7E0B5")),
+                    ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#C7E0B5")),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 6),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+                    ("TOPPADDING", (0, 0), (-1, -1), 5),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+                    ("ALIGN", (1, 0), (3, -1), "RIGHT"),
+                ]
+            )
+        )
+        story.append(year_table)
+
+    # Strengths / weaknesses
+    def _bullets(items):
+        return ListFlowable(
+            [ListItem(Paragraph(s["label"], body_style), leftIndent=8) for s in items],
+            bulletType="bullet",
+            start="•",
+            leftIndent=12,
+        )
+
+    strengths = data.get("strengths") or []
+    if strengths:
+        story.append(Paragraph("Points forts", section_style))
+        story.append(_bullets(strengths))
+
+    weaknesses = data.get("weaknesses") or []
+    if weaknesses:
+        story.append(Paragraph("À arroser", section_style))
+        story.append(_bullets(weaknesses))
+
+    # Detail per skill, grouped by grade
+    skills = data.get("skills") or []
+    if skills:
+        story.append(Paragraph("Détail par compétence", section_style))
+        by_grade: dict[str, list[dict]] = defaultdict(list)
+        for s in skills:
+            by_grade[s.get("grade") or "—"].append(s)
+        for grade in ["P1", "P2", "P3", "P4", "P5", "P6"]:
+            group = by_grade.get(grade)
+            if not group:
+                continue
+            skill_rows = [["Compétence", "Réussite", "État"]]
+            for s in group:
+                rate_pct = round((s.get("rate") or 0) * 100)
+                skill_rows.append(
+                    [
+                        s["label"],
+                        f"{s['correct']}/{s['total']} · {rate_pct} %",
+                        BUCKET_COPY.get(s.get("bucket", "orange"), ""),
+                    ]
+                )
+            skill_table = Table(skill_rows, colWidths=[8.5 * cm, 4.5 * cm, 3 * cm])
+            skill_table.setStyle(
+                TableStyle(
+                    [
+                        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#ECF1E7")),
+                        ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor("#3F6F4A")),
+                        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                        ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#C7E0B5")),
+                        ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#C7E0B5")),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 6),
+                        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+                        ("TOPPADDING", (0, 0), (-1, -1), 4),
+                        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+                        ("ALIGN", (1, 0), (1, -1), "RIGHT"),
+                        ("FONTSIZE", (0, 0), (-1, -1), 9.5),
+                    ]
+                )
+            )
+            story.append(Paragraph(f"<b>{grade}</b>", body_style))
+            story.append(Spacer(1, 2))
+            story.append(skill_table)
+            story.append(Spacer(1, 6))
 
     doc.build(story)
     return buffer.getvalue()

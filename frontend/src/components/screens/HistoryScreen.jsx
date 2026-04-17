@@ -5,7 +5,11 @@ import Button from "../ui/Button"
 import Card from "../ui/Card"
 import { Heading, LatinLabel } from "../ui/Heading"
 import { useAuthStore } from "../../stores/authStore"
-import { fetchSessionSummaries, downloadStudentExport } from "../../api/history"
+import {
+  fetchSessionSummaries,
+  downloadStudentExport,
+  downloadDiagnosticPdf,
+} from "../../api/history"
 
 const MODE_LABELS = {
   learn: "Entraînement",
@@ -33,11 +37,26 @@ function formatDuration(seconds) {
   return `${m}m ${s.toString().padStart(2, "0")}s`
 }
 
-function SessionRow({ row }) {
+function SessionRow({ row, onOpen }) {
   const pct = Math.round((row.accuracy || 0) * 100)
   const tone = pct >= 80 ? "text-sage-deep" : pct >= 40 ? "text-honey" : "text-rose"
+  const isDiagnostic = row.mode === "diagnostic"
+  const interactive = isDiagnostic
+  const Wrapper = interactive ? "button" : "div"
+  const wrapperProps = interactive
+    ? {
+        type: "button",
+        onClick: () => onOpen(row),
+        className:
+          "w-full text-left flex items-center justify-between py-3 border-b border-sage/10 last:border-0 gap-3 hover:bg-mist/60 rounded-md px-2 -mx-2 transition-colors cursor-pointer",
+        "data-testid": "history-row-diagnostic",
+      }
+    : {
+        className:
+          "flex items-center justify-between py-3 border-b border-sage/10 last:border-0 gap-3 px-2 -mx-2",
+      }
   return (
-    <div className="flex items-center justify-between py-3 border-b border-sage/10 last:border-0 gap-3">
+    <Wrapper {...wrapperProps}>
       <div className="min-w-0 flex-1">
         <div className="font-display font-semibold text-bark">
           {MODE_LABELS[row.mode] || row.mode}
@@ -47,15 +66,32 @@ function SessionRow({ row }) {
           {formatDuration(row.duration_seconds)}
         </div>
       </div>
-      <div className="text-right shrink-0">
-        <div className={`font-mono tabular-nums font-semibold ${tone}`}>
-          {row.total_attempts ? `${pct}%` : "—"}
+      <div className="flex items-center gap-3 shrink-0">
+        <div className="text-right">
+          <div className={`font-mono tabular-nums font-semibold ${tone}`}>
+            {row.total_attempts ? `${pct}%` : "—"}
+          </div>
+          <div className="text-xs text-stem font-mono tabular-nums">
+            {row.correct}/{row.total_attempts} · {row.skills_touched} compétences
+          </div>
         </div>
-        <div className="text-xs text-stem font-mono tabular-nums">
-          {row.correct}/{row.total_attempts} · {row.skills_touched} compétences
-        </div>
+        {isDiagnostic && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              downloadDiagnosticPdf(row.id)
+            }}
+            className="p-2 rounded-md text-stem hover:text-bark hover:bg-sage-leaf/40 transition-colors cursor-pointer"
+            title="Exporter PDF"
+            aria-label="Exporter PDF"
+            data-testid="history-row-pdf"
+          >
+            <Icon name="download" size={18} />
+          </button>
+        )}
       </div>
-    </div>
+    </Wrapper>
   )
 }
 
@@ -143,7 +179,11 @@ export default function HistoryScreen() {
         {rows && rows.length > 0 && (
           <Card className="px-4" data-testid="history-list">
             {rows.map((row) => (
-              <SessionRow key={row.id} row={row} />
+              <SessionRow
+                key={row.id}
+                row={row}
+                onOpen={(r) => navigate(`/history/diagnostic/${r.id}`)}
+              />
             ))}
           </Card>
         )}

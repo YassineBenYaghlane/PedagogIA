@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useNavigate, useParams } from "react-router"
+import { useNavigate, useParams, useSearchParams } from "react-router"
 import { diagnosticApi } from "../../api/diagnostic"
 import { useAuthStore } from "../../stores/authStore"
 import DiagnosticResult from "./DiagnosticResult"
@@ -7,6 +7,8 @@ import DiagnosticResult from "./DiagnosticResult"
 export default function DiagnosticReviewScreen() {
   const { sessionId } = useParams()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const fromParent = searchParams.get("from") === "parent"
   const { children, selectedChildId } = useAuthStore()
   const [result, setResult] = useState(null)
   const [error, setError] = useState(null)
@@ -50,7 +52,7 @@ export default function DiagnosticReviewScreen() {
     <DiagnosticResult
       result={result}
       child={child}
-      onBack={() => navigate("/history")}
+      onBack={() => navigate(fromParent ? "/history?from=parent" : "/history")}
       backLabel="Retour à l’historique"
       backIcon="arrow_back"
     />

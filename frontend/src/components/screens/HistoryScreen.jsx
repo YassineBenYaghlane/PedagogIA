@@ -187,7 +187,11 @@ export default function HistoryScreen() {
               <SessionRow
                 key={row.id}
                 row={row}
-                onOpen={(r) => navigate(`/history/diagnostic/${r.id}`)}
+                onOpen={(r) =>
+                  navigate(
+                    `/history/diagnostic/${r.id}${fromParent ? "?from=parent" : ""}`
+                  )
+                }
               />
             ))}
           </Card>

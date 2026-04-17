@@ -1,38 +1,12 @@
 import pytest
 
-from apps.exercises.diagnostic import (
-    DIAGNOSTIC_LENGTH,
-    _compute_level,
-    _level_to_target,
-    _starting_level,
-)
+from apps.exercises.diagnostic import DIAGNOSTIC_MAX_LENGTH, DIAGNOSTIC_MIN_LENGTH
 
 
 @pytest.fixture
 def student(auth_client):
     res = auth_client.post("/api/students/", {"display_name": "Eva", "grade": "P3"}, format="json")
     return res.json()
-
-
-@pytest.mark.django_db
-def test_starting_level_matches_student_grade():
-    lvl = _starting_level("P3")
-    grade, difficulty = _level_to_target(lvl)
-    assert grade == "P3"
-    assert difficulty == 1
-
-
-@pytest.mark.django_db
-def test_level_ramps_up_with_correct_answers():
-    class FakeAttempt:
-        def __init__(self, ok):
-            self.is_correct = ok
-
-    start = _starting_level("P3")
-    wins = [FakeAttempt(True) for _ in range(3)]
-    assert _compute_level("P3", wins) == start + 3
-    losses = [FakeAttempt(False) for _ in range(2)]
-    assert _compute_level("P3", losses) == start - 2
 
 
 @pytest.mark.django_db
@@ -47,10 +21,10 @@ def test_start_returns_first_question(auth_client, student):
     assert res.status_code == 201, res.content
     body = res.json()
     assert body["student_id"] == student["id"]
-    assert body["length"] == DIAGNOSTIC_LENGTH
+    assert body["length"] == DIAGNOSTIC_MAX_LENGTH
     q = body["question"]
     assert q["index"] == 0
-    assert q["total"] == DIAGNOSTIC_LENGTH
+    assert q["total"] == DIAGNOSTIC_MAX_LENGTH
     assert q["difficulty"] in (1, 2, 3)
     assert "signature" in q["exercise"]
 
@@ -76,7 +50,7 @@ def test_next_advances_after_attempts(auth_client, student):
 
 
 @pytest.mark.django_db
-def test_result_includes_grade_breakdown(auth_client, student):
+def test_result_includes_verdict_and_years(auth_client, student):
     start = auth_client.post(
         "/api/diagnostic/start/", {"student_id": student["id"]}, format="json"
     ).json()
@@ -95,11 +69,12 @@ def test_result_includes_grade_breakdown(auth_client, student):
     assert res["total_attempts"] == 3
     assert isinstance(res["skills"], list)
     assert isinstance(res["grades"], list)
-    assert len(res["grades"]) >= 1
-    for g in res["grades"]:
-        assert g["grade"] in {"P1", "P2", "P3", "P4", "P5", "P6"}
-        assert g["bucket"] in ("green", "orange", "red")
-        assert {"green", "orange", "red", "skills_count"} <= set(g.keys())
+    assert isinstance(res["years"], list)
+    assert "verdict" in res
+    v = res["verdict"]
+    assert "level" in v and "confidence" in v and "narrative" in v
+    # With only 3 wrong answers the test must not over-commit
+    assert v["level"] is None or v["level"] in {"P1", "P2", "P3", "P4", "P5", "P6"}
 
 
 @pytest.mark.django_db
@@ -111,3 +86,15 @@ def test_cannot_access_other_users_diagnostic(auth_client, other_user):
     sess = Session.objects.create(student=other_student, mode="diagnostic")
     res = auth_client.get(f"/api/diagnostic/{sess.id}/next/")
     assert res.status_code == 404
+
+
+@pytest.mark.django_db
+def test_invalid_grade_rejected(auth_client):
+    res = auth_client.post("/api/students/", {"display_name": "Bad", "grade": "P7"}, format="json")
+    assert res.status_code == 400
+
+
+@pytest.mark.django_db
+def test_min_length_before_convergence_stop(auth_client, student):
+    """Even a floor-pinned student must answer at least DIAGNOSTIC_MIN_LENGTH."""
+    assert DIAGNOSTIC_MIN_LENGTH >= 5

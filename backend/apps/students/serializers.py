@@ -4,7 +4,7 @@ from rest_framework import serializers
 from apps.students.services.achievements import serialize_badge
 from apps.students.services.streaks import daily_progress
 
-from .models import Student, StudentAchievement, StudentSkillState
+from .models import GRADE_VALUES, Student, StudentAchievement, StudentSkillState
 
 
 def mastery_counts(student: Student) -> dict:
@@ -64,6 +64,11 @@ class _StudentBase(serializers.ModelSerializer):
 
     def get_daily_progress(self, obj: Student) -> int:
         return daily_progress(obj)
+
+    def validate_grade(self, value: str) -> str:
+        if value not in GRADE_VALUES:
+            raise serializers.ValidationError(f"grade must be one of {', '.join(GRADE_VALUES)}")
+        return value
 
 
 class StudentNestedSerializer(_StudentBase):

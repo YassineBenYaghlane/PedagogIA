@@ -5,6 +5,16 @@ from django.db import models
 
 from apps.skills.models import Skill
 
+GRADE_CHOICES = [
+    ("P1", "P1"),
+    ("P2", "P2"),
+    ("P3", "P3"),
+    ("P4", "P4"),
+    ("P5", "P5"),
+    ("P6", "P6"),
+]
+GRADE_VALUES = [g for g, _ in GRADE_CHOICES]
+
 
 class Student(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -12,7 +22,7 @@ class Student(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="students"
     )
     display_name = models.CharField(max_length=100)
-    grade = models.CharField(max_length=4)
+    grade = models.CharField(max_length=2, choices=GRADE_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
 
     xp = models.PositiveIntegerField(default=0)

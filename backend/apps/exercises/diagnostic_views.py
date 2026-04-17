@@ -9,7 +9,7 @@ from apps.sessions.models import Session
 from apps.students.models import Student
 
 from .diagnostic import (
-    DIAGNOSTIC_LENGTH,
+    DIAGNOSTIC_MAX_LENGTH,
     build_result,
     get_exercise_for_slot,
     select_next_slot,
@@ -29,7 +29,9 @@ def _get_session(request, session_id: str) -> Session:
 
 def _build_question(session: Session) -> dict | None:
     attempts = list(
-        Attempt.objects.filter(session=session).select_related("skill").order_by("responded_at")
+        Attempt.objects.filter(session=session)
+        .select_related("skill", "template")
+        .order_by("responded_at")
     )
     slot = select_next_slot(session.student, attempts)
     if slot is None:
@@ -37,7 +39,7 @@ def _build_question(session: Session) -> dict | None:
     exercise = get_exercise_for_slot(slot)
     return {
         "index": len(attempts),
-        "total": DIAGNOSTIC_LENGTH,
+        "total": DIAGNOSTIC_MAX_LENGTH,
         "skill": {"id": slot.skill_id},
         "difficulty": slot.difficulty,
         "exercise": GeneratedExerciseSerializer(exercise).data,
@@ -57,7 +59,7 @@ def start(request):
         {
             "session_id": str(session.id),
             "student_id": str(student.id),
-            "length": DIAGNOSTIC_LENGTH,
+            "length": DIAGNOSTIC_MAX_LENGTH,
             "question": question,
         },
         status=201,

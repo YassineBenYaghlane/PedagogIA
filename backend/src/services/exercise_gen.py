@@ -255,7 +255,11 @@ def _generate_decomposition(template: dict) -> dict[str, Any]:
         answer = parts_display
 
     parts_dict = dict(zip(places, parts))
-    return {"prompt": prompt, "answer": answer, "params": {"target": target, "parts": parts_dict}}
+    return {
+        "prompt": prompt,
+        "answer": answer,
+        "params": {"target": target, "parts": parts_dict, "places": places},
+    }
 
 
 def _decompose_number(n: int, places: list[str]) -> list[int]:
@@ -302,6 +306,94 @@ def _generate_estimation(template: dict) -> dict[str, Any]:
         answer = _clean_number(round(a / round_to) * round_to)
         prompt = template["prompt_template"].format(a=_format_number(a))
         return {"prompt": prompt, "answer": answer, "params": {"a": a, "rounded": answer}}
+
+
+@register("mcq")
+def _generate_mcq(template: dict) -> dict[str, Any]:
+    """Generate a multiple-choice question from a computation.
+
+    Params: operation, a_min/a_max, b_min/b_max, num_options (default 4),
+    distractor_spread (default 3). Emits params.options (strings) + answer string.
+    """
+    params = template["params"]
+    operation = template.get("operation", "add")
+    num_options = params.get("num_options", 4)
+    spread = params.get("distractor_spread", 3)
+
+    a = _pick_value(params, "a")
+    b = _pick_value(params, "b")
+    if operation == "subtract" and params.get("result_non_negative") and a < b:
+        a, b = b, a
+    correct = _compute(operation, a, b)
+
+    distractors: set[int | float] = set()
+    attempts = 0
+    while len(distractors) < num_options - 1 and attempts < 50:
+        delta = random.randint(-spread, spread)
+        if delta == 0:
+            attempts += 1
+            continue
+        candidate = _clean_number(correct + delta)
+        if candidate != correct and candidate >= 0:
+            distractors.add(candidate)
+        attempts += 1
+
+    options = [_format_number(correct)] + [_format_number(d) for d in distractors]
+    random.shuffle(options)
+    prompt = template["prompt_template"].format(a=_format_number(a), b=_format_number(b))
+    return {
+        "prompt": prompt,
+        "answer": _format_number(correct),
+        "params": {"a": a, "b": b, "options": options},
+    }
+
+
+@register("point_on_line")
+def _generate_point_on_line(template: dict) -> dict[str, Any]:
+    """Generate a 'place the number on the line' exercise."""
+    params = template["params"]
+    lo = params["min"]
+    hi = params["max"]
+    step = params.get("step", 1)
+    target_values = list(range(lo, hi + 1, step))
+    target = random.choice(target_values)
+    prompt = template["prompt_template"].format(target=_format_number(target))
+    return {
+        "prompt": prompt,
+        "answer": target,
+        "params": {"min": lo, "max": hi, "step": step, "target": target},
+    }
+
+
+@register("drag_order")
+def _generate_drag_order(template: dict) -> dict[str, Any]:
+    """Generate a drag-to-order exercise (ascending or descending)."""
+    params = template["params"]
+    direction = params.get("direction", "asc")
+    count = params.get("count", 4)
+
+    fixed = params.get("fixed_items")
+    if fixed:
+        items = list(random.sample(fixed, min(count, len(fixed))))
+    else:
+        lo = params["item_min"]
+        hi = params["item_max"]
+        pool = list(range(lo, hi + 1))
+        items = random.sample(pool, count)
+
+    correct = sorted(items, reverse=(direction == "desc"))
+    shuffled = list(correct)
+    while shuffled == correct:
+        random.shuffle(shuffled)
+
+    correct_str = [str(x) for x in correct]
+    items_str = [str(x) for x in shuffled]
+    prompt = template["prompt_template"]
+    return {
+        "prompt": prompt,
+        "answer": correct_str,
+        "params": {"items": items_str, "correct_order": correct_str, "direction": direction},
+    }
 
 
 @register("missing_operator")

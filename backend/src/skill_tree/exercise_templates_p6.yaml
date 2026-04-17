@@ -6,6 +6,7 @@
 - id: num_lire_ecrire_milliard__decomposition_1
   skill_id: num_lire_ecrire_milliard
   difficulty: 1
+  input_type: number
   template:
     type: decomposition
     operation: null
@@ -21,6 +22,7 @@
 - id: ce_division_avance__computation_1
   skill_id: ce_division_avance
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: divide
@@ -36,6 +38,7 @@
 - id: ce_multiplication_decimaux__computation_1
   skill_id: ce_multiplication_decimaux
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -53,6 +56,7 @@
 - id: cm_mult_par_250__computation_1
   skill_id: cm_mult_par_250
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -67,6 +71,7 @@
 - id: cm_div_par_01_05_025__computation_1
   skill_id: cm_div_par_01_05_025
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: divide
@@ -85,6 +90,7 @@
 - id: maitrise_add_soustr__computation_1
   skill_id: maitrise_add_soustr
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: add
@@ -100,6 +106,7 @@
 - id: maitrise_add_soustr__computation_2
   skill_id: maitrise_add_soustr
   difficulty: 2
+  input_type: number
   template:
     type: computation
     operation: subtract
@@ -116,6 +123,7 @@
 - id: maitrise_mult_div__computation_1
   skill_id: maitrise_mult_div
   difficulty: 1
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -131,6 +139,7 @@
 - id: maitrise_mult_div__computation_2
   skill_id: maitrise_mult_div
   difficulty: 2
+  input_type: number
   template:
     type: computation
     operation: divide
@@ -146,6 +155,7 @@
 - id: maitrise_calcul_mental__computation_1
   skill_id: maitrise_calcul_mental
   difficulty: 1
+  input_type: number
   template:
     type: missing_operator
     operation: null
@@ -161,6 +171,7 @@
 - id: maitrise_calcul_mental__computation_2
   skill_id: maitrise_calcul_mental
   difficulty: 2
+  input_type: number
   template:
     type: computation
     operation: multiply
@@ -178,6 +189,7 @@
 - id: resolution_problemes__missing_operator_1
   skill_id: resolution_problemes
   difficulty: 1
+  input_type: number
   template:
     type: missing_operator
     operation: null
@@ -193,6 +205,7 @@
 - id: resolution_problemes__computation_1
   skill_id: resolution_problemes
   difficulty: 2
+  input_type: number
   template:
     type: computation
     operation: multiply

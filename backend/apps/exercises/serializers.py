@@ -6,7 +6,7 @@ from .models import Attempt, ExerciseTemplate
 class ExerciseTemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExerciseTemplate
-        fields = ("id", "skill", "difficulty", "template")
+        fields = ("id", "skill", "difficulty", "input_type", "template")
 
 
 class GeneratedExerciseSerializer(serializers.Serializer):
@@ -14,6 +14,7 @@ class GeneratedExerciseSerializer(serializers.Serializer):
     skill_id = serializers.CharField()
     difficulty = serializers.IntegerField()
     type = serializers.CharField()
+    input_type = serializers.CharField()
     prompt = serializers.CharField()
     params = serializers.JSONField()
     signature = serializers.CharField()
@@ -27,6 +28,7 @@ class AttemptReadSerializer(serializers.ModelSerializer):
             "session",
             "skill",
             "template",
+            "input_type",
             "exercise_params",
             "student_answer",
             "correct_answer",

@@ -17,6 +17,7 @@ class Command(BaseCommand):
                     defaults={
                         "skill_id": t["skill_id"],
                         "difficulty": t.get("difficulty", 1),
+                        "input_type": t.get("input_type", "number"),
                         "template": t["template"],
                     },
                 )

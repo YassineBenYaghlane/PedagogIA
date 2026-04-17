@@ -28,11 +28,11 @@ test("training flow: register → home → exercise → wrong → feedback → s
   await page.getByTestId("start-training").click()
   await expect(page).toHaveURL(/\/exercise/)
 
-  await expect(page.locator("input[inputmode='decimal']")).toBeVisible({ timeout: 10000 })
+  await expect(page.getByTestId("number-pad")).toBeVisible({ timeout: 10000 })
   await page.screenshot({ path: `${SHOTS}/07-exercise-loaded.png`, fullPage: true })
 
-  await page.locator("input[inputmode='decimal']").fill("99999")
-  await page.getByRole("button", { name: /valider/i }).click()
+  for (const d of "99999") await page.getByTestId(`number-pad-key-${d}`).click()
+  await page.getByTestId("number-pad-submit").click()
 
   await expect(page.getByText(/pas tout à fait/i).first()).toBeVisible({ timeout: 15000 })
   await page.screenshot({ path: `${SHOTS}/08-feedback.png`, fullPage: true })

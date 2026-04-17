@@ -4,11 +4,21 @@ from django.db import models
 
 from apps.skills.models import Skill
 
+INPUT_TYPES = [
+    ("number", "Number"),
+    ("mcq", "MCQ"),
+    ("symbol", "Symbol"),
+    ("decomposition", "Decomposition"),
+    ("point_on_line", "Point on number line"),
+    ("drag_order", "Drag to order"),
+]
+
 
 class ExerciseTemplate(models.Model):
     id = models.CharField(primary_key=True, max_length=120)
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE, related_name="templates")
     difficulty = models.PositiveSmallIntegerField(default=1)
+    input_type = models.CharField(max_length=20, choices=INPUT_TYPES, default="number")
     template = models.JSONField()
 
     class Meta:
@@ -28,6 +38,7 @@ class Attempt(models.Model):
     )
     skill = models.ForeignKey(Skill, on_delete=models.PROTECT)
     template = models.ForeignKey(ExerciseTemplate, on_delete=models.PROTECT)
+    input_type = models.CharField(max_length=20, choices=INPUT_TYPES, default="number")
     exercise_params = models.JSONField(default=dict)
     student_answer = models.CharField(max_length=200)
     correct_answer = models.CharField(max_length=200)

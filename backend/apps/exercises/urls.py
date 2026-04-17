@@ -6,11 +6,12 @@ from .diagnostic_views import start as diagnostic_start
 from .drill_views import next_question as drill_next
 from .drill_views import result as drill_result
 from .drill_views import start as drill_start
-from .views import explain_attempt, generate, next_exercise
+from .views import explain_attempt, generate, next_exercise, samples
 
 urlpatterns = [
     path("exercises/generate/", generate, name="exercises-generate"),
     path("exercises/next/", next_exercise, name="exercises-next"),
+    path("exercises/samples/", samples, name="exercises-samples"),
     path("attempts/<uuid:attempt_id>/explain/", explain_attempt, name="attempts-explain"),
     path("diagnostic/start/", diagnostic_start, name="diagnostic-start"),
     path(

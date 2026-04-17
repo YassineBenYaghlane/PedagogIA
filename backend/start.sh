@@ -16,6 +16,5 @@ else
     --timeout 60 \
     --graceful-timeout 30 \
     --access-logfile - \
-    --error-logfile - \
-    --forwarded-allow-ips='*'
+    --error-logfile -
 fi

@@ -1,3 +1,5 @@
+import json
+
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
@@ -32,6 +34,27 @@ class SessionViewSet(ModelViewSet):
             student = get_object_or_404(Student, id=student_id, user=request.user)
             return Response(session_summaries(student))
         return super().list(request, *args, **kwargs)
+
+    @action(detail=True, methods=["get"], url_path="export.json")
+    def export_json(self, request, pk=None):
+        session = self.get_object()
+        attempts = session.attempts.select_related("skill", "template").order_by("responded_at")
+        payload = {
+            "session": {
+                "id": str(session.id),
+                "mode": session.mode,
+                "student_id": str(session.student_id),
+                "student_name": session.student.display_name,
+                "started_at": session.started_at.isoformat() if session.started_at else None,
+                "ended_at": session.ended_at.isoformat() if session.ended_at else None,
+            },
+            "attempts": AttemptReadSerializer(attempts, many=True).data,
+        }
+        body = json.dumps(payload, ensure_ascii=False, indent=2, default=str).encode("utf-8")
+        filename = f"session-{session.mode}-{session.started_at.date()}.json"
+        resp = HttpResponse(body, content_type="application/json; charset=utf-8")
+        resp["Content-Disposition"] = f'attachment; filename="{filename}"'
+        return resp
 
     @action(detail=True, methods=["get"], url_path="diagnostic.pdf")
     def diagnostic_pdf(self, request, pk=None):

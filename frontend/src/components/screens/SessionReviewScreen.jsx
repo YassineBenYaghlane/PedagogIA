@@ -5,7 +5,8 @@ import Card from "../ui/Card"
 import Chip from "../ui/Chip"
 import { Heading, LatinLabel } from "../ui/Heading"
 import { useAuthStore } from "../../stores/authStore"
-import { fetchSession, fetchSessionAttempts } from "../../api/sessions"
+import { downloadSessionExport, fetchSession, fetchSessionAttempts } from "../../api/sessions"
+import { downloadDiagnosticPdf } from "../../api/history"
 
 const MODE_LABELS = {
   learn: "Entraînement",
@@ -43,8 +44,36 @@ function formatDuration(seconds) {
 function paramsSummary(params) {
   if (!params || typeof params !== "object") return ""
   return Object.entries(params)
+    .filter(([k]) => k !== "options")
     .map(([k, v]) => `${k} = ${Array.isArray(v) ? v.join(", ") : v}`)
     .join(" · ")
+}
+
+function mcqOptions(params, studentAnswer, correctAnswer) {
+  const opts = params?.options
+  if (!Array.isArray(opts) || opts.length === 0) return null
+  return (
+    <div className="flex flex-wrap gap-1.5 mt-2" data-testid="mcq-options">
+      {opts.map((opt) => {
+        const isCorrect = String(opt) === String(correctAnswer)
+        const isPicked = String(opt) === String(studentAnswer)
+        const tone = isCorrect
+          ? "bg-sage-leaf/60 text-sage-deep border-sage"
+          : isPicked
+            ? "bg-rose-soft text-rose border-rose/40"
+            : "bg-chalk text-stem border-bark/10"
+        return (
+          <span
+            key={opt}
+            className={`px-2 py-0.5 rounded-full text-xs font-mono tabular-nums border ${tone}`}
+          >
+            {opt}
+            {isCorrect ? " ✓" : isPicked ? " ✗" : ""}
+          </span>
+        )
+      })}
+    </div>
+  )
 }
 
 function AttemptRow({ attempt, index }) {
@@ -76,10 +105,11 @@ function AttemptRow({ attempt, index }) {
           )}
         </div>
       </div>
-      <div className="font-display text-bark text-lg mb-2">
+      <div className="font-display text-bark text-lg">
         {attempt.prompt || paramsSummary(attempt.exercise_params) || "—"}
       </div>
-      <div className="grid grid-cols-2 gap-3 text-sm">
+      {mcqOptions(attempt.exercise_params, attempt.student_answer, attempt.correct_answer)}
+      <div className="grid grid-cols-2 gap-3 text-sm mt-3">
         <div>
           <div className="latin text-[10px]">Réponse de l’élève</div>
           <div
@@ -197,24 +227,48 @@ export default function SessionReviewScreen() {
               {duration != null ? ` · ${formatDuration(duration)}` : ""}
             </div>
           </div>
-          {totals && (
-            <div className="text-right">
-              <div
-                className={`font-mono tabular-nums text-3xl font-semibold ${
-                  totals.pct >= 80
-                    ? "text-sage-deep"
-                    : totals.pct >= 40
-                      ? "text-honey"
-                      : "text-rose"
-                }`}
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => downloadSessionExport(session.id)}
+              className="p-2 rounded-md text-stem hover:text-bark hover:bg-sage-leaf/40 transition-colors cursor-pointer"
+              title="Exporter la session (JSON)"
+              aria-label="Exporter la session"
+              data-testid="session-review-export"
+            >
+              <Icon name="download" size={18} />
+            </button>
+            {session.mode === "diagnostic" && (
+              <button
+                type="button"
+                onClick={() => downloadDiagnosticPdf(session.id)}
+                className="p-2 rounded-md text-stem hover:text-bark hover:bg-sage-leaf/40 transition-colors cursor-pointer"
+                title="Exporter le diagnostic (PDF)"
+                aria-label="Exporter le diagnostic PDF"
+                data-testid="session-review-diagnostic-pdf"
               >
-                {totals.pct}%
+                <Icon name="description" size={18} />
+              </button>
+            )}
+            {totals && (
+              <div className="text-right pl-1">
+                <div
+                  className={`font-mono tabular-nums text-3xl font-semibold ${
+                    totals.pct >= 80
+                      ? "text-sage-deep"
+                      : totals.pct >= 40
+                        ? "text-honey"
+                        : "text-rose"
+                  }`}
+                >
+                  {totals.pct}%
+                </div>
+                <div className="text-xs text-stem font-mono tabular-nums">
+                  {totals.correct} / {totals.total} correctes
+                </div>
               </div>
-              <div className="text-xs text-stem font-mono tabular-nums">
-                {totals.correct} / {totals.total} correctes
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {session.mode === "diagnostic" && (

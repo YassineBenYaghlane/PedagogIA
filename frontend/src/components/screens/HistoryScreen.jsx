@@ -10,11 +10,13 @@ import {
   downloadStudentExport,
   downloadDiagnosticPdf,
 } from "../../api/history"
+import { downloadSessionExport } from "../../api/sessions"
 
 const MODE_LABELS = {
   learn: "Entraînement",
   diagnostic: "Diagnostic",
   drill: "Automatismes",
+  exam: "Examen",
 }
 
 function formatDate(iso) {
@@ -37,7 +39,7 @@ function formatDuration(seconds) {
   return `${m}m ${s.toString().padStart(2, "0")}s`
 }
 
-function SessionRow({ row, onOpen, onOpenDiagnostic }) {
+function SessionRow({ row, onOpen }) {
   const pct = Math.round((row.accuracy || 0) * 100)
   const tone = pct >= 80 ? "text-sage-deep" : pct >= 40 ? "text-honey" : "text-rose"
   const isDiagnostic = row.mode === "diagnostic"
@@ -57,8 +59,36 @@ function SessionRow({ row, onOpen, onOpenDiagnostic }) {
           {formatDuration(row.duration_seconds)}
         </div>
       </div>
-      <div className="flex items-center gap-3 shrink-0">
-        <div className="text-right">
+      <div className="flex items-center gap-2 shrink-0">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            downloadSessionExport(row.id)
+          }}
+          className="p-2 rounded-md text-stem hover:text-bark hover:bg-sage-leaf/40 transition-colors cursor-pointer"
+          title="Exporter la session (JSON)"
+          aria-label="Exporter la session"
+          data-testid="history-row-export"
+        >
+          <Icon name="download" size={18} />
+        </button>
+        {isDiagnostic && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              downloadDiagnosticPdf(row.id)
+            }}
+            className="p-2 rounded-md text-stem hover:text-bark hover:bg-sage-leaf/40 transition-colors cursor-pointer"
+            title="Exporter le diagnostic (PDF)"
+            aria-label="Exporter le diagnostic PDF"
+            data-testid="history-row-pdf"
+          >
+            <Icon name="description" size={18} />
+          </button>
+        )}
+        <div className="text-right w-32">
           <div className={`font-mono tabular-nums font-semibold ${tone}`}>
             {row.total_attempts ? `${pct}%` : "—"}
           </div>
@@ -66,36 +96,6 @@ function SessionRow({ row, onOpen, onOpenDiagnostic }) {
             {row.correct}/{row.total_attempts} · {row.skills_touched} compétences
           </div>
         </div>
-        {isDiagnostic && (
-          <>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                onOpenDiagnostic(row)
-              }}
-              className="p-2 rounded-md text-stem hover:text-bark hover:bg-sage-leaf/40 transition-colors cursor-pointer"
-              title="Verdict du diagnostic"
-              aria-label="Verdict du diagnostic"
-              data-testid="history-row-verdict"
-            >
-              <Icon name="flag" size={18} />
-            </button>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                downloadDiagnosticPdf(row.id)
-              }}
-              className="p-2 rounded-md text-stem hover:text-bark hover:bg-sage-leaf/40 transition-colors cursor-pointer"
-              title="Exporter PDF"
-              aria-label="Exporter PDF"
-              data-testid="history-row-pdf"
-            >
-              <Icon name="download" size={18} />
-            </button>
-          </>
-        )}
       </div>
     </button>
   )
@@ -196,11 +196,6 @@ export default function HistoryScreen() {
                 onOpen={(r) =>
                   navigate(
                     `/history/session/${r.id}${fromParent ? "?from=parent" : ""}`
-                  )
-                }
-                onOpenDiagnostic={(r) =>
-                  navigate(
-                    `/history/diagnostic/${r.id}${fromParent ? "?from=parent" : ""}`
                   )
                 }
               />

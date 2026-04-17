@@ -10,6 +10,7 @@ import GoogleCallbackScreen from "./components/screens/GoogleCallbackScreen"
 import ChildPickerScreen from "./components/screens/ChildPickerScreen"
 import DiagnosticScreen from "./components/screens/DiagnosticScreen"
 import DrillScreen from "./components/screens/DrillScreen"
+import ExamScreen from "./components/screens/ExamScreen"
 import ProfileScreen from "./components/screens/ProfileScreen"
 import DebugInputsScreen from "./components/screens/DebugInputsScreen"
 import HistoryScreen from "./components/screens/HistoryScreen"
@@ -48,6 +49,7 @@ export default function App() {
         <Route path="/exercise" element={<RequireAuth><ExerciseScreen /></RequireAuth>} />
         <Route path="/diagnostic" element={<RequireAuth><DiagnosticScreen /></RequireAuth>} />
         <Route path="/drill" element={<RequireAuth><DrillScreen /></RequireAuth>} />
+        <Route path="/exam" element={<RequireAuth><ExamScreen /></RequireAuth>} />
         <Route path="/skill-tree" element={<RequireAuth><SkillTreeScreen /></RequireAuth>} />
         <Route path="/profile" element={<RequireAuth><ProfileScreen /></RequireAuth>} />
         <Route path="/history" element={<RequireAuth><HistoryScreen /></RequireAuth>} />

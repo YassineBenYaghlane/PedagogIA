@@ -6,6 +6,9 @@ from .diagnostic_views import start as diagnostic_start
 from .drill_views import next_question as drill_next
 from .drill_views import result as drill_result
 from .drill_views import start as drill_start
+from .exam_views import next_question as exam_next
+from .exam_views import result as exam_result
+from .exam_views import start as exam_start
 from .views import explain_attempt, generate, next_exercise, samples
 
 urlpatterns = [
@@ -27,4 +30,7 @@ urlpatterns = [
     path("drill/start/", drill_start, name="drill-start"),
     path("drill/<uuid:session_id>/next/", drill_next, name="drill-next"),
     path("drill/<uuid:session_id>/result/", drill_result, name="drill-result"),
+    path("exam/start/", exam_start, name="exam-start"),
+    path("exam/<uuid:session_id>/next/", exam_next, name="exam-next"),
+    path("exam/<uuid:session_id>/result/", exam_result, name="exam-result"),
 ]

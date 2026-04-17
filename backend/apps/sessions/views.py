@@ -65,6 +65,8 @@ class SessionViewSet(ModelViewSet):
             )
         elif session.mode == "diagnostic":
             msg = "Bravo !" if attempt.is_correct else "Réponse notée."
+        elif session.mode == "exam":
+            msg = "Réponse enregistrée."
         else:
             msg = "Bravo !" if attempt.is_correct else "Pas tout à fait."
         feedback = {

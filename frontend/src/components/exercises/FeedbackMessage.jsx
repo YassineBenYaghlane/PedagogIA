@@ -73,14 +73,23 @@ function ExplainSection({ feedback, explanation, explaining, onExplain }) {
   )
 }
 
-export default function FeedbackMessage({ feedback, explanation, explaining, onExplain }) {
+export default function FeedbackMessage({ feedback, explanation, explaining, onExplain, neutral }) {
   const ok = feedback?.is_correct
   useEffect(() => {
-    if (!feedback) return
+    if (!feedback || neutral) return
     if (ok) playCorrect()
     else playIncorrect()
-  }, [feedback, ok])
+  }, [feedback, ok, neutral])
   if (!feedback) return null
+
+  if (neutral) {
+    return (
+      <div className="mt-6 rounded-xl p-5 bg-mist border border-bark/5 text-center">
+        <LatinLabel className="block">Responsum acceptum</LatinLabel>
+        <div className="font-display text-lg text-bark mt-1">{feedback.message}</div>
+      </div>
+    )
+  }
 
   return (
     <div

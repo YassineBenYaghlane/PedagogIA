@@ -39,6 +39,8 @@ __pycache__/
 
 # Environment
 .env
+.env.*
 !.env.example
+!.env.prod.example
 .claude/scheduled_tasks.lock
 backend/staticfiles/

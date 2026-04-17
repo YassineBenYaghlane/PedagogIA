@@ -11,6 +11,10 @@ if [ "${DJANGO_DEV_SERVER:-0}" = "1" ]; then
 else
   exec uv run gunicorn pedagogia.wsgi:application \
     --bind 0.0.0.0:8000 \
-    --workers 2 \
-    --reload
+    --workers "${GUNICORN_WORKERS:-3}" \
+    --worker-class sync \
+    --timeout 60 \
+    --graceful-timeout 30 \
+    --access-logfile - \
+    --error-logfile -
 fi

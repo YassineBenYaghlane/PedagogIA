@@ -34,6 +34,7 @@ export default function ExerciseCard({
   exercise, skill, grade, feedback, onSubmit, onNext, busy,
   explanation, explaining, onExplain, mode,
 }) {
+  const examMode = mode === "exam"
   const nextRef = useRef(null)
 
   useEffect(() => {
@@ -71,13 +72,14 @@ export default function ExerciseCard({
           onSubmit,
         })}
 
-      {!feedback && mode !== "diagnostic" && <HintPanel exercise={exercise} />}
+      {!feedback && mode !== "diagnostic" && !examMode && <HintPanel exercise={exercise} />}
 
       <FeedbackMessage
         feedback={feedback}
         explanation={explanation}
         explaining={explaining}
         onExplain={onExplain}
+        neutral={examMode}
       />
 
       {feedback && (

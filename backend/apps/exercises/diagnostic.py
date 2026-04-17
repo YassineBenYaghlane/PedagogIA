@@ -1,15 +1,21 @@
-"""IRT-style adaptive diagnostic across P1..P6.
+"""Stairs-policy adaptive diagnostic across P1..P6.
 
-Per-year Rasch ability θ_y ∈ ℝ and posterior variance σ_y² are tracked as the
-student answers. Questions target the year with the widest confidence interval
-(max-information sampling). The test terminates on CI convergence, floor or
-ceiling detection, or at `DIAGNOSTIC_MAX_LENGTH` questions.
+The algorithm walks the student up or down the (grade, difficulty) ladder.
 
-The final verdict is the highest year whose posterior mastery probability is
-≥ VERDICT_MASTERY_THRESHOLD with sufficient confidence.
+  Correct answer → climb (after a short in-year exploration phase)
+  Wrong answer   → descend, with inertia: a single wrong answer in an
+                   otherwise-good window first retries another skill
+                   before committing to the step-down.
+  Floor / ceiling hit → terminate.
+
+Within a (grade, difficulty) pair, rotate through arithmetic categories
+(num / add / soustr / mult / div / cm) so the student sees breadth before
+the cursor moves.
+
+The verdict is the highest grade where the student answered enough
+questions and held a success rate ≥ VERDICT_RATE at difficulty ≥ 2.
 """
 
-import math
 from collections import defaultdict
 from dataclasses import dataclass, field
 
@@ -20,10 +26,9 @@ from .models import Attempt, ExerciseTemplate
 from .services import generate_exercise
 
 DIAGNOSTIC_MAX_LENGTH = 25
-DIAGNOSTIC_MIN_LENGTH = 8
+DIAGNOSTIC_MIN_LENGTH = 6
 
-# Legacy name kept for callers that still want an estimate of "expected length"
-DIAGNOSTIC_LENGTH = DIAGNOSTIC_MAX_LENGTH
+DIAGNOSTIC_LENGTH = DIAGNOSTIC_MAX_LENGTH  # legacy alias
 
 CATEGORIES = [
     ("num", "Numération"),
@@ -36,23 +41,17 @@ CATEGORIES = [
 
 GRADE_ORDER = ["P1", "P2", "P3", "P4", "P5", "P6"]
 
-# Rasch IRT parameters
-PRIOR_MEAN = 0.0
-PRIOR_VAR = 4.0  # σ₀² — broad prior so early answers shift θ meaningfully
-DIFFICULTY_STEP = 0.7  # b = (difficulty - 2) * step
+# Stairs tuning
+EXPLORE_MIN_CATEGORIES = 2
+EXPLORE_MIN_SKILLS = 2
+INERTIA_WINDOW = 3
+INERTIA_MISSES_TO_DESCEND = 2
 
-# Convergence / stop thresholds (on σ_y, not σ_y²)
-SE_CONVERGED = 0.55  # stop probing a year when SE drops below this
-FLOOR_ABILITY = -1.5  # θ below this with tight CI → "not this year"
-CEILING_ABILITY = 1.5  # θ above this with tight CI → "fully handled"
-
-# Bucket + verdict thresholds
 GREEN_THRESHOLD = 0.8
 RED_THRESHOLD = 0.4
-VERDICT_MASTERY_THRESHOLD = 0.7
-# The test runs ~4 answers per year → σ≈1.0. Require a bit tighter than that
-# but don't demand impossible precision given a 25-question budget.
-VERDICT_CONFIDENCE_SE = 1.2
+VERDICT_RATE = 0.7
+VERDICT_MIN_N = 3
+VERDICT_MIN_DIFFICULTY = 2
 
 
 @dataclass
@@ -62,34 +61,34 @@ class Slot:
 
 
 @dataclass
+class Cursor:
+    grade: str
+    difficulty: int
+
+    def at_floor(self) -> bool:
+        return self.grade == GRADE_ORDER[0] and self.difficulty == 1
+
+    def at_ceiling(self) -> bool:
+        return self.grade == GRADE_ORDER[-1] and self.difficulty == 3
+
+
+@dataclass
 class YearState:
     grade: str
     n: int = 0
     correct: int = 0
-    theta: float = PRIOR_MEAN
-    variance: float = PRIOR_VAR
+    correct_by_diff: dict[int, int] = field(default_factory=lambda: {1: 0, 2: 0, 3: 0})
+    total_by_diff: dict[int, int] = field(default_factory=lambda: {1: 0, 2: 0, 3: 0})
     covered_skills: set[str] = field(default_factory=set)
+    covered_categories: set[str] = field(default_factory=set)
+    visits: int = 0
 
     @property
-    def se(self) -> float:
-        return math.sqrt(self.variance)
+    def rate(self) -> float:
+        return self.correct / self.n if self.n else 0.0
 
-    @property
-    def mastery(self) -> float:
-        return _sigmoid(self.theta)
-
-    def ci(self, z: float = 1.96) -> tuple[float, float]:
-        lo = _sigmoid(self.theta - z * self.se)
-        hi = _sigmoid(self.theta + z * self.se)
-        return lo, hi
-
-
-def _sigmoid(x: float) -> float:
-    if x >= 0:
-        ex = math.exp(-x)
-        return 1.0 / (1.0 + ex)
-    ex = math.exp(x)
-    return ex / (1.0 + ex)
+    def max_difficulty_reached(self) -> int:
+        return max((d for d, total in self.total_by_diff.items() if total > 0), default=0)
 
 
 def _category_of(skill_id: str) -> str | None:
@@ -100,28 +99,20 @@ def _category_of(skill_id: str) -> str | None:
     return None
 
 
-def _difficulty_to_b(difficulty: int) -> float:
-    return (difficulty - 2) * DIFFICULTY_STEP
-
-
-def _bayes_update(state: YearState, difficulty: int, is_correct: bool) -> None:
-    """Laplace-approximation update of θ_y given one Rasch response."""
-    b = _difficulty_to_b(difficulty)
-    p = _sigmoid(state.theta - b)
-    info = p * (1.0 - p)
-    obs = 1.0 if is_correct else 0.0
-    prior_precision = 1.0 / state.variance
-    posterior_precision = prior_precision + info
-    state.variance = 1.0 / posterior_precision
-    state.theta = state.theta + state.variance * (obs - p)
+def _bump_state(state: YearState, skill_id: str, difficulty: int, is_correct: bool) -> None:
     state.n += 1
+    state.total_by_diff[difficulty] = state.total_by_diff.get(difficulty, 0) + 1
     if is_correct:
         state.correct += 1
+        state.correct_by_diff[difficulty] = state.correct_by_diff.get(difficulty, 0) + 1
+    state.covered_skills.add(skill_id)
+    cat = _category_of(skill_id)
+    if cat is not None:
+        state.covered_categories.add(cat)
 
 
-def _template_pool() -> dict[str, dict[int, list[str]]]:
-    """{grade: {difficulty: [skill_id, ...]}} for skills with templates."""
-    pool: dict[str, dict[int, list[str]]] = defaultdict(lambda: defaultdict(list))
+def _template_pool() -> dict[tuple[str, int], dict[str, list[str]]]:
+    pool: dict[tuple[str, int], dict[str, list[str]]] = defaultdict(lambda: defaultdict(list))
     rows = ExerciseTemplate.objects.select_related("skill").values(
         "skill_id", "skill__grade", "difficulty"
     )
@@ -131,139 +122,167 @@ def _template_pool() -> dict[str, dict[int, list[str]]]:
         if key in seen:
             continue
         seen.add(key)
-        pool[row["skill__grade"]][row["difficulty"]].append(row["skill_id"])
+        cat = _category_of(row["skill_id"])
+        if cat is None:
+            continue
+        pool[(row["skill__grade"], row["difficulty"])][cat].append(row["skill_id"])
     return pool
 
 
-def _replay_states(attempts: list[Attempt]) -> dict[str, YearState]:
-    """Rebuild per-year states from stored attempts."""
-    states: dict[str, YearState] = {g: YearState(grade=g) for g in GRADE_ORDER}
-    for a in attempts:
-        grade = getattr(a.skill, "grade", None)
-        if grade not in states:
-            continue
-        difficulty = a.template.difficulty if a.template_id else 2
-        _bayes_update(states[grade], difficulty, a.is_correct)
-        states[grade].covered_skills.add(a.skill_id)
-    return states
-
-
-def _floor_reached(states: dict[str, YearState]) -> bool:
-    s = states["P1"]
-    return s.n >= 3 and s.theta <= FLOOR_ABILITY and s.se < SE_CONVERGED
-
-
-def _ceiling_reached(states: dict[str, YearState]) -> bool:
-    s = states["P6"]
-    return s.n >= 3 and s.theta >= CEILING_ABILITY and s.se < SE_CONVERGED
-
-
-def _converged(states: dict[str, YearState]) -> bool:
-    """Done when every year the student might still be placed in is narrow."""
-    return all(
-        s.se < SE_CONVERGED or s.theta <= FLOOR_ABILITY or s.theta >= CEILING_ABILITY
-        for s in states.values()
-    )
-
-
-def _pick_year(
-    states: dict[str, YearState],
-    student_grade: str,
-    pool: dict[str, dict[int, list[str]]],
-) -> str | None:
-    """Year with the widest CI that still has askable templates and isn't pinned."""
-    candidates: list[tuple[float, int, str]] = []
-    student_idx = GRADE_ORDER.index(student_grade) if student_grade in GRADE_ORDER else 2
-    for grade in GRADE_ORDER:
-        s = states[grade]
-        if not pool.get(grade):
-            continue
-        if s.theta <= FLOOR_ABILITY and s.se < SE_CONVERGED:
-            continue
-        if s.theta >= CEILING_ABILITY and s.se < SE_CONVERGED:
-            continue
-        # Tie-break: distance from student's declared grade (prefer closer first)
-        year_idx = GRADE_ORDER.index(grade)
-        candidates.append((-s.se, abs(year_idx - student_idx), grade))
-    if not candidates:
-        return None
-    candidates.sort()
-    return candidates[0][2]
-
-
-def _pick_difficulty(state: YearState) -> int:
-    """Difficulty whose b is closest to θ_y."""
-    best: tuple[float, int] | None = None
-    for d in (1, 2, 3):
-        gap = abs(_difficulty_to_b(d) - state.theta)
-        if best is None or gap < best[0]:
-            best = (gap, d)
-    assert best is not None
-    return best[1]
-
-
-def _pick_skill(
-    pool: dict[str, dict[int, list[str]]],
-    grade: str,
-    preferred_difficulty: int,
-    state: YearState,
-    global_covered: set[str],
+def _nearest_cell(
+    pool: dict[tuple[str, int], dict[str, list[str]]], grade: str, difficulty: int
 ) -> tuple[str, int] | None:
-    """Pick (skill_id, difficulty) for the chosen year, rotating categories."""
-    year_pool = pool.get(grade, {})
-    if not year_pool:
-        return None
-
-    difficulty_order = sorted(year_pool.keys(), key=lambda d: abs(d - preferred_difficulty))
-    # Category counts so far in this year — least-covered first
-    cat_counts: dict[str, int] = defaultdict(int)
-    for sid in state.covered_skills:
-        cat = _category_of(sid)
-        if cat is not None:
-            cat_counts[cat] += 1
-
-    def rank(sid: str) -> tuple[int, int, str]:
-        cat = _category_of(sid) or "zz"
-        already_covered_year = sid in state.covered_skills
-        already_covered_global = sid in global_covered
-        return (
-            int(already_covered_year) * 2 + int(already_covered_global),
-            cat_counts[cat],
-            sid,
-        )
-
-    for d in difficulty_order:
-        skills = sorted(year_pool[d], key=rank)
-        if skills:
-            return skills[0], d
+    """Closest (grade, difficulty) cell with templates within bounds."""
+    gi = GRADE_ORDER.index(grade) if grade in GRADE_ORDER else 0
+    for delta in range(0, max(len(GRADE_ORDER), 3)):
+        for dg in (0, -delta, delta) if delta else (0,):
+            g_idx = gi + dg
+            if not 0 <= g_idx < len(GRADE_ORDER):
+                continue
+            g = GRADE_ORDER[g_idx]
+            for dd in (0, -delta, delta) if delta else (0,):
+                d = difficulty + dd
+                if not 1 <= d <= 3:
+                    continue
+                if pool.get((g, d)):
+                    return g, d
     return None
 
 
+def _init_cursor(student: Student) -> Cursor:
+    grade = student.grade if student.grade in GRADE_ORDER else "P3"
+    return Cursor(grade=grade, difficulty=1)
+
+
+def _recent_outcomes_at_grade(grade: str, attempts: list[Attempt], up_to: int) -> list[bool]:
+    recent: list[bool] = []
+    for a in reversed(attempts[:up_to]):
+        if getattr(a.skill, "grade", None) == grade:
+            recent.append(a.is_correct)
+            if len(recent) >= INERTIA_WINDOW:
+                break
+    return list(reversed(recent))
+
+
+def _step_cursor(
+    cursor: Cursor,
+    states: dict[str, YearState],
+    attempts: list[Attempt],
+    up_to: int,
+) -> Cursor:
+    """Decide the next cursor after up_to attempts are folded into `states`."""
+    if up_to == 0:
+        return cursor
+    last = attempts[up_to - 1]
+    last_grade = getattr(last.skill, "grade", None)
+    if last_grade != cursor.grade:
+        return cursor
+
+    state = states[cursor.grade]
+    if last.is_correct:
+        enough_breadth = (
+            len(state.covered_categories) >= EXPLORE_MIN_CATEGORIES
+            and len(state.covered_skills) >= EXPLORE_MIN_SKILLS
+        )
+        if not enough_breadth:
+            return cursor
+        if cursor.difficulty < 3:
+            return Cursor(cursor.grade, cursor.difficulty + 1)
+        idx = GRADE_ORDER.index(cursor.grade)
+        if idx + 1 < len(GRADE_ORDER):
+            return Cursor(GRADE_ORDER[idx + 1], 1)
+        return cursor
+
+    window = _recent_outcomes_at_grade(cursor.grade, attempts, up_to)
+    misses = sum(1 for ok in window if not ok)
+    if cursor.difficulty > 1 and misses < INERTIA_MISSES_TO_DESCEND:
+        return cursor
+    if cursor.difficulty > 1:
+        return Cursor(cursor.grade, cursor.difficulty - 1)
+    idx = GRADE_ORDER.index(cursor.grade)
+    if idx > 0:
+        return Cursor(GRADE_ORDER[idx - 1], 3)
+    return cursor
+
+
+def _replay(student: Student, attempts: list[Attempt]) -> tuple[Cursor, dict[str, YearState]]:
+    states: dict[str, YearState] = {g: YearState(grade=g) for g in GRADE_ORDER}
+    cursor = _init_cursor(student)
+    states[cursor.grade].visits = 1
+    for i, a in enumerate(attempts):
+        grade = getattr(a.skill, "grade", None)
+        if grade in states and a.template_id:
+            _bump_state(states[grade], a.skill_id, a.template.difficulty, a.is_correct)
+        new_cursor = _step_cursor(cursor, states, attempts, up_to=i + 1)
+        if (new_cursor.grade, new_cursor.difficulty) != (cursor.grade, cursor.difficulty):
+            states[new_cursor.grade].visits += 1
+            cursor = new_cursor
+    return cursor, states
+
+
+def _pick_skill(
+    pool: dict[tuple[str, int], dict[str, list[str]]],
+    cursor: Cursor,
+    state: YearState,
+    session_covered: set[str],
+) -> Slot | None:
+    cell_pool = pool.get((cursor.grade, cursor.difficulty))
+    if not cell_pool:
+        fallback = _nearest_cell(pool, cursor.grade, cursor.difficulty)
+        if fallback is None:
+            return None
+        cursor = Cursor(fallback[0], fallback[1])
+        cell_pool = pool.get((cursor.grade, cursor.difficulty), {})
+
+    cat_count = {cat: 0 for cat, _ in CATEGORIES}
+    for sid in state.covered_skills:
+        c = _category_of(sid)
+        if c is not None:
+            cat_count[c] = cat_count.get(c, 0) + 1
+    cat_order = sorted(cat_count, key=lambda c: (cat_count[c], c))
+
+    def rank(sid: str) -> tuple[int, int]:
+        year_covered = sid in state.covered_skills
+        session_cov = sid in session_covered
+        return (int(year_covered) * 2 + int(session_cov), 0)
+
+    for cat in cat_order:
+        skills = sorted(cell_pool.get(cat, []), key=rank)
+        if skills:
+            return Slot(skill_id=skills[0], difficulty=cursor.difficulty)
+    for skills in cell_pool.values():
+        if skills:
+            return Slot(skill_id=sorted(skills, key=rank)[0], difficulty=cursor.difficulty)
+    return None
+
+
+def _should_stop(cursor: Cursor, states: dict[str, YearState], attempts: list[Attempt]) -> bool:
+    n = len(attempts)
+    if n >= DIAGNOSTIC_MAX_LENGTH:
+        return True
+    if n < DIAGNOSTIC_MIN_LENGTH or not attempts:
+        return False
+    last = attempts[-1]
+    if not last.is_correct and cursor.at_floor():
+        if states["P1"].n >= 3:
+            return True
+    if last.is_correct and cursor.at_ceiling():
+        s = states["P6"]
+        if s.n >= 3 and len(s.covered_skills) >= 2:
+            return True
+    return False
+
+
 def select_next_slot(student: Student, attempts: list[Attempt]) -> Slot | None:
-    """IRT max-information next-question selection."""
-    if len(attempts) >= DIAGNOSTIC_MAX_LENGTH:
+    cursor, states = _replay(student, attempts)
+    if _should_stop(cursor, states, attempts):
         return None
-
-    states = _replay_states(attempts)
-    if len(attempts) >= DIAGNOSTIC_MIN_LENGTH and _converged(states):
-        return None
-
     pool = _template_pool()
     if not pool:
         return None
-
-    year = _pick_year(states, student.grade, pool)
-    if year is None:
-        return None
-
-    state = states[year]
-    preferred = _pick_difficulty(state)
-    global_covered = {a.skill_id for a in attempts}
-    picked = _pick_skill(pool, year, preferred, state, global_covered)
-    if picked is None:
-        return None
-    skill_id, difficulty = picked
-    return Slot(skill_id=skill_id, difficulty=difficulty)
+    state = states[cursor.grade]
+    session_covered = {a.skill_id for a in attempts}
+    return _pick_skill(pool, cursor, state, session_covered)
 
 
 def get_exercise_for_slot(slot: Slot) -> dict:
@@ -278,17 +297,24 @@ def _bucket(rate: float) -> str:
     return "orange"
 
 
-def _fwb_verdict(states: dict[str, YearState]) -> dict:
-    """Highest year whose mastery prob is ≥ threshold with tight CI."""
+def _fwb_verdict(student: Student, states: dict[str, YearState], attempts: list[Attempt]) -> dict:
     best: str | None = None
-    best_mastery = 0.0
+    best_rate = 0.0
     for grade in GRADE_ORDER:
         s = states[grade]
-        if s.n == 0:
+        if s.n < VERDICT_MIN_N:
             continue
-        if s.mastery >= VERDICT_MASTERY_THRESHOLD and s.se <= VERDICT_CONFIDENCE_SE:
+        if s.max_difficulty_reached() < VERDICT_MIN_DIFFICULTY:
+            continue
+        if s.rate >= VERDICT_RATE:
             best = grade
-            best_mastery = s.mastery
+            best_rate = s.rate
+    if best is None:
+        for grade in GRADE_ORDER:
+            if states[grade].n >= 2 and states[grade].rate >= VERDICT_RATE * 0.8:
+                best = grade
+                best_rate = states[grade].rate
+                break
     if best is None:
         return {
             "level": None,
@@ -298,18 +324,27 @@ def _fwb_verdict(states: dict[str, YearState]) -> dict:
                 "Refaites le diagnostic pour affiner."
             ),
         }
-    narrative = _verdict_narrative(best, states)
     return {
         "level": best,
-        "confidence": round(best_mastery, 2),
-        "narrative": narrative,
+        "confidence": round(best_rate, 2),
+        "narrative": _verdict_narrative(best, states, student),
     }
 
 
-def _verdict_narrative(level: str, states: dict[str, YearState]) -> str:
-    mastered = [g for g in GRADE_ORDER if states[g].n and states[g].mastery >= 0.7]
-    shaky = [g for g in GRADE_ORDER if states[g].n and 0.4 <= states[g].mastery < 0.7]
+def _verdict_narrative(level: str, states: dict[str, YearState], student: Student) -> str:
+    mastered = [g for g in GRADE_ORDER if states[g].n >= 2 and states[g].rate >= VERDICT_RATE]
+    shaky = [
+        g
+        for g in GRADE_ORDER
+        if states[g].n >= 2 and RED_THRESHOLD <= states[g].rate < VERDICT_RATE
+    ]
     parts = [f"Niveau FWB estimé : {level}."]
+    declared = student.grade if student.grade in GRADE_ORDER else None
+    if declared and declared != level:
+        if GRADE_ORDER.index(level) > GRADE_ORDER.index(declared):
+            parts.append(f"Au-dessus du niveau déclaré ({declared}).")
+        else:
+            parts.append(f"En deçà du niveau déclaré ({declared}).")
     if mastered:
         parts.append(f"Solide sur {', '.join(mastered)}.")
     if shaky:
@@ -318,14 +353,13 @@ def _verdict_narrative(level: str, states: dict[str, YearState]) -> str:
 
 
 def build_result(session) -> dict:
-    """Aggregate diagnostic attempts into per-skill + per-year + verdict."""
     attempts = list(
         Attempt.objects.filter(session=session)
         .select_related("skill", "template")
         .order_by("responded_at")
     )
 
-    states = _replay_states(attempts)
+    _, states = _replay(session.student, attempts)
 
     by_skill: dict[str, list[Attempt]] = defaultdict(list)
     for a in attempts:
@@ -365,7 +399,7 @@ def build_result(session) -> dict:
 
     grades = _grade_summary(skills_result)
     years = _year_summary(states)
-    verdict = _fwb_verdict(states)
+    verdict = _fwb_verdict(session.student, states, attempts)
 
     strengths = [s for s in skills_result if s["bucket"] == "green"]
     weaknesses = [s for s in skills_result if s["bucket"] == "red"]
@@ -395,17 +429,15 @@ def _year_summary(states: dict[str, YearState]) -> list[dict]:
         s = states[grade]
         if s.n == 0:
             continue
-        lo, hi = s.ci()
         out.append(
             {
                 "grade": grade,
                 "n": s.n,
                 "correct": s.correct,
-                "mastery_pct": round(s.mastery * 100),
-                "ci_lo": round(lo * 100),
-                "ci_hi": round(hi * 100),
-                "se": round(s.se, 2),
-                "bucket": _bucket(s.mastery),
+                "max_difficulty": s.max_difficulty_reached(),
+                "rate": round(s.rate, 2),
+                "bucket": _bucket(s.rate),
+                "categories": sorted(s.covered_categories),
             }
         )
     return out

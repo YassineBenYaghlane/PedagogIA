@@ -1,63 +1,57 @@
-const GRADES = ["P6", "P5", "P4", "P3", "P2", "P1"]
+const GRADES = ["P1", "P2", "P3", "P4", "P5", "P6"]
+const TOTAL_STEPS = GRADES.length * 3
 
 export default function LevelGauge({ grade, difficulty }) {
-  const rowIndex = GRADES.indexOf(grade)
-  const validRow = rowIndex >= 0
+  const gradeIdx = GRADES.indexOf(grade)
   const diff = Math.min(Math.max(difficulty || 1, 1), 3)
+  const valid = gradeIdx >= 0
 
-  const rowHeightPct = 100 / GRADES.length
-  const subPct = (diff - 1) * (rowHeightPct / 3) + rowHeightPct / 6
-  const topPct = validRow
-    ? rowIndex * rowHeightPct + rowHeightPct / 2 - rowHeightPct / 2 + subPct
-    : 50
+  const step = valid ? gradeIdx * 3 + diff : 0
+  const fillPct = valid ? (step / TOTAL_STEPS) * 100 : 0
 
   return (
     <div className="flex flex-col items-center gap-2" data-testid="level-gauge">
       <div className="text-[10px] uppercase tracking-widest text-stem">Niveau</div>
-      <div className="relative h-80 w-14 rounded-full bg-mist/70 border border-sage/20 overflow-hidden">
-        <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-0.5 bg-sage/15" />
-        {GRADES.map((g, i) => {
-          const isActive = g === grade
-          return (
+
+      <div className="flex items-stretch gap-2">
+        <div className="relative w-2.5 h-72 rounded-full bg-mist overflow-hidden border border-sage/15">
+          <div
+            className="absolute left-0 right-0 bottom-0 bg-gradient-to-t from-sage-leaf via-sage to-sage-deep transition-all duration-700 ease-out"
+            style={{ height: `${fillPct}%` }}
+          />
+          {GRADES.slice(1).map((g, i) => (
             <div
               key={g}
-              className={`absolute left-0 right-0 flex items-center justify-center font-display text-xs ${
-                isActive ? "text-sage-deep font-semibold" : "text-stem/70"
-              }`}
-              style={{
-                top: `${i * rowHeightPct}%`,
-                height: `${rowHeightPct}%`,
-              }}
-            >
-              {g}
-            </div>
-          )
-        })}
-        <div
-          className="absolute left-1 right-1 transition-all duration-700 ease-out"
-          style={{
-            top: `calc(${topPct}% - 14px)`,
-            height: 28,
-          }}
-          aria-hidden
-        >
-          <div className="relative h-full w-full rounded-xl bg-sage-deep/90 shadow-lg shadow-sage/20 flex items-center justify-center">
-            <div className="absolute inset-0 rounded-xl bg-sage-deep/20 blur-md" />
-            <div className="relative flex items-center gap-0.5">
-              {[1, 2, 3].map((d) => (
-                <span
-                  key={d}
-                  className={`h-1 w-1 rounded-full ${
-                    d <= diff ? "bg-bone" : "bg-bone/30"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
+              className="absolute left-0 right-0 h-px bg-sage/20"
+              style={{ bottom: `${((i + 1) / GRADES.length) * 100}%` }}
+            />
+          ))}
+          <div
+            className="absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-bone border-2 border-sage-deep shadow-md transition-all duration-700 ease-out"
+            style={{ bottom: `calc(${fillPct}% - 8px)` }}
+            aria-hidden
+          />
+        </div>
+
+        <div className="relative flex flex-col justify-between h-72 py-0.5">
+          {[...GRADES].reverse().map((g) => {
+            const active = g === grade
+            return (
+              <div
+                key={g}
+                className={`font-display text-xs leading-none tabular-nums transition-colors duration-300 ${
+                  active ? "text-sage-deep font-semibold" : "text-stem/60"
+                }`}
+              >
+                {g}
+              </div>
+            )
+          })}
         </div>
       </div>
+
       <div className="text-[10px] text-stem font-mono tabular-nums">
-        {validRow ? `${grade} · d${diff}` : "—"}
+        {valid ? `${grade} · d${diff}` : "—"}
       </div>
     </div>
   )

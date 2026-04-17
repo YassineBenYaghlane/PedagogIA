@@ -74,8 +74,8 @@ export default function DiagnosticScreen() {
         </div>
       )}
 
-      <div className="w-full max-w-3xl flex gap-4 items-start">
-        <div className="flex-1 min-w-0">
+      <div className="relative w-full flex justify-center">
+        <div className="w-full max-w-xl">
           <ExerciseCard
             key={current?.exercise?.signature || "loading"}
             exercise={current?.exercise}
@@ -88,7 +88,7 @@ export default function DiagnosticScreen() {
           />
         </div>
         {current && (
-          <div className="hidden sm:flex pt-2">
+          <div className="hidden lg:block absolute right-6 top-2">
             <LevelGauge
               grade={current?.cursor?.grade || current?.skill?.grade}
               difficulty={current?.cursor?.difficulty || current?.difficulty}

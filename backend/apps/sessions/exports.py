@@ -1,9 +1,11 @@
 """Per-student exports: sessions summary, PDF report card, JSON dump."""
 
 from collections import defaultdict
+from datetime import datetime, time, timedelta
 from io import BytesIO
 
 from django.db.models import Count, Q
+from django.db.models.functions import TruncDate
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
@@ -71,6 +73,52 @@ def session_summaries(student: Student) -> list[dict]:
             }
         )
     return out
+
+
+def daily_activity_summary(student: Student, days: int = 7) -> dict:
+    """Aggregate attempts over the last N days (inclusive of today) in Brussels-local dates."""
+    from apps.students.services.streaks import BRUSSELS, brussels_today
+
+    today = brussels_today()
+    start_day = today - timedelta(days=days - 1)
+    start_dt = datetime.combine(start_day, time.min).replace(tzinfo=BRUSSELS)
+
+    attempts = Attempt.objects.filter(session__student=student, responded_at__gte=start_dt)
+    session_count = (
+        Session.objects.filter(student=student, started_at__gte=start_dt).distinct().count()
+    )
+
+    rows = (
+        attempts.annotate(day=TruncDate("responded_at", tzinfo=BRUSSELS))
+        .values("day")
+        .annotate(n=Count("id"), correct=Count("id", filter=Q(is_correct=True)))
+    )
+    by_day_map = {r["day"]: r for r in rows}
+
+    by_day = []
+    total_attempts = 0
+    total_correct = 0
+    for i in range(days):
+        day = start_day + timedelta(days=i)
+        row = by_day_map.get(day)
+        n = row["n"] if row else 0
+        correct = row["correct"] if row else 0
+        by_day.append(
+            {
+                "date": day.isoformat(),
+                "attempts": n,
+                "accuracy": round(correct / n, 2) if n else 0.0,
+            }
+        )
+        total_attempts += n
+        total_correct += correct
+
+    return {
+        "sessions": session_count,
+        "attempts": total_attempts,
+        "accuracy": round(total_correct / total_attempts, 2) if total_attempts else 0.0,
+        "by_day": by_day,
+    }
 
 
 def build_full_json(student: Student) -> dict:

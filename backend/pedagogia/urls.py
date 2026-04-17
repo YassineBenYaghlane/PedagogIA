@@ -5,7 +5,13 @@ from django.urls import include, path
 from django.views.decorators.csrf import ensure_csrf_cookie
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
-from apps.accounts.views import GoogleLogin, UserDetailsView
+from apps.accounts.views import (
+    GoogleLogin,
+    ThrottledLoginView,
+    ThrottledPasswordResetView,
+    ThrottledRegisterView,
+    UserDetailsView,
+)
 
 
 @ensure_csrf_cookie
@@ -25,6 +31,13 @@ urlpatterns = [
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema")),
     path("api/auth/user/", UserDetailsView.as_view(), name="rest_user_details"),
+    path("api/auth/login/", ThrottledLoginView.as_view(), name="rest_login"),
+    path(
+        "api/auth/password/reset/",
+        ThrottledPasswordResetView.as_view(),
+        name="rest_password_reset",
+    ),
+    path("api/auth/registration/", ThrottledRegisterView.as_view(), name="rest_register"),
     path("api/auth/", include("dj_rest_auth.urls")),
     path("api/auth/registration/", include("dj_rest_auth.registration.urls")),
     path("api/auth/google/", GoogleLogin.as_view(), name="google_login"),

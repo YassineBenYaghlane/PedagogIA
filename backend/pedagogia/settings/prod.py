@@ -36,6 +36,13 @@ X_FRAME_OPTIONS = "DENY"
 SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE = "Lax"
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "pedagogia_cache",
+    },
+}
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,

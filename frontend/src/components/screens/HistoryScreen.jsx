@@ -60,19 +60,6 @@ function SessionRow({ row, onOpen }) {
         </div>
       </div>
       <div className="flex items-center gap-2 shrink-0">
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation()
-            downloadSessionExport(row.id)
-          }}
-          className="p-2 rounded-md text-stem hover:text-bark hover:bg-sage-leaf/40 transition-colors cursor-pointer"
-          title="Exporter la session (JSON)"
-          aria-label="Exporter la session"
-          data-testid="history-row-export"
-        >
-          <Icon name="download" size={18} />
-        </button>
         {isDiagnostic && (
           <button
             type="button"
@@ -88,6 +75,19 @@ function SessionRow({ row, onOpen }) {
             <Icon name="description" size={18} />
           </button>
         )}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            downloadSessionExport(row.id)
+          }}
+          className="p-2 rounded-md text-stem hover:text-bark hover:bg-sage-leaf/40 transition-colors cursor-pointer"
+          title="Exporter la session (JSON)"
+          aria-label="Exporter la session"
+          data-testid="history-row-export"
+        >
+          <Icon name="download" size={18} />
+        </button>
         <div className="text-right w-32">
           <div className={`font-mono tabular-nums font-semibold ${tone}`}>
             {row.total_attempts ? `${pct}%` : "—"}

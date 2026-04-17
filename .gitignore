@@ -43,4 +43,6 @@ __pycache__/
 !.env.example
 !.env.prod.example
 .claude/scheduled_tasks.lock
+.claude/worktrees/
+.claude/settings.local.json
 backend/staticfiles/

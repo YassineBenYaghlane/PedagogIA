@@ -38,7 +38,12 @@ LEVEL_COPY = {
 
 BUCKET_COPY = {"green": "En croissance", "orange": "À arroser", "red": "Graine"}
 
-MODE_LABELS = {"learn": "Entraînement", "diagnostic": "Diagnostic", "drill": "Automatismes"}
+MODE_LABELS = {
+    "learn": "Entraînement",
+    "diagnostic": "Test de Niveau",
+    "drill": "Automatismes",
+    "exam": "Examen",
+}
 
 
 def session_summaries(student: Student) -> list[dict]:
@@ -497,7 +502,7 @@ def build_diagnostic_pdf(session: Session) -> bytes:
         rightMargin=2 * cm,
         topMargin=2 * cm,
         bottomMargin=2 * cm,
-        title=f"Diagnostic — {student.display_name}",
+        title=f"Test de Niveau — {student.display_name}",
     )
 
     styles = getSampleStyleSheet()
@@ -537,7 +542,7 @@ def build_diagnostic_pdf(session: Session) -> bytes:
     date_str = ended_at.strftime("%d/%m/%Y") if ended_at else "—"
 
     story = [
-        Paragraph(f"Diagnostic — {student.display_name}", title_style),
+        Paragraph(f"Test de Niveau — {student.display_name}", title_style),
         Paragraph(f"Réalisé le {date_str} · Niveau déclaré : {student.grade}", subtitle_style),
     ]
 
@@ -576,7 +581,7 @@ def build_diagnostic_pdf(session: Session) -> bytes:
     else:
         story.append(Paragraph("Verdict", section_style))
         story.append(
-            Paragraph("Niveau non établi — refaites le diagnostic pour affiner.", body_style)
+            Paragraph("Niveau non établi — refaites le test de niveau pour affiner.", body_style)
         )
 
     # Overall stats

@@ -13,7 +13,7 @@ import { downloadSessionPdf } from "../../api/sessions"
 
 const MODE_LABELS = {
   learn: "Entraînement",
-  diagnostic: "Diagnostic",
+  diagnostic: "Test de Niveau",
   drill: "Automatismes",
   exam: "Examen",
 }
@@ -67,8 +67,8 @@ function SessionRow({ row, onOpen, onOpenDiagnostic }) {
               onOpenDiagnostic(row)
             }}
             className="p-2 rounded-md text-stem hover:text-bark hover:bg-sage-leaf/40 transition-colors cursor-pointer"
-            title="Voir le verdict du diagnostic"
-            aria-label="Voir le verdict du diagnostic"
+            title="Voir le verdict du test de niveau"
+            aria-label="Voir le verdict du test de niveau"
             data-testid="history-row-verdict"
           >
             <Icon name="flag" size={18} />
@@ -182,7 +182,7 @@ export default function HistoryScreen() {
         {rows && rows.length === 0 && (
           <div className="text-center py-10 text-stem" data-testid="history-empty">
             <div className="font-display text-lg mb-1">Aucune session pour l’instant</div>
-            <div className="text-sm">Commence par un diagnostic ou un entraînement.</div>
+            <div className="text-sm">Commence par un test de niveau ou un entraînement.</div>
           </div>
         )}
 

@@ -21,7 +21,7 @@ export default function DiagnosticReviewScreen() {
         if (!cancelled) setResult(data)
       })
       .catch((err) => {
-        if (!cancelled) setError(err.status === 404 ? "Diagnostic introuvable." : err.message)
+        if (!cancelled) setError(err.status === 404 ? "Test de niveau introuvable." : err.message)
       })
     return () => {
       cancelled = true
@@ -43,7 +43,7 @@ export default function DiagnosticReviewScreen() {
   if (!result) {
     return (
       <div className="min-h-screen greenhouse flex items-center justify-center p-6 text-stem">
-        Chargement du diagnostic…
+        Chargement du test de niveau…
       </div>
     )
   }

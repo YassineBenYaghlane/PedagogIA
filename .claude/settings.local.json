@@ -5,7 +5,8 @@
       "Bash(npm run:*)",
       "Bash(gh api:*)",
       "Bash(gh issue:*)",
-      "Bash(gh label:*)"
+      "Bash(gh label:*)",
+      "Bash(hcloud:*)"
     ]
   }
 }

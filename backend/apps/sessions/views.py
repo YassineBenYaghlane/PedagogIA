@@ -50,7 +50,7 @@ class SessionViewSet(ModelViewSet):
         if session.mode != "diagnostic":
             return Response({"detail": "not a diagnostic session"}, status=400)
         pdf_bytes = build_diagnostic_pdf(session)
-        filename = f"diagnostic-{session.student.display_name}-{session.started_at.date()}.pdf"
+        filename = f"test-de-niveau-{session.student.display_name}-{session.started_at.date()}.pdf"
         response = HttpResponse(pdf_bytes, content_type="application/pdf")
         response["Content-Disposition"] = f'attachment; filename="{filename}"'
         return response

@@ -10,7 +10,7 @@ import { downloadDiagnosticPdf } from "../../api/history"
 
 const MODE_LABELS = {
   learn: "Entraînement",
-  diagnostic: "Diagnostic",
+  diagnostic: "Test de Niveau",
   drill: "Automatismes",
   exam: "Examen",
 }
@@ -233,8 +233,8 @@ export default function SessionReviewScreen() {
                 type="button"
                 onClick={() => downloadDiagnosticPdf(session.id)}
                 className="p-2 rounded-md text-stem hover:text-bark hover:bg-sage-leaf/40 transition-colors cursor-pointer"
-                title="Exporter le diagnostic (PDF)"
-                aria-label="Exporter le diagnostic PDF"
+                title="Exporter le test de niveau (PDF)"
+                aria-label="Exporter le test de niveau PDF"
                 data-testid="session-review-diagnostic-pdf"
               >
                 <Icon name="download" size={18} />
@@ -267,7 +267,7 @@ export default function SessionReviewScreen() {
             className="inline-flex items-center gap-1.5 text-sky-deep hover:text-sage-deep text-sm mb-5"
             data-testid="open-diagnostic-verdict"
           >
-            <Icon name="flag" size={14} /> Voir le verdict complet du diagnostic
+            <Icon name="flag" size={14} /> Voir le verdict complet du test de niveau
           </Link>
         )}
 

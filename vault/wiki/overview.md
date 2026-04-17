@@ -25,8 +25,9 @@ The wiki is not the codebase — `CLAUDE.md` at the repo root covers the code. T
 
 ## Current state
 
-Wiki bootstrapped on 2026-04-17. No sources ingested yet. Structure and conventions defined in [[../CLAUDE|CLAUDE.md]].
+Wiki bootstrapped on 2026-04-17. First filings are infra-flavored: [[concepts/prod-stack]] and [[entities/collegia-be]]. Production went live the same day at `https://collegia.be` on a Hetzner cx23, Docker two-image split behind Caddy, CI/CD via GH Actions → GHCR → SSH. Structure and conventions defined in [[../CLAUDE|CLAUDE.md]].
 
 ## Open threads
 
-*(placeholder — populated as sources come in and themes emerge)*
+- Google OAuth prod setup (tracked as issue #91).
+- Pedagogical sources: no FWB / didactique material ingested yet — drop into `raw/` and ingest as material accumulates.

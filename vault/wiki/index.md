@@ -14,10 +14,10 @@ Catalog of every wiki page. Updated on every ingest. Keep lines ≤150 chars.
 *(none yet — drop files into `raw/` and ask to ingest)*
 
 ## Entities
-*(none yet)*
+- [[entities/collegia-be]] — the live production deployment on Hetzner (IPs, images, GH wiring)
 
 ## Concepts
-*(none yet)*
+- [[concepts/prod-stack]] — how prod is wired: two-image Docker split, Caddy front, CI/CD, security baseline
 
 ## Questions
 *(none yet)*

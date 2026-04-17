@@ -154,7 +154,7 @@ export default function ParentDashboardScreen() {
 
   const onOpenDetail = (student) => {
     useAuthStore.getState().selectChild(student.id)
-    navigate("/profile")
+    navigate("/history?from=parent")
   }
 
   const students = data?.students || []

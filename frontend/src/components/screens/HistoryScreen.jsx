@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router"
+import { useNavigate, useSearchParams } from "react-router"
 import Icon from "../ui/Icon"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
@@ -97,6 +97,10 @@ function SessionRow({ row, onOpen }) {
 
 export default function HistoryScreen() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const fromParent = searchParams.get("from") === "parent"
+  const backTo = fromParent ? "/dashboard" : "/"
+  const backLabel = fromParent ? "Espace parent" : "Retour"
   const { selectedChildId, children } = useAuthStore()
   const child = children.find((c) => c.id === selectedChildId)
   const [rows, setRows] = useState(null)
@@ -124,10 +128,11 @@ export default function HistoryScreen() {
     <div className="min-h-screen greenhouse flex flex-col items-center p-6">
       <div className="w-full max-w-2xl mb-4 flex justify-between items-center">
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate(backTo)}
           className="text-stem hover:text-bark flex items-center gap-1.5 cursor-pointer text-sm"
+          data-testid="history-back"
         >
-          <Icon name="arrow_back" size={16} /> Retour
+          <Icon name="arrow_back" size={16} /> {backLabel}
         </button>
         {child && (
           <div className="text-right">

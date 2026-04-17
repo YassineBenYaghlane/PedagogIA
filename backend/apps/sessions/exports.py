@@ -34,6 +34,7 @@ def session_summaries(student: Student) -> list[dict]:
             correct=Count("attempts", filter=Q(attempts__is_correct=True)),
             skills=Count("attempts__skill", distinct=True),
         )
+        .filter(total__gt=0)
         .order_by("-started_at")
     )
     out = []
@@ -62,6 +63,8 @@ def build_full_json(student: Student) -> dict:
     """Full data dump: student, sessions, attempts, per-skill mastery."""
     sessions = list(
         Session.objects.filter(student=student)
+        .annotate(total=Count("attempts"))
+        .filter(total__gt=0)
         .order_by("started_at")
         .values("id", "mode", "started_at", "ended_at")
     )

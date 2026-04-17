@@ -51,7 +51,7 @@ export default function DiagnosticScreen() {
         {child && (
           <div className="text-right">
             <LatinLabel>Locus discendi</LatinLabel>
-            <div className="text-sm text-bark font-semibold">Diagnostic · {child.display_name}</div>
+            <div className="text-sm text-bark font-semibold">Test de Niveau · {child.display_name}</div>
           </div>
         )}
       </div>

@@ -321,7 +321,7 @@ def _fwb_verdict(student: Student, states: dict[str, YearState], attempts: list[
             "confidence": 0.0,
             "narrative": (
                 "Données insuffisantes pour estimer un niveau FWB. "
-                "Refaites le diagnostic pour affiner."
+                "Refaites le test de niveau pour affiner."
             ),
         }
     return {

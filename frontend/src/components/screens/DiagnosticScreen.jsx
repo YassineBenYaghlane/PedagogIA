@@ -4,6 +4,7 @@ import Icon from "../ui/Icon"
 import ProgressBar from "../ui/ProgressBar"
 import { LatinLabel } from "../ui/Heading"
 import ExerciseCard from "../exercises/ExerciseCard"
+import LevelGauge from "../exercises/LevelGauge"
 import { useDiagnosticStore } from "../../stores/diagnosticStore"
 import { useAuthStore } from "../../stores/authStore"
 import DiagnosticResult from "./DiagnosticResult"
@@ -73,16 +74,28 @@ export default function DiagnosticScreen() {
         </div>
       )}
 
-      <ExerciseCard
-        key={current?.exercise?.signature || "loading"}
-        exercise={current?.exercise}
-        skill={current?.skill}
-        grade={child?.grade}
-        feedback={feedback}
-        busy={loading}
-        onSubmit={submit}
-        onNext={loadNext}
-      />
+      <div className="w-full max-w-3xl flex gap-4 items-start">
+        <div className="flex-1 min-w-0">
+          <ExerciseCard
+            key={current?.exercise?.signature || "loading"}
+            exercise={current?.exercise}
+            skill={current?.skill}
+            grade={child?.grade}
+            feedback={feedback}
+            busy={loading}
+            onSubmit={submit}
+            onNext={loadNext}
+          />
+        </div>
+        {current && (
+          <div className="hidden sm:flex pt-2">
+            <LevelGauge
+              grade={current?.cursor?.grade || current?.skill?.grade}
+              difficulty={current?.cursor?.difficulty || current?.difficulty}
+            />
+          </div>
+        )}
+      </div>
     </div>
   )
 }

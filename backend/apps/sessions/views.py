@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -5,7 +6,9 @@ from rest_framework.viewsets import ModelViewSet
 from apps.common.permissions import IsOwner
 from apps.exercises.serializers import AttemptCreateSerializer, AttemptReadSerializer
 from apps.exercises.services import record_attempt
+from apps.students.models import Student
 
+from .exports import session_summaries
 from .models import Session
 from .serializers import SessionSerializer
 
@@ -19,6 +22,15 @@ class SessionViewSet(ModelViewSet):
         if not user.is_authenticated:
             return Session.objects.none()
         return Session.objects.filter(student__user=user).select_related("student")
+
+    def list(self, request, *args, **kwargs):
+        if request.query_params.get("summary") in ("1", "true", "yes"):
+            student_id = request.query_params.get("student")
+            if not student_id:
+                return Response({"detail": "student is required"}, status=400)
+            student = get_object_or_404(Student, id=student_id, user=request.user)
+            return Response(session_summaries(student))
+        return super().list(request, *args, **kwargs)
 
     @action(detail=True, methods=["get", "post"], url_path="attempts")
     def attempts(self, request, pk=None):

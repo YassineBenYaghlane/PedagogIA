@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from apps.sessions.models import Session
+from apps.skills.models import Skill
 from apps.students.models import Student
 
 from .diagnostic import (
@@ -37,11 +38,13 @@ def _build_question(session: Session) -> dict | None:
     if slot is None:
         return None
     exercise = get_exercise_for_slot(slot)
+    skill_grade = Skill.objects.filter(id=slot.skill_id).values_list("grade", flat=True).first()
     return {
         "index": len(attempts),
         "total": DIAGNOSTIC_MAX_LENGTH,
-        "skill": {"id": slot.skill_id},
+        "skill": {"id": slot.skill_id, "grade": skill_grade},
         "difficulty": slot.difficulty,
+        "cursor": {"grade": skill_grade, "difficulty": slot.difficulty},
         "exercise": GeneratedExerciseSerializer(exercise).data,
     }
 

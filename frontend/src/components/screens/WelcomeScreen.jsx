@@ -123,9 +123,16 @@ export default function WelcomeScreen() {
             variant="ghost"
             size="md"
             onClick={() => navigate("/diagnostic")}
-            className="md:col-span-2"
           >
             <Icon name="insights" /> Diagnostic
+          </Button>
+          <Button
+            data-testid="open-history"
+            variant="ghost"
+            size="md"
+            onClick={() => navigate("/history")}
+          >
+            <Icon name="history" /> Historique
           </Button>
         </div>
 

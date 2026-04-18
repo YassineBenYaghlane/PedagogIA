@@ -12,6 +12,11 @@ import DecompositionInput from "./inputs/DecompositionInput"
 import PointOnLineInput from "./inputs/PointOnLineInput"
 import DragOrderInput from "./inputs/DragOrderInput"
 
+function bindTrailingPunctuation(text) {
+  if (typeof text !== "string") return text
+  return text.replace(/\s+([?!:;])/g, "\u00A0$1")
+}
+
 function renderInput(inputType, props) {
   switch (inputType) {
     case "mcq":
@@ -50,6 +55,7 @@ export default function ExerciseCard({
   }
 
   const disabled = !!feedback || busy
+  const prompt = bindTrailingPunctuation(exercise.prompt)
 
   return (
     <Card className="p-8 md:p-10 w-full max-w-md text-center">
@@ -59,9 +65,11 @@ export default function ExerciseCard({
           <p className="font-display text-sm text-bark mt-0.5 mb-5">{skill.label}</p>
         </>
       )}
-      <div className="font-mono text-4xl md:text-5xl font-semibold text-bark mb-5 tabular-nums tracking-tight">
-        {exercise.prompt}
+      <div className="font-mono text-4xl md:text-5xl font-semibold text-bark mb-5 tabular-nums tracking-tight text-balance">
+        {prompt}
       </div>
+
+      {!feedback && mode !== "diagnostic" && !examMode && <HintPanel exercise={exercise} />}
 
       {!feedback &&
         renderInput(exercise.input_type, {
@@ -71,8 +79,6 @@ export default function ExerciseCard({
           disabled,
           onSubmit,
         })}
-
-      {!feedback && mode !== "diagnostic" && !examMode && <HintPanel exercise={exercise} />}
 
       <FeedbackMessage
         feedback={feedback}

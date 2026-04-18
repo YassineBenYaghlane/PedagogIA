@@ -7,6 +7,7 @@ import { TopBarBack } from "../layout/TopBarActions"
 import Icon from "../ui/Icon"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
+import EmptyState from "../ui/EmptyState"
 import { Heading } from "../ui/Heading"
 import { useAuthStore } from "../../stores/authStore"
 import {
@@ -50,7 +51,7 @@ function SessionRow({ row, onOpen, onOpenDiagnostic }) {
     <button
       type="button"
       onClick={() => onOpen(row)}
-      className="w-full text-left flex items-center justify-between py-3 border-b border-sage/10 last:border-0 gap-3 hover:bg-mist/60 rounded-md px-2 -mx-2 transition-colors cursor-pointer"
+      className="w-full text-left flex items-center justify-between py-3 border-b border-sage/10 last:border-0 gap-3 hover:bg-mist/60 active:bg-mist/80 focus-visible:bg-mist/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-deep rounded-md px-2 -mx-2 transition-colors cursor-pointer"
       data-testid={isDiagnostic ? "history-row-diagnostic" : "history-row"}
     >
       <div className="min-w-0 flex-1">
@@ -70,7 +71,7 @@ function SessionRow({ row, onOpen, onOpenDiagnostic }) {
               e.stopPropagation()
               onOpenDiagnostic(row)
             }}
-            className="p-2 rounded-md text-stem hover:text-bark hover:bg-sage-leaf/40 transition-colors cursor-pointer"
+            className="min-w-11 min-h-11 p-2 inline-flex items-center justify-center rounded-full text-stem hover:text-bark hover:bg-sage-leaf/40 active:bg-sage-leaf/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-deep transition-colors cursor-pointer"
             title="Voir le verdict du test de niveau"
             aria-label="Voir le verdict du test de niveau"
             data-testid="history-row-verdict"
@@ -180,10 +181,18 @@ export default function HistoryScreen() {
         )}
 
         {rows && rows.length === 0 && (
-          <div className="text-center py-10 text-stem" data-testid="history-empty">
-            <div className="font-display text-lg mb-1">Aucune session pour l’instant</div>
-            <div className="text-sm">Commence par un test de niveau ou un entraînement.</div>
-          </div>
+          <EmptyState
+            data-testid="history-empty"
+            icon="history"
+            title="Aucune session pour l’instant"
+            body="Commence par un test de niveau ou un entraînement."
+            cta={{
+              label: "Commencer",
+              icon: "play_arrow",
+              onClick: () => navigate("/"),
+              "data-testid": "history-empty-cta",
+            }}
+          />
         )}
 
         {rows && rows.length > 0 && (

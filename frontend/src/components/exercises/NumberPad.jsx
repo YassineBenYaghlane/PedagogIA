@@ -17,9 +17,9 @@ export default function NumberPad({ value, onChange, onSubmit, disabled }) {
   }
 
   const digitClass =
-    "specimen bg-bone hover:bg-mist text-bark font-mono text-3xl font-semibold py-5 rounded-xl cursor-pointer transition-transform hover:-translate-y-0.5 disabled:opacity-50 tabular-nums"
+    "specimen bg-bone hover:bg-mist active:bg-sage-leaf/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-deep text-bark font-mono text-3xl font-semibold py-5 min-h-[3.75rem] rounded-xl cursor-pointer transition-transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0 tabular-nums"
   const utilClass =
-    "specimen bg-paper hover:bg-mist text-bark font-mono text-2xl py-5 rounded-xl cursor-pointer flex items-center justify-center transition-transform hover:-translate-y-0.5 disabled:opacity-50"
+    "specimen bg-paper hover:bg-mist active:bg-sage-leaf/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-deep text-bark font-mono text-2xl py-5 min-h-[3.75rem] min-w-11 rounded-xl cursor-pointer flex items-center justify-center transition-transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0"
 
   return (
     <div className="grid grid-cols-3 gap-3 mt-3" data-testid="number-pad">

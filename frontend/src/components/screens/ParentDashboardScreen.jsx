@@ -9,6 +9,7 @@ import { TopBarLink, TopBarButton } from "../layout/TopBarActions"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import Chip from "../ui/Chip"
+import EmptyState from "../ui/EmptyState"
 import ProgressBar from "../ui/ProgressBar"
 import { Heading, LatinLabel } from "../ui/Heading"
 
@@ -81,30 +82,35 @@ function StudentCard({ student, onOpenDetail }) {
             <span className="text-bark font-medium">{weekPct}%</span> de réussite ·{" "}
             {week.sessions} session{week.sessions > 1 ? "s" : ""}
           </div>
-          <ul className="mt-3 space-y-1.5">
-            {(student.recent_sessions || []).slice(0, 5).map((s) => {
-              const pct = Math.round((s.accuracy || 0) * 100)
-              const tone =
-                pct >= 80 ? "text-sage-deep" : pct >= 40 ? "text-honey" : "text-rose"
-              return (
-                <li
-                  key={s.id}
-                  className="flex items-baseline justify-between gap-2 text-sm"
-                >
-                  <span className="text-stem truncate">
-                    {formatDate(s.started_at)} · {MODE_LABELS[s.mode] || s.mode}
-                  </span>
-                  <span className="font-mono tabular-nums text-xs flex items-center gap-2">
-                    <span className="text-stem">{formatDuration(s.duration_seconds)}</span>
-                    <span className={tone}>{pct}%</span>
-                  </span>
-                </li>
-              )
-            })}
-            {(student.recent_sessions || []).length === 0 && (
-              <li className="latin text-sm">Aucune session pour le moment.</li>
-            )}
-          </ul>
+          {(student.recent_sessions || []).length === 0 ? (
+            <EmptyState
+              compact
+              body="Aucune session pour le moment."
+              className="mt-3"
+            />
+          ) : (
+            <ul className="mt-3 space-y-1.5">
+              {(student.recent_sessions || []).slice(0, 5).map((s) => {
+                const pct = Math.round((s.accuracy || 0) * 100)
+                const tone =
+                  pct >= 80 ? "text-sage-deep" : pct >= 40 ? "text-honey" : "text-rose"
+                return (
+                  <li
+                    key={s.id}
+                    className="flex items-baseline justify-between gap-2 text-sm"
+                  >
+                    <span className="text-stem truncate">
+                      {formatDate(s.started_at)} · {MODE_LABELS[s.mode] || s.mode}
+                    </span>
+                    <span className="font-mono tabular-nums text-xs flex items-center gap-2">
+                      <span className="text-stem">{formatDuration(s.duration_seconds)}</span>
+                      <span className={tone}>{pct}%</span>
+                    </span>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
         </section>
 
         <section className="space-y-3">
@@ -209,13 +215,16 @@ export default function ParentDashboardScreen() {
         )}
 
         {!isLoading && !error && students.length === 0 && (
-          <Card variant="tag" className="p-6">
-            <p className="latin">
-              Aucun profil pour le moment. Ajoute un carnet depuis le mode enfant.
-            </p>
-            <Button className="mt-4" onClick={() => navigate("/children")}>
-              Aller au mode enfant
-            </Button>
+          <Card variant="tag" className="p-4">
+            <EmptyState
+              icon="sprout"
+              title="Aucun profil pour le moment"
+              body="Ajoute un carnet depuis le mode enfant."
+              cta={{
+                label: "Aller au mode enfant",
+                onClick: () => navigate("/children"),
+              }}
+            />
           </Card>
         )}
 

@@ -89,11 +89,11 @@ export default function ChildPickerScreen() {
               key={c.id}
               onClick={() => onSelect(c.id)}
               data-testid={`child-${c.id}`}
-              className="flex flex-col items-center gap-2 cursor-pointer group"
+              className="flex flex-col items-center gap-2 cursor-pointer group rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-deep focus-visible:ring-offset-2"
             >
               <Pot
                 state={potState(c)}
-                className="transition-transform duration-200 group-hover:-translate-y-1"
+                className="transition-transform duration-200 group-hover:-translate-y-1 group-active:-translate-y-1 group-focus-visible:-translate-y-1"
               >
                 <div className="text-center">
                   <div className="font-display text-lg text-bark leading-tight">

@@ -1,0 +1,58 @@
+---
+title: Product Features
+type: concept
+created: 2026-04-18
+updated: 2026-04-18
+sources: []
+tags: [product, backend, frontend, overview]
+---
+
+Catalog of user-facing and system features currently shipped in PedagogIA. Grouped by surface. Each entry names the feature, what it does, and where it lives in the codebase — so that design / schema / pedagogy discussions can reference a stable list instead of re-deriving it each time.
+
+Snapshot date: **2026-04-18**. Verify against `git log` and `gh issue list` before acting on it — features land fast.
+
+## Learning modes
+
+All four are backed by `apps/sessions` with `Session.mode ∈ {learn, diagnostic, drill, exam}` and attempts recorded in `apps/exercises.Attempt`.
+
+- **Diagnostic** — IRT-scheduled walk that locates the student's current level on the skill tree. Attempts recorded against the targeted skill. See [[concepts/champ-3-arithmetique]] for the skill scope.
+- **Drill** — student (or parent) picks a skill and practices it. Selection of the skill is manual; template selection within the skill is backend-driven.
+- **Training / Free practice** (`mode="learn"`) — mastery + spaced-repetition driven selection via `apps/students/services/selection.py::pick_next_skill`, reading [[concepts/mastery-learning]] state from `StudentSkillState`.
+- **Exam** — timed-ish session with attempts; currently updates mastery like other modes (see #117 for the explicit decision).
+
+## AI & pedagogy
+
+- **AI investigation on wrong answer** — on an incorrect attempt, Claude receives `(question, student answer, skill-tree branch, mastery state)` and reasons about which prerequisite to probe next. Primary model Claude Haiku 4.5; escalation to Sonnet 4.6 via `INVESTIGATION_MODEL_*` settings. No hard-coded error mappings. Natural home for [[concepts/resolution-problemes-math]].
+- **Multi-strategy explanations / hints** — each skill can expose several pedagogical angles (calcul posé, décomposition, …). Delivered through `apps/exercises` + frontend `lib/hints`.
+- **Exercise templates** — parameterized JSONB rows in `ExerciseTemplate`, authored in `backend/src/skill_tree/exercise_templates_p{1..6}.yaml`, instantiated at runtime. New exercises = YAML edit + `seed_templates`. Being refactored to M2M with weights (#117).
+
+## Progress & state
+
+- **Mastery tracking** — `StudentSkillState` stores per-(student, skill) mastery; updated by `apps/students/services/mastery.py::update_mastery`.
+- **XP** — per-attempt XP ledger, `apps/students/services/xp.py`.
+- **Streaks** — daily-practice streak counter, `apps/students/services/streaks.py`.
+- **Achievements** — badge-like unlocks, `apps/students/services/achievements.py` + `students.Achievement` model.
+- **Skill tree visualization** — ReactFlow + dagre layout, reads `StudentSkillState` (see [[concepts/champ-3-arithmetique]] for the DAG content).
+- **Session history / clickable review** — any past session can be re-opened and inspected attempt-by-attempt (landed in #109).
+
+## Parent / account surface
+
+- **Parent dashboard** at `/dashboard` — parent overview screen aggregating child progress (#96, #108).
+- **Parent overview endpoint** `/api/parent/overview/` — source for the dashboard (#93, #95).
+- **CSV / PDF exports** — session-history exports aggregating on `Attempt.skill_id`. Shape-independent of the M2M refactor.
+- **Parent ↔ Student ownership scoping** — `User` (AUTH_USER_MODEL) owns one or more `Student` profiles; all student-facing endpoints enforce ownership via `apps/common` permissions.
+- **Auth** — session-based (SessionAuthentication) with CSRF; Google OAuth via dj-rest-auth + allauth.
+- **Rate limiting on `/api/auth/*`** — app-layer throttling (#99, #118).
+
+## Ops-adjacent
+
+- **Nightly encrypted Postgres backups** to Hetzner Storage Box (#64, #107). Schema-shape-independent.
+- **Two-image production deploy** (`pedagogia-backend` + `pedagogia-frontend`) on [[entities/collegia-be]], see [[concepts/prod-stack]].
+
+## See also
+
+- [[overview]] — top-level project synthesis
+- [[concepts/champ-3-arithmetique]] — POC skill scope
+- [[concepts/mastery-learning]] — theory behind StudentSkillState
+- [[concepts/prod-stack]] — production topology
+- [[questions/nouveaux-types-exercices-ceb]] — planned exercise-type additions not yet shipped

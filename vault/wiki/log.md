@@ -91,3 +91,11 @@ Balayage des 6 CEB placeholders pré-2014. **Découverte majeure** : le CEB a in
 **2008, 2009, 2010** — confirmés pré-séparation par analogie ; non dépouillés en détail (rationale dans `sources/ceb-2008`).
 
 **Impact structural** : le catalogue [[concepts/ceb-attendus-p6-arithmetique]] passe à 82 familles. Stabilité de 13 ans pour les familles data-literacy (2011→2024), 11 ans pour l'arithmétique pure post-séparation (2013→2024). Touché : `sources/ceb-2013` (réécrit ~80 lignes), `sources/ceb-2012`, `sources/ceb-2011`, `sources/ceb-2010`, `sources/ceb-2009`, `sources/ceb-2008`, `concepts/ceb-attendus-p6-arithmetique` (items 78–82 + 7 backdatings), `questions/ingest-gap-ceb-2008-2018`.
+
+## [2026-04-18] note | Product features catalog
+
+Added [[concepts/product-features]] — shipped-feature inventory grouped by surface (learning modes, AI & pedagogy, progress & state, parent surface, ops-adjacent). Cross-references `Session.mode` choices in `apps/sessions/models.py` and services under `apps/students/services/` (mastery, xp, streaks, achievements). Intended as a stable anchor for schema/design discussions (notably the upcoming #119 backend refactor) rather than a changelog — dates feature-by-feature in the page itself. Touched: `concepts/product-features.md` (new), `index.md`.
+
+## [2026-04-18] note | Frontend UX & responsiveness audit
+
+Filed [[questions/frontend-ux-audit-2026-04-18]] — point-in-time audit of 11 screens × 5 viewports (375/390/834/1194/1440), 56 findings (4 P0 / 36 P1 / 16 P2) plus a "native-app readiness" punch list. Method: booted dev stack via `run-app`, created `audit@test.com` + student Léa, ran a one-off Playwright spec for screenshots, statically reviewed every screen + design primitive. Headline: no `<AppShell>` primitive (root cause of duplicated header bugs), no safe-area-inset, no iOS-zoom-prevention on inputs, skill tree unusable on phone (grade buttons truncate, search overflows). Index updated; no entity/concept page created — this is point-in-time analysis, not durable knowledge. Screenshots lived under `/tmp/audit-screenshots/` and were not preserved.

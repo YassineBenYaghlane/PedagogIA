@@ -4,7 +4,7 @@ from dj_rest_auth.registration.views import RegisterView, SocialLoginView
 from dj_rest_auth.views import LoginView, PasswordResetView
 from dj_rest_auth.views import UserDetailsView as _UserDetailsView
 from django.conf import settings
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 
@@ -36,10 +36,13 @@ class GoogleLogin(SocialLoginView):
 
 
 class UserDetailsView(_UserDetailsView):
-    """Return 204 for anon users so the SPA bootstrap doesn't trigger
-    a console-noisy 403 on first page load."""
+    """GET returns 204 for anon users (silences the SPA bootstrap 403);
+    mutating methods require authentication."""
 
-    permission_classes = [AllowAny]
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [AllowAny()]
+        return [IsAuthenticated()]
 
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:

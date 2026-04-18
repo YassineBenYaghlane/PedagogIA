@@ -132,6 +132,7 @@ REST_AUTH = {
     "SESSION_LOGIN": True,
     "USER_DETAILS_SERIALIZER": "apps.accounts.serializers.UserSerializer",
     "REGISTER_SERIALIZER": "apps.accounts.serializers.UserRegisterSerializer",
+    "OLD_PASSWORD_FIELD_ENABLED": True,
 }
 
 GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID")

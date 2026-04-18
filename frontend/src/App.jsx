@@ -17,6 +17,7 @@ import HistoryScreen from "./components/screens/HistoryScreen"
 import DiagnosticReviewScreen from "./components/screens/DiagnosticReviewScreen"
 import SessionReviewScreen from "./components/screens/SessionReviewScreen"
 import ParentDashboardScreen from "./components/screens/ParentDashboardScreen"
+import ParametresScreen from "./components/screens/ParametresScreen"
 import BadgeToast from "./components/badges/BadgeToast"
 import "./App.css"
 
@@ -48,6 +49,7 @@ export default function App() {
         <Route path="/auth/google/callback" element={<GoogleCallbackScreen />} />
         <Route path="/children" element={<RequireAuth><ChildPickerScreen /></RequireAuth>} />
         <Route path="/dashboard" element={<RequireAuth><ParentDashboardScreen /></RequireAuth>} />
+        <Route path="/parametres" element={<RequireAuth><ParametresScreen /></RequireAuth>} />
         <Route path="/" element={<RequireAuth><WelcomeScreen /></RequireAuth>} />
         <Route path="/exercise" element={<RequireAuth><ExerciseScreen /></RequireAuth>} />
         <Route path="/diagnostic" element={<RequireAuth><DiagnosticScreen /></RequireAuth>} />

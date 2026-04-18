@@ -1,5 +1,8 @@
 import { useNavigate } from "react-router"
-import Icon from "../ui/Icon"
+import AppShell from "../layout/AppShell"
+import Page from "../layout/Page"
+import TopBar from "../layout/TopBar"
+import { TopBarBack } from "../layout/TopBarActions"
 import Card from "../ui/Card"
 import { Heading, LatinLabel } from "../ui/Heading"
 import { useAuthStore } from "../../stores/authStore"
@@ -20,15 +23,17 @@ export default function ProfileScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-chalk p-6">
-      <div className="max-w-2xl mx-auto space-y-6">
-        <div className="flex justify-between items-center">
-          <button
-            onClick={() => navigate("/")}
-            className="text-stem hover:text-bark flex items-center gap-1.5 cursor-pointer text-sm"
-          >
-            <Icon name="arrow_back" size={16} /> Serre
-          </button>
+    <AppShell
+      surface="plain"
+      topBar={
+        <TopBar
+          leading={<TopBarBack to="/" label="Serre" />}
+          title="Profil"
+        />
+      }
+    >
+      <Page maxWidth="lg" className="space-y-6">
+        <div className="flex justify-end">
           <LatinLabel>Florilegium</LatinLabel>
         </div>
 
@@ -67,7 +72,7 @@ export default function ProfileScreen() {
           </div>
           <BadgeGallery earned={child.achievements || []} />
         </Card>
-      </div>
-    </div>
+      </Page>
+    </AppShell>
   )
 }

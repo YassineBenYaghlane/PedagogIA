@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useState } from "react"
-import { Link, useNavigate, useParams, useSearchParams } from "react-router"
+import { Link, useParams, useSearchParams } from "react-router"
+import AppShell from "../layout/AppShell"
+import Page from "../layout/Page"
+import TopBar from "../layout/TopBar"
+import { TopBarBack } from "../layout/TopBarActions"
 import Icon from "../ui/Icon"
 import Card from "../ui/Card"
 import Chip from "../ui/Chip"
@@ -130,7 +134,6 @@ function AttemptRow({ attempt, index }) {
 
 export default function SessionReviewScreen() {
   const { sessionId } = useParams()
-  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const fromParent = searchParams.get("from") === "parent"
   const { children, selectedChildId } = useAuthStore()
@@ -183,39 +186,46 @@ export default function SessionReviewScreen() {
 
   if (error) {
     return (
-      <div className="min-h-screen greenhouse flex items-center justify-center p-6">
-        <div className="text-rose px-4 py-3 rounded-lg bg-rose/15">{error}</div>
-      </div>
+      <AppShell surface="greenhouse">
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="text-rose px-4 py-3 rounded-lg bg-rose/15" role="alert">
+            {error}
+          </div>
+        </div>
+      </AppShell>
     )
   }
 
   if (!session || !attempts) {
     return (
-      <div className="min-h-screen greenhouse flex items-center justify-center p-6 text-stem">
-        Chargement de la session…
-      </div>
+      <AppShell surface="greenhouse">
+        <div className="flex-1 flex items-center justify-center p-6 text-stem">
+          Chargement de la session…
+        </div>
+      </AppShell>
     )
   }
 
-  return (
-    <div className="min-h-screen greenhouse flex flex-col items-center p-6">
-      <div className="w-full max-w-3xl mb-4 flex justify-between items-center">
-        <button
-          onClick={() => navigate(backTo)}
-          className="text-stem hover:text-bark flex items-center gap-1.5 cursor-pointer text-sm"
-          data-testid="session-review-back"
-        >
-          <Icon name="arrow_back" size={16} /> Retour à l’historique
-        </button>
-        {child && (
-          <div className="text-right">
-            <LatinLabel>Memoria</LatinLabel>
-            <div className="text-sm text-bark font-semibold">{child.display_name}</div>
-          </div>
-        )}
-      </div>
+  const title = child ? `Session · ${child.display_name}` : "Session"
 
-      <Card className="p-6 md:p-8 max-w-3xl w-full my-2">
+  return (
+    <AppShell
+      surface="greenhouse"
+      topBar={
+        <TopBar
+          leading={
+            <TopBarBack
+              to={backTo}
+              label="Historique"
+              data-testid="session-review-back"
+            />
+          }
+          title={title}
+        />
+      }
+    >
+      <Page maxWidth="xl">
+        <Card className="p-6 md:p-8">
         <div className="flex items-baseline justify-between gap-3 mb-5">
           <div>
             <LatinLabel>Sessio</LatinLabel>
@@ -281,6 +291,7 @@ export default function SessionReviewScreen() {
           </div>
         )}
       </Card>
-    </div>
+      </Page>
+    </AppShell>
   )
 }

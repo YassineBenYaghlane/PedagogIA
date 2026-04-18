@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router"
 import { useAuthStore } from "../../stores/authStore"
 import { startGoogleLogin } from "../../lib/googleOAuth"
+import AppShell from "../layout/AppShell"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import Input from "../ui/Input"
@@ -30,46 +31,55 @@ export default function LoginScreen() {
   }
 
   return (
-    <div className="min-h-screen greenhouse flex items-center justify-center p-6">
-      <Card variant="tag" className="w-full max-w-md p-8 space-y-5">
-        <form onSubmit={onSubmit} data-testid="login-form" className="space-y-5">
-          <div>
-            <LatinLabel>Ad hortum redi</LatinLabel>
-            <Heading level={2} className="mt-1">
-              Connexion
-            </Heading>
-            <p className="text-sm text-stem mt-1">PedagogIA — retourner au jardin.</p>
-          </div>
+    <AppShell surface="greenhouse" className="items-center justify-center">
+      <div className="flex-1 flex items-center justify-center p-5 sm:p-6">
+        <Card variant="tag" className="w-full max-w-md p-6 sm:p-8 space-y-5">
+          <form onSubmit={onSubmit} data-testid="login-form" className="space-y-5">
+            <div>
+              <LatinLabel>Ad hortum redi</LatinLabel>
+              <Heading level={2} className="mt-1">
+                Connexion
+              </Heading>
+              <p className="text-sm text-stem mt-1">PedagogIA — retourner au jardin.</p>
+            </div>
 
-          <label className="block">
-            <span className="text-sm font-medium text-bark">Email</span>
-            <Input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1"
-              data-testid="login-email"
-            />
-          </label>
+            <label className="block">
+              <span className="text-sm font-medium text-bark">Email</span>
+              <Input
+                type="email"
+                required
+                autoComplete="email"
+                inputMode="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-1"
+                data-testid="login-email"
+              />
+            </label>
 
-          <label className="block">
-            <span className="text-sm font-medium text-bark">Mot de passe</span>
-            <Input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1"
-              data-testid="login-password"
-            />
-          </label>
+            <label className="block">
+              <span className="text-sm font-medium text-bark">Mot de passe</span>
+              <Input
+                type="password"
+                required
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1"
+                data-testid="login-password"
+              />
+            </label>
 
-          {error && (
-            <p className="text-sm text-rose px-3 py-2 rounded-lg bg-rose-soft/60" data-testid="login-error">
-              {error}
-            </p>
-          )}
+            {error && (
+              <p
+                className="text-sm text-rose px-3 py-2 rounded-lg bg-rose-soft/60"
+                data-testid="login-error"
+                role="alert"
+                aria-live="polite"
+              >
+                {error}
+              </p>
+            )}
 
           <Button type="submit" disabled={busy} className="w-full" data-testid="login-submit">
             {busy ? "Connexion…" : "Se connecter"}
@@ -97,14 +107,15 @@ export default function LoginScreen() {
             Se connecter avec Google
           </Button>
 
-          <p className="text-sm text-center text-stem">
-            Pas de compte ?{" "}
-            <Link to="/register" className="text-sage-deep font-semibold hover:underline">
-              Créer un compte
-            </Link>
-          </p>
-        </form>
-      </Card>
-    </div>
+            <p className="text-sm text-center text-stem">
+              Pas de compte ?{" "}
+              <Link to="/register" className="text-sage-deep font-semibold hover:underline">
+                Créer un compte
+              </Link>
+            </p>
+          </form>
+        </Card>
+      </div>
+    </AppShell>
   )
 }

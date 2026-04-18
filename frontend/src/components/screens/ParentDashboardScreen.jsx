@@ -1,7 +1,11 @@
 import { useQuery } from "@tanstack/react-query"
-import { Link, useNavigate } from "react-router"
+import { useNavigate } from "react-router"
 import { useAuthStore } from "../../stores/authStore"
 import { fetchParentOverview } from "../../api/parent"
+import AppShell from "../layout/AppShell"
+import Page from "../layout/Page"
+import TopBar from "../layout/TopBar"
+import { TopBarLink, TopBarButton } from "../layout/TopBarActions"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import Chip from "../ui/Chip"
@@ -160,43 +164,41 @@ export default function ParentDashboardScreen() {
   const students = data?.students || []
 
   return (
-    <div className="min-h-screen greenhouse">
-      <div className="max-w-5xl mx-auto px-6 py-10 md:py-14">
-        <header className="flex items-start justify-between gap-4 mb-10">
-          <div>
-            <LatinLabel>Custos horti</LatinLabel>
-            <Heading level={2} className="mt-1">
-              Espace parent
-              {user?.display_name ? (
-                <>
-                  {" "}
-                  ·{" "}
-                  <em className="text-sage-deep not-italic font-display italic">
-                    {user.display_name}
-                  </em>
-                </>
-              ) : null}
-            </Heading>
-            <p className="text-stem mt-3">
-              Vue d’ensemble de chaque jardin — progrès, sessions récentes et objectifs.
-            </p>
-          </div>
-          <div className="flex flex-col items-end gap-2">
-            <Link
-              to="/children"
-              className="text-stem hover:text-bark text-sm"
-              data-testid="go-child-mode"
-            >
-              Mode enfant →
-            </Link>
-            <button
-              onClick={logout}
-              className="text-stem hover:text-bark text-sm cursor-pointer"
-              data-testid="logout"
-            >
-              Se déconnecter
-            </button>
-          </div>
+    <AppShell
+      surface="greenhouse"
+      topBar={
+        <TopBar
+          trailing={
+            <>
+              <TopBarLink to="/children" icon="child_care" data-testid="go-child-mode">
+                Mode enfant
+              </TopBarLink>
+              <TopBarButton onClick={logout} icon="logout" data-testid="logout">
+                Déconnexion
+              </TopBarButton>
+            </>
+          }
+        />
+      }
+    >
+      <Page maxWidth="3xl">
+        <header className="mb-10">
+          <LatinLabel>Custos horti</LatinLabel>
+          <Heading level={2} className="mt-1 text-balance">
+            Espace parent
+            {user?.display_name ? (
+              <>
+                {" "}
+                ·{" "}
+                <em className="text-sage-deep not-italic font-display italic">
+                  {user.display_name}
+                </em>
+              </>
+            ) : null}
+          </Heading>
+          <p className="text-stem mt-3">
+            Vue d’ensemble de chaque jardin — progrès, sessions récentes et objectifs.
+          </p>
         </header>
 
         {isLoading && <p className="latin text-center py-10">Chargement du jardin…</p>}
@@ -225,7 +227,7 @@ export default function ParentDashboardScreen() {
             <StudentCard key={s.id} student={s} onOpenDetail={onOpenDetail} />
           ))}
         </div>
-      </div>
-    </div>
+      </Page>
+    </AppShell>
   )
 }

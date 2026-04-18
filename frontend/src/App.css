@@ -181,6 +181,131 @@
   animation: prereq-glow 1.3s ease-in-out infinite;
 }
 
+/* ============================================================
+   App layout primitives — AppShell / TopBar / Page
+   ------------------------------------------------------------
+   - AppShell owns full-viewport height + safe-area insets so
+     individual screens never reach for `min-h-screen` directly.
+   - TopBar is a 3-slot horizontal header (leading / title /
+     trailing) and stays horizontal at every viewport — the
+     trailing slot becomes icon-only below `sm`.
+   - Page is the centered content column with consistent
+     horizontal/vertical rhythm.
+   ============================================================ */
+
+.app-shell {
+  min-height: 100svh;
+  min-height: 100dvh;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  display: flex;
+  flex-direction: column;
+}
+
+.app-shell-main {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: rgba(246, 248, 243, 0.85);
+  backdrop-filter: saturate(140%) blur(8px);
+  -webkit-backdrop-filter: saturate(140%) blur(8px);
+  border-bottom: 1px solid rgba(43, 58, 46, 0.06);
+}
+
+.top-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  max-width: 80rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.top-bar-leading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.top-bar-title {
+  flex: 1 1 auto;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--color-bark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.top-bar-trailing {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.top-bar-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 8px 12px;
+  border-radius: 9999px;
+  color: var(--color-stem);
+  font-size: 14px;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+  text-decoration: none;
+}
+
+.top-bar-action:hover,
+.top-bar-action:active {
+  background: rgba(43, 58, 46, 0.06);
+  color: var(--color-bark);
+}
+
+.top-bar-action:focus-visible {
+  outline: 2px solid var(--color-sky-deep);
+  outline-offset: 2px;
+}
+
+.top-bar-back .top-bar-action-label {
+  font-weight: 500;
+}
+
+/* Hide labels on phones — keep icons only — for trailing utility actions.
+   The leading "back" action keeps its label since text recall matters there. */
+@media (max-width: 480px) {
+  .top-bar-trailing .top-bar-action .top-bar-action-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
 /* Pill-shaped nav link */
 .navlink {
   padding: 9px 14px;

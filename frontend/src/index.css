@@ -58,6 +58,14 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Prevent iOS Safari from auto-zooming on focus — anything < 16px triggers it.
+   We bump the baseline on phones; Tailwind utilities can still scale up. */
+input,
+select,
+textarea {
+  font-size: 16px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
+import AppShell from "../layout/AppShell"
+import Page from "../layout/Page"
 import Icon from "../ui/Icon"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
@@ -234,8 +236,9 @@ export default function DiagnosticResult({
   const contentMounted = useMounted(200)
 
   return (
-    <div className="min-h-screen greenhouse flex flex-col items-center p-6">
-      <Card className="p-6 md:p-10 max-w-2xl w-full my-8">
+    <AppShell surface="greenhouse">
+      <Page maxWidth="lg">
+      <Card className="p-6 md:p-10">
         <VerdictHero
           verdict={verdict}
           child={child}
@@ -321,6 +324,7 @@ export default function DiagnosticResult({
           )}
         </div>
       </Card>
-    </div>
+      </Page>
+    </AppShell>
   )
 }

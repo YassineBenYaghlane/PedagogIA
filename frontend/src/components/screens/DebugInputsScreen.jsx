@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router"
+import AppShell from "../layout/AppShell"
+import Page from "../layout/Page"
 import { api } from "../../api/client"
 import ExerciseCard from "../exercises/ExerciseCard"
 
@@ -33,8 +35,8 @@ export default function DebugInputsScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-chalk p-6">
-      <div className="max-w-3xl mx-auto">
+    <AppShell surface="plain">
+      <Page maxWidth="xl">
         <div className="flex items-center justify-between mb-6">
           <h1 className="font-display text-3xl font-semibold text-bark">
             Debug — Types d'exercices
@@ -83,8 +85,8 @@ export default function DebugInputsScreen() {
             </section>
           ))}
         </div>
-      </div>
-    </div>
+      </Page>
+    </AppShell>
   )
 }
 

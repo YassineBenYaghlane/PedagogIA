@@ -16,7 +16,7 @@ cd "$REPO_ROOT"
 
 SKILL_DIR="$REPO_ROOT/.claude/skills/e2e-validate-pr"
 STACK="$SKILL_DIR/scripts/stack.sh"
-STACK_ID=1
+STACK_ID="${E2E_STACK_ID:-1}"
 
 log()  { printf '\n\033[1;34m[e2e-validate-pr]\033[0m %s\n' "$*"; }
 die()  { printf '\n\033[1;31m[e2e-validate-pr ERROR]\033[0m %s\n' "$*" >&2; exit 1; }

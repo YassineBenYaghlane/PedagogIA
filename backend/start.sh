@@ -2,6 +2,7 @@
 set -e
 
 uv run python manage.py migrate --noinput
+uv run python manage.py createcachetable
 uv run python manage.py collectstatic --noinput
 uv run python manage.py seed_skills
 uv run python manage.py seed_templates

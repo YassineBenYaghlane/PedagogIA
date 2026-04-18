@@ -37,6 +37,7 @@ Catalog of every wiki page. Updated on every ingest. Keep lines ≤150 chars.
 - [[entities/caroline-desir]] — Ministre de l'Éducation, signed the math référentiel
 - [[entities/pouvoirs-organisateurs]] — PO / FPO, school networks; author programmes from référentiels
 - [[entities/collegia-be]] — the live production deployment on Hetzner (IPs, images, GH wiring)
+- [[entities/cloudflare]] — CDN/WAF/DNS edge in front of collegia.be: zone config, WAF rule, TLS mode, runbooks
 
 ## Concepts
 - [[concepts/tronc-commun]] — FWB common curriculum M1→S3, 8 learning domains
@@ -56,7 +57,8 @@ Catalog of every wiki page. Updated on every ingest. Keep lines ≤150 chars.
 - [[concepts/proportionnalite-directe]] — thread P1→S3; tableau/graphe in primary, `y=a·x` in S2
 - [[concepts/resolution-problemes-math]] — Champ 3 headline compétence; natural home for Claude investigation
 - [[concepts/ceb-attendus-p6-arithmetique]] — nine P6-exit arithmetic item types, cross-referenced from CEB 2024
-- [[concepts/prod-stack]] — how prod is wired: two-image Docker split, Caddy front, CI/CD, security baseline
+- [[concepts/prod-stack]] — how prod is wired: Cloudflare → Hetzner firewall → Caddy → Django; CI/CD; security baseline
+- [[concepts/edge-security]] — Cloudflare WAF + Hetzner firewall + DRF throttle + CF real-IP middleware, as four composing layers
 - [[concepts/product-features]] — catalog of shipped features (modes, AI, progress, parent surface, ops) — 2026-04-18 snapshot
 
 ## Questions
@@ -64,3 +66,4 @@ Catalog of every wiki page. Updated on every ingest. Keep lines ≤150 chars.
 - [[questions/nouveaux-types-exercices-ceb]] — 15 types d'exercices à ajouter dans PedagogIA pour couvrir les attendus CEB P6, priorisés en 4 tiers
 - [[questions/ingest-gap-ceb-2008-2018]] — état du dépouillement des 16 CEB : 8 profonds, 2 partiels, 6 placeholders — plan de priorisation
 - [[questions/frontend-ux-audit-2026-04-18]] — 56-finding punch list across 11 screens × 5 viewports; 4 P0 / 36 P1 / 16 P2 + native-app readiness
+- [[questions/devops-state-2026-04-18]] — current infra/devops state, what's live, what to tackle next; handoff page for the next devops agent

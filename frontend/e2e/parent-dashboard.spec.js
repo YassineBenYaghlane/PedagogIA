@@ -11,6 +11,7 @@ test("parent can open /dashboard and see their children", async ({ page }) => {
   await page.getByTestId("register-name").fill("Marie")
   await page.getByTestId("register-email").fill(email)
   await page.getByTestId("register-password").fill("SuperStrong!23")
+  await page.getByTestId("register-password-confirm").fill("SuperStrong!23")
   await page.getByTestId("register-submit").click()
   await expect(page).toHaveURL(/\/children/)
 

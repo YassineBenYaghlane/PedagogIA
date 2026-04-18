@@ -18,6 +18,8 @@ export default function NumberPad({ value, onChange, onSubmit, disabled }) {
 
   const digitClass =
     "specimen bg-bone hover:bg-mist active:bg-sage-leaf/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-deep text-bark font-mono text-3xl font-semibold py-5 min-h-[3.75rem] rounded-xl cursor-pointer transition-transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0 tabular-nums"
+  const commaClass =
+    "specimen bg-sky-soft hover:bg-sky/40 active:bg-sky/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-deep text-sky-deep font-mono text-3xl font-semibold py-5 min-h-[3.75rem] rounded-xl cursor-pointer transition-transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0 flex flex-col items-center justify-center leading-none"
   const utilClass =
     "specimen bg-paper hover:bg-mist active:bg-sage-leaf/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-deep text-bark font-mono text-2xl py-5 min-h-[3.75rem] min-w-11 rounded-xl cursor-pointer flex items-center justify-center transition-transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0"
 
@@ -43,7 +45,7 @@ export default function NumberPad({ value, onChange, onSubmit, disabled }) {
         className={utilClass}
         aria-label="Effacer le dernier chiffre"
       >
-        <Icon name="backspace" />
+        <Icon name="backspace" size={28} />
       </button>
       <button
         type="button"
@@ -59,10 +61,13 @@ export default function NumberPad({ value, onChange, onSubmit, disabled }) {
         onClick={() => press(",")}
         disabled={disabled || value.includes(",")}
         data-testid="number-pad-key-comma"
-        className={digitClass}
+        className={commaClass}
         aria-label="Virgule décimale"
       >
-        ,
+        <span aria-hidden="true">,</span>
+        <span className="text-[9px] uppercase tracking-widest font-sans font-semibold mt-1 opacity-80">
+          virgule
+        </span>
       </button>
       <button
         type="button"

@@ -65,7 +65,7 @@ export default function ExerciseCard({
           <p className="font-display text-sm text-bark mt-0.5 mb-5">{skill.label}</p>
         </>
       )}
-      <div className="font-mono text-4xl md:text-5xl font-semibold text-bark mb-5 tabular-nums tracking-tight text-balance">
+      <div className="font-mono text-3xl sm:text-4xl md:text-5xl font-semibold text-bark mb-5 tabular-nums tracking-tight text-balance break-words">
         {prompt}
       </div>
 

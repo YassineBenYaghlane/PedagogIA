@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Link, useNavigate } from "react-router"
 import { useAuthStore } from "../../stores/authStore"
 import AppShell from "../layout/AppShell"
@@ -7,17 +7,44 @@ import Card from "../ui/Card"
 import Input from "../ui/Input"
 import { Heading, LatinLabel } from "../ui/Heading"
 
+function scorePassword(pw) {
+  if (!pw) return 0
+  let s = 0
+  if (pw.length >= 8) s += 1
+  if (pw.length >= 12) s += 1
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) s += 1
+  if (/\d/.test(pw)) s += 1
+  if (/[^A-Za-z0-9]/.test(pw)) s += 1
+  return Math.min(s, 4)
+}
+
+const STRENGTH = [
+  { label: "Trop court", tone: "bg-rose text-rose" },
+  { label: "Faible", tone: "bg-rose text-rose" },
+  { label: "Correct", tone: "bg-honey text-honey" },
+  { label: "Bon", tone: "bg-sage text-sage-deep" },
+  { label: "Solide", tone: "bg-sage-deep text-sage-deep" },
+]
+
 export default function RegisterScreen() {
   const register = useAuthStore((s) => s.register)
   const navigate = useNavigate()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [confirm, setConfirm] = useState("")
   const [displayName, setDisplayName] = useState("")
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
 
+  const score = useMemo(() => scorePassword(password), [password])
+  const mismatch = confirm.length > 0 && confirm !== password
+
   const onSubmit = async (e) => {
     e.preventDefault()
+    if (mismatch) {
+      setError("Les mots de passe ne correspondent pas.")
+      return
+    }
     setBusy(true)
     setError(null)
     try {
@@ -30,6 +57,8 @@ export default function RegisterScreen() {
       setBusy(false)
     }
   }
+
+  const strength = STRENGTH[score]
 
   return (
     <AppShell surface="greenhouse">
@@ -50,6 +79,7 @@ export default function RegisterScreen() {
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               autoComplete="given-name"
+              inputMode="text"
               className="mt-1"
               data-testid="register-name"
             />
@@ -81,6 +111,48 @@ export default function RegisterScreen() {
               className="mt-1"
               data-testid="register-password"
             />
+            {password && (
+              <div
+                className="mt-2 flex items-center gap-2"
+                data-testid="register-strength"
+                aria-live="polite"
+              >
+                <div className="flex-1 h-1.5 rounded-full bg-mist overflow-hidden">
+                  <div
+                    className={`h-full transition-all duration-300 ${strength.tone.split(" ")[0]}`}
+                    style={{ width: `${(score / 4) * 100}%` }}
+                  />
+                </div>
+                <span className={`text-xs font-semibold ${strength.tone.split(" ")[1]}`}>
+                  {strength.label}
+                </span>
+              </div>
+            )}
+          </label>
+
+          <label className="block">
+            <span className="text-sm font-medium text-bark">Confirmer le mot de passe</span>
+            <Input
+              type="password"
+              required
+              minLength={8}
+              autoComplete="new-password"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              className="mt-1"
+              data-testid="register-password-confirm"
+              aria-invalid={mismatch}
+            />
+            {mismatch && (
+              <p
+                className="mt-1 text-xs text-rose"
+                data-testid="register-password-mismatch"
+                role="alert"
+                aria-live="polite"
+              >
+                Les deux mots de passe doivent être identiques.
+              </p>
+            )}
           </label>
 
           {error && (
@@ -94,7 +166,12 @@ export default function RegisterScreen() {
             </p>
           )}
 
-          <Button type="submit" disabled={busy} className="w-full" data-testid="register-submit">
+          <Button
+            type="submit"
+            disabled={busy || mismatch}
+            className="w-full"
+            data-testid="register-submit"
+          >
             {busy ? "Création…" : "Créer le compte"}
           </Button>
 

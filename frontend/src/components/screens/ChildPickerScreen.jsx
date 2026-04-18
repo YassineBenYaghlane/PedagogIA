@@ -126,6 +126,8 @@ export default function ChildPickerScreen() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Prénom"
+                autoComplete="given-name"
+                inputMode="text"
                 className="flex-1"
                 data-testid="child-name"
               />

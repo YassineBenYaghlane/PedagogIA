@@ -56,6 +56,9 @@ export default function ChildPickerScreen() {
               <TopBarLink to="/dashboard" icon="supervisor_account" data-testid="go-parent-dashboard">
                 Espace parent
               </TopBarLink>
+              <TopBarLink to="/parametres" icon="user" data-testid="go-parametres">
+                Mon profil
+              </TopBarLink>
               <TopBarButton onClick={logout} icon="logout" data-testid="logout">
                 Déconnexion
               </TopBarButton>

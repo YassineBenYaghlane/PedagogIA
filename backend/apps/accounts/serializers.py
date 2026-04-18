@@ -1,5 +1,6 @@
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
 from apps.students.serializers import StudentNestedSerializer
 
@@ -7,12 +8,15 @@ from .models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+        validators=[UniqueValidator(queryset=User.objects.all(), lookup="iexact")]
+    )
     children = StudentNestedSerializer(many=True, read_only=True, source="students")
 
     class Meta:
         model = User
         fields = ("id", "email", "display_name", "children")
-        read_only_fields = ("id", "email")
+        read_only_fields = ("id",)
 
 
 class UserRegisterSerializer(RegisterSerializer):

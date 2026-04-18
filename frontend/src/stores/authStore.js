@@ -1,5 +1,7 @@
 import { create } from "zustand"
 import { api } from "../api/client"
+import { accountApi } from "../api/account"
+import { studentsApi } from "../api/students"
 
 const STORAGE_KEY = "pedagogia.selectedChildId"
 
@@ -82,6 +84,34 @@ export const useAuthStore = create((set, get) => ({
     const child = await api.post("/students/", { display_name: displayName, grade })
     set({ children: [...get().children, child] })
     return child
+  },
+
+  updateUser: async (patch) => {
+    const updated = await accountApi.updateUser(patch)
+    set({ user: { ...get().user, ...updated } })
+    return updated
+  },
+
+  changePassword: async ({ oldPassword, newPassword }) => {
+    return accountApi.changePassword({ oldPassword, newPassword })
+  },
+
+  updateChild: async (id, patch) => {
+    const updated = await studentsApi.update(id, patch)
+    set({
+      children: get().children.map((c) => (c.id === id ? { ...c, ...updated } : c))
+    })
+    return updated
+  },
+
+  removeChild: async (id) => {
+    await studentsApi.remove(id)
+    const { selectedChildId } = get()
+    set({
+      children: get().children.filter((c) => c.id !== id),
+      selectedChildId: selectedChildId === id ? null : selectedChildId
+    })
+    if (selectedChildId === id) writeSelected(null)
   },
 
   selectChild: (id) => {

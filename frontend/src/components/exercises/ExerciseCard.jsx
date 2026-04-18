@@ -17,21 +17,21 @@ function bindTrailingPunctuation(text) {
   return text.replace(/\s+([?!:;])/g, "\u00A0$1")
 }
 
-function renderInput(inputType, props) {
+function renderInput(inputType, key, props) {
   switch (inputType) {
     case "mcq":
-      return <McqInput {...props} />
+      return <McqInput key={key} {...props} />
     case "symbol":
-      return <SymbolInput {...props} />
+      return <SymbolInput key={key} {...props} />
     case "decomposition":
-      return <DecompositionInput {...props} />
+      return <DecompositionInput key={key} {...props} />
     case "point_on_line":
-      return <PointOnLineInput {...props} />
+      return <PointOnLineInput key={key} {...props} />
     case "drag_order":
-      return <DragOrderInput {...props} />
+      return <DragOrderInput key={key} {...props} />
     case "number":
     default:
-      return <NumberInput {...props} />
+      return <NumberInput key={key} {...props} />
   }
 }
 
@@ -72,8 +72,7 @@ export default function ExerciseCard({
       {!feedback && mode !== "diagnostic" && !examMode && <HintPanel exercise={exercise} />}
 
       {!feedback &&
-        renderInput(exercise.input_type, {
-          key: exercise.template_id,
+        renderInput(exercise.input_type, exercise.template_id, {
           exercise,
           grade,
           disabled,

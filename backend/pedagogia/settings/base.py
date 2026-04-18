@@ -118,8 +118,8 @@ REST_FRAMEWORK = {
 
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "pedagogia-default",
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "pedagogia_cache",
     },
 }
 

@@ -1,3 +1,5 @@
+import os
+
 from django.contrib import admin
 from django.http import HttpResponse, JsonResponse
 from django.middleware.csrf import get_token
@@ -13,6 +15,13 @@ from apps.accounts.views import (
     UserDetailsView,
 )
 
+# In prod we mount the admin under a random slug so the default /admin/ 404s —
+# a stolen superuser cookie is a big deal and hiding the URL raises the bar.
+# Default stays "admin/" so local dev is unchanged.
+_admin_path = os.environ.get("DJANGO_ADMIN_PATH", "admin/")
+if not _admin_path.endswith("/"):
+    _admin_path = f"{_admin_path}/"
+
 
 @ensure_csrf_cookie
 def csrf(request):
@@ -25,7 +34,7 @@ def health(_request):
 
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path(_admin_path, admin.site.urls),
     path("api/health/", health),
     path("api/csrf/", csrf),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),

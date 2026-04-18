@@ -143,65 +143,29 @@ Age private key is **not** stored on the VPS — it lives in 1Password ("collegi
 python3 -c "import secrets; print('mgmt-' + secrets.token_urlsafe(12) + '/')"
 ```
 
-Update the value in `/opt/pedagogia/.env.prod`, then `docker compose up -d backend` to restart. Bookmark the new URL locally — it's only in `.env.prod`, not in any code. If you ever forget it, SSH in and `grep DJANGO_ADMIN_PATH /opt/pedagogia/.env.prod`.
+Set `DJANGO_ADMIN_PATH` in `/opt/pedagogia/.env.prod`, including the trailing slash (Caddy's `@api` matcher uses the value to reverse-proxy `/<slug>/*` to Django). Then recreate the backend **and** frontend containers — `docker compose restart` does not re-read `env_file`:
+
+```bash
+docker compose -f docker-compose.prod.yml up -d --force-recreate backend frontend
+```
+
+Bookmark the new URL locally — it's only in `.env.prod`, not in any code. If you ever forget it, SSH in and `grep DJANGO_ADMIN_PATH /opt/pedagogia/.env.prod`.
 
 Verify:
 
 ```bash
 curl -o /dev/null -s -w "%{http_code}\n" https://collegia.be/admin/
 # 404
-curl -o /dev/null -s -w "%{http_code}\n" https://collegia.be/mgmt-<slug>/
-# 302 — redirect to login
+curl -o /dev/null -s -w "%{http_code}\n" https://collegia.be/<slug>/
+# 302 — redirect to the admin login page
 ```
 
-## 11. fail2ban for auth brute-force
+## 11. Auth brute-force protection
 
-Caddy writes JSON access logs to `/var/log/pedagogia-caddy/access.log` on the host (bind mount in `docker-compose.prod.yml`). A fail2ban jail tails that file, extracts the real client IP from the `CF-Connecting-IP` header, and bans after repeated 401/403 on `/api/auth/login` or `/api/auth/registration`.
+There is no host fail2ban on this VPS (the `pedagogia` user has no sudo). Brute-force protection is layered at the edge and in the app:
 
-First time on a new VPS:
+- **Cloudflare** in front of `collegia.be` — WAF rules + Managed Challenge for non-Belgian traffic block the bulk of automated auth abuse before it reaches origin.
+- **Hetzner firewall** (step 8) — only Cloudflare IP ranges can reach ports 80/443, so direct-to-origin credential stuffing is impossible.
+- **DRF throttling** in `settings/base.py` — `10/min` on `/api/auth/login/` and `5/hour` on `/api/auth/registration/` returns 429 to repeat offenders.
 
-```bash
-cd /opt/pedagogia
-sudo ./install-fail2ban.sh
-```
-
-That installs the `fail2ban` package if missing, copies `prod/fail2ban/filter.d/pedagogia-auth.conf` and `prod/fail2ban/jail.d/pedagogia-auth.conf` into `/etc/fail2ban/`, and restarts the service. The jail: **10 failed auth hits in 10 minutes → 1-hour ban at iptables level**.
-
-The installer is idempotent — re-run it after editing the configs in the repo.
-
-Verify:
-
-```bash
-sudo fail2ban-client status pedagogia-auth
-# Status for the jail: pedagogia-auth
-# |- Filter
-# |  |- Currently failed: 0
-# |  |- Total failed:     0
-# |  `- File list:        /var/log/pedagogia-caddy/access.log
-# `- Actions
-#    |- Currently banned: 0
-#    ...
-```
-
-End-to-end check (from the laptop, deliberately miss 11 times):
-
-```bash
-for i in $(seq 1 11); do
-  curl -s -o /dev/null -w "%{http_code}\n" \
-    -X POST https://collegia.be/api/auth/login/ \
-    -H 'Content-Type: application/json' \
-    -d '{"email":"nobody@example.com","password":"wrong"}'
-done
-# Expect 401 × 10 then connection refused / timeout on the 12th (banned at L3).
-```
-
-**Unbanning a locked-out user** (they called, it was a password reset typo spiral):
-
-```bash
-sudo fail2ban-client status pedagogia-auth         # find the banned IP
-sudo fail2ban-client unban <ip>
-# Or wipe the whole jail:
-sudo fail2ban-client unban --all
-```
-
-**Caveat** — all TCP connections to the origin come from Cloudflare IPs (Hetzner firewall drops everything else, per step 8). The real attacker is banned *via the CF-Connecting-IP header*, so if Cloudflare isn't in front, or the header is missing, the filter won't match. That's fine for the current architecture; revisit if we ever expose the origin directly.
+If origin-level IP banning becomes necessary later, the right tool is Cloudflare's API (list rules + rate-limiting) rather than host-level iptables — this VPS intentionally stays hands-off.

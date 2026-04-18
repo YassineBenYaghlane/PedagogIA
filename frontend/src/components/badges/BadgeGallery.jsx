@@ -1,4 +1,5 @@
 import BadgeIcon from "./BadgeIcon"
+import EmptyState from "../ui/EmptyState"
 
 const ALL_BADGES = [
   { code: "first_step", label: "Premier pas", icon: "sigma", tier: "bronze" },
@@ -32,9 +33,11 @@ export default function BadgeGallery({ earned = [], compact = false }) {
 
   if (compact && items.length === 0) {
     return (
-      <p className="text-sm text-stem text-center latin">
-        Aucune fleur pressée — plante ta première graine.
-      </p>
+      <EmptyState
+        compact
+        icon="flower"
+        body="Aucune fleur pressée — plante ta première graine."
+      />
     )
   }
 

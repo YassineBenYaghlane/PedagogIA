@@ -62,6 +62,8 @@ jobs:
           build-args: |
             VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}
             VITE_GOOGLE_OAUTH_CALLBACK_URL=https://${{ secrets.DOMAIN }}/auth/google/callback
+            VITE_SENTRY_DSN=${{ secrets.VITE_SENTRY_DSN }}
+            VITE_SENTRY_ENVIRONMENT=production
 
   deploy:
     needs: build

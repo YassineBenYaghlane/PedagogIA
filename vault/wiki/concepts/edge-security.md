@@ -66,11 +66,10 @@ Guarded by `TRUST_CLOUDFLARE_REAL_IP` — **on in prod** (`settings/prod.py` har
 
 ## What this does NOT give us
 
-- No per-country blocking — see [[questions/devops-state-2026-04-18]] for the parked geo-challenge follow-up (#126).
-- No uptime monitoring from outside Cloudflare — Cloudflare's analytics is the current signal.
-- No Django exception visibility (Sentry not wired yet — #88).
-- No fail2ban-style SSH jail — #101, deferred.
-- Admin hardening (`/admin/` obscure path / auth gate) — #100, open.
+- ~~No per-country blocking~~ — **#126 landed**: Managed Challenge on `/api/auth/*` for non-BE traffic documented in `prod/bootstrap.md` §12 (activation is dashboard-only, so the rule is live only once the curator enables it in CF).
+- ~~No uptime monitoring~~ — **#88 landed**: bootstrap.md §13 covers UptimeRobot (outside-CF probe) + Sentry (backend + frontend exceptions). Both SDKs no-op without env vars, so activation is configuration-only.
+- ~~No fail2ban-style SSH jail~~ — **#101 closed as superseded**: no host sudo on this VPS, defence layered at CF + Hetzner firewall + DRF instead.
+- ~~Admin hardening~~ — **#100 landed**: `/admin/` 404s; real admin at `DJANGO_ADMIN_PATH` slug, routed through Caddy's `@api` matcher.
 
 ## Operational runbooks
 

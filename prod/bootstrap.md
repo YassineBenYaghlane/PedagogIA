@@ -169,3 +169,52 @@ There is no host fail2ban on this VPS (the `pedagogia` user has no sudo). Brute-
 - **DRF throttling** in `settings/base.py` — `10/min` on `/api/auth/login/` and `5/hour` on `/api/auth/registration/` returns 429 to repeat offenders.
 
 If origin-level IP banning becomes necessary later, the right tool is Cloudflare's API (list rules + rate-limiting) rather than host-level iptables — this VPS intentionally stays hands-off.
+
+## 12. Managed Challenge for non-Belgian traffic (#126)
+
+The audience lives in Belgium (FWB curriculum). Non-BE traffic is almost all noise — credential stuffing, opportunistic scans, botnets. A Cloudflare WAF Custom Rule issues a Managed Challenge for non-BE visitors scoped to `/api/auth/*`, so a real parent travelling still passes invisibly but automated abuse eats a JS challenge.
+
+**Before enabling**: in the Cloudflare dashboard → Analytics → Security Events, filter the last 7 days by country. If non-BE human traffic is a handful of hits, activate. If it's a real segment, hold off.
+
+**Create the rule** — Cloudflare dashboard → Security → WAF → Custom rules → Create rule:
+
+- Name: `non-BE challenge on auth`
+- Expression (edit as expression, not builder):
+  ```
+  (ip.geoip.country ne "BE" and starts_with(http.request.uri.path, "/api/auth/"))
+  ```
+- Action: **Managed Challenge**
+- Deploy
+
+**Verified-bot bypass** — Cloudflare's Managed Challenge already lets Googlebot / Bingbot through via the verified-bot exemption; no extra rule needed. If you want to be explicit, add `and not cf.client.bot` to the expression.
+
+**Verify** — from a non-BE VPN, `curl -i https://collegia.be/api/auth/login/` should return the CF challenge interstitial (HTTP 403 with `cf-mitigated: challenge`). From a BE IP, it goes through to Django normally.
+
+**Rollback** — if you over-block: WAF → Custom rules → toggle the rule off. Effect is immediate.
+
+## 13. Monitoring (#88)
+
+Two independent layers. Neither lives on the VPS — both free tiers, dashboard-based.
+
+### 13a. Error tracking — Sentry
+
+Backend and frontend both ship with Sentry SDKs that are **no-ops unless the DSN env var is set**, so turning on monitoring is purely a config change (no code).
+
+1. Create a Sentry org + two projects: `pedagogia-backend` (Django) and `pedagogia-frontend` (React). Free tier covers ~5k events/month.
+2. For each project, grab the DSN (Project Settings → Client Keys).
+3. **Backend**: append `SENTRY_DSN=<backend dsn>` to `/opt/pedagogia/.env.prod`, then `docker compose -f docker-compose.prod.yml up -d --force-recreate backend`.
+4. **Frontend**: the DSN is baked in at build time via the `VITE_SENTRY_DSN` GitHub Actions secret. In the repo → Settings → Secrets and variables → Actions → add `VITE_SENTRY_DSN` with the frontend project's DSN. Next push to `main` triggers a new build that embeds it.
+5. Verify: trigger a test error — backend via `curl https://collegia.be/api/boom/` (after a throwaway view) or by raising in the Django shell; frontend via the browser console `throw new Error("sentry test")`. Both events should appear in the Sentry dashboards within ~30s.
+
+Alert channel: Sentry → Alerts → route to email or Slack. Default "issue created" rule is enough to start.
+
+### 13b. Uptime — UptimeRobot (or BetterStack)
+
+Outside-Cloudflare check so we catch CF outages, origin outages, and expired certs.
+
+1. Create an UptimeRobot account (free tier: 50 monitors, 5-min interval).
+2. Add a **HTTP(s)** monitor on `https://collegia.be/api/health/`, interval 5 min, keyword `"ok"` (the health endpoint returns `{"status":"ok"}`).
+3. Add an alert contact (email + optional SMS). Default "down for 5 min" trigger is fine.
+4. Optional: add a second monitor on the frontend SPA (`https://collegia.be/`) to catch Caddy failures that don't affect the backend.
+
+Verify: pause the backend container with `docker compose -f docker-compose.prod.yml stop backend` on the VPS for 6 min, watch the alert arrive. Then `start backend` and check the resolve email. **Don't forget to restart** — pausing during a real user session is disruptive.

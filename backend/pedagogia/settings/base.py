@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
+    "apps.common.middleware.CloudflareRealIPMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -188,6 +189,8 @@ CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
 ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY")
 INVESTIGATION_MODEL_PRIMARY = env("INVESTIGATION_MODEL_PRIMARY")
 INVESTIGATION_MODEL_ESCALATION = env("INVESTIGATION_MODEL_ESCALATION")
+
+TRUST_CLOUDFLARE_REAL_IP = env.bool("TRUST_CLOUDFLARE_REAL_IP", default=False)
 
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"

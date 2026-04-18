@@ -15,7 +15,7 @@
 		-Server
 	}
 
-	@api path /api/* /admin/* /static/*
+	@api path /api/* /admin/* /{$DJANGO_ADMIN_PATH}* /static/*
 	handle @api {
 		reverse_proxy backend:8000 {
 			header_up X-Forwarded-Proto {scheme}
@@ -31,11 +31,7 @@
 	}
 
 	log {
-		output file /var/log/caddy/access.log {
-			roll_size 10mb
-			roll_keep 5
-			roll_keep_for 168h
-		}
+		output stdout
 		format json
 	}
 }

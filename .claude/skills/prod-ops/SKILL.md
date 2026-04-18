@@ -132,12 +132,8 @@ Mental checklist, in order:
 
 ## Admin + auth hardening
 
-- **Admin URL** — `/admin/` returns 404 in prod. The real admin lives at `DJANGO_ADMIN_PATH` from `.env.prod` (a random slug like `mgmt-<token>/`). If you forget it: `ssh pedagogia@46.225.142.212 'grep DJANGO_ADMIN_PATH /opt/pedagogia/.env.prod'`. To rotate, edit `.env.prod` and restart `backend` (see step 10 of `prod/bootstrap.md`).
-- **fail2ban** — a host jail tails Caddy's JSON access log (bind-mounted at `/var/log/pedagogia-caddy/access.log`) and bans via iptables after 10 failed 401/403 hits on `/api/auth/login` or `/api/auth/registration` in 10 min, for 1 h. Real client IP is extracted from the `CF-Connecting-IP` header (Caddy's TCP peer is always a Cloudflare edge).
-  - Status: `sudo fail2ban-client status pedagogia-auth`
-  - Unban one: `sudo fail2ban-client unban <ip>`
-  - Unban all: `sudo fail2ban-client unban --all`
-  - Config source of truth: `prod/fail2ban/` in the repo. After editing, re-run `sudo ./install-fail2ban.sh` on the server (idempotent).
+- **Admin URL** — `/admin/` returns 404 in prod. The real admin lives at `DJANGO_ADMIN_PATH` from `.env.prod` (a random slug like `mgmt-<token>/`, trailing slash required). If you forget it: `ssh pedagogia@46.225.142.212 'grep DJANGO_ADMIN_PATH /opt/pedagogia/.env.prod'`. To rotate, edit `.env.prod` and **recreate both `backend` and `frontend`** — Caddy's `@api` matcher reads `{$DJANGO_ADMIN_PATH}` at startup, so the frontend container must be recreated too (see step 10 of `prod/bootstrap.md`).
+- **Auth brute-force** — no host fail2ban on this VPS (`pedagogia` has no sudo). Defence lives at the edge (Cloudflare WAF + Managed Challenge, Hetzner firewall locked to CF ranges) and in the app (DRF throttles `10/min` login, `5/hour` register). If origin-level banning ever becomes necessary, do it via the Cloudflare API — not iptables.
 
 ## Things that require explicit user confirmation
 

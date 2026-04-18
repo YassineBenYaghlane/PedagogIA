@@ -1,7 +1,8 @@
 import { useEffect } from "react"
 import { useNavigate, useSearchParams } from "react-router"
-import Icon from "../ui/Icon"
-import { LatinLabel } from "../ui/Heading"
+import AppShell from "../layout/AppShell"
+import TopBar from "../layout/TopBar"
+import { TopBarBack } from "../layout/TopBarActions"
 import ExerciseCard from "../exercises/ExerciseCard"
 import { useSessionStore } from "../../stores/sessionStore"
 import { useAuthStore } from "../../stores/authStore"
@@ -32,47 +33,44 @@ export default function ExerciseScreen() {
     navigate("/")
   }
 
+  const sessionLabel = lockedSkillId ? "Séance libre" : "Établi"
+  const title = child ? `${sessionLabel} · ${child.display_name}` : sessionLabel
+
   return (
-    <div className="min-h-screen paper-rule flex flex-col items-center p-6">
-      <div className="w-full max-w-xl mb-6 flex justify-between items-center">
-        <button
-          onClick={handleStop}
-          className="text-stem hover:text-bark flex items-center gap-1.5 cursor-pointer text-sm"
-        >
-          <Icon name="arrow_back" size={16} /> Arrêter
-        </button>
-        {child && (
-          <div className="text-right">
-            <LatinLabel>In officina</LatinLabel>
-            <div className="text-sm text-bark font-semibold">
-              {lockedSkillId ? "Séance libre" : "Établi"} · {child.display_name}
-            </div>
+    <AppShell
+      surface="paper"
+      topBar={
+        <TopBar
+          leading={<TopBarBack onClick={handleStop} label="Arrêter" />}
+          title={title}
+        />
+      }
+    >
+      <div className="flex-1 flex flex-col items-center px-5 sm:px-6 py-6 sm:py-8">
+        {error && (
+          <div
+            className="text-rose px-3 py-2 rounded-lg bg-rose-soft/60 mb-4 max-w-xl w-full"
+            data-testid="exercise-error"
+            role="alert"
+          >
+            {error}
           </div>
         )}
+
+        <ExerciseCard
+          key={current?.exercise?.signature || "loading"}
+          exercise={current?.exercise}
+          skill={current?.skill}
+          grade={child?.grade}
+          feedback={feedback}
+          explanation={explanation}
+          explaining={explaining}
+          onExplain={explain}
+          busy={loading}
+          onSubmit={submit}
+          onNext={loadNext}
+        />
       </div>
-
-      {error && (
-        <div
-          className="text-rose px-3 py-2 rounded-lg bg-rose-soft/60 mb-4"
-          data-testid="exercise-error"
-        >
-          {error}
-        </div>
-      )}
-
-      <ExerciseCard
-        key={current?.exercise?.signature || "loading"}
-        exercise={current?.exercise}
-        skill={current?.skill}
-        grade={child?.grade}
-        feedback={feedback}
-        explanation={explanation}
-        explaining={explaining}
-        onExplain={explain}
-        busy={loading}
-        onSubmit={submit}
-        onNext={loadNext}
-      />
-    </div>
+    </AppShell>
   )
 }

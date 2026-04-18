@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useNavigate, useSearchParams } from "react-router"
 import { useAuthStore } from "../../stores/authStore"
+import AppShell from "../layout/AppShell"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import { Heading, LatinLabel } from "../ui/Heading"
@@ -28,8 +29,9 @@ export default function GoogleCallbackScreen() {
   }, [code, initialError, googleLogin, navigate])
 
   return (
-    <div className="min-h-screen water flex items-center justify-center p-6">
-      <Card variant="specimen" className="p-8 text-center max-w-md space-y-5">
+    <AppShell surface="water">
+      <div className="flex-1 flex items-center justify-center p-5 sm:p-6">
+      <Card variant="specimen" className="p-6 sm:p-8 text-center max-w-md w-full space-y-5">
         {error ? (
           <>
             <LatinLabel>Iter interruptum</LatinLabel>
@@ -50,6 +52,7 @@ export default function GoogleCallbackScreen() {
           </>
         )}
       </Card>
-    </div>
+      </div>
+    </AppShell>
   )
 }

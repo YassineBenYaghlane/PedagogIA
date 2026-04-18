@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router"
 import { useAuthStore } from "../../stores/authStore"
+import AppShell from "../layout/AppShell"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import Input from "../ui/Input"
@@ -31,8 +32,9 @@ export default function RegisterScreen() {
   }
 
   return (
-    <div className="min-h-screen greenhouse flex items-center justify-center p-6">
-      <Card variant="tag" className="w-full max-w-md p-8 space-y-5">
+    <AppShell surface="greenhouse">
+      <div className="flex-1 flex items-center justify-center p-5 sm:p-6">
+      <Card variant="tag" className="w-full max-w-md p-6 sm:p-8 space-y-5">
         <form onSubmit={onSubmit} data-testid="register-form" className="space-y-5">
           <div>
             <LatinLabel>Novum hortum plantare</LatinLabel>
@@ -47,6 +49,7 @@ export default function RegisterScreen() {
             <Input
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
+              autoComplete="given-name"
               className="mt-1"
               data-testid="register-name"
             />
@@ -57,6 +60,8 @@ export default function RegisterScreen() {
             <Input
               type="email"
               required
+              autoComplete="email"
+              inputMode="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="mt-1"
@@ -70,6 +75,7 @@ export default function RegisterScreen() {
               type="password"
               required
               minLength={8}
+              autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="mt-1"
@@ -81,6 +87,8 @@ export default function RegisterScreen() {
             <p
               className="text-sm text-rose whitespace-pre-wrap px-3 py-2 rounded-lg bg-rose-soft/60"
               data-testid="register-error"
+              role="alert"
+              aria-live="polite"
             >
               {error}
             </p>
@@ -98,6 +106,7 @@ export default function RegisterScreen() {
           </p>
         </form>
       </Card>
-    </div>
+      </div>
+    </AppShell>
   )
 }

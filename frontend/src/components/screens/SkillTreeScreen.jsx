@@ -15,6 +15,7 @@ import { useQuery } from "@tanstack/react-query"
 import { api } from "../../api/client"
 import { useAuthStore } from "../../stores/authStore"
 import { useSkillTree } from "../../hooks/useSkillTree"
+import AppShell from "../layout/AppShell"
 import SkillNode from "../ui/SkillNode"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
@@ -235,14 +236,16 @@ function SkillTreeInner({ skills, skillTreeData, isLoading }) {
 
   if (isLoading) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-chalk text-stem">
-        <span className="latin">Germinatio…</span>
-      </div>
+      <AppShell surface="plain">
+        <div className="flex-1 flex items-center justify-center text-stem">
+          <span className="latin">Germinatio…</span>
+        </div>
+      </AppShell>
     )
   }
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-chalk">
+    <AppShell surface="plain" className="overflow-hidden">
       <header className="flex items-center gap-3 px-4 md:px-6 py-3 border-b border-sage/10 bg-paper">
         <a href="/" className="text-sage-deep hover:underline text-sm font-semibold shrink-0">
           ← Serre
@@ -351,7 +354,7 @@ function SkillTreeInner({ skills, skillTreeData, isLoading }) {
         )}
         <StatusLegend />
       </div>
-    </div>
+    </AppShell>
   )
 }
 

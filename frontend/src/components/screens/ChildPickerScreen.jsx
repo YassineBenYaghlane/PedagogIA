@@ -1,6 +1,10 @@
 import { useState } from "react"
-import { Link, useNavigate } from "react-router"
+import { useNavigate } from "react-router"
 import { useAuthStore } from "../../stores/authStore"
+import AppShell from "../layout/AppShell"
+import Page from "../layout/Page"
+import TopBar from "../layout/TopBar"
+import { TopBarLink, TopBarButton } from "../layout/TopBarActions"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import Input from "../ui/Input"
@@ -41,41 +45,44 @@ export default function ChildPickerScreen() {
     navigate("/")
   }
 
+  const single = children.length === 1
   return (
-    <div className="min-h-screen greenhouse">
-      <div className="max-w-4xl mx-auto px-6 py-10 md:py-14">
-        <header className="flex items-start justify-between gap-4 mb-10">
-          <div>
-            <LatinLabel>Horti nostri</LatinLabel>
-            <Heading level={2} className="mt-1">
-              Bonjour,<br />
-              <em className="text-sage-deep not-italic font-display italic">
-                {user?.display_name || user?.email}
-              </em>
-            </Heading>
-            <p className="text-stem mt-3">Choisis le carnet de ton jardin.</p>
-          </div>
-          <div className="flex flex-col items-end gap-2">
-            <Link
-              to="/dashboard"
-              data-testid="go-parent-dashboard"
-              className="text-stem hover:text-bark text-sm"
-            >
-              Espace parent →
-            </Link>
-            <button
-              onClick={logout}
-              data-testid="logout"
-              className="text-stem hover:text-bark text-sm cursor-pointer"
-            >
-              Se déconnecter
-            </button>
-          </div>
+    <AppShell
+      surface="greenhouse"
+      topBar={
+        <TopBar
+          trailing={
+            <>
+              <TopBarLink to="/dashboard" icon="supervisor_account" data-testid="go-parent-dashboard">
+                Espace parent
+              </TopBarLink>
+              <TopBarButton onClick={logout} icon="logout" data-testid="logout">
+                Déconnexion
+              </TopBarButton>
+            </>
+          }
+        />
+      }
+    >
+      <Page maxWidth="2xl">
+        <header className="mb-10">
+          <LatinLabel>Horti nostri</LatinLabel>
+          <Heading level={2} className="mt-1 text-balance">
+            Bonjour,{" "}
+            <em className="text-sage-deep not-italic font-display italic">
+              {user?.display_name || user?.email}
+            </em>
+          </Heading>
+          <p className="text-stem mt-3">Choisis le carnet de ton jardin.</p>
         </header>
 
         <section
           data-testid="children-list"
-          className="grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 mb-10"
+          className={
+            single
+              ? "flex flex-wrap justify-center gap-6 mb-10"
+              : "grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 mb-10"
+          }
         >
           {children.map((c) => (
             <button
@@ -141,7 +148,7 @@ export default function ChildPickerScreen() {
             </div>
           </form>
         </Card>
-      </div>
-    </div>
+      </Page>
+    </AppShell>
   )
 }

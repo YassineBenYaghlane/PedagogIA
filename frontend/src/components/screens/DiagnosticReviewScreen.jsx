@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams, useSearchParams } from "react-router"
+import AppShell from "../layout/AppShell"
 import { diagnosticApi } from "../../api/diagnostic"
 import { useAuthStore } from "../../stores/authStore"
 import DiagnosticResult from "./DiagnosticResult"
@@ -35,16 +36,22 @@ export default function DiagnosticReviewScreen() {
 
   if (error) {
     return (
-      <div className="min-h-screen greenhouse flex items-center justify-center p-6">
-        <div className="text-rose px-4 py-3 rounded-lg bg-rose/15">{error}</div>
-      </div>
+      <AppShell surface="greenhouse">
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="text-rose px-4 py-3 rounded-lg bg-rose/15" role="alert">
+            {error}
+          </div>
+        </div>
+      </AppShell>
     )
   }
   if (!result) {
     return (
-      <div className="min-h-screen greenhouse flex items-center justify-center p-6 text-stem">
-        Chargement du test de niveau…
-      </div>
+      <AppShell surface="greenhouse">
+        <div className="flex-1 flex items-center justify-center p-6 text-stem">
+          Chargement du test de niveau…
+        </div>
+      </AppShell>
     )
   }
 

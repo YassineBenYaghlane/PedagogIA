@@ -5,6 +5,10 @@ import Button from "../ui/Button"
 import Card from "../ui/Card"
 import Chip from "../ui/Chip"
 import { Heading, LatinLabel } from "../ui/Heading"
+import AppShell from "../layout/AppShell"
+import Page from "../layout/Page"
+import TopBar from "../layout/TopBar"
+import { TopBarButton } from "../layout/TopBarActions"
 import { useAuthStore } from "../../stores/authStore"
 import RankChip from "../xp/RankChip"
 import XPBar from "../xp/XPBar"
@@ -55,31 +59,35 @@ export default function WelcomeScreen() {
 
   if (!child) return null
 
+  const handleLogout = async () => {
+    await logout()
+    navigate("/login")
+  }
+
   return (
-    <div className="min-h-screen greenhouse">
-      <div className="max-w-3xl mx-auto px-6 py-10 md:py-14">
-        <header className="flex items-start justify-between gap-4 mb-8">
-          <div>
-            <LatinLabel>Hortus mathematicus</LatinLabel>
-            <Heading level={1} className="mt-1">
-              Bienvenue dans ta serre,<br />
-              <em className="text-sage-deep not-italic font-display italic">
-                {child.display_name}
-              </em>
-              .
-            </Heading>
-            <p className="text-stem mt-3">Niveau {child.grade}</p>
-          </div>
-          <button
-            data-testid="logout"
-            onClick={async () => {
-              await logout()
-              navigate("/login")
-            }}
-            className="text-stem hover:text-bark text-sm flex items-center gap-1 cursor-pointer"
-          >
-            <Icon name="logout" size={16} /> Déconnexion
-          </button>
+    <AppShell
+      surface="greenhouse"
+      topBar={
+        <TopBar
+          trailing={
+            <TopBarButton onClick={handleLogout} icon="logout" data-testid="logout">
+              Déconnexion
+            </TopBarButton>
+          }
+        />
+      }
+    >
+      <Page maxWidth="xl">
+        <header className="mb-8">
+          <LatinLabel>Hortus mathematicus</LatinLabel>
+          <Heading level={1} className="mt-1 text-balance">
+            Bienvenue dans ta serre,{" "}
+            <em className="text-sage-deep not-italic font-display italic">
+              {child.display_name}
+            </em>
+            .
+          </Heading>
+          <p className="text-stem mt-3">Niveau {child.grade}</p>
         </header>
 
         <Card className="p-5 md:p-6 mb-6 space-y-4" data-testid="gamification-header">
@@ -172,7 +180,7 @@ export default function WelcomeScreen() {
             Changer de carnet
           </button>
         </div>
-      </div>
-    </div>
+      </Page>
+    </AppShell>
   )
 }

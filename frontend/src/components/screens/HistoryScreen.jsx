@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useSearchParams } from "react-router"
+import AppShell from "../layout/AppShell"
+import Page from "../layout/Page"
+import TopBar from "../layout/TopBar"
+import { TopBarBack } from "../layout/TopBarActions"
 import Icon from "../ui/Icon"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
-import { Heading, LatinLabel } from "../ui/Heading"
+import { Heading } from "../ui/Heading"
 import { useAuthStore } from "../../stores/authStore"
 import {
   fetchSessionSummaries,
@@ -129,47 +133,43 @@ export default function HistoryScreen() {
     }
   }, [selectedChildId, navigate])
 
-  return (
-    <div className="min-h-screen greenhouse flex flex-col items-center p-6">
-      <div className="w-full max-w-2xl mb-4 flex justify-between items-center">
-        <button
-          onClick={() => navigate(backTo)}
-          className="text-stem hover:text-bark flex items-center gap-1.5 cursor-pointer text-sm"
-          data-testid="history-back"
-        >
-          <Icon name="arrow_back" size={16} /> {backLabel}
-        </button>
-        {child && (
-          <div className="text-right">
-            <LatinLabel>Memoria</LatinLabel>
-            <div className="text-sm text-bark font-semibold">
-              Historique · {child.display_name}
-            </div>
-          </div>
-        )}
-      </div>
+  const title = child ? `Historique · ${child.display_name}` : "Historique"
+  const hasRows = rows && rows.length > 0
 
-      <Card className="p-6 md:p-8 max-w-2xl w-full my-4">
+  return (
+    <AppShell
+      surface="greenhouse"
+      topBar={
+        <TopBar
+          leading={<TopBarBack to={backTo} label={backLabel} data-testid="history-back" />}
+          title={title}
+        />
+      }
+    >
+      <Page maxWidth="lg">
+        <Card className="p-6 md:p-8">
         <Heading level={2}>Historique des sessions</Heading>
 
-        <div className="flex gap-2 my-5" data-testid="history-exports">
-          <Button
-            variant="outline"
-            onClick={() => downloadStudentExport(selectedChildId, "pdf")}
-            disabled={!selectedChildId}
-            data-testid="export-pdf"
-          >
-            <Icon name="download" /> Exporter PDF
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => downloadStudentExport(selectedChildId, "json")}
-            disabled={!selectedChildId}
-            data-testid="export-json"
-          >
-            <Icon name="download" /> Exporter JSON
-          </Button>
-        </div>
+        {hasRows && (
+          <div className="flex flex-wrap gap-2 my-5" data-testid="history-exports">
+            <Button
+              variant="outline"
+              onClick={() => downloadStudentExport(selectedChildId, "pdf")}
+              disabled={!selectedChildId}
+              data-testid="export-pdf"
+            >
+              <Icon name="download" /> Exporter PDF
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => downloadStudentExport(selectedChildId, "json")}
+              disabled={!selectedChildId}
+              data-testid="export-json"
+            >
+              <Icon name="download" /> Exporter JSON
+            </Button>
+          </div>
+        )}
 
         {error && (
           <div className="text-rose px-3 py-2 rounded-lg bg-rose/15 mb-4">{error}</div>
@@ -207,6 +207,7 @@ export default function HistoryScreen() {
           </Card>
         )}
       </Card>
-    </div>
+      </Page>
+    </AppShell>
   )
 }

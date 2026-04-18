@@ -100,19 +100,33 @@ export default function SkillNode({ id, data }) {
           Tu travailles ici
         </div>
       )}
-      {isLocked && !isNext && !isCroissance && (
+      {isLocked && (
         <div
-          className="absolute -top-7 chip whitespace-nowrap z-10 !text-[10px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
-          role="tooltip"
+          className="absolute top-1.5 right-1.5 z-20 w-5 h-5 rounded-full bg-paper border border-sage/25 flex items-center justify-center text-stem pointer-events-none"
+          aria-label="Compétence verrouillée"
+          title="Pas encore accessible — touche pour voir les racines manquantes"
         >
-          Pas encore accessible
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <rect x="4" y="11" width="16" height="10" rx="2" />
+            <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+          </svg>
         </div>
       )}
       {isPrereqOfHover && (
         <div className="absolute inset-0 rounded-[0.875rem] pointer-events-none prereq-glow z-0" />
       )}
       <div
-        className={`specimen relative w-full px-3 pt-3 pb-2.5 transition-transform duration-200 origin-center group-hover:scale-[1.06] group-hover:z-10 ${isCroissance ? "specimen-croissance" : ""} ${isLocked ? "cursor-help" : "cursor-pointer"}`}
+        className={`specimen relative w-full px-3 pt-3 pb-2.5 transition-transform duration-200 origin-center group-hover:scale-[1.06] group-hover:z-10 cursor-pointer ${isCroissance ? "specimen-croissance" : ""}`}
         style={cardStyle}
       >
         <div

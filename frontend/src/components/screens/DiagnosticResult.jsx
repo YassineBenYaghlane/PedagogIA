@@ -72,8 +72,15 @@ function VerdictHero({ verdict, child, overallPct, totalCorrect, totalAttempts }
       <div className="absolute -bottom-20 -left-20 w-56 h-56 rounded-full bg-sky/20 blur-3xl pointer-events-none" />
 
       <div className="relative flex flex-col md:flex-row items-center gap-6">
-        <div className="relative shrink-0">
-          <svg width="140" height="140" viewBox="0 0 140 140" className="-rotate-90">
+        <div
+          className="relative shrink-0"
+          style={{ width: "clamp(96px, 26vw, 140px)", height: "clamp(96px, 26vw, 140px)" }}
+        >
+          <svg
+            viewBox="0 0 140 140"
+            preserveAspectRatio="xMidYMid meet"
+            className="-rotate-90 w-full h-full"
+          >
             <circle
               cx="70" cy="70" r="54"
               className="fill-none stroke-mist"
@@ -89,7 +96,7 @@ function VerdictHero({ verdict, child, overallPct, totalCorrect, totalAttempts }
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <div className="font-display font-semibold text-5xl text-bark tabular-nums leading-none">
+            <div className="font-display font-semibold text-4xl sm:text-5xl text-bark tabular-nums leading-none">
               {hasLevel ? verdict.level : "—"}
             </div>
             {hasLevel && (
@@ -248,7 +255,7 @@ export default function DiagnosticResult({
         />
 
         <div
-          className={`grid grid-cols-3 gap-3 mb-8 transition-all duration-500 delay-200 ${
+          className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-8 transition-all duration-500 delay-200 ${
             contentMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1"
           }`}
           data-testid="diagnostic-counts"

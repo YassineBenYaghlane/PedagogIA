@@ -93,6 +93,19 @@ export default function DrillScreen() {
       <div className="flex-1 flex flex-col items-center px-5 sm:px-6 py-6 sm:py-8">
         {current && (
           <div className="w-full max-w-xl mb-4" data-testid="drill-progress">
+            {current.skill && (
+              <div
+                className="flex flex-wrap items-center gap-2 mb-2"
+                data-testid="drill-skill-context"
+              >
+                <Chip tone="sage" className="!text-[10px]">
+                  {current.skill.grade} · {current.skill.label}
+                </Chip>
+                <Chip tone="sky" className="!text-[10px]">
+                  {Math.max(total - progress + 1, 0)} restantes
+                </Chip>
+              </div>
+            )}
             <div className="flex justify-between items-center mb-1.5">
               <span className="text-xs text-stem font-mono">
                 Question {progress} / {total}

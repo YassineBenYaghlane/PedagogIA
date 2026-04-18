@@ -1,9 +1,10 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router"
 import AppShell from "../layout/AppShell"
 import TopBar from "../layout/TopBar"
 import { TopBarBack } from "../layout/TopBarActions"
 import ProgressBar from "../ui/ProgressBar"
+import ConfirmDialog from "../ui/ConfirmDialog"
 import ExerciseCard from "../exercises/ExerciseCard"
 import LevelGauge from "../exercises/LevelGauge"
 import { useDiagnosticStore } from "../../stores/diagnosticStore"
@@ -18,6 +19,7 @@ export default function DiagnosticScreen() {
     start, submit, loadNext, reset,
   } = useDiagnosticStore()
   const child = children.find((c) => c.id === selectedChildId)
+  const [confirmQuit, setConfirmQuit] = useState(false)
 
   useEffect(() => {
     if (!selectedChildId) {
@@ -27,14 +29,19 @@ export default function DiagnosticScreen() {
     if (!sessionId && !done) start(selectedChildId)
   }, [selectedChildId, sessionId, done, start, navigate])
 
-  const handleQuit = async () => {
+  const leaveNow = async () => {
     reset()
     await bootstrap()
     navigate("/")
   }
 
+  const handleQuit = () => {
+    if (done) return leaveNow()
+    setConfirmQuit(true)
+  }
+
   if (done && result) {
-    return <DiagnosticResult result={result} child={child} onBack={handleQuit} />
+    return <DiagnosticResult result={result} child={child} onBack={leaveNow} />
   }
 
   const progress = current ? current.index + 1 : 0
@@ -74,8 +81,8 @@ export default function DiagnosticScreen() {
           </div>
         )}
 
-        <div className="relative w-full flex justify-center">
-          <div className="w-full max-w-xl">
+        <div className="w-full flex flex-col lg:flex-row lg:items-start lg:justify-center gap-6 lg:gap-8">
+          <div className="w-full max-w-xl mx-auto lg:mx-0">
             <ExerciseCard
               key={current?.exercise?.signature || "loading"}
               exercise={current?.exercise}
@@ -89,7 +96,7 @@ export default function DiagnosticScreen() {
             />
           </div>
           {current && (
-            <div className="hidden lg:block absolute right-6 top-2">
+            <div className="hidden lg:block shrink-0 pt-2">
               <LevelGauge
                 grade={current?.cursor?.grade || current?.skill?.grade}
                 difficulty={current?.cursor?.difficulty || current?.difficulty}
@@ -98,6 +105,20 @@ export default function DiagnosticScreen() {
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmQuit}
+        latin="Hortum relinquere"
+        title="Quitter le test ?"
+        message="Tes réponses seront perdues si tu quittes avant la fin."
+        confirmLabel="Quitter"
+        cancelLabel="Continuer"
+        onConfirm={() => {
+          setConfirmQuit(false)
+          leaveNow()
+        }}
+        onCancel={() => setConfirmQuit(false)}
+      />
     </AppShell>
   )
 }

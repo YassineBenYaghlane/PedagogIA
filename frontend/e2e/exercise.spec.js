@@ -12,6 +12,7 @@ test("training flow: register → home → exercise → wrong → feedback → s
   await page.getByTestId("register-name").fill("Alice")
   await page.getByTestId("register-email").fill(email)
   await page.getByTestId("register-password").fill(password)
+  await page.getByTestId("register-password-confirm").fill(password)
   await page.getByTestId("register-submit").click()
   await expect(page).toHaveURL(/\/children/)
 

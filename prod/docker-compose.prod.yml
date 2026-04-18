@@ -60,6 +60,8 @@ services:
     volumes:
       - caddy_data:/data
       - caddy_config:/config
+      # Access log on the host so fail2ban can tail it.
+      - /var/log/pedagogia-caddy:/var/log/caddy
     depends_on:
       backend:
         condition: service_healthy

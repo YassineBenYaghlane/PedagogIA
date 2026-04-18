@@ -4,7 +4,7 @@ import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
 from .base import *  # noqa: F401,F403
-from .base import env
+from .base import APP_VERSION, env
 
 # Sentry is opt-in: if the DSN isn't set, the SDK is never initialised and no
 # data leaves the server. We keep sampling rates low by default (traces off,
@@ -15,7 +15,7 @@ if _sentry_dsn:
         dsn=_sentry_dsn,
         integrations=[DjangoIntegration()],
         environment=env.str("SENTRY_ENVIRONMENT", default="production"),
-        release=env.str("SENTRY_RELEASE", default=""),
+        release=env.str("SENTRY_RELEASE", default=APP_VERSION or ""),
         traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", default=0.0),
         send_default_pii=False,
     )

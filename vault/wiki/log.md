@@ -115,3 +115,7 @@ Closed out three interlocking infra issues in one session. **#99 / #118** — DR
 ## [2026-04-18] note | Cloudflare entity page
 
 Filed [[entities/cloudflare]] — account/zone state for `collegia.be`, DNS record table, TLS + WAF settings, runbooks for refreshing CF IP ranges on the Hetzner firewall + verifying the edge + dashboard navigation + gotchas (bot-score 403s on datacenter IPs, proxied MX limitation, Email Routing auto-activation). Cross-linked from [[concepts/edge-security]], [[entities/collegia-be]], and the index.
+
+## [2026-04-18] note | Release process filed
+
+Formalised PedagogIA's release policy: every merge to `main` is a release with a human-chosen semver tag. Filed [[concepts/release-process]] with the bump heuristics, the merge→tag flow, and where the version surfaces (`/api/health/`, Serre footer, GHCR image tag, Sentry release). Paired with the #89 PR that wires `APP_VERSION` / `VITE_APP_VERSION` through the build and adds `release.yml` for auto GitHub Releases on `v*` tag push. Claude must ask the user for the target version before merging any PR into main.

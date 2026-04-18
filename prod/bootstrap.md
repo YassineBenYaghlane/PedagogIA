@@ -85,7 +85,24 @@ In Google Cloud Console → Credentials → the OAuth 2.0 client:
 Push to `main` → GH Actions builds both images → pushes to GHCR → SSHes
 here → `pull && up -d --remove-orphans`. No manual steps after this.
 
-## 8. Nightly Postgres backups
+## 8. Lock ports 80/443 to Cloudflare
+
+Once Cloudflare is in front of `collegia.be` (orange cloud on the A/AAAA records, SSL mode Full strict), restrict origin HTTP/HTTPS to Cloudflare's IP ranges so direct-to-Hetzner requests get dropped at L3.
+
+```bash
+./prod/hetzner-firewall.sh
+```
+
+Copy the output into Hetzner Cloud Console → Firewalls → `collegia` → Inbound Rules:
+
+- TCP/80  — Source IPs: paste the IPv4 + IPv6 blocks from the script
+- TCP/443 — Source IPs: paste the IPv4 + IPv6 blocks from the script
+- TCP/22  — leave as is (SSH must stay open)
+- ICMP    — leave as is
+
+Cloudflare updates its ranges occasionally (rare). Re-run the script every few months and refresh the two rules.
+
+## 9. Nightly Postgres backups
 
 Backups go to the Hetzner Storage Box `pedagogia-backups` (`u578869.your-storagebox.de`, `fsn1`), encrypted with [age](https://age-encryption.org). Retention 7 daily + 4 weekly + 3 monthly. Restore runbook: [`deploy/restore.md`](../deploy/restore.md). Runs via user cron (no sudo required — the `pedagogia` account doesn't have passwordless sudo).
 

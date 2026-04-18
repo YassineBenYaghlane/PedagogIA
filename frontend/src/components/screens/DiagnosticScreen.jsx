@@ -61,13 +61,20 @@ export default function DiagnosticScreen() {
     >
       <div className="flex-1 flex flex-col items-center px-5 sm:px-6 py-6 sm:py-8">
         {current && (
-          <div className="w-full max-w-xl mb-4" data-testid="diagnostic-progress">
+          <div className="w-full max-w-xl mb-4 space-y-2" data-testid="diagnostic-progress">
             <ProgressBar
               value={progress}
               max={total}
               tone="sage"
               label={`Question ${progress} / ${total}`}
             />
+            <div className="lg:hidden" data-testid="diagnostic-level-gauge-mobile">
+              <LevelGauge
+                orientation="horizontal"
+                grade={current?.cursor?.grade || current?.skill?.grade}
+                difficulty={current?.cursor?.difficulty || current?.difficulty}
+              />
+            </div>
           </div>
         )}
 

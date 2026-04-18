@@ -125,12 +125,16 @@ def _generate_computation(template: dict) -> dict[str, Any]:
                 continue
 
         if params.get("exact_division") and operation == "divide":
-            q = _pick_value(params, "b")
-            d = _pick_value(params, "a")
-            if d == 0:
+            if b == 0:
                 continue
-            a = int(d * q)
-            b = int(d)
+            if params.get("fixed_a"):
+                if int(a) % int(b) != 0:
+                    continue
+                a = int(a)
+                b = int(b)
+            else:
+                a = int(a * b)
+                b = int(b)
 
         result = _compute(operation, a, b)
 

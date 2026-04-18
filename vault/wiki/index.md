@@ -59,6 +59,7 @@ Catalog of every wiki page. Updated on every ingest. Keep lines ≤150 chars.
 - [[concepts/ceb-attendus-p6-arithmetique]] — nine P6-exit arithmetic item types, cross-referenced from CEB 2024
 - [[concepts/prod-stack]] — how prod is wired: Cloudflare → Hetzner firewall → Caddy → Django; CI/CD; security baseline
 - [[concepts/edge-security]] — Cloudflare WAF + Hetzner firewall + DRF throttle + CF real-IP middleware, as four composing layers
+- [[concepts/release-process]] — every main merge = one human-chosen semver tag; baked into images, shown at /api/health/ and in footer
 - [[concepts/product-features]] — catalog of shipped features (modes, AI, progress, parent surface, ops) — 2026-04-18 snapshot
 
 ## Questions

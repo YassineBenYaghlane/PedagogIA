@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 
 from src.services.exercise_gen import instantiate
+from src.skill_tree.tree import load_templates
 
 
 def _make_template(
@@ -85,6 +86,54 @@ class TestComputation:
         for _ in range(50):
             result = instantiate(t)
             assert result["answer"] == int(result["answer"])
+            a, b = result["params"]["a"], result["params"]["b"]
+            assert a % b == 0
+            assert result["answer"] == a // b
+
+    def test_exact_division_fixed_a_literal_divisor(self):
+        """Regression for #98: cm_div_par_10-style template with literal divisor in prompt."""
+        t = _make_template(
+            "computation",
+            "divide",
+            {
+                "fixed_a": [10, 20, 30, 70, 100, 200, 500, 700],
+                "fixed_b": [10],
+                "b_min": 10,
+                "b_max": 10,
+                "exact_division": True,
+            },
+            prompt_template="{a} ÷ 10 = ?",
+        )
+        for _ in range(50):
+            result = instantiate(t)
+            a = result["params"]["a"]
+            assert a in [10, 20, 30, 70, 100, 200, 500, 700]
+            assert result["params"]["b"] == 10
+            assert result["answer"] == a // 10, (
+                f"Prompt '{result['prompt']}' but stored answer {result['answer']} (a={a})"
+            )
+
+    def test_exact_division_fixed_b_divisor_respected(self):
+        """Divisor must come from fixed_b, not from fixed_a / a range."""
+        t = _make_template(
+            "computation",
+            "divide",
+            {
+                "a_min": 2,
+                "a_max": 20,
+                "fixed_b": [5, 8, 100],
+                "b_min": 5,
+                "b_max": 5,
+                "exact_division": True,
+            },
+            prompt_template="{a} ÷ {b} = ?",
+        )
+        for _ in range(100):
+            result = instantiate(t)
+            assert result["params"]["b"] in [5, 8, 100]
+            a, b = result["params"]["a"], result["params"]["b"]
+            assert a % b == 0
+            assert result["answer"] == a // b
 
     def test_result_max(self):
         t = _make_template(
@@ -222,6 +271,30 @@ class TestMissingOperator:
         for _ in range(50):
             result = instantiate(t)
             assert result["answer"] in ("+", "-", "×")
+
+
+class TestYamlTemplates:
+    def test_all_divide_templates_answer_matches_prompt(self):
+        """Every shipped divide template: rendered prompt must be consistent with stored answer."""
+        templates = load_templates()
+        divide_templates = [
+            t
+            for t in templates
+            if t["template"].get("type") == "computation"
+            and t["template"].get("operation") == "divide"
+            and not t["template"]["params"].get("decimals")
+        ]
+        assert divide_templates, "expected some divide templates"
+
+        for t in divide_templates:
+            for _ in range(25):
+                out = instantiate(t["template"])
+                a, b = out["params"]["a"], out["params"]["b"]
+                assert b != 0, f"{t['id']}: divisor zero"
+                assert a % b == 0, f"{t['id']}: {a} not divisible by {b}"
+                assert out["answer"] == a // b, (
+                    f"{t['id']}: prompt='{out['prompt']}' a={a} b={b} answer={out['answer']}"
+                )
 
 
 class TestErrors:

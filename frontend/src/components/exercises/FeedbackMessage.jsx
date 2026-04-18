@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import Icon from "../ui/Icon"
 import Button from "../ui/Button"
 import { LatinLabel } from "../ui/Heading"
-import { playCorrect, playIncorrect } from "../../hooks/useSound"
+import { useFeedback } from "../../lib/feedback"
 
 function StrategyTabs({ strategies }) {
   const [active, setActive] = useState(0)
@@ -75,11 +75,12 @@ function ExplainSection({ feedback, explanation, explaining, onExplain }) {
 
 export default function FeedbackMessage({ feedback, explanation, explaining, onExplain, neutral }) {
   const ok = feedback?.is_correct
+  const cues = useFeedback()
   useEffect(() => {
     if (!feedback || neutral) return
-    if (ok) playCorrect()
-    else playIncorrect()
-  }, [feedback, ok, neutral])
+    if (ok) cues.correct()
+    else cues.wrong()
+  }, [feedback, ok, neutral, cues])
   if (!feedback) return null
 
   if (neutral) {

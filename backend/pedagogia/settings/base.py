@@ -16,6 +16,7 @@ env = environ.Env(
     GOOGLE_CLIENT_ID=(str, ""),
     GOOGLE_CLIENT_SECRET=(str, ""),
     GOOGLE_OAUTH_CALLBACK_URL=(str, "http://localhost:5173/auth/google/callback"),
+    APP_VERSION=(str, "dev"),
 )
 
 environ.Env.read_env(BASE_DIR.parent / ".env")
@@ -23,6 +24,8 @@ environ.Env.read_env(BASE_DIR.parent / ".env")
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 DEBUG = env("DEBUG")
 ALLOWED_HOSTS = ["*"]
+
+APP_VERSION = env("APP_VERSION")
 
 INSTALLED_APPS = [
     "django.contrib.admin",

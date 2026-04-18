@@ -1,5 +1,6 @@
 import os
 
+from django.conf import settings
 from django.contrib import admin
 from django.http import HttpResponse, JsonResponse
 from django.middleware.csrf import get_token
@@ -30,7 +31,7 @@ def csrf(request):
 
 
 def health(_request):
-    return JsonResponse({"status": "ok"})
+    return JsonResponse({"status": "ok", "version": settings.APP_VERSION})
 
 
 urlpatterns = [

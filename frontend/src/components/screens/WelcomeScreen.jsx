@@ -180,6 +180,15 @@ export default function WelcomeScreen() {
             Changer de carnet
           </button>
         </div>
+
+        {import.meta.env.VITE_APP_VERSION && (
+          <p
+            className="mt-6 text-center font-mono text-[10px] uppercase tracking-wider text-stem/60"
+            data-testid="app-version"
+          >
+            {import.meta.env.VITE_APP_VERSION}
+          </p>
+        )}
       </Page>
     </AppShell>
   )

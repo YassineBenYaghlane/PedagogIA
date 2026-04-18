@@ -11,6 +11,9 @@ RUN uv sync --frozen --no-dev
 
 COPY backend/ ./
 
+ARG APP_VERSION=dev
+ENV APP_VERSION=$APP_VERSION
+
 RUN groupadd --system --gid 1000 app \
  && useradd --system --uid 1000 --gid app --home-dir /app --shell /usr/sbin/nologin app \
  && chmod +x start.sh \

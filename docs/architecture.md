@@ -95,7 +95,9 @@ Three services (`db`, `backend`, `frontend`), one bridge network (`backend_net`)
 ### CI/CD
 
 - `.github/workflows/ci.yml` — on every PR + push to main: backend `ruff` + `pytest` (against a Postgres 16 service), frontend `eslint` + `vite build`.
-- `.github/workflows/deploy.yml` — on push to main: matrix-build both images, push to GHCR, SSH to server, `docker compose pull && up -d --remove-orphans && image prune -f`, smoke-check `/api/health/`.
+- `.github/workflows/deploy.yml` — on push to main: matrix-build both images, push to GHCR, SSH to server, `docker compose pull && up -d --remove-orphans && image prune -f`, smoke-check `/api/health/`. Also runs on `v*` tag push to produce a versioned image (no deploy — main push already did that).
+- `.github/workflows/release.yml` — on `v*` tag push: create a GitHub Release with auto-generated notes.
+- Versioning: semver tags `vX.Y.Z`. Both images receive `APP_VERSION` / `VITE_APP_VERSION` build-args from `git describe --tags --always --dirty`, surfaced at `/api/health/` and in a discreet footer on the Serre screen. Same value is reused as the Sentry `release`.
 - All third-party actions pinned by commit SHA. Only `GITHUB_TOKEN` (ephemeral) is used to push to GHCR.
 - GitHub secrets required: `SSH_HOST`, `SSH_USER`, `SSH_PRIVATE_KEY`, `DOMAIN`. No long-lived PATs.
 

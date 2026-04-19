@@ -1,5 +1,5 @@
 ---
-name: status
+name: project-status
 description: Produce a concise "where are we" report for the PedagogIA repo — current worktree + branch, anything dirty that should be cleaned before new work starts, state of the other worktrees, open PRs with CI status, open issues grouped by theme, and a prioritized devops-flavored pick of what to tackle next. Use this skill whenever the user asks "what's the status", "what's happening", "what's left to do", "what should we tackle", "où on en est", "fais le point", "check the issues", "what's on fire", or opens a new session with a generic "catch me up" — even if they don't mention git, PRs, or issues explicitly. Also worth using proactively at the start of a session if the user's first message is ambiguous about what to work on, since a 10-second status pass often answers "what next" better than guessing. This skill exists because status reports drift without structure — you end up dumping raw `gh issue list` output, missing uncommitted files from prior sessions, forgetting to check the other worktrees, or skipping the "should we clean git first" question the user actually cares about.
 ---
 

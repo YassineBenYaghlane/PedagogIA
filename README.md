@@ -63,21 +63,19 @@ erDiagram
 | `last_activity_date` | date, null | |
 | `daily_goal` | smallint ≥ 0 | default 5 |
 
-### `students_studentskillstate` — per-student mastery + SRS state
+### `students_studentskillstate` — per-student skill_xp state
 
 | Column | Type | Notes |
 |---|---|---|
 | `id` | bigserial PK | |
 | `student_id` | FK → `students_student` CASCADE | |
 | `skill_id` | FK → `skills_skill` CASCADE | |
-| `status` | varchar(16) | `not_started` / `in_progress` / `mastered` / `needs_review` |
-| `mastery_level` | float | 0.0–1.0 |
-| `consecutive_correct`, `total_attempts` | int ≥ 0 | |
-| `last_practiced_at`, `next_review_at` | timestamptz, null | spaced-repetition schedule |
-| `review_interval_hours` | int ≥ 0 | default 24 |
+| `skill_xp` | float | 0.0–30.0 (check constraint); single mastery counter |
+| `total_attempts` | int ≥ 0 | |
+| `last_practiced_at` | timestamptz, null | |
 | `updated_at` | timestamptz | |
 
-Unique `(student_id, skill_id)`.
+Unique `(student_id, skill_id)`. `status` (`not_started` / `learning_easy` / `learning_medium` / `learning_hard` / `mastered` / `needs_review`), `mastery_level` (`skill_xp / 30`) and `needs_review` (`skill_xp < 20` and stale > 30 days) are Python `@property` values computed from the columns above — not stored.
 
 ### `students_studentachievement` — badges / milestones
 
@@ -99,7 +97,6 @@ Unique `(student_id, code)`.
 | `label` | varchar(200) | French display name |
 | `grade` | varchar(4) | `P1`…`P6` |
 | `description` | text | |
-| `mastery_threshold` | smallint | default 3 |
 
 ### `skills_skillprerequisite` — DAG edges between skills
 
@@ -116,10 +113,22 @@ Unique `(skill_id, prerequisite_id)`. Check `skill_id ≠ prerequisite_id`.
 | Column | Type | Notes |
 |---|---|---|
 | `id` | varchar(120) PK | YAML slug |
-| `skill_id` | FK → `skills_skill` CASCADE | **primary skill drilled** |
 | `difficulty` | smallint | check 1–3 |
 | `input_type` | varchar(20) | `number` / `mcq` / `symbol` / `decomposition` / `point_on_line` / `drag_order` |
 | `template` | jsonb | parameter ranges + answer shape |
+
+Skills are attached via the M2M join table below — a single template can cover several skills with different weights.
+
+### `exercises_templateskillweight` — weighted template ↔ skill link
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | bigserial PK | |
+| `template_id` | FK → `exercises_exercisetemplate` CASCADE | |
+| `skill_id` | FK → `skills_skill` CASCADE | |
+| `weight` | float | check `0 < weight ≤ 1`; weights per template expected to sum to 1 |
+
+Unique `(template_id, skill_id)`.
 
 ### `exercises_attempt` — one student answer to one instantiated exercise
 
@@ -127,15 +136,14 @@ Unique `(skill_id, prerequisite_id)`. Check `skill_id ≠ prerequisite_id`.
 |---|---|---|
 | `id` | uuid PK | |
 | `session_id` | FK → `learning_sessions_session` CASCADE | |
-| `skill_id` | FK → `skills_skill` PROTECT | skill the attempt targeted |
-| `template_id` | FK → `exercises_exercisetemplate` PROTECT | |
-| `input_type` | varchar(20) | snapshotted from template |
+| `template_id` | FK → `exercises_exercisetemplate` PROTECT | skill(s) derivable via `template.skills` |
 | `exercise_params` | jsonb | concrete params used at instantiation |
 | `student_answer`, `correct_answer` | varchar(200) | |
 | `is_correct` | bool | |
+| `xp_awarded` | int ≥ 0 | XP granted by this attempt (0 if wrong) |
 | `responded_at` | timestamptz | `auto_now_add` |
 
-PROTECT on `skill_id` / `template_id` preserves attempt history even if a skill or template is removed.
+PROTECT on `template_id` preserves attempt history even if a template is removed.
 
 ### `learning_sessions_session` — wraps a contiguous series of attempts
 
@@ -143,7 +151,8 @@ PROTECT on `skill_id` / `template_id` preserves attempt history even if a skill 
 |---|---|---|
 | `id` | uuid PK | |
 | `student_id` | FK → `students_student` CASCADE | |
-| `mode` | varchar(20) | `learn` / `diagnostic` / `drill` / `exam` |
+| `mode` | varchar(20) | `training` / `diagnostic` / `drill` / `exam` |
+| `target_skill_id` | FK → `skills_skill` SET_NULL, null | skill the student chose in drill mode |
 | `started_at` | timestamptz | |
 | `ended_at` | timestamptz, null | |
 

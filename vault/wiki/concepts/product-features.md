@@ -13,12 +13,12 @@ Snapshot date: **2026-04-18**. Verify against `git log` and `gh issue list` befo
 
 ## Learning modes
 
-All four are backed by `apps/sessions` with `Session.mode ∈ {learn, diagnostic, drill, exam}` and attempts recorded in `apps/exercises.Attempt`.
+All four are backed by `apps/sessions` with `Session.mode ∈ {training, diagnostic, drill, exam}` and attempts recorded in `apps/exercises.Attempt`. Per [[concepts/reward-system]], only `training` and `drill` move `skill_xp` — `diagnostic` and `exam` award student XP but don't touch per-skill mastery.
 
-- **Diagnostic** — IRT-scheduled walk that locates the student's current level on the skill tree. Attempts recorded against the targeted skill. See [[concepts/champ-3-arithmetique]] for the skill scope.
-- **Drill** — student (or parent) picks a skill and practices it. Selection of the skill is manual; template selection within the skill is backend-driven.
-- **Training / Free practice** (`mode="learn"`) — mastery + spaced-repetition driven selection via `apps/students/services/selection.py::pick_next_skill`, reading [[concepts/mastery-learning]] state from `StudentSkillState`.
-- **Exam** — timed-ish session with attempts; currently updates mastery like other modes (see #117 for the explicit decision).
+- **Diagnostic** — IRT-scheduled walk that locates the student's current level on the skill tree. Awards XP only.
+- **Drill** — student (or parent) picks a skill and practices it (`Session.target_skill`). Selection of the skill is manual; template selection within the skill is backend-driven.
+- **Training / Free practice** (`mode="training"`) — selection via `apps/students/services/selection.py::pick_next_skill`, reading `skill_xp` state from `StudentSkillState`.
+- **Exam** — timed-ish session with attempts; awards XP only (no mastery mutation).
 
 ## AI & pedagogy
 
@@ -28,8 +28,8 @@ All four are backed by `apps/sessions` with `Session.mode ∈ {learn, diagnostic
 
 ## Progress & state
 
-- **Mastery tracking** — `StudentSkillState` stores per-(student, skill) mastery; updated by `apps/students/services/mastery.py::update_mastery`.
-- **XP** — per-attempt XP ledger, `apps/students/services/xp.py`.
+- **Mastery tracking** — `StudentSkillState` stores per-(student, skill) `skill_xp` (0–30); updated by `apps/students/services/mastery.py::apply_template_attempt`. Status / mastery_level / needs_review are computed properties (see [[concepts/reward-system]]).
+- **XP** — per-attempt XP ledger, `apps/students/services/xp.py::compute_xp(difficulty, n_skills)`.
 - **Streaks** — daily-practice streak counter, `apps/students/services/streaks.py`.
 - **Achievements** — badge-like unlocks, `apps/students/services/achievements.py` + `students.Achievement` model.
 - **Skill tree visualization** — ReactFlow + dagre layout, reads `StudentSkillState` (see [[concepts/champ-3-arithmetique]] for the DAG content).

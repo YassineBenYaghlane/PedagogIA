@@ -54,7 +54,15 @@ def test_overview_shape(auth_client):
     }
 
     mastery = s["mastery_summary"]
-    assert set(mastery.keys()) == {"not_started", "in_progress", "mastered", "needs_review"}
+    assert set(mastery.keys()) == {
+        "not_started",
+        "learning_easy",
+        "learning_medium",
+        "learning_hard",
+        "mastered",
+        "needs_review",
+        "in_progress",
+    }
 
     assert s["recent_sessions"] == []
 
@@ -104,13 +112,11 @@ def test_overview_reflects_attempts_in_last_7_days(auth_client):
     ).json()["id"]
     student = Student.objects.get(id=student_id)
 
-    session = Session.objects.create(student=student, mode="learn")
+    session = Session.objects.create(student=student, mode="training")
     template = ExerciseTemplate.objects.first()
     Attempt.objects.create(
         session=session,
-        skill=template.skill,
         template=template,
-        input_type="number",
         exercise_params={},
         student_answer="1",
         correct_answer="1",
@@ -118,9 +124,7 @@ def test_overview_reflects_attempts_in_last_7_days(auth_client):
     )
     Attempt.objects.create(
         session=session,
-        skill=template.skill,
         template=template,
-        input_type="number",
         exercise_params={},
         student_answer="2",
         correct_answer="3",
@@ -150,13 +154,11 @@ def test_overview_ignores_attempts_older_than_7_days(auth_client):
     ).json()["id"]
     student = Student.objects.get(id=student_id)
 
-    session = Session.objects.create(student=student, mode="learn")
+    session = Session.objects.create(student=student, mode="training")
     template = ExerciseTemplate.objects.first()
     old = Attempt.objects.create(
         session=session,
-        skill=template.skill,
         template=template,
-        input_type="number",
         exercise_params={},
         student_answer="1",
         correct_answer="1",

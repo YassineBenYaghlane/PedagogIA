@@ -58,7 +58,7 @@ function LaneLabel({ data }) {
 const nodeTypes = { skillNode: SkillNode, laneLabel: LaneLabel }
 
 function pickFocusSkill(skills, stateById) {
-  const rank = { in_progress: 2, needs_review: 1 }
+  const rank = { learning_easy: 2, learning_medium: 2, learning_hard: 2, needs_review: 1 }
   let best = null
   for (const s of skills) {
     const st = stateById.get(s.id)
@@ -631,7 +631,6 @@ function DetailPanel({ skill, state, skillsById, masteryById, onClose, onPractic
       )}
       <p className="text-xs text-stem leading-relaxed mt-3">{skill.description}</p>
       <div className="flex items-center gap-4 text-xs text-stem mt-3">
-        <span>Seuil · {skill.mastery_threshold}</span>
         <span>Racines · {skill.prerequisites.length}</span>
       </div>
       {onPractice && skill.unlocked && (

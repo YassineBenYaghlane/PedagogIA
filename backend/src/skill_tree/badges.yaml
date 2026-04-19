@@ -50,14 +50,14 @@
   description: "3 bonnes réponses de suite"
   icon: delta
   tier: bronze
-  trigger: { type: session_consecutive_correct, value: 3 }
+  trigger: { type: session_correct_streak, value: 3 }
 
 - code: streak_10_row
   label: "Série parfaite"
   description: "10 bonnes réponses de suite"
   icon: delta
   tier: or
-  trigger: { type: session_consecutive_correct, value: 10 }
+  trigger: { type: session_correct_streak, value: 10 }
 
 - code: streak_day_3
   label: "Trois jours"

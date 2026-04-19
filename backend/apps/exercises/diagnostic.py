@@ -91,6 +91,28 @@ class YearState:
         return max((d for d, total in self.total_by_diff.items() if total > 0), default=0)
 
 
+def _skill_of(attempt) -> "Skill | None":
+    """Resolve skill for an attempt — prefers explicit .skill (tests), else template."""
+    skill = getattr(attempt, "skill", None)
+    if skill is not None:
+        return skill
+    template = getattr(attempt, "template", None)
+    if template is None:
+        return None
+    try:
+        return template.skills.first()
+    except AttributeError:
+        return None
+
+
+def _skill_id_of(attempt) -> str | None:
+    sid = getattr(attempt, "skill_id", None)
+    if sid:
+        return sid
+    skill = _skill_of(attempt)
+    return skill.id if skill else None
+
+
 def _category_of(skill_id: str) -> str | None:
     prefix = skill_id.split("_", 1)[0]
     for cat, _ in CATEGORIES:
@@ -113,19 +135,21 @@ def _bump_state(state: YearState, skill_id: str, difficulty: int, is_correct: bo
 
 def _template_pool() -> dict[tuple[str, int], dict[str, list[str]]]:
     pool: dict[tuple[str, int], dict[str, list[str]]] = defaultdict(lambda: defaultdict(list))
-    rows = ExerciseTemplate.objects.select_related("skill").values(
-        "skill_id", "skill__grade", "difficulty"
-    )
+    rows = ExerciseTemplate.objects.values("skills__id", "skills__grade", "difficulty")
     seen: set[tuple[str, int]] = set()
     for row in rows:
-        key = (row["skill_id"], row["difficulty"])
+        skill_id = row["skills__id"]
+        grade = row["skills__grade"]
+        if skill_id is None or grade is None:
+            continue
+        key = (skill_id, row["difficulty"])
         if key in seen:
             continue
         seen.add(key)
-        cat = _category_of(row["skill_id"])
+        cat = _category_of(skill_id)
         if cat is None:
             continue
-        pool[(row["skill__grade"], row["difficulty"])][cat].append(row["skill_id"])
+        pool[(grade, row["difficulty"])][cat].append(skill_id)
     return pool
 
 
@@ -157,7 +181,8 @@ def _init_cursor(student: Student) -> Cursor:
 def _recent_outcomes_at_grade(grade: str, attempts: list[Attempt], up_to: int) -> list[bool]:
     recent: list[bool] = []
     for a in reversed(attempts[:up_to]):
-        if getattr(a.skill, "grade", None) == grade:
+        skill = _skill_of(a)
+        if getattr(skill, "grade", None) == grade:
             recent.append(a.is_correct)
             if len(recent) >= INERTIA_WINDOW:
                 break
@@ -174,7 +199,8 @@ def _step_cursor(
     if up_to == 0:
         return cursor
     last = attempts[up_to - 1]
-    last_grade = getattr(last.skill, "grade", None)
+    last_skill = _skill_of(last)
+    last_grade = getattr(last_skill, "grade", None)
     if last_grade != cursor.grade:
         return cursor
 
@@ -210,9 +236,11 @@ def _replay(student: Student, attempts: list[Attempt]) -> tuple[Cursor, dict[str
     cursor = _init_cursor(student)
     states[cursor.grade].visits = 1
     for i, a in enumerate(attempts):
-        grade = getattr(a.skill, "grade", None)
-        if grade in states and a.template_id:
-            _bump_state(states[grade], a.skill_id, a.template.difficulty, a.is_correct)
+        skill = _skill_of(a)
+        skill_id = _skill_id_of(a)
+        grade = getattr(skill, "grade", None)
+        if grade in states and a.template_id and skill_id:
+            _bump_state(states[grade], skill_id, a.template.difficulty, a.is_correct)
         new_cursor = _step_cursor(cursor, states, attempts, up_to=i + 1)
         if (new_cursor.grade, new_cursor.difficulty) != (cursor.grade, cursor.difficulty):
             states[new_cursor.grade].visits += 1
@@ -281,7 +309,7 @@ def select_next_slot(student: Student, attempts: list[Attempt]) -> Slot | None:
     if not pool:
         return None
     state = states[cursor.grade]
-    session_covered = {a.skill_id for a in attempts}
+    session_covered = {sid for sid in (_skill_id_of(a) for a in attempts) if sid}
     return _pick_skill(pool, cursor, state, session_covered)
 
 
@@ -355,7 +383,8 @@ def _verdict_narrative(level: str, states: dict[str, YearState], student: Studen
 def build_result(session) -> dict:
     attempts = list(
         Attempt.objects.filter(session=session)
-        .select_related("skill", "template")
+        .select_related("template")
+        .prefetch_related("template__skills")
         .order_by("responded_at")
     )
 
@@ -363,7 +392,9 @@ def build_result(session) -> dict:
 
     by_skill: dict[str, list[Attempt]] = defaultdict(list)
     for a in attempts:
-        by_skill[a.skill_id].append(a)
+        sid = _skill_id_of(a)
+        if sid:
+            by_skill[sid].append(a)
 
     skill_ids = list(by_skill.keys())
     skills = {s.id: s for s in Skill.objects.filter(id__in=skill_ids)}

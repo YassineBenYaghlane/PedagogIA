@@ -119,3 +119,7 @@ Filed [[entities/cloudflare]] — account/zone state for `collegia.be`, DNS reco
 ## [2026-04-18] note | Release process filed
 
 Formalised PedagogIA's release policy: every merge to `main` is a release with a human-chosen semver tag. Filed [[concepts/release-process]] with the bump heuristics, the merge→tag flow, and where the version surfaces (`/api/health/`, Serre footer, GHCR image tag, Sentry release). Paired with the #89 PR that wires `APP_VERSION` / `VITE_APP_VERSION` through the build and adds `release.yml` for auto GitHub Releases on `v*` tag push. Claude must ask the user for the target version before merging any PR into main.
+
+## [2026-04-19] note | Reward system design — XP and skill_xp
+
+Filed [[concepts/reward-system]] capturing the two-currency model decided during the #117 rework scoping. Student XP (`base(difficulty) × multiplier(n_skills)`, cap at 1.8 for 3+ skills) is awarded in all modes on correct answers. Per-skill `skill_xp` (single 0–30 counter, replaces the earlier tiered `correct_easy/medium/hard` sketch) is only awarded in drill/training modes; diagnostic and exam give XP only. Status bands derived from skill_xp (`not_started`, `learning_easy`, `learning_medium`, `learning_hard`, `mastered`) drive selection — the selector serves difficulty matching the band, giving organic tier progression from a single counter. `needs_review` is a time-based overlay that only flips on below skill_xp = 20. Schema-agnostic page — separate from the Django migration work that will implement it.

@@ -4,9 +4,14 @@ from .models import Attempt, ExerciseTemplate
 
 
 class ExerciseTemplateSerializer(serializers.ModelSerializer):
+    skill_ids = serializers.SerializerMethodField()
+
     class Meta:
         model = ExerciseTemplate
-        fields = ("id", "skill", "difficulty", "input_type", "template")
+        fields = ("id", "skill_ids", "difficulty", "input_type", "template")
+
+    def get_skill_ids(self, obj: ExerciseTemplate) -> list[str]:
+        return list(obj.skills.values_list("id", flat=True))
 
 
 class GeneratedExerciseSerializer(serializers.Serializer):
@@ -38,14 +43,16 @@ def render_prompt(template_dict: dict, params: dict) -> str:
 
 class AttemptReadSerializer(serializers.ModelSerializer):
     prompt = serializers.SerializerMethodField()
+    skill_id = serializers.SerializerMethodField()
     skill_label = serializers.SerializerMethodField()
+    input_type = serializers.SerializerMethodField()
 
     class Meta:
         model = Attempt
         fields = (
             "id",
             "session",
-            "skill",
+            "skill_id",
             "skill_label",
             "template",
             "input_type",
@@ -54,15 +61,27 @@ class AttemptReadSerializer(serializers.ModelSerializer):
             "student_answer",
             "correct_answer",
             "is_correct",
+            "xp_awarded",
             "responded_at",
         )
         read_only_fields = fields
 
+    def _first_skill(self, obj: Attempt):
+        return obj.template.skills.first() if obj.template_id else None
+
     def get_prompt(self, obj: Attempt) -> str:
         return render_prompt(obj.template.template, obj.exercise_params or {})
 
+    def get_skill_id(self, obj: Attempt) -> str:
+        skill = self._first_skill(obj)
+        return skill.id if skill else ""
+
     def get_skill_label(self, obj: Attempt) -> str:
-        return getattr(obj.skill, "label", "") or obj.skill_id
+        skill = self._first_skill(obj)
+        return (getattr(skill, "label", "") or (skill.id if skill else "")) if skill else ""
+
+    def get_input_type(self, obj: Attempt) -> str:
+        return obj.template.input_type if obj.template_id else ""
 
 
 class AttemptCreateSerializer(serializers.Serializer):

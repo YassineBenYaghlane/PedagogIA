@@ -42,10 +42,10 @@ class StudentViewSet(ModelViewSet):
                     "skill_id": skill.id,
                     "status": state.status if state else StudentSkillState.NOT_STARTED,
                     "mastery_level": state.mastery_level if state else 0.0,
+                    "skill_xp": state.skill_xp if state else 0.0,
                     "total_attempts": state.total_attempts if state else 0,
-                    "consecutive_correct": state.consecutive_correct if state else 0,
                     "last_practiced_at": state.last_practiced_at if state else None,
-                    "next_review_at": state.next_review_at if state else None,
+                    "needs_review": state.needs_review if state else False,
                 }
             )
         return Response(payload)

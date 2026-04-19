@@ -39,7 +39,7 @@ LEVEL_COPY = {
 BUCKET_COPY = {"green": "En croissance", "orange": "À arroser", "red": "Graine"}
 
 MODE_LABELS = {
-    "learn": "Entraînement",
+    "training": "Entraînement",
     "diagnostic": "Test de Niveau",
     "drill": "Automatismes",
     "exam": "Examen",
@@ -53,7 +53,7 @@ def session_summaries(student: Student) -> list[dict]:
         .annotate(
             total=Count("attempts"),
             correct=Count("attempts", filter=Q(attempts__is_correct=True)),
-            skills=Count("attempts__skill", distinct=True),
+            skills=Count("attempts__template__skills", distinct=True),
         )
         .filter(total__gt=0)
         .order_by("-started_at")
@@ -140,40 +140,43 @@ def build_full_json(student: Student) -> dict:
         s["started_at"] = s["started_at"].isoformat() if s["started_at"] else None
         s["ended_at"] = s["ended_at"].isoformat() if s["ended_at"] else None
 
-    attempts = list(
+    attempts_qs = (
         Attempt.objects.filter(session__student=student)
-        .select_related("skill", "template")
+        .select_related("template")
+        .prefetch_related("template__skills")
         .order_by("responded_at")
-        .values(
-            "id",
-            "session_id",
-            "skill_id",
-            "template_id",
-            "input_type",
-            "student_answer",
-            "correct_answer",
-            "is_correct",
-            "responded_at",
-        )
     )
-    for a in attempts:
-        a["id"] = str(a["id"])
-        a["session_id"] = str(a["session_id"])
-        a["responded_at"] = a["responded_at"].isoformat() if a["responded_at"] else None
+    attempts = []
+    for a in attempts_qs:
+        skill = a.template.skills.first() if a.template_id else None
+        attempts.append(
+            {
+                "id": str(a.id),
+                "session_id": str(a.session_id),
+                "skill_id": skill.id if skill else None,
+                "template_id": a.template_id,
+                "input_type": a.template.input_type if a.template_id else None,
+                "student_answer": a.student_answer,
+                "correct_answer": a.correct_answer,
+                "is_correct": a.is_correct,
+                "xp_awarded": a.xp_awarded,
+                "responded_at": a.responded_at.isoformat() if a.responded_at else None,
+            }
+        )
 
-    mastery = list(
-        StudentSkillState.objects.filter(student=student).values(
-            "skill_id",
-            "status",
-            "mastery_level",
-            "total_attempts",
-            "consecutive_correct",
-            "last_practiced_at",
-        )
-    )
-    for m in mastery:
-        m["last_practiced_at"] = (
-            m["last_practiced_at"].isoformat() if m["last_practiced_at"] else None
+    mastery = []
+    for state in StudentSkillState.objects.filter(student=student):
+        mastery.append(
+            {
+                "skill_id": state.skill_id,
+                "status": state.status,
+                "mastery_level": state.mastery_level,
+                "skill_xp": state.skill_xp,
+                "total_attempts": state.total_attempts,
+                "last_practiced_at": (
+                    state.last_practiced_at.isoformat() if state.last_practiced_at else None
+                ),
+            }
         )
 
     return {
@@ -274,10 +277,15 @@ def build_pdf(student: Student) -> bytes:
 
     # Per-year mastery
     skills = {s.id: s for s in Skill.objects.all()}
-    attempts = Attempt.objects.filter(session__student=student).select_related("skill")
+    attempts = (
+        Attempt.objects.filter(session__student=student)
+        .select_related("template")
+        .prefetch_related("template__skills")
+    )
     per_year: dict[str, dict[str, int]] = defaultdict(lambda: {"total": 0, "correct": 0})
     for a in attempts:
-        grade = skills.get(a.skill_id).grade if skills.get(a.skill_id) else "?"
+        skill = a.template.skills.first() if a.template_id else None
+        grade = skills.get(skill.id).grade if skill and skills.get(skill.id) else "?"
         per_year[grade]["total"] += 1
         if a.is_correct:
             per_year[grade]["correct"] += 1
@@ -400,7 +408,11 @@ def build_session_pdf(session: Session) -> bytes:
         else "—"
     )
 
-    attempts = list(session.attempts.select_related("skill", "template").order_by("responded_at"))
+    attempts = list(
+        session.attempts.select_related("template")
+        .prefetch_related("template__skills")
+        .order_by("responded_at")
+    )
     total = len(attempts)
     correct = sum(1 for a in attempts if a.is_correct)
     pct = round(correct / total * 100) if total else 0
@@ -438,8 +450,9 @@ def build_session_pdf(session: Session) -> bytes:
         header = ["#", "Question", "Réponse élève", "Bonne réponse", ""]
         rows = [header]
         for i, a in enumerate(attempts, start=1):
+            first_skill = a.template.skills.first() if a.template_id else None
             prompt = render_prompt(a.template.template, a.exercise_params or {}) or (
-                a.skill.label if a.skill else ""
+                first_skill.label if first_skill else ""
             )
             status = "✓" if a.is_correct else "✗"
             rows.append(

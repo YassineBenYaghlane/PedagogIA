@@ -86,21 +86,26 @@ def result(request, session_id):
 
 def _summary(session: Session) -> dict:
     attempts = list(
-        Attempt.objects.filter(session=session).select_related("skill").order_by("responded_at")
+        Attempt.objects.filter(session=session)
+        .select_related("template")
+        .prefetch_related("template__skills")
+        .order_by("responded_at")
     )
     total = len(attempts)
     correct = sum(1 for a in attempts if a.is_correct)
-    breakdown = [
-        {
-            "index": i,
-            "skill_id": a.skill_id,
-            "skill_label": a.skill.label,
-            "is_correct": a.is_correct,
-            "student_answer": a.student_answer,
-            "correct_answer": a.correct_answer,
-        }
-        for i, a in enumerate(attempts)
-    ]
+    breakdown = []
+    for i, a in enumerate(attempts):
+        skill = a.template.skills.first() if a.template_id else None
+        breakdown.append(
+            {
+                "index": i,
+                "skill_id": skill.id if skill else "",
+                "skill_label": skill.label if skill else "",
+                "is_correct": a.is_correct,
+                "student_answer": a.student_answer,
+                "correct_answer": a.correct_answer,
+            }
+        )
     return {
         "session_id": str(session.id),
         "total_attempts": total,

@@ -61,6 +61,7 @@ Catalog of every wiki page. Updated on every ingest. Keep lines ≤150 chars.
 - [[concepts/edge-security]] — Cloudflare WAF + Hetzner firewall + DRF throttle + CF real-IP middleware, as four composing layers
 - [[concepts/release-process]] — every main merge = one human-chosen semver tag; baked into images, shown at /api/health/ and in footer
 - [[concepts/product-features]] — catalog of shipped features (modes, AI, progress, parent surface, ops) — 2026-04-18 snapshot
+- [[concepts/reward-system]] — two currencies (student XP + per-skill skill_xp), formulas, tier-gated selection, multi-skill weighting
 
 ## Questions
 - [[questions/progression-arithmetique-p1-p6]] — year-by-year arithmetic progression table + skill-tree implications

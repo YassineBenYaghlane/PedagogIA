@@ -31,7 +31,8 @@ def _get_session(request, session_id: str) -> Session:
 def _build_question(session: Session) -> dict | None:
     attempts = list(
         Attempt.objects.filter(session=session)
-        .select_related("skill", "template")
+        .select_related("template")
+        .prefetch_related("template__skills")
         .order_by("responded_at")
     )
     slot = select_next_slot(session.student, attempts)

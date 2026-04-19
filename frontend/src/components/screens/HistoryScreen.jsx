@@ -17,7 +17,7 @@ import {
 import { downloadSessionPdf } from "../../api/sessions"
 
 const MODE_LABELS = {
-  learn: "Entraînement",
+  training: "Entraînement",
   diagnostic: "Test de Niveau",
   drill: "Automatismes",
   exam: "Examen",
@@ -47,10 +47,18 @@ function SessionRow({ row, onOpen, onOpenDiagnostic }) {
   const pct = Math.round((row.accuracy || 0) * 100)
   const tone = pct >= 80 ? "text-sage-deep" : pct >= 40 ? "text-honey" : "text-rose"
   const isDiagnostic = row.mode === "diagnostic"
+  const openRow = () => onOpen(row)
   return (
-    <button
-      type="button"
-      onClick={() => onOpen(row)}
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={openRow}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault()
+          openRow()
+        }
+      }}
       className="w-full text-left flex items-center justify-between py-3 border-b border-sage/10 last:border-0 gap-3 hover:bg-mist/60 active:bg-mist/80 focus-visible:bg-mist/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-deep rounded-md px-2 -mx-2 transition-colors cursor-pointer"
       data-testid={isDiagnostic ? "history-row-diagnostic" : "history-row"}
     >
@@ -101,7 +109,7 @@ function SessionRow({ row, onOpen, onOpenDiagnostic }) {
           </div>
         </div>
       </div>
-    </button>
+    </div>
   )
 }
 

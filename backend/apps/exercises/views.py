@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from apps.skills.models import Skill
 from apps.students.models import Student, StudentSkillState
-from apps.students.services import NoSkillAvailable, pick_next_skill
+from apps.students.services import NoSkillAvailable, difficulty_for_xp, pick_next_skill
 from src.services.exercise_gen import instantiate
 
 from .investigation import feedback_for
@@ -19,11 +19,7 @@ from .services import ANSWER_SALT, generate_exercise
 
 def _difficulty_for_skill(student: Student, skill: Skill) -> int:
     state = StudentSkillState.objects.filter(student=student, skill=skill).first()
-    if state is None or state.mastery_level < 0.3:
-        return 1
-    if state.mastery_level < 0.7:
-        return 2
-    return 3
+    return difficulty_for_xp(state.skill_xp if state else 0.0)
 
 
 @api_view(["GET"])
@@ -57,7 +53,7 @@ def next_exercise(request):
     override_skill_id = request.query_params.get("skill_id")
     if override_skill_id:
         skill = Skill.objects.filter(id=override_skill_id).first()
-        if skill is None or not ExerciseTemplate.objects.filter(skill=skill).exists():
+        if skill is None or not ExerciseTemplate.objects.filter(skills=skill).exists():
             raise ValidationError({"skill_id": "unknown or has no templates"})
         difficulty = _difficulty_for_skill(student, skill)
     else:
@@ -88,10 +84,12 @@ def samples(request):
             generated = instantiate(tpl.template)
         except Exception:
             continue
+        first_skill = tpl.skills.first()
+        first_skill_id = first_skill.id if first_skill else ""
         signature = signing.dumps(
             {
                 "template_id": tpl.id,
-                "skill_id": tpl.skill_id,
+                "skill_id": first_skill_id,
                 "input_type": tpl.input_type,
                 "params": generated["params"],
                 "answer": generated["answer"],
@@ -101,7 +99,7 @@ def samples(request):
         out.append(
             {
                 "template_id": tpl.id,
-                "skill_id": tpl.skill_id,
+                "skill_id": first_skill_id,
                 "difficulty": tpl.difficulty,
                 "type": tpl.template.get("type"),
                 "input_type": tpl.input_type,
@@ -119,7 +117,7 @@ def samples(request):
 def explain_attempt(request, attempt_id):
     """On-demand AI investigation for a wrong attempt the user owns."""
     attempt = get_object_or_404(
-        Attempt.objects.select_related("session__student", "skill"),
+        Attempt.objects.select_related("session__student", "template"),
         id=attempt_id,
         session__student__user=request.user,
     )

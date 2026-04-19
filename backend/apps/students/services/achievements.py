@@ -6,8 +6,7 @@ import yaml
 
 from apps.exercises.models import Attempt
 from apps.skills.models import Skill
-from apps.students.models import Student, StudentAchievement, StudentSkillState
-from apps.students.services.mastery import MASTERED
+from apps.students.models import SKILL_XP_MAX, Student, StudentAchievement, StudentSkillState
 
 BADGES_PATH = Path(__file__).resolve().parents[3] / "src" / "skill_tree" / "badges.yaml"
 
@@ -52,8 +51,8 @@ def _correct_total(_b, student, _ctx, trigger) -> bool:
     )
 
 
-def _session_consecutive_correct(_b, _student, context, trigger) -> bool:
-    return context.get("session_consecutive_correct", 0) >= int(trigger["value"])
+def _session_correct_streak(_b, _student, context, trigger) -> bool:
+    return context.get("session_correct_streak", 0) >= int(trigger["value"])
 
 
 def _current_streak(_b, student, _ctx, trigger) -> bool:
@@ -61,9 +60,9 @@ def _current_streak(_b, student, _ctx, trigger) -> bool:
 
 
 def _mastered_count(_b, student, _ctx, trigger) -> bool:
-    return StudentSkillState.objects.filter(student=student, status=MASTERED).count() >= int(
-        trigger["value"]
-    )
+    return StudentSkillState.objects.filter(
+        student=student, skill_xp__gte=SKILL_XP_MAX
+    ).count() >= int(trigger["value"])
 
 
 def _grade_complete(_b, student, _ctx, _trigger) -> bool:
@@ -71,7 +70,7 @@ def _grade_complete(_b, student, _ctx, _trigger) -> bool:
     if total == 0:
         return False
     mastered = StudentSkillState.objects.filter(
-        student=student, status=MASTERED, skill__grade=student.grade
+        student=student, skill_xp__gte=SKILL_XP_MAX, skill__grade=student.grade
     ).count()
     return mastered >= total
 
@@ -91,7 +90,7 @@ def _daily_goal_hit(_b, student, context, _trigger) -> bool:
 TRIGGER_HANDLERS = {
     "attempts_total": _attempts_total,
     "correct_total": _correct_total,
-    "session_consecutive_correct": _session_consecutive_correct,
+    "session_correct_streak": _session_correct_streak,
     "current_streak": _current_streak,
     "mastered_count": _mastered_count,
     "grade_complete": _grade_complete,

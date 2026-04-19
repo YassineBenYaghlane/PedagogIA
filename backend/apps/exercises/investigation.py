@@ -84,8 +84,28 @@ def _build_user_prompt(attempt: Attempt, mastery_summary: str) -> str:
     )
 
 
+def _investigation_skill(attempt: Attempt) -> "Skill | None":
+    """Pick the skill under investigation: explicit .skill, session target, else template."""
+    direct = getattr(attempt, "skill", None)
+    if direct is not None:
+        return direct
+    session = getattr(attempt, "session", None)
+    target = getattr(session, "target_skill", None) if session is not None else None
+    if target is not None:
+        return target
+    template = getattr(attempt, "template", None)
+    if template is not None:
+        try:
+            return template.skills.first()
+        except AttributeError:
+            return None
+    return None
+
+
 def _mastery_summary(attempt: Attempt) -> str:
-    skill = attempt.skill
+    skill = _investigation_skill(attempt)
+    if skill is None:
+        return "  (aucune compétence identifiée)"
     student = attempt.session.student
     skill_ids = [skill.id] + [p.id for p in skill.prerequisites.all()]
     states = {
@@ -100,7 +120,7 @@ def _mastery_summary(attempt: Attempt) -> str:
         else:
             lines.append(
                 f"  - {sid}: maîtrise={s.mastery_level:.2f}, "
-                f"corrects consécutifs={s.consecutive_correct}, "
+                f"xp={s.skill_xp:.1f}, "
                 f"tentatives={s.total_attempts}"
             )
     return "\n".join(lines) if lines else "  (vide)"
@@ -150,7 +170,8 @@ def _call_model(client, model: str, skill_context: str, user_prompt: str) -> dic
 def investigate(attempt: Attempt) -> InvestigationResult:
     """Run AI root-cause investigation for a wrong attempt. Haiku → Sonnet escalation."""
     client = _get_client()
-    skill_context = _build_skill_context(attempt.skill)
+    skill = _investigation_skill(attempt)
+    skill_context = _build_skill_context(skill) if skill else "Compétence ciblée: (inconnue)"
     user_prompt = _build_user_prompt(attempt, _mastery_summary(attempt))
 
     primary = settings.INVESTIGATION_MODEL_PRIMARY

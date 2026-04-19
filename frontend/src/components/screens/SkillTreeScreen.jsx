@@ -17,7 +17,7 @@ import { useAuthStore } from "../../stores/authStore"
 import { useSkillTree } from "../../hooks/useSkillTree"
 import AppShell from "../layout/AppShell"
 import SkillNode from "../ui/SkillNode"
-import SkillListView from "../ui/SkillListView"
+import Plant from "../ui/Plant"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import Input from "../ui/Input"
@@ -171,7 +171,7 @@ function SkillTreeInner({ skills, skillTreeData, isLoading }) {
   const onInit = useCallback(() => setRfReady(true), [])
 
   useEffect(() => {
-    if (isMobile || centeredRef.current || !rfReady || !initialNodes.length) return
+    if (centeredRef.current || !rfReady || !initialNodes.length) return
     const skillNodes = initialNodes.filter((n) => n.type === "skillNode")
     if (!skillNodes.length) return
     const focus = skillNodes.find((n) => n.id === focusId)
@@ -187,10 +187,10 @@ function SkillTreeInner({ skills, skillTreeData, isLoading }) {
     setTimeout(() => {
       fitView({
         nodes: ids,
-        maxZoom: 1.3,
+        maxZoom: isMobile ? 0.9 : 1.3,
         minZoom: minZoomRef.current,
-        padding: 0.02,
-        duration: 600
+        padding: isMobile ? 0.08 : 0.02,
+        duration: 600,
       })
     }, 50)
   }, [rfReady, initialNodes, focusId, currentChild, fitView, isMobile])
@@ -277,11 +277,6 @@ function SkillTreeInner({ skills, skillTreeData, isLoading }) {
     },
     [nodes]
   )
-
-  const onListSelect = useCallback((data) => {
-    setSelected(data)
-    setFocusedNodeId(data.id)
-  }, [])
 
   const visibleSkillNodes = useMemo(
     () => nodes.filter((n) => n.type === "skillNode" && (n.style?.opacity ?? 1) > 0.5),
@@ -462,24 +457,16 @@ function SkillTreeInner({ skills, skillTreeData, isLoading }) {
         )}
       </header>
 
-      {isMobile ? (
-        <SkillListView
-          nodes={nodes}
-          gradeFilter={gradeFilter}
-          onSelect={onListSelect}
-          selectedId={selected?.id}
-          focusedId={focusedNodeId}
-        />
-      ) : (
-        <div
-          ref={flowRef}
-          className="flex-1 relative outline-none"
-          tabIndex={0}
-          onKeyDown={onKeyDown}
-          role="application"
-          aria-label="Carte interactive des compétences"
-        >
-          {focusStyle && <style>{focusStyle}</style>}
+      <div
+        ref={flowRef}
+        className="flex-1 relative outline-none sentier-canvas touch-none"
+        tabIndex={0}
+        onKeyDown={onKeyDown}
+        role="application"
+        aria-label="Carte interactive des compétences"
+      >
+        {focusStyle && <style>{focusStyle}</style>}
+        <div className="absolute inset-0">
           <SkillTreeHoverContext.Provider value={hoverContext}>
             <ReactFlow
               nodes={nodes}
@@ -493,14 +480,18 @@ function SkillTreeInner({ skills, skillTreeData, isLoading }) {
               minZoom={minZoom}
               maxZoom={1.5}
               translateExtent={translateExtent}
-              panOnScroll
+              panOnScroll={!isMobile}
+              panOnScrollSpeed={0.5}
               zoomOnScroll={false}
               zoomOnPinch
               panOnDrag
               proOptions={{ hideAttribution: true }}
             >
-              <Background color="rgba(63, 111, 74, 0.18)" gap={22} size={1} />
-              <Controls position="bottom-right" showInteractive={false} />
+              <Background color="rgba(63, 111, 74, 0.12)" gap={28} size={1} />
+              <Controls
+                position={isMobile ? "bottom-left" : "bottom-right"}
+                showInteractive={false}
+              />
               <div className="hidden md:block">
                 <MiniMap
                   nodeColor={minimapColor}
@@ -512,10 +503,10 @@ function SkillTreeInner({ skills, skillTreeData, isLoading }) {
               </div>
             </ReactFlow>
           </SkillTreeHoverContext.Provider>
-
-          <StatusLegend />
         </div>
-      )}
+
+        <StatusLegend />
+      </div>
 
       {selected && (
         <DetailPanel
@@ -579,96 +570,212 @@ function StatusLegend() {
   )
 }
 
+const STATUS_LABEL = {
+  mastered: "Maîtrisé",
+  in_progress: "En cours",
+  needs_review: "À revoir",
+  not_started: "À commencer",
+}
+
+const STATUS_DOT = {
+  mastered: "#6FA274",
+  in_progress: "#C9A560",
+  needs_review: "#E8A6A1",
+  not_started: "#F8EDC9",
+}
+
+function sentierStatusFor(skill, state) {
+  if (state?.status === "mastered") return "done"
+  if (state?.status === "needs_review") return "wilted"
+  if (state?.status === "in_progress") return "in_progress"
+  if (skill.unlocked) return "unlocked"
+  return "locked"
+}
+
 function DetailPanel({ skill, state, skillsById, masteryById, onClose, onPractice }) {
   const pct = state ? Math.round(state.mastery_level * 100) : 0
   const attempts = state?.total_attempts ?? 0
-  const missingPrereqs = useMemo(() => {
-    if (skill.unlocked) return []
-    return (skill.prerequisites ?? [])
-      .map((pid) => ({
-        id: pid,
-        skill: skillsById?.get(pid),
-        mastered: masteryById?.get(pid)?.status === "mastered",
-      }))
-      .filter((p) => !p.mastered && p.skill)
-  }, [skill, skillsById, masteryById])
+  const backendStatus = state?.status ?? "not_started"
+  const sentierStatus = sentierStatusFor(skill, state)
+
+  const prereqs = useMemo(
+    () =>
+      (skill.prerequisites ?? [])
+        .map((pid) => ({
+          id: pid,
+          skill: skillsById?.get(pid),
+          state: masteryById?.get(pid),
+        }))
+        .filter((p) => p.skill),
+    [skill, skillsById, masteryById]
+  )
+  const children = useMemo(() => {
+    if (!skillsById) return []
+    return [...skillsById.values()].filter((s) =>
+      (s.prerequisites ?? s.prerequisite_ids ?? []).includes(skill.id)
+    )
+  }, [skill.id, skillsById])
+
+  const canPractice = skill.unlocked && sentierStatus !== "done"
+  const actionLabel =
+    sentierStatus === "wilted"
+      ? "Arroser cette plante"
+      : sentierStatus === "done"
+        ? "Revoir cette plante"
+        : "Commencer"
 
   return (
-    <Card
-      variant="tag"
+    <aside
       data-testid="skill-detail-panel"
-      className="absolute top-4 left-4 right-4 md:left-auto md:right-4 md:w-80 p-5 z-50 bg-paper"
+      role="dialog"
+      aria-label={skill.label}
+      className="absolute z-50 bg-bone border border-sage/15 flex flex-col gap-4 overflow-y-auto
+                 inset-x-3 bottom-3 top-auto max-h-[72vh] rounded-2xl p-4 shadow-[0_30px_60px_-30px_rgba(43,58,46,0.35)]
+                 md:inset-auto md:top-4 md:bottom-4 md:right-4 md:w-[360px] md:max-h-[calc(100%-2rem)] md:rounded-xl md:p-5"
     >
-      <div className="flex items-start justify-between mb-3">
-        <span className="chip chip-sky">
-          {skill.grade} · {levelDescriptions[skill.grade]}
-        </span>
+      <header className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="latin text-[11px]">
+            {levelDescriptions[skill.grade]} · {skill.grade}
+          </div>
+          <h2 className="font-display font-semibold text-lg md:text-xl text-bark leading-tight mt-0.5">
+            {skill.label}
+          </h2>
+        </div>
         <button
           onClick={onClose}
-          className="text-stem hover:text-bark text-xl leading-none cursor-pointer"
+          className="w-8 h-8 shrink-0 rounded-full border border-sage/20 bg-paper text-stem hover:bg-mist hover:text-bark text-xl leading-none cursor-pointer"
           aria-label="Fermer"
         >
           ×
         </button>
+      </header>
+
+      <div
+        className="rounded-2xl flex flex-col items-center gap-3 py-4"
+        style={{
+          background: "linear-gradient(180deg, var(--color-mist) 0%, var(--color-sage-pale) 100%)",
+        }}
+      >
+        <Plant status={sentierStatus} mastery={state?.mastery_level ?? 0} size={64} />
+        <span className="inline-flex items-center gap-2 bg-bone px-3 py-1 rounded-full text-xs font-semibold text-bark border border-sage/15">
+          <span
+            className="w-2.5 h-2.5 rounded-full"
+            style={{ background: STATUS_DOT[backendStatus] }}
+          />
+          {STATUS_LABEL[backendStatus]}
+        </span>
       </div>
-      <LatinLabel>{skill.family}</LatinLabel>
-      <h3 className="font-display font-semibold text-bark text-base mt-0.5 leading-tight">
-        {skill.label}
-      </h3>
-      {attempts > 0 && (
-        <div className="mt-3">
-          <div className="flex items-baseline justify-between">
-            <span className="latin text-[11px]">Maîtrise</span>
-            <span className="font-mono text-sm font-semibold text-sage-deep">{pct}%</span>
-          </div>
-          <div className="mt-1 h-1.5 rounded-full bg-mist overflow-hidden">
-            <div className="h-full bg-sage transition-all duration-500" style={{ width: `${pct}%` }} />
-          </div>
-          <div className="text-[11px] text-stem mt-1">
-            {attempts} question{attempts > 1 ? "s" : ""} vues
-          </div>
+
+      <div className="rounded-xl bg-paper border border-sage/10 px-4 py-3 flex flex-col gap-2.5">
+        <div className="flex items-baseline justify-between text-xs text-stem">
+          <span>Maîtrise</span>
+          <span className="font-mono font-bold text-bark tabular-nums">{pct}%</span>
         </div>
-      )}
-      <p className="text-xs text-stem leading-relaxed mt-3">{skill.description}</p>
-      <div className="flex items-center gap-4 text-xs text-stem mt-3">
-        <span>Seuil · {skill.mastery_threshold}</span>
-        <span>Racines · {skill.prerequisites.length}</span>
+        <div className="relative h-2 rounded-full bg-mist overflow-visible">
+          <div
+            className="absolute inset-y-0 left-0 rounded-full transition-all duration-500"
+            style={{
+              width: `${pct}%`,
+              background: "linear-gradient(to right, var(--color-honey), var(--color-sage))",
+            }}
+          />
+          <div
+            className="absolute -top-0.5 -bottom-0.5 w-0.5 bg-sage-deep opacity-60"
+            style={{ left: "85%" }}
+            title="85% — floraison"
+          />
+        </div>
+        <div className="flex items-baseline justify-between text-[11px] text-stem">
+          <span>Questions vues</span>
+          <span className="font-mono text-bark tabular-nums">{attempts}</span>
+        </div>
       </div>
-      {onPractice && skill.unlocked && (
-        <Button
-          data-testid="practice-skill"
-          onClick={() => onPractice(skill.id)}
-          size="sm"
-          className="mt-4 w-full"
-        >
-          Arroser cette plante
-        </Button>
+
+      {prereqs.length > 0 && (
+        <section className="flex flex-col gap-1.5">
+          <h3 className="text-[10px] uppercase tracking-wider font-bold text-stem">
+            Prérequis
+          </h3>
+          <ul className="flex flex-col gap-1">
+            {prereqs.map((p) => {
+              const st = p.state?.status ?? "not_started"
+              const ppct = Math.round((p.state?.mastery_level ?? 0) * 100)
+              return (
+                <li
+                  key={p.id}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs border border-sage/5 ${st === "mastered" ? "bg-sage-pale/40" : st === "needs_review" ? "bg-rose-soft/60" : "bg-paper"}`}
+                >
+                  <span
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{ background: STATUS_DOT[st] }}
+                  />
+                  <span className="flex-1 text-bark truncate">{p.skill.label}</span>
+                  <span className="font-mono text-[10px] font-bold text-stem tabular-nums">
+                    {ppct}%
+                  </span>
+                </li>
+              )
+            })}
+          </ul>
+        </section>
       )}
-      {!skill.unlocked && (
-        <div className="mt-4 rounded-xl bg-mist/60 border border-sage/15 px-3 py-2.5">
-          <div className="text-xs font-semibold text-bark mb-1">
-            Pas encore accessible
-          </div>
-          {missingPrereqs.length > 0 ? (
-            <>
-              <p className="text-[11px] text-stem leading-relaxed">
-                Maîtrise d'abord {missingPrereqs.length > 1 ? "ces racines" : "cette racine"} :
-              </p>
-              <ul className="mt-1.5 space-y-0.5">
-                {missingPrereqs.map((p) => (
-                  <li key={p.id} className="text-[11px] text-bark">
-                    · {p.skill.label}
-                  </li>
-                ))}
-              </ul>
-            </>
-          ) : (
-            <p className="text-[11px] text-stem italic">
-              Maîtrise d'abord les racines de cette plante.
+
+      {children.length > 0 && (
+        <section className="flex flex-col gap-1.5">
+          <h3 className="text-[10px] uppercase tracking-wider font-bold text-stem">
+            Ce que ça débloquera
+          </h3>
+          <ul className="flex flex-col gap-1">
+            {children.slice(0, 6).map((c) => (
+              <li
+                key={c.id}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs bg-paper border border-sage/5"
+              >
+                <span
+                  className="w-2 h-2 rounded-full shrink-0"
+                  style={{ background: STATUS_DOT.not_started }}
+                />
+                <span className="flex-1 text-bark truncate">{c.label}</span>
+                <span className="font-mono text-[10px] font-bold text-stem">{c.grade}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <p className="text-xs text-stem leading-relaxed">{skill.description}</p>
+
+      <div className="flex flex-col gap-2 mt-auto">
+        {canPractice && onPractice && (
+          <Button
+            data-testid="practice-skill"
+            onClick={() => onPractice(skill.id)}
+            className="w-full"
+          >
+            {actionLabel}
+          </Button>
+        )}
+        {sentierStatus === "done" && onPractice && (
+          <button
+            type="button"
+            onClick={() => onPractice(skill.id)}
+            className="w-full py-3 rounded-xl font-semibold text-sm bg-mist text-bark border border-sage/15 hover:bg-sage-pale/50 cursor-pointer"
+          >
+            Revoir cette plante
+          </button>
+        )}
+        {!skill.unlocked && (
+          <div className="rounded-xl bg-mist/60 border border-sage/15 px-3 py-2.5">
+            <div className="text-xs font-semibold text-bark mb-1">
+              Pas encore accessible
+            </div>
+            <p className="text-[11px] text-stem leading-relaxed">
+              Maîtrise d'abord les racines marquées ci-dessus.
             </p>
-          )}
-        </div>
-      )}
-    </Card>
+          </div>
+        )}
+      </div>
+    </aside>
   )
 }

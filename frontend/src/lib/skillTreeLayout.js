@@ -1,5 +1,3 @@
-import { MarkerType } from "@xyflow/react"
-
 export const GRADES = ["P1", "P2", "P3", "P4", "P5", "P6"]
 
 export const GRADE_COLORS = {
@@ -43,10 +41,10 @@ function skillStatus(skill, stateById) {
   return BACKEND_TO_UI_STATUS[state.status] ?? "locked"
 }
 
-export const NODE_WIDTH = 140
-export const NODE_GAP_X = 24
-export const SUBROW_HEIGHT = 170
-export const BAND_GAP = 110
+export const NODE_WIDTH = 150
+export const NODE_GAP_X = 36
+export const SUBROW_HEIGHT = 200
+export const BAND_GAP = 120
 export const BAND_PAD_TOP = 40
 const LANE_LABEL_X = -180
 
@@ -87,6 +85,20 @@ function orderByBarycenter(skills, positions, successors, useSuccessors) {
     return a.bary - b.bary
   })
   return withBary.map(({ s }) => s)
+}
+
+function pickTodayIds(skills, stateById, max = 2) {
+  const score = (st) => {
+    if (!st) return 0
+    if (st.status === "needs_review") return 3
+    if (st.status === "in_progress") return 2
+    return 0
+  }
+  const candidates = skills
+    .map((s) => ({ id: s.id, score: score(stateById?.get(s.id)) }))
+    .filter((c) => c.score > 0)
+    .sort((a, b) => b.score - a.score)
+  return new Set(candidates.slice(0, max).map((c) => c.id))
 }
 
 export function buildGraph(skills, nextId, stateById) {
@@ -192,6 +204,9 @@ export function buildGraph(skills, nextId, stateById) {
     s.prerequisites.length === 0 ||
     s.prerequisites.every(isMastered)
 
+  const todayIds = pickTodayIds(skills, stateById)
+  const edges = []
+
   const nodes = skills.map((s) => {
     const state = stateById?.get(s.id)
     return {
@@ -207,31 +222,12 @@ export function buildGraph(skills, nextId, stateById) {
         totalAttempts: state?.total_attempts ?? 0,
         unlocked: isUnlocked(s),
         isNext: s.id === nextId,
+        isToday: todayIds.has(s.id) || s.id === nextId,
       },
       draggable: false,
     }
   })
 
-  const edges = skills.flatMap((s) =>
-    s.prerequisites.map((pid) => {
-      const lit = isMastered(pid) && isMastered(s.id)
-      const active = isMastered(pid) && !isMastered(s.id) &&
-        (stateById?.get(s.id)?.status === "in_progress" || s.id === nextId)
-      let stroke = "#A1AEA3"
-      let width = 1.5
-      let dash = "4 5"
-      if (lit) { stroke = "#6FA274"; width = 2.5; dash = "0" }
-      else if (active) { stroke = "#4F8BAC"; width = 2; dash = "0" }
-      return {
-        id: `${pid}->${s.id}`,
-        source: pid,
-        target: s.id,
-        type: "smoothstep",
-        style: { stroke, strokeWidth: width, strokeDasharray: dash },
-        markerEnd: { type: MarkerType.ArrowClosed, color: stroke, width: 12, height: 12 },
-      }
-    })
-  )
 
   const laneNodes = GRADES.map((grade) => {
     const yStart = gradeYStart.get(grade)

@@ -1,6 +1,6 @@
 ---
 name: deploy
-description: Ship the current branch to prod — merge the open PR into `main` (after confirming CI is green and the user is ready), then tag the resulting merge commit with a user-chosen semver version so GHCR gets a `:vX.Y.Z` image and a GitHub Release is created. Use this skill whenever the user says "deploy", "deploy this", "ship it", "ship this", "let's deploy", "release this", "cut a release", "push to prod", "go to prod", "merge and tag", "release it", or any French variant ("déploie", "on déploie", "met en prod", "release-moi ça", "tag et merge"). Also worth using proactively right after a PR has been reviewed and approved and the user signals they're ready to move on. This skill exists because PedagogIA's release policy — one semver tag per main merge, chosen by the human, never auto-derived — is easy to forget, and because the ordering (confirm CI → confirm version → merge → pull → tag → push tag) has a couple of non-obvious steps (tag must land on the merge commit, not the feature tip; main push auto-deploys but tag push does not) that drift if re-derived each time.
+description: Ship the current branch to prod — merge the open PR into `main` (after confirming CI is green and the user is ready), then tag the resulting merge commit with a user-chosen semver version. The tag push is what actually deploys to prod (main push only builds images; the `deploy` job is gated on `ref_type == 'tag'`), so `git describe` sees the release tag and stamps `APP_VERSION` correctly. Use this skill whenever the user says "deploy", "deploy this", "ship it", "ship this", "let's deploy", "release this", "cut a release", "push to prod", "go to prod", "merge and tag", "release it", or any French variant ("déploie", "on déploie", "met en prod", "release-moi ça", "tag et merge"). Also worth using proactively right after a PR has been reviewed and approved and the user signals they're ready to move on. This skill exists because PedagogIA's release policy — one semver tag per main merge, chosen by the human, never auto-derived — is easy to forget, and because the ordering (confirm CI → confirm version → merge → pull → tag → push tag) has a couple of non-obvious steps (tag must land on the merge commit not the feature tip; prod doesn't move until the tag push; PRs that touch `.github/workflows/*` need to be merged via the GitHub UI not `gh`) that drift if re-derived each time.
 ---
 
 # Deploy — merge + tag a release
@@ -98,7 +98,7 @@ A few subtleties worth knowing:
 
 ## Verify (optional but nice)
 
-After the tag push, two workflows should be running. A quick glance reassures the user without you having to SSH anywhere.
+After the tag push, watch the workflows. A quick glance reassures the user without you having to SSH anywhere.
 
 ```bash
 gh run list --limit 5
@@ -106,15 +106,17 @@ gh run watch <run-id>   # only if they want to wait
 ```
 
 What to expect:
-- `Deploy` workflow (build job only on tag push) — pushes `:vX.Y.Z` image to GHCR. The `deploy` job is gated on `github.ref_type == 'branch'` so it **doesn't** redeploy from the tag; the main-push deploy that fired on merge is what actually shipped to prod.
-- `Release` workflow — creates the GitHub Release with auto-generated notes.
-- Prod check (only if the user asks): `curl -s https://collegia.be/api/health/ | jq` — the `version` field should now be `vX.Y.Z` once the main-push deploy has finished (takes ~2–4 minutes from merge).
+- **On the main-push** (fires at merge time): `CI` runs, and `Deploy` runs **build-only** — the `deploy` job is gated on `github.ref_type == 'tag' || github.event_name == 'workflow_dispatch'`, so it's **skipped** here. Images get pushed to GHCR as `:latest` + `:sha-xxxx` but prod is untouched until the tag lands.
+- **On the tag push** (fires ~5s later, after you run `git push origin vX.Y.Z`): `Deploy` runs **build + deploy** — image tagged `:vX.Y.Z` gets pushed, then the `deploy` job SSHes into Hetzner and rolls `docker compose pull && up -d`. `git describe` at build time returns the tag, so `APP_VERSION=vX.Y.Z` is baked in correctly. `Release` also fires here, creating the GitHub Release.
+- **Prod check** (only if the user asks): `curl -s https://collegia.be/api/health/ | jq` — the `version` field should read `vX.Y.Z` roughly a minute after the tag push (build ~40s + SSH pull + healthcheck).
+
+If you see the main-push `Deploy` with the `deploy` job actually *running* (not skipped), the gate got reverted — stop and investigate before tagging, or prod ends up labeled `v(previous)-1-g<sha>` from the pre-tag `git describe` (see "merging PRs that touch `.github/workflows/*`" below).
 
 ## Closing the loop
 
 One-sentence summary to the user when done:
 
-> Shipped `vX.Y.Z`. PR #N merged → main deploy in progress → tag pushed → GH Release + `:vX.Y.Z` image building.
+> Shipped `vX.Y.Z`. PR #N merged → main-push build done (deploy skipped) → tag pushed → Deploy (build + prod roll) + GH Release in progress.
 
 Then stop. Don't volunteer "what's next" unless they ask — let them pick the next thread.
 
@@ -126,7 +128,9 @@ Then stop. Don't volunteer "what's next" unless they ask — let them pick the n
 - **User asks for a version that already exists.** `git push origin vX.Y.Z` will reject. Ask them to pick a different one; don't try to move the existing tag.
 - **User wants to skip tagging "just this once".** Push back gently — the whole point of the policy is that every main merge gets a tag. Only skip if they override explicitly; note that the merged commit will show up as `v(previous)-N-g<sha>` in `git describe` until someone tags it.
 - **Pre-1.0, big infra PR feels like it deserves a MINOR bump even though nothing user-facing changed.** That's a judgment call — surface the tension ("no user-visible change, but the infra surface area is substantial — MINOR or PATCH?") and let them decide.
+- **PR touches `.github/workflows/*` and `gh pr merge` silently produces an empty squash commit.** GitHub strips workflow-file diffs from merges performed by OAuth tokens lacking the `workflow` scope. You'll notice because `git diff <parent>..<squash>` is empty and the workflow file on `main` is unchanged. Detection: run `gh auth status` — if scopes are `gist, read:org, repo` (no `workflow`), this will hit. Fix: ask the user to **merge via the GitHub web UI** (browser session has the scope) rather than trying to grant the scope to `gh` (the team intentionally keeps it off as a defense-in-depth boundary against token leaks). After the UI merge, verify with `git show origin/main:.github/workflows/deploy.yml` before tagging — if the change is missing, tagging now would deploy the wrong thing.
+- **Tag ended up on the wrong commit.** Tags are forward-only; never `git push -f` a tag. If the tag sits on an off-main sha (e.g., the feature tip because someone skipped the `git pull --ff-only` step), the release operationally works — prod builds from the right code — but history looks weird. Leave the orphan tag alone, note it in the release notes on the next proper one, and move on. `git tag vX.Y.Z <sha>` with an explicit sha is the *preventive* form worth using when the worktree with `main` checked out is not the one you're running from: `git -C <main-worktree> pull --ff-only && git tag vX.Y.Z <sha> && git push origin vX.Y.Z`.
 
 ## Why this skill exists, in one paragraph
 
-The release policy is new and load-bearing: every deployed commit in prod gets a human-chosen semver tag, mapping 1-to-1 to Sentry releases and GitHub Releases. Without a skill to codify the flow, the easy failure modes are (1) merging without asking for a version, (2) tagging the feature-branch tip instead of the main merge commit, (3) trying to redeploy from the tag push (the `deploy` job is gated for a reason), and (4) forgetting to push the tag after creating it. Each one costs ten minutes of "why didn't that fire?" the next day. This skill is here to make the right thing the default thing.
+The release policy is load-bearing: every deployed commit in prod gets a human-chosen semver tag, mapping 1-to-1 to Sentry releases and GitHub Releases. Prod only moves on a tag push — the `deploy` job is gated on `github.ref_type == 'tag' || github.event_name == 'workflow_dispatch'`, so `git describe` stamps the correct `APP_VERSION` at build time. Without a skill to codify the flow, the easy failure modes are (1) merging without asking for a version, (2) tagging the feature-branch tip instead of the main merge commit, (3) forgetting to push the tag after creating it (prod stays on the last released version), (4) merging a PR that touches `.github/workflows/*` via `gh` without noticing the silent empty-diff squash (the token deliberately lacks `workflow` scope — use the GitHub UI for those), and (5) assuming the main-push deploy did the work (it only builds images — prod waits for the tag). Each one costs ten minutes of "why didn't that fire?" the next day. This skill is here to make the right thing the default thing.

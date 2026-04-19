@@ -17,7 +17,7 @@ import {
 import { downloadSessionPdf } from "../../api/sessions"
 
 const MODE_LABELS = {
-  learn: "Entraînement",
+  training: "Entraînement",
   diagnostic: "Test de Niveau",
   drill: "Automatismes",
   exam: "Examen",

@@ -61,6 +61,7 @@ def test_overview_shape(auth_client):
         "learning_hard",
         "mastered",
         "needs_review",
+        "in_progress",
     }
 
     assert s["recent_sessions"] == []

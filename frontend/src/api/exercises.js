@@ -10,7 +10,7 @@ export const exercisesApi = {
     api.get(`/exercises/generate/?skill_id=${encodeURIComponent(skillId)}&difficulty=${difficulty}`),
   submit: (sessionId, signature, studentAnswer) =>
     api.post(`/sessions/${sessionId}/attempts/`, { signature, student_answer: studentAnswer }),
-  createSession: (studentId, mode = "learn") =>
+  createSession: (studentId, mode = "training") =>
     api.post("/sessions/", { student: studentId, mode }),
   endSession: (sessionId) =>
     api.patch(`/sessions/${sessionId}/`, { ended_at: new Date().toISOString() }),

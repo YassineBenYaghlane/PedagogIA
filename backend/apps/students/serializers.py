@@ -7,7 +7,7 @@ from .models import GRADE_VALUES, Student, StudentAchievement, StudentSkillState
 
 
 def mastery_counts(student: Student) -> dict:
-    """Count skill states by computed status bucket."""
+    """Count skill states by computed status bucket, plus an `in_progress` aggregate."""
     out = {
         StudentSkillState.NOT_STARTED: 0,
         StudentSkillState.LEARNING_EASY: 0,
@@ -18,6 +18,11 @@ def mastery_counts(student: Student) -> dict:
     }
     for state in StudentSkillState.objects.filter(student=student):
         out[state.status] = out.get(state.status, 0) + 1
+    out["in_progress"] = (
+        out[StudentSkillState.LEARNING_EASY]
+        + out[StudentSkillState.LEARNING_MEDIUM]
+        + out[StudentSkillState.LEARNING_HARD]
+    )
     return out
 
 

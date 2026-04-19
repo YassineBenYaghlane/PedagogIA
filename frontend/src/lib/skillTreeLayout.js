@@ -32,7 +32,9 @@ function familyFor(id) {
 
 const BACKEND_TO_UI_STATUS = {
   mastered: "completed",
-  in_progress: "in_progress",
+  learning_easy: "in_progress",
+  learning_medium: "in_progress",
+  learning_hard: "in_progress",
   needs_review: "review",
   not_started: "locked"
 }
@@ -216,7 +218,7 @@ export function buildGraph(skills, nextId, stateById) {
     s.prerequisites.map((pid) => {
       const lit = isMastered(pid) && isMastered(s.id)
       const active = isMastered(pid) && !isMastered(s.id) &&
-        (stateById?.get(s.id)?.status === "in_progress" || s.id === nextId)
+        (skillStatus(s, stateById) === "in_progress" || s.id === nextId)
       let stroke = "#A1AEA3"
       let width = 1.5
       let dash = "4 5"

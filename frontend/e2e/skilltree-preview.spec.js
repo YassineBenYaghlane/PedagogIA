@@ -41,19 +41,21 @@ test("skill tree page renders for a logged-in student", async ({ page }) => {
         "from apps.skills.models import Skill",
         "from django.utils import timezone",
         `s = Student.objects.get(id='${studentId}')`,
+        "from datetime import timedelta",
         "seeds = {",
-        "  'add_avec_retenue_1000': ('in_progress', 0.55, 4, 2),",
-        "  'soustr_avec_emprunt_1000': ('in_progress', 0.3, 2, 1),",
-        "  'mult_tables_5': ('needs_review', 0.4, 3, 0),",
-        "  'mult_tables_2': ('mastered', 1.0, 6, 6),",
+        "  # (skill_xp, total_attempts, stale_days)",
+        "  'add_avec_retenue_1000': (16.5, 4, 0),",
+        "  'soustr_avec_emprunt_1000': (9.0, 2, 0),",
+        "  'mult_tables_5': (12.0, 3, 45),  # needs_review: xp<20 + stale>30d",
+        "  'mult_tables_2': (30.0, 6, 0),",
         "}",
-        "for sid, (st, lvl, att, cc) in seeds.items():",
+        "for sid, (xp, att, stale) in seeds.items():",
         "    sk = Skill.objects.filter(id=sid).first()",
         "    if not sk: continue",
         "    row, _ = StudentSkillState.objects.get_or_create(student=s, skill=sk)",
-        "    row.status = st; row.mastery_level = lvl",
-        "    row.total_attempts = att; row.consecutive_correct = cc",
-        "    row.last_practiced_at = timezone.now(); row.save()"
+        "    row.skill_xp = xp; row.total_attempts = att",
+        "    row.last_practiced_at = timezone.now() - timedelta(days=stale)",
+        "    row.save()"
       ].join("\n")
       const repoRoot = process.cwd().replace(/\/frontend$/, "")
       const tmp = `${repoRoot}/.skilltree-seed.py`

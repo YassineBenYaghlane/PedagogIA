@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react"
 import { Link, useNavigate } from "react-router"
 import { useAuthStore } from "../../stores/authStore"
+import { startGoogleLogin } from "../../lib/googleOAuth"
 import AppShell from "../layout/AppShell"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
@@ -173,6 +174,28 @@ export default function RegisterScreen() {
             data-testid="register-submit"
           >
             {busy ? "Création…" : "Créer le compte"}
+          </Button>
+
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-sage/15" />
+            <span className="text-[11px] text-stem uppercase tracking-widest">ou</span>
+            <div className="flex-1 h-px bg-sage/15" />
+          </div>
+
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={startGoogleLogin}
+            className="w-full"
+            data-testid="register-google"
+          >
+            <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+              <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.6 2.3 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.3l7.8 6C12.3 13.3 17.7 9.5 24 9.5z" />
+              <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 7.1-10 7.1-17.5z" />
+              <path fill="#FBBC05" d="M10.4 28.7c-.5-1.5-.8-3.1-.8-4.7s.3-3.2.8-4.7l-7.8-6C1 16.8 0 20.3 0 24s1 7.2 2.6 10.7l7.8-6z" />
+              <path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.5-5.8c-2 1.4-4.6 2.3-7.7 2.3-6.3 0-11.7-3.8-13.6-9.8l-7.8 6C6.5 42.6 14.6 48 24 48z" />
+            </svg>
+            Continuer avec Google
           </Button>
 
           <p className="text-sm text-center text-stem">

@@ -40,7 +40,7 @@ export default function LoginScreen() {
               <Heading level={2} className="mt-1">
                 Connexion
               </Heading>
-              <p className="text-sm text-stem mt-1">PedagogIA — retourner au jardin.</p>
+              <p className="text-sm text-stem mt-1">CollegIA — retourner au jardin.</p>
             </div>
 
             <label className="block">

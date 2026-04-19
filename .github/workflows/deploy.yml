@@ -76,7 +76,7 @@ jobs:
 
   deploy:
     needs: build
-    if: github.ref_type == 'branch'
+    if: github.ref_type == 'tag' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     environment: production
     steps:

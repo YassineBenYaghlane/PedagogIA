@@ -2,6 +2,7 @@ import { useEffect } from "react"
 import { Routes, Route, useNavigate, Navigate, useLocation } from "react-router"
 import { useAuthStore } from "./stores/authStore"
 import WelcomeScreen from "./components/screens/WelcomeScreen"
+import LandingScreen from "./components/screens/LandingScreen"
 import ExerciseScreen from "./components/screens/ExerciseScreen"
 import SkillTreeScreen from "./components/screens/SkillTreeScreen"
 import LoginScreen from "./components/screens/LoginScreen"
@@ -29,6 +30,12 @@ function RequireAuth({ children }) {
   return children
 }
 
+function RootRoute() {
+  const { user, loading } = useAuthStore()
+  if (loading) return <div className="p-8 text-center">Chargement…</div>
+  return user ? <WelcomeScreen /> : <LandingScreen />
+}
+
 export default function App() {
   const navigate = useNavigate()
   const bootstrap = useAuthStore((s) => s.bootstrap)
@@ -50,7 +57,7 @@ export default function App() {
         <Route path="/children" element={<RequireAuth><ChildPickerScreen /></RequireAuth>} />
         <Route path="/dashboard" element={<RequireAuth><ParentDashboardScreen /></RequireAuth>} />
         <Route path="/parametres" element={<RequireAuth><ParametresScreen /></RequireAuth>} />
-        <Route path="/" element={<RequireAuth><WelcomeScreen /></RequireAuth>} />
+        <Route path="/" element={<RootRoute />} />
         <Route path="/exercise" element={<RequireAuth><ExerciseScreen /></RequireAuth>} />
         <Route path="/diagnostic" element={<RequireAuth><DiagnosticScreen /></RequireAuth>} />
         <Route path="/drill" element={<RequireAuth><DrillScreen /></RequireAuth>} />

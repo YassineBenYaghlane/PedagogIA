@@ -13,7 +13,7 @@ import { fetchSession, fetchSessionAttempts } from "../../api/sessions"
 import { downloadDiagnosticPdf } from "../../api/history"
 
 const MODE_LABELS = {
-  learn: "Entraînement",
+  training: "Entraînement",
   diagnostic: "Test de Niveau",
   drill: "Automatismes",
   exam: "Examen",

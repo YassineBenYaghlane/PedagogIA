@@ -26,7 +26,7 @@ def test_attempt_updates_skill_state(auth_client):
     ).json()
     session = auth_client.post(
         "/api/sessions/",
-        {"student": student["id"], "mode": "learn"},
+        {"student": student["id"], "mode": "training"},
         format="json",
     ).json()
 
@@ -49,7 +49,7 @@ def test_attempt_updates_skill_state(auth_client):
 
     state = StudentSkillState.objects.get(student_id=student["id"], skill_id="add_avec_retenue_20")
     assert state.total_attempts == 1
-    assert state.consecutive_correct == 0
+    assert state.skill_xp == 0.0
 
 
 @pytest.mark.django_db
@@ -58,7 +58,7 @@ def test_attempt_signature_required(auth_client):
         "/api/students/", {"display_name": "A", "grade": "P1"}, format="json"
     ).json()
     session = auth_client.post(
-        "/api/sessions/", {"student": student["id"], "mode": "learn"}, format="json"
+        "/api/sessions/", {"student": student["id"], "mode": "training"}, format="json"
     ).json()
 
     res = auth_client.post(
@@ -93,10 +93,10 @@ def test_skill_tree_endpoint_returns_all_skills(auth_client):
         "skill_id",
         "status",
         "mastery_level",
+        "skill_xp",
         "total_attempts",
-        "consecutive_correct",
         "last_practiced_at",
-        "next_review_at",
+        "needs_review",
     }
     assert all(r["status"] == "not_started" for r in payload)
     assert all(r["mastery_level"] == 0.0 for r in payload)
@@ -104,21 +104,24 @@ def test_skill_tree_endpoint_returns_all_skills(auth_client):
 
 @pytest.mark.django_db
 def test_skill_tree_reflects_mastery(auth_client):
+    from apps.exercises.models import ExerciseTemplate
     from apps.skills.models import Skill
     from apps.students.models import Student
-    from apps.students.services.mastery import update_mastery
+    from apps.students.services.mastery import apply_template_attempt
 
     student = auth_client.post(
         "/api/students/", {"display_name": "A", "grade": "P1"}, format="json"
     ).json()
     skill = Skill.objects.get(id="add_avec_retenue_20")
-    update_mastery(Student.objects.get(id=student["id"]), skill, is_correct=True)
+    template = ExerciseTemplate.objects.filter(skills=skill).first()
+    assert template is not None
+    apply_template_attempt(Student.objects.get(id=student["id"]), template, is_correct=True)
 
     res = auth_client.get(f"/api/students/{student['id']}/skill-tree/")
     row = next(r for r in res.json() if r["skill_id"] == "add_avec_retenue_20")
-    assert row["status"] == "in_progress"
+    assert row["status"] in {"learning_easy", "learning_medium", "learning_hard"}
     assert row["total_attempts"] == 1
-    assert row["consecutive_correct"] == 1
+    assert row["skill_xp"] > 0
     assert row["mastery_level"] > 0
     assert row["last_practiced_at"] is not None
 

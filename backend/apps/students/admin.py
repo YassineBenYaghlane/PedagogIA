@@ -12,5 +12,5 @@ class StudentAdmin(admin.ModelAdmin):
 
 @admin.register(StudentSkillState)
 class StudentSkillStateAdmin(admin.ModelAdmin):
-    list_display = ("student", "skill", "mastery_level", "total_attempts")
+    list_display = ("student", "skill", "skill_xp", "total_attempts", "last_practiced_at")
     search_fields = ("student__display_name", "skill__id")

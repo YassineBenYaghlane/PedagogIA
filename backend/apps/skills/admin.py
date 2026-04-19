@@ -5,7 +5,7 @@ from .models import Skill, SkillPrerequisite
 
 @admin.register(Skill)
 class SkillAdmin(admin.ModelAdmin):
-    list_display = ("id", "label", "grade", "mastery_threshold")
+    list_display = ("id", "label", "grade")
     list_filter = ("grade",)
     search_fields = ("id", "label")
 

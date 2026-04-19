@@ -14,7 +14,7 @@ import ProgressBar from "../ui/ProgressBar"
 import { Heading, LatinLabel } from "../ui/Heading"
 
 const MODE_LABELS = {
-  learn: "Entraînement",
+  training: "Entraînement",
   diagnostic: "Test de Niveau",
   drill: "Automatismes",
   exam: "Examen",

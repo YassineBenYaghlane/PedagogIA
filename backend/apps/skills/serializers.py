@@ -8,7 +8,7 @@ class SkillSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Skill
-        fields = ("id", "label", "grade", "description", "mastery_threshold", "prerequisite_ids")
+        fields = ("id", "label", "grade", "description", "prerequisite_ids")
 
     def get_prerequisite_ids(self, obj: Skill) -> list[str]:
         return [link.prerequisite_id for link in obj.prerequisite_links.all()]

@@ -85,7 +85,7 @@ class SessionViewSet(ModelViewSet):
             "message": msg,
             "next_action": "practice",
             "next_skill_id": None,
-            "can_explain": not attempt.is_correct and session.mode == "learn",
+            "can_explain": not attempt.is_correct and session.mode == "training",
         }
         return Response(
             {

@@ -58,7 +58,7 @@ function LaneLabel({ data }) {
 const nodeTypes = { skillNode: SkillNode, laneLabel: LaneLabel }
 
 function pickFocusSkill(skills, stateById) {
-  const rank = { in_progress: 2, needs_review: 1 }
+  const rank = { learning_easy: 2, learning_medium: 2, learning_hard: 2, needs_review: 1 }
   let best = null
   for (const s of skills) {
     const st = stateById.get(s.id)
@@ -570,30 +570,39 @@ function StatusLegend() {
   )
 }
 
+const SKILL_XP_MAX = 30
+
 const STATUS_LABEL = {
   mastered: "Maîtrisé",
-  in_progress: "En cours",
+  learning_hard: "Presque fleuri",
+  learning_medium: "En croissance",
+  learning_easy: "Première pousse",
   needs_review: "À revoir",
   not_started: "À commencer",
 }
 
 const STATUS_DOT = {
   mastered: "#6FA274",
-  in_progress: "#C9A560",
+  learning_hard: "#B88A3C",
+  learning_medium: "#C9A560",
+  learning_easy: "#E8D28A",
   needs_review: "#E8A6A1",
   not_started: "#F8EDC9",
 }
 
+const LEARNING_STATUSES = new Set(["learning_easy", "learning_medium", "learning_hard"])
+
 function sentierStatusFor(skill, state) {
   if (state?.status === "mastered") return "done"
   if (state?.status === "needs_review") return "wilted"
-  if (state?.status === "in_progress") return "in_progress"
+  if (state && LEARNING_STATUSES.has(state.status)) return "in_progress"
   if (skill.unlocked) return "unlocked"
   return "locked"
 }
 
 function DetailPanel({ skill, state, skillsById, masteryById, onClose, onPractice }) {
-  const pct = state ? Math.round(state.mastery_level * 100) : 0
+  const xp = state?.skill_xp ?? 0
+  const pct = Math.round((xp / SKILL_XP_MAX) * 100)
   const attempts = state?.total_attempts ?? 0
   const backendStatus = state?.status ?? "not_started"
   const sentierStatus = sentierStatusFor(skill, state)
@@ -669,8 +678,10 @@ function DetailPanel({ skill, state, skillsById, masteryById, onClose, onPractic
 
       <div className="rounded-xl bg-paper border border-sage/10 px-4 py-3 flex flex-col gap-2.5">
         <div className="flex items-baseline justify-between text-xs text-stem">
-          <span>Maîtrise</span>
-          <span className="font-mono font-bold text-bark tabular-nums">{pct}%</span>
+          <span>XP de la plante</span>
+          <span className="font-mono font-bold text-bark tabular-nums">
+            {Math.round(xp)} / {SKILL_XP_MAX}
+          </span>
         </div>
         <div className="relative h-2 rounded-full bg-mist overflow-visible">
           <div
@@ -681,9 +692,19 @@ function DetailPanel({ skill, state, skillsById, masteryById, onClose, onPractic
             }}
           />
           <div
+            className="absolute -top-0.5 -bottom-0.5 w-px bg-stem opacity-40"
+            style={{ left: `${(10 / SKILL_XP_MAX) * 100}%` }}
+            title="10 XP — pousse"
+          />
+          <div
+            className="absolute -top-0.5 -bottom-0.5 w-px bg-stem opacity-40"
+            style={{ left: `${(20 / SKILL_XP_MAX) * 100}%` }}
+            title="20 XP — bouton"
+          />
+          <div
             className="absolute -top-0.5 -bottom-0.5 w-0.5 bg-sage-deep opacity-60"
-            style={{ left: "85%" }}
-            title="85% — floraison"
+            style={{ left: "100%", transform: "translateX(-2px)" }}
+            title="30 XP — floraison"
           />
         </div>
         <div className="flex items-baseline justify-between text-[11px] text-stem">

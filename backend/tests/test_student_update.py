@@ -48,7 +48,7 @@ def test_delete_cascades_attempts_and_sessions(auth_client):
         "/api/students/", {"display_name": "A", "grade": "P1"}, format="json"
     ).json()
     session = auth_client.post(
-        "/api/sessions/", {"student": student["id"], "mode": "learn"}, format="json"
+        "/api/sessions/", {"student": student["id"], "mode": "training"}, format="json"
     ).json()
 
     ex = auth_client.get(

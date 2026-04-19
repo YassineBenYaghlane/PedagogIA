@@ -7,7 +7,6 @@ class Skill(models.Model):
     label = models.CharField(max_length=200)
     grade = models.CharField(max_length=4)
     description = models.TextField(blank=True, default="")
-    mastery_threshold = models.PositiveSmallIntegerField(default=3)
     prerequisites = models.ManyToManyField(
         "self",
         through="SkillPrerequisite",

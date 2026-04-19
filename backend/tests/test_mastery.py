@@ -1,13 +1,9 @@
 import pytest
 
+from apps.exercises.models import ExerciseTemplate, TemplateSkillWeight
 from apps.skills.models import Skill
-from apps.students.models import Student, StudentSkillState
-from apps.students.services.mastery import (
-    IN_PROGRESS,
-    MASTERED,
-    NEEDS_REVIEW,
-    update_mastery,
-)
+from apps.students.models import SKILL_XP_MAX, Student, StudentSkillState
+from apps.students.services.mastery import apply_template_attempt
 
 
 @pytest.fixture
@@ -20,75 +16,78 @@ def skill(db):
     return Skill.objects.get(id="add_avec_retenue_20")
 
 
+@pytest.fixture
+def single_skill_template(db, skill):
+    template = ExerciseTemplate.objects.filter(skills=skill).first()
+    assert template is not None
+    return template
+
+
 @pytest.mark.django_db
-def test_first_correct_marks_in_progress(student, skill):
-    state = update_mastery(student, skill, True)
-    assert state.status == IN_PROGRESS
-    assert state.consecutive_correct == 1
+def test_correct_attempt_bumps_skill_xp_by_weight(student, skill, single_skill_template):
+    weight = TemplateSkillWeight.objects.get(template=single_skill_template, skill=skill).weight
+    apply_template_attempt(student, single_skill_template, True)
+    state = StudentSkillState.objects.get(student=student, skill=skill)
+    assert state.skill_xp == pytest.approx(weight)
+    assert state.total_attempts == 1
+    assert state.last_practiced_at is not None
+
+
+@pytest.mark.django_db
+def test_wrong_attempt_does_not_bump_skill_xp(student, skill, single_skill_template):
+    apply_template_attempt(student, single_skill_template, False)
+    state = StudentSkillState.objects.get(student=student, skill=skill)
+    assert state.skill_xp == 0.0
     assert state.total_attempts == 1
 
 
 @pytest.mark.django_db
-def test_threshold_consecutive_correct_marks_mastered(student, skill):
-    threshold = skill.mastery_threshold
-    last = None
-    for _ in range(threshold):
-        last = update_mastery(student, skill, True)
-    assert last.status == MASTERED
-    assert last.consecutive_correct == threshold
+def test_skill_xp_caps_at_max(student, skill, single_skill_template):
+    state, _ = StudentSkillState.objects.get_or_create(student=student, skill=skill)
+    state.skill_xp = SKILL_XP_MAX - 0.1
+    state.save()
+    apply_template_attempt(student, single_skill_template, True)
+    state.refresh_from_db()
+    assert state.skill_xp == pytest.approx(SKILL_XP_MAX)
 
 
 @pytest.mark.django_db
-def test_wrong_after_mastered_triggers_needs_review(student, skill):
-    for _ in range(skill.mastery_threshold):
-        update_mastery(student, skill, True)
-    state = update_mastery(student, skill, False)
-    assert state.status == NEEDS_REVIEW
-    assert state.consecutive_correct == 0
+def test_multi_skill_weights_credit_all_linked_skills(student, skill):
+    template = ExerciseTemplate.objects.create(
+        id="__test_multi",
+        difficulty=1,
+        input_type="number",
+        template={"type": "fill_blank", "params": {}, "prompt_template": "x"},
+    )
+    other = Skill.objects.filter(grade="P2").exclude(id=skill.id).first()
+    assert other is not None
+    TemplateSkillWeight.objects.create(template=template, skill=skill, weight=1.0)
+    TemplateSkillWeight.objects.create(template=template, skill=other, weight=0.5)
+
+    apply_template_attempt(student, template, True)
+
+    s1 = StudentSkillState.objects.get(student=student, skill=skill)
+    s2 = StudentSkillState.objects.get(student=student, skill=other)
+    assert s1.skill_xp == pytest.approx(1.0)
+    assert s2.skill_xp == pytest.approx(0.5)
 
 
 @pytest.mark.django_db
-def test_wrong_resets_consecutive_streak(student, skill):
-    update_mastery(student, skill, True)
-    update_mastery(student, skill, True)
-    state = update_mastery(student, skill, False)
-    assert state.consecutive_correct == 0
-    assert state.status == IN_PROGRESS
-
-
-@pytest.mark.django_db
-def test_creates_state_if_missing(student, skill):
+def test_creates_state_if_missing(student, skill, single_skill_template):
     assert not StudentSkillState.objects.filter(student=student, skill=skill).exists()
-    update_mastery(student, skill, True)
+    apply_template_attempt(student, single_skill_template, True)
     assert StudentSkillState.objects.filter(student=student, skill=skill).exists()
 
 
 @pytest.mark.django_db
-def test_review_schedule_doubles_on_correct_for_automatisme(student):
-    # automatismes have threshold >= 5
-    auto = Skill.objects.get(id="add_complements_10")
-    assert auto.mastery_threshold >= 5
-
-    s1 = update_mastery(student, auto, True)
-    first_hours = s1.review_interval_hours
-    s2 = update_mastery(student, auto, True)
-    assert s2.review_interval_hours >= first_hours * 2
-    assert s2.next_review_at is not None
-
-
-@pytest.mark.django_db
-def test_review_schedule_resets_on_wrong(student):
-    auto = Skill.objects.get(id="add_complements_10")
-    for _ in range(3):
-        update_mastery(student, auto, True)
-    s = update_mastery(student, auto, False)
-    # reset to the minimum interval
-    assert s.review_interval_hours == 4
-
-
-@pytest.mark.django_db
-def test_non_automatisme_has_no_review_schedule(student, skill):
-    # add_avec_retenue_20 has threshold 3 < 5
-    assert skill.mastery_threshold < 5
-    s = update_mastery(student, skill, True)
-    assert s.next_review_at is None
+def test_status_property_reflects_skill_xp(student, skill):
+    state = StudentSkillState.objects.create(student=student, skill=skill, skill_xp=0.0)
+    assert state.status == StudentSkillState.NOT_STARTED
+    state.skill_xp = 5.0
+    assert state.status == StudentSkillState.LEARNING_EASY
+    state.skill_xp = 15.0
+    assert state.status == StudentSkillState.LEARNING_MEDIUM
+    state.skill_xp = 25.0
+    assert state.status == StudentSkillState.LEARNING_HARD
+    state.skill_xp = SKILL_XP_MAX
+    assert state.status == StudentSkillState.MASTERED

@@ -30,7 +30,9 @@ function familyFor(id) {
 
 const BACKEND_TO_UI_STATUS = {
   mastered: "completed",
-  in_progress: "in_progress",
+  learning_easy: "in_progress",
+  learning_medium: "in_progress",
+  learning_hard: "in_progress",
   needs_review: "review",
   not_started: "locked"
 }
@@ -91,7 +93,9 @@ function pickTodayIds(skills, stateById, max = 2) {
   const score = (st) => {
     if (!st) return 0
     if (st.status === "needs_review") return 3
-    if (st.status === "in_progress") return 2
+    if (st.status === "learning_hard") return 2.5
+    if (st.status === "learning_medium") return 2
+    if (st.status === "learning_easy") return 1.5
     return 0
   }
   const candidates = skills

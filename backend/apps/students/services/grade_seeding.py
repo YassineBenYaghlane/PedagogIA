@@ -1,5 +1,5 @@
 from apps.skills.models import Skill
-from apps.students.models import Student, StudentSkillState
+from apps.students.models import SKILL_XP_MAX, Student, StudentSkillState
 
 
 def seed_prior_grade_mastery(student: Student) -> int:
@@ -16,10 +16,8 @@ def seed_prior_grade_mastery(student: Student) -> int:
         StudentSkillState(
             student=student,
             skill=skill,
-            status=StudentSkillState.MASTERED,
-            mastery_level=1.0,
-            consecutive_correct=skill.mastery_threshold,
-            total_attempts=skill.mastery_threshold,
+            skill_xp=SKILL_XP_MAX,
+            total_attempts=0,
         )
         for skill in prior_skills
         if skill.id not in existing

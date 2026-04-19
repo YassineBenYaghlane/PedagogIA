@@ -1,4 +1,3 @@
-from django.db.models import Count
 from rest_framework import serializers
 
 from apps.students.services.achievements import serialize_badge
@@ -8,12 +7,17 @@ from .models import GRADE_VALUES, Student, StudentAchievement, StudentSkillState
 
 
 def mastery_counts(student: Student) -> dict:
-    rows = (
-        StudentSkillState.objects.filter(student=student).values("status").annotate(n=Count("id"))
-    )
-    out = {choice: 0 for choice, _ in StudentSkillState.STATUS_CHOICES}
-    for row in rows:
-        out[row["status"]] = row["n"]
+    """Count skill states by computed status bucket."""
+    out = {
+        StudentSkillState.NOT_STARTED: 0,
+        StudentSkillState.LEARNING_EASY: 0,
+        StudentSkillState.LEARNING_MEDIUM: 0,
+        StudentSkillState.LEARNING_HARD: 0,
+        StudentSkillState.MASTERED: 0,
+        StudentSkillState.NEEDS_REVIEW: 0,
+    }
+    for state in StudentSkillState.objects.filter(student=student):
+        out[state.status] = out.get(state.status, 0) + 1
     return out
 
 
@@ -100,15 +104,21 @@ class StudentSerializer(_StudentBase):
 
 
 class StudentSkillStateSerializer(serializers.ModelSerializer):
+    status = serializers.CharField(read_only=True)
+    mastery_level = serializers.FloatField(read_only=True)
+    needs_review = serializers.BooleanField(read_only=True)
+
     class Meta:
         model = StudentSkillState
         fields = (
             "student",
             "skill",
-            "mastery_level",
-            "consecutive_correct",
+            "skill_xp",
             "total_attempts",
             "last_practiced_at",
             "updated_at",
+            "status",
+            "mastery_level",
+            "needs_review",
         )
         read_only_fields = fields

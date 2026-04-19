@@ -24,7 +24,6 @@ class Command(BaseCommand):
                         "label": s["label"],
                         "grade": s["grade"],
                         "description": s.get("description", ""),
-                        "mastery_threshold": s.get("mastery_threshold", 3),
                     },
                 )
 

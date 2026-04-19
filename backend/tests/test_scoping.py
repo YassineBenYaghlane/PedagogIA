@@ -28,7 +28,7 @@ def test_cannot_create_session_for_other_student(user, other_user):
 
     res = c.post(
         "/api/sessions/",
-        {"student": str(other_student.id), "mode": "learn"},
+        {"student": str(other_student.id), "mode": "training"},
         format="json",
     )
     assert res.status_code == 400
@@ -37,7 +37,7 @@ def test_cannot_create_session_for_other_student(user, other_user):
 @pytest.mark.django_db
 def test_cannot_read_other_session(user, other_user):
     other_student = Student.objects.create(user=other_user, display_name="X", grade="P1")
-    other_session = Session.objects.create(student=other_student, mode="learn")
+    other_session = Session.objects.create(student=other_student, mode="training")
     c = APIClient()
     c.force_authenticate(user)
 

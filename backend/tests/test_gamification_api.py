@@ -15,11 +15,13 @@ def _answer(signature: str) -> str:
 @pytest.mark.django_db
 def test_gamification_payload_on_correct_attempt(auth_client, user):
     student = Student.objects.create(user=user, display_name="A", grade="P1")
-    template = ExerciseTemplate.objects.filter(skill__grade="P1").first()
+    template = ExerciseTemplate.objects.filter(skills__grade="P1").first()
     assert template is not None
+    first_skill = template.skills.first()
+    assert first_skill is not None
 
-    session = Session.objects.create(student=student, mode="learn")
-    ex = generate_exercise(template.skill_id, template.difficulty)
+    session = Session.objects.create(student=student, mode="training")
+    ex = generate_exercise(first_skill.id, template.difficulty)
     res = auth_client.post(
         f"/api/sessions/{session.id}/attempts/",
         {"signature": ex["signature"], "student_answer": _answer(ex["signature"])},

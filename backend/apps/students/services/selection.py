@@ -1,20 +1,27 @@
 from apps.exercises.models import ExerciseTemplate
 from apps.skills.models import Skill
-from apps.students.models import Student, StudentSkillState
-
-from .mastery import IN_PROGRESS, MASTERED, NEEDS_REVIEW
+from apps.students.models import SKILL_XP_MAX, Student, StudentSkillState
 
 
 class NoSkillAvailable(Exception):
     pass
 
 
-def _difficulty_for(state: StudentSkillState | None) -> int:
-    if state is None or state.mastery_level < 0.3:
+def difficulty_for_xp(skill_xp: float) -> int:
+    """Tier-gated selection: skill_xp band decides which difficulty is served."""
+    if skill_xp < 10:
         return 1
-    if state.mastery_level < 0.7:
+    if skill_xp < 20:
         return 2
     return 3
+
+
+def _difficulty_for(state: StudentSkillState | None) -> int:
+    return difficulty_for_xp(state.skill_xp if state else 0.0)
+
+
+def _has_template_for_skill(skill: Skill) -> bool:
+    return ExerciseTemplate.objects.filter(skills=skill).exists()
 
 
 def pick_next_skill(student: Student) -> tuple[Skill, int]:
@@ -23,19 +30,18 @@ def pick_next_skill(student: Student) -> tuple[Skill, int]:
     Strategy:
     1. needs_review skills (oldest practiced first)
     2. mastery frontier (all prereqs mastered, this skill not yet) within student grade
-    3. fallback: any in_progress skill within student grade
+    3. fallback: any in-progress skill within student grade
     """
     states = {s.skill_id: s for s in StudentSkillState.objects.filter(student=student)}
-    mastered_ids = {sid for sid, s in states.items() if s.status == MASTERED}
+    mastered_ids = {sid for sid, s in states.items() if s.skill_xp >= SKILL_XP_MAX}
 
-    review = (
-        StudentSkillState.objects.filter(student=student, status=NEEDS_REVIEW)
-        .select_related("skill")
-        .order_by("last_practiced_at")
-        .first()
-    )
-    if review is not None:
-        return review.skill, _difficulty_for(review)
+    review_candidates = [
+        s for s in states.values() if s.needs_review and _has_template_for_skill(s.skill)
+    ]
+    if review_candidates:
+        review_candidates.sort(key=lambda s: s.last_practiced_at or s.updated_at)
+        state = review_candidates[0]
+        return state.skill, _difficulty_for(state)
 
     candidates = (
         Skill.objects.filter(grade=student.grade)
@@ -47,27 +53,26 @@ def pick_next_skill(student: Student) -> tuple[Skill, int]:
         prereq_ids = {p.id for p in skill.prerequisites.all()}
         if not prereq_ids.issubset(mastered_ids):
             continue
-        if ExerciseTemplate.objects.filter(skill=skill).exists():
+        if _has_template_for_skill(skill):
             frontier.append(skill)
     if frontier:
         skill = frontier[0]
         return skill, _difficulty_for(states.get(skill.id))
 
-    in_progress = (
-        StudentSkillState.objects.filter(
-            student=student, status=IN_PROGRESS, skill__grade=student.grade
-        )
-        .select_related("skill")
-        .order_by("last_practiced_at")
-        .first()
-    )
-    if in_progress is not None:
-        return in_progress.skill, _difficulty_for(in_progress)
+    in_progress = [
+        s
+        for s in states.values()
+        if 0 < s.skill_xp < SKILL_XP_MAX and s.skill.grade == student.grade
+    ]
+    if in_progress:
+        in_progress.sort(key=lambda s: s.last_practiced_at or s.updated_at)
+        state = in_progress[0]
+        return state.skill, _difficulty_for(state)
 
     fallback = (
         Skill.objects.filter(grade=student.grade)
         .exclude(id__in=mastered_ids)
-        .filter(id__in=ExerciseTemplate.objects.values("skill_id"))
+        .filter(id__in=ExerciseTemplate.objects.values("skills").distinct())
         .order_by("id")
         .first()
     )

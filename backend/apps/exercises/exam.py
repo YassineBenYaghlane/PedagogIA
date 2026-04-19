@@ -17,8 +17,9 @@ class NoExamSkill(Exception):
 def _eligible_skills(student: Student) -> list[Skill]:
     """All skills in the student's current grade with at least one exercise template."""
     skill_ids_with_templates = set(
-        ExerciseTemplate.objects.values_list("skill_id", flat=True).distinct()
+        ExerciseTemplate.objects.values_list("skills__id", flat=True).distinct()
     )
+    skill_ids_with_templates.discard(None)
     return list(Skill.objects.filter(grade=student.grade, id__in=skill_ids_with_templates))
 
 

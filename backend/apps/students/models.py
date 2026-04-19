@@ -1,7 +1,9 @@
 import uuid
+from datetime import timedelta
 
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 from apps.skills.models import Skill
 
@@ -14,6 +16,10 @@ GRADE_CHOICES = [
     ("P6", "P6"),
 ]
 GRADE_VALUES = [g for g, _ in GRADE_CHOICES]
+
+SKILL_XP_MAX = 30.0
+REVIEW_STALE_DAYS = 30
+REVIEW_XP_CEILING = 20.0
 
 
 class Student(models.Model):
@@ -41,31 +47,51 @@ class Student(models.Model):
 
 class StudentSkillState(models.Model):
     NOT_STARTED = "not_started"
-    IN_PROGRESS = "in_progress"
+    LEARNING_EASY = "learning_easy"
+    LEARNING_MEDIUM = "learning_medium"
+    LEARNING_HARD = "learning_hard"
     MASTERED = "mastered"
     NEEDS_REVIEW = "needs_review"
-    STATUS_CHOICES = [
-        (NOT_STARTED, "Pas commencé"),
-        (IN_PROGRESS, "En cours"),
-        (MASTERED, "Maîtrisé"),
-        (NEEDS_REVIEW, "À revoir"),
-    ]
 
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="skill_states")
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
-    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=NOT_STARTED)
-    mastery_level = models.FloatField(default=0.0)
-    consecutive_correct = models.PositiveIntegerField(default=0)
+    skill_xp = models.FloatField(default=0.0)
     total_attempts = models.PositiveIntegerField(default=0)
     last_practiced_at = models.DateTimeField(null=True, blank=True)
-    next_review_at = models.DateTimeField(null=True, blank=True)
-    review_interval_hours = models.PositiveIntegerField(default=24)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["student", "skill"], name="uq_student_skill"),
+            models.CheckConstraint(
+                check=models.Q(skill_xp__gte=0) & models.Q(skill_xp__lte=SKILL_XP_MAX),
+                name="skill_xp_range",
+            ),
         ]
+
+    @property
+    def mastery_level(self) -> float:
+        return self.skill_xp / SKILL_XP_MAX
+
+    @property
+    def needs_review(self) -> bool:
+        if self.skill_xp >= REVIEW_XP_CEILING or self.last_practiced_at is None:
+            return False
+        return self.last_practiced_at < timezone.now() - timedelta(days=REVIEW_STALE_DAYS)
+
+    @property
+    def status(self) -> str:
+        if self.skill_xp >= SKILL_XP_MAX:
+            return self.MASTERED
+        if self.needs_review:
+            return self.NEEDS_REVIEW
+        if self.skill_xp >= 20:
+            return self.LEARNING_HARD
+        if self.skill_xp >= 10:
+            return self.LEARNING_MEDIUM
+        if self.skill_xp > 0 or self.total_attempts > 0:
+            return self.LEARNING_EASY
+        return self.NOT_STARTED
 
 
 class StudentAchievement(models.Model):

@@ -85,7 +85,7 @@ def result(request, session_id):
 
 
 def _summary(session: Session) -> dict:
-    attempts = list(Attempt.objects.filter(session=session).select_related("skill"))
+    attempts = list(Attempt.objects.filter(session=session).select_related("template"))
     total = len(attempts)
     correct = sum(1 for a in attempts if a.is_correct)
     streak = 0

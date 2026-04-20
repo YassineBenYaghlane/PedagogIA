@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core import signing
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -75,6 +76,8 @@ def next_exercise(request):
 @permission_classes([IsAuthenticated])
 def samples(request):
     """Debug-only: one generated exercise per input_type, with a valid signature."""
+    if not settings.DEBUG and not request.user.is_staff:
+        raise Http404
     out = []
     for input_type, _ in INPUT_TYPES:
         tpl = ExerciseTemplate.objects.filter(input_type=input_type).order_by("?").first()

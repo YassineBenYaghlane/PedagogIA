@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react"
 import Icon from "../ui/Icon"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
-import { LatinLabel } from "../ui/Heading"
 import HintPanel from "./HintPanel"
 import FeedbackMessage from "./FeedbackMessage"
 import NumberInput from "./inputs/NumberInput"
@@ -49,7 +48,7 @@ export default function ExerciseCard({
   if (!exercise) {
     return (
       <Card className="p-8 w-full max-w-md text-center">
-        <span className="latin text-stem">Germinatio…</span>
+        <span className="italic text-stem">Chargement…</span>
       </Card>
     )
   }
@@ -61,7 +60,7 @@ export default function ExerciseCard({
     <Card className="p-8 md:p-10 w-full max-w-md text-center">
       {skill && (
         <>
-          <LatinLabel>{skill.grade}</LatinLabel>
+          <span className="text-xs text-stem uppercase tracking-wider">{skill.grade}</span>
           <p className="font-display text-sm text-bark mt-0.5 mb-5">{skill.label}</p>
         </>
       )}

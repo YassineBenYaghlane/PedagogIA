@@ -11,7 +11,7 @@ import Card from "../ui/Card"
 import Chip from "../ui/Chip"
 import EmptyState from "../ui/EmptyState"
 import ProgressBar from "../ui/ProgressBar"
-import { Heading, LatinLabel } from "../ui/Heading"
+import { Heading } from "../ui/Heading"
 
 const MODE_LABELS = {
   training: "Entraînement",
@@ -50,7 +50,9 @@ function StudentCard({ student, onOpenDetail }) {
           <Heading level={3} className="text-sage-deep">
             {student.display_name}
           </Heading>
-          <LatinLabel className="block mt-1">Niveau {student.grade}</LatinLabel>
+          <span className="block mt-1 text-xs text-stem uppercase tracking-wider">
+            Niveau {student.grade}
+          </span>
         </div>
         <Button variant="ghost" onClick={() => onOpenDetail(student)}>
           Voir en détail →
@@ -60,7 +62,7 @@ function StudentCard({ student, onOpenDetail }) {
       <div className="grid gap-6 md:grid-cols-3">
         <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <LatinLabel>Hortus · Maîtrise</LatinLabel>
+            <span className="text-xs text-stem uppercase tracking-wider">Maîtrise</span>
             <span className="font-mono text-xs text-stem tabular-nums">
               {m.mastered || 0} / {total}
             </span>
@@ -75,7 +77,7 @@ function StudentCard({ student, onOpenDetail }) {
         </section>
 
         <section>
-          <LatinLabel>Activité récente</LatinLabel>
+          <span className="text-xs text-stem uppercase tracking-wider">Activité récente</span>
           <div className="mt-2 text-sm text-stem">
             7 derniers jours :{" "}
             <span className="text-bark font-medium">{week.attempts}</span> exercices ·{" "}
@@ -114,25 +116,25 @@ function StudentCard({ student, onOpenDetail }) {
         </section>
 
         <section className="space-y-3">
-          <LatinLabel>Progrès</LatinLabel>
+          <span className="text-xs text-stem uppercase tracking-wider">Progrès</span>
           <div className="grid grid-cols-3 gap-2 text-center">
             <div>
               <div className="font-display text-2xl text-sage-deep tabular-nums">
                 {g.xp || 0}
               </div>
-              <div className="latin text-[10px]">XP</div>
+              <div className="text-[10px] text-stem uppercase tracking-wider">XP</div>
             </div>
             <div>
               <div className="font-display text-2xl text-sage-deep tabular-nums">
                 {g.current_streak || 0}
               </div>
-              <div className="latin text-[10px]">série</div>
+              <div className="text-[10px] text-stem uppercase tracking-wider">série</div>
             </div>
             <div>
               <div className="font-display text-2xl text-sage-deep tabular-nums">
                 {g.best_streak || 0}
               </div>
-              <div className="latin text-[10px]">record</div>
+              <div className="text-[10px] text-stem uppercase tracking-wider">record</div>
             </div>
           </div>
           <div>
@@ -189,8 +191,7 @@ export default function ParentDashboardScreen() {
     >
       <Page maxWidth="3xl">
         <header className="mb-10">
-          <LatinLabel>Custos horti</LatinLabel>
-          <Heading level={2} className="mt-1 text-balance">
+          <Heading level={2} className="text-balance">
             Espace parent
             {user?.display_name ? (
               <>
@@ -207,7 +208,7 @@ export default function ParentDashboardScreen() {
           </p>
         </header>
 
-        {isLoading && <p className="latin text-center py-10">Chargement du jardin…</p>}
+        {isLoading && <p className="italic text-center py-10 text-stem">Chargement du jardin…</p>}
         {error && (
           <Card variant="paper" className="p-6 text-rose">
             Impossible de charger les données ({error.message}).

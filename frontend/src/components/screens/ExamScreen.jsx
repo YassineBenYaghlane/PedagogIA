@@ -7,7 +7,7 @@ import Icon from "../ui/Icon"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import ProgressBar from "../ui/ProgressBar"
-import { Heading, LatinLabel } from "../ui/Heading"
+import { Heading } from "../ui/Heading"
 import ExerciseCard from "../exercises/ExerciseCard"
 import { useExamStore } from "../../stores/examStore"
 import { useAuthStore } from "../../stores/authStore"
@@ -20,8 +20,7 @@ function ExamResult({ summary, onBack }) {
       <div className="flex-1 flex flex-col items-center justify-center p-5 sm:p-6">
       <Card className="p-6 sm:p-8 md:p-10 max-w-lg w-full">
         <div className="text-center">
-          <LatinLabel>Examinatio peracta</LatinLabel>
-          <Heading level={2} className="mt-1">Résultat</Heading>
+          <Heading level={2}>Résultat</Heading>
 
           <div className="grid grid-cols-2 gap-3 my-6" data-testid="exam-summary">
             <Card className="p-4">
@@ -39,7 +38,7 @@ function ExamResult({ summary, onBack }) {
 
         {breakdown.length > 0 && (
           <div className="mt-4 mb-6" data-testid="exam-breakdown">
-            <LatinLabel className="block mb-2">Detalium</LatinLabel>
+            <Heading level={4} className="mb-2">Détail</Heading>
             <ul className="divide-y divide-bark/5 text-sm">
               {breakdown.map((b) => (
                 <li key={b.index} className="py-2 flex items-center gap-3">

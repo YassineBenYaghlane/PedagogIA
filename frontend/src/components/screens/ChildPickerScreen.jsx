@@ -9,7 +9,7 @@ import Button from "../ui/Button"
 import Card from "../ui/Card"
 import Input from "../ui/Input"
 import Pot from "../ui/Pot"
-import { Heading, LatinLabel } from "../ui/Heading"
+import { Heading } from "../ui/Heading"
 
 const GRADES = ["P1", "P2", "P3", "P4", "P5", "P6"]
 
@@ -69,8 +69,7 @@ export default function ChildPickerScreen() {
     >
       <Page maxWidth="2xl">
         <header className="mb-10">
-          <LatinLabel>Horti nostri</LatinLabel>
-          <Heading level={2} className="mt-1 text-balance">
+          <Heading level={2} className="text-balance">
             Bonjour,{" "}
             <em className="text-sage-deep not-italic font-display italic">
               {user?.display_name || user?.email}
@@ -102,15 +101,15 @@ export default function ChildPickerScreen() {
                   <div className="font-display text-lg text-bark leading-tight">
                     {c.display_name}
                   </div>
-                  <LatinLabel className="block mt-0.5 text-[10px] normal-case tracking-wider">
+                  <span className="block mt-0.5 text-[11px] text-stem tracking-wider">
                     Niveau {c.grade}
-                  </LatinLabel>
+                  </span>
                 </div>
               </Pot>
             </button>
           ))}
           {children.length === 0 && (
-            <p className="col-span-full latin text-center">
+            <p className="col-span-full text-center text-stem italic">
               Aucune plante pour le moment — sème ton premier carnet.
             </p>
           )}
@@ -118,12 +117,7 @@ export default function ChildPickerScreen() {
 
         <Card variant="tag" className="p-6 max-w-xl" data-testid="add-child-form">
           <form onSubmit={onAdd} className="space-y-4">
-            <div>
-              <LatinLabel>Semen novum</LatinLabel>
-              <Heading level={4} className="mt-0.5">
-                Ajouter un profil
-              </Heading>
-            </div>
+            <Heading level={4}>Ajouter un profil</Heading>
             <div className="flex flex-col sm:flex-row gap-3">
               <Input
                 value={name}

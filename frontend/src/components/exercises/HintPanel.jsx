@@ -15,7 +15,6 @@ export default function HintPanel({ exercise }) {
         <div className="mb-3">
           <div className="flex items-center gap-2 mb-1">
             <span className="chip chip-sky">{hintLabels[level]}</span>
-            <span className="latin text-[11px]">Suggestio</span>
           </div>
           <p className="text-sm text-bark">{buildHint(exercise, level)}</p>
         </div>

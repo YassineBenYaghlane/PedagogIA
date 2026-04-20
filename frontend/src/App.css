@@ -137,13 +137,6 @@
   color: var(--color-paper);
 }
 
-/* Fraunces italic label (botanical Latin) */
-.latin {
-  font-family: var(--font-display);
-  font-style: italic;
-  color: var(--color-stem);
-}
-
 /* Plant pot (ChildPicker) */
 .pot {
   background: var(--color-paper);

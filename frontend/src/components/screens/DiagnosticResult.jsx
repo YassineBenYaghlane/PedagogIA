@@ -4,7 +4,7 @@ import Page from "../layout/Page"
 import Icon from "../ui/Icon"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
-import { Heading, LatinLabel } from "../ui/Heading"
+import { Heading } from "../ui/Heading"
 import { downloadDiagnosticPdf } from "../../api/history"
 
 const BUCKET_STYLES = {
@@ -108,10 +108,7 @@ function VerdictHero({ verdict, child, overallPct, totalCorrect, totalAttempts }
         </div>
 
         <div className="flex-1 min-w-0 text-center md:text-left">
-          <LatinLabel>Locus inventus</LatinLabel>
-          <Heading level={2} className="mt-1">
-            {child?.display_name}
-          </Heading>
+          <Heading level={2}>{child?.display_name}</Heading>
           {hasLevel ? (
             <p className="mt-2 text-bark/80">
               <span className="font-semibold">{LEVEL_COPY[verdict.level]}</span>

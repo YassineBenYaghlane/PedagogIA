@@ -4,7 +4,7 @@ import { useAuthStore } from "../../stores/authStore"
 import AppShell from "../layout/AppShell"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
-import { Heading, LatinLabel } from "../ui/Heading"
+import { Heading } from "../ui/Heading"
 
 export default function GoogleCallbackScreen() {
   const navigate = useNavigate()
@@ -34,20 +34,14 @@ export default function GoogleCallbackScreen() {
       <Card variant="specimen" className="p-6 sm:p-8 text-center max-w-md w-full space-y-5">
         {error ? (
           <>
-            <LatinLabel>Iter interruptum</LatinLabel>
-            <Heading level={3} className="mt-1">
-              {error}
-            </Heading>
+            <Heading level={3}>{error}</Heading>
             <Button onClick={() => navigate("/login", { replace: true })}>
               Retour à la connexion
             </Button>
           </>
         ) : (
           <>
-            <LatinLabel>Ingressus</LatinLabel>
-            <Heading level={3} className="mt-1">
-              Connexion en cours…
-            </Heading>
+            <Heading level={3}>Connexion en cours…</Heading>
             <p className="text-stem">Le jardinier prépare ta serre.</p>
           </>
         )}

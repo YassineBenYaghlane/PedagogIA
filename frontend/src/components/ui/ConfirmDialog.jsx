@@ -1,12 +1,11 @@
 import { useEffect } from "react"
 import Button from "./Button"
 import Card from "./Card"
-import { Heading, LatinLabel } from "./Heading"
+import { Heading } from "./Heading"
 
 export default function ConfirmDialog({
   open,
   title = "Confirmer",
-  latin,
   message,
   confirmLabel = "Confirmer",
   cancelLabel = "Annuler",
@@ -43,8 +42,7 @@ export default function ConfirmDialog({
         className="p-6 sm:p-7 max-w-sm w-full text-center"
         onClick={(e) => e.stopPropagation()}
       >
-        {latin && <LatinLabel>{latin}</LatinLabel>}
-        <Heading level={3} className="mt-1" id="confirm-dialog-title">
+        <Heading level={3} id="confirm-dialog-title">
           {title}
         </Heading>
         {message && <p className="text-sm text-stem mt-3">{message}</p>}

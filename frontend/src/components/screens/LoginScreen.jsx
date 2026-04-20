@@ -6,7 +6,7 @@ import AppShell from "../layout/AppShell"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import Input from "../ui/Input"
-import { Heading, LatinLabel } from "../ui/Heading"
+import { Heading } from "../ui/Heading"
 
 export default function LoginScreen() {
   const login = useAuthStore((s) => s.login)
@@ -36,10 +36,7 @@ export default function LoginScreen() {
         <Card variant="tag" className="w-full max-w-md p-6 sm:p-8 space-y-5">
           <form onSubmit={onSubmit} data-testid="login-form" className="space-y-5">
             <div>
-              <LatinLabel>Ad hortum redi</LatinLabel>
-              <Heading level={2} className="mt-1">
-                Connexion
-              </Heading>
+              <Heading level={2}>Connexion</Heading>
               <p className="text-sm text-stem mt-1">CollegIA — retourner au jardin.</p>
             </div>
 

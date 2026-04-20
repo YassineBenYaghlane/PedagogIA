@@ -15,12 +15,4 @@ export function Heading({ level = 1, className = "", children, as, ...rest }) {
   )
 }
 
-export function LatinLabel({ className = "", children, ...rest }) {
-  return (
-    <span className={`latin text-xs tracking-wider ${className}`} {...rest}>
-      {children}
-    </span>
-  )
-}
-
 export default Heading

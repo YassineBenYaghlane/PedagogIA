@@ -15,32 +15,58 @@ import XPBar from "../xp/XPBar"
 import StreakFlame from "../streak/StreakFlame"
 import DailyGoalProgress from "../streak/DailyGoalProgress"
 import BadgeGallery from "../badges/BadgeGallery"
+import Plant from "../ui/Plant"
 
-const STATUS_LABELS = {
-  not_started: "En sommeil",
-  in_progress: "En croissance",
-  mastered: "Floraison",
-  needs_review: "À arroser",
-}
-
-const STATUS_TONES = {
-  not_started: "text-twig",
-  in_progress: "text-sage-deep",
-  mastered: "text-honey",
-  needs_review: "text-sky-deep",
-}
+const MASTERY_BUCKETS = [
+  {
+    key: "not_started",
+    label: "À découvrir",
+    plant: { status: "locked", mastery: 0 },
+    tone: "text-twig",
+    count: (s) => s.not_started ?? 0,
+  },
+  {
+    key: "learning_easy",
+    label: "Découverte",
+    plant: { status: "in_progress", mastery: 0.1 },
+    tone: "text-sage",
+    count: (s) => s.learning_easy ?? 0,
+  },
+  {
+    key: "in_progress",
+    label: "En cours",
+    plant: { status: "in_progress", mastery: 0.55 },
+    tone: "text-sage-deep",
+    count: (s) => (s.learning_medium ?? 0) + (s.learning_hard ?? 0),
+  },
+  {
+    key: "mastered",
+    label: "Acquis",
+    plant: { status: "done", mastery: 1 },
+    tone: "text-honey",
+    count: (s) => s.mastered ?? 0,
+  },
+  {
+    key: "needs_review",
+    label: "À revoir",
+    plant: { status: "wilted", mastery: 0 },
+    tone: "text-sky-deep",
+    count: (s) => s.needs_review ?? 0,
+  },
+]
 
 function MasterySummary({ summary }) {
   if (!summary) return null
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-      {Object.keys(STATUS_LABELS).map((k) => (
-        <Card key={k} className="p-4 text-center">
-          <div className={`font-mono text-3xl font-semibold ${STATUS_TONES[k]}`}>
-            {summary[k] ?? 0}
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      {MASTERY_BUCKETS.map(({ key, label, plant, tone, count }) => (
+        <Card key={key} className="p-3 flex flex-col items-center text-center">
+          <Plant status={plant.status} mastery={plant.mastery} size={36} />
+          <div className={`font-mono text-2xl font-semibold mt-1 ${tone}`}>
+            {count(summary)}
           </div>
-          <div className="text-[11px] uppercase tracking-wider text-stem mt-1">
-            {STATUS_LABELS[k]}
+          <div className="text-[11px] uppercase tracking-wider text-stem mt-0.5">
+            {label}
           </div>
         </Card>
       ))}

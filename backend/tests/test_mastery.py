@@ -3,6 +3,8 @@ import pytest
 from apps.exercises.models import ExerciseTemplate, TemplateSkillWeight
 from apps.skills.models import Skill
 from apps.students.models import SKILL_XP_MAX, Student, StudentSkillState
+from apps.students.serializers import mastery_counts
+from apps.students.services.grade_seeding import seed_prior_grade_mastery
 from apps.students.services.mastery import apply_template_attempt
 
 
@@ -77,6 +79,40 @@ def test_creates_state_if_missing(student, skill, single_skill_template):
     assert not StudentSkillState.objects.filter(student=student, skill=skill).exists()
     apply_template_attempt(student, single_skill_template, True)
     assert StudentSkillState.objects.filter(student=student, skill=skill).exists()
+
+
+@pytest.mark.django_db
+def test_mastery_counts_covers_full_catalog_for_p1_student(user):
+    """A P1 student with no attempts: every catalog skill sits in `not_started`."""
+    s = Student.objects.create(user=user, display_name="Z", grade="P1")
+    total = Skill.objects.count()
+    counts = mastery_counts(s)
+    assert counts["not_started"] == total
+    assert counts["mastered"] == 0
+    assert counts["in_progress"] == 0
+
+
+@pytest.mark.django_db
+def test_mastery_counts_higher_grade_student_sees_full_catalog(user):
+    """P3 student: prior-grade auto-mastery → Acquis, the rest sits in À découvrir."""
+    s = Student.objects.create(user=user, display_name="Z", grade="P3")
+    seed_prior_grade_mastery(s)
+    total = Skill.objects.count()
+    lower = Skill.objects.filter(grade__lt="P3").count()
+    counts = mastery_counts(s)
+    assert counts["mastered"] == lower
+    assert counts["not_started"] == total - lower
+
+
+@pytest.mark.django_db
+def test_mastery_counts_attempted_skill_moves_out_of_not_started(
+    student, skill, single_skill_template
+):
+    before = mastery_counts(student)["not_started"]
+    apply_template_attempt(student, single_skill_template, True)
+    after = mastery_counts(student)
+    assert after["not_started"] == before - 1
+    assert after["in_progress"] == 1
 
 
 @pytest.mark.django_db

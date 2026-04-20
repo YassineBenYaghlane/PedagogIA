@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from apps.skills.models import Skill
 from apps.students.services.achievements import serialize_badge
 from apps.students.services.streaks import daily_progress
 
@@ -7,7 +8,12 @@ from .models import GRADE_VALUES, Student, StudentAchievement, StudentSkillState
 
 
 def mastery_counts(student: Student) -> dict:
-    """Count skill states by computed status bucket, plus an `in_progress` aggregate."""
+    """Count skill states by computed status bucket, plus an `in_progress` aggregate.
+
+    Counts cover the full skill catalog (all grades). Untouched skills with no
+    StudentSkillState row land in `not_started` — rows are created lazily on
+    the first attempt, so the catalog is the source of truth.
+    """
     out = {
         StudentSkillState.NOT_STARTED: 0,
         StudentSkillState.LEARNING_EASY: 0,
@@ -18,6 +24,9 @@ def mastery_counts(student: Student) -> dict:
     }
     for state in StudentSkillState.objects.filter(student=student):
         out[state.status] = out.get(state.status, 0) + 1
+    total = Skill.objects.count()
+    touched = sum(v for k, v in out.items() if k != StudentSkillState.NOT_STARTED)
+    out[StudentSkillState.NOT_STARTED] = max(0, total - touched)
     out["in_progress"] = (
         out[StudentSkillState.LEARNING_EASY]
         + out[StudentSkillState.LEARNING_MEDIUM]

@@ -67,10 +67,10 @@ function StudentCard({ student, onOpenDetail }) {
           </div>
           <ProgressBar value={m.mastered || 0} max={Math.max(total, 1)} tone="sage" />
           <div className="flex flex-wrap gap-1.5">
-            <Chip tone="sage">{m.mastered || 0} floraison</Chip>
-            <Chip tone="sky">{m.in_progress || 0} en croissance</Chip>
-            <Chip tone="honey">{m.needs_review || 0} à arroser</Chip>
-            <Chip tone="bark">{m.not_started || 0} en sommeil</Chip>
+            <Chip tone="sage">{m.mastered || 0} acquis</Chip>
+            <Chip tone="sky">{m.in_progress || 0} en cours</Chip>
+            <Chip tone="honey">{m.needs_review || 0} à revoir</Chip>
+            <Chip tone="bark">{m.not_started || 0} à découvrir</Chip>
           </div>
         </section>
 

@@ -8,9 +8,9 @@ import { Heading, LatinLabel } from "../ui/Heading"
 import { downloadDiagnosticPdf } from "../../api/history"
 
 const BUCKET_STYLES = {
-  green: { ring: "stroke-sage", fill: "bg-sage", text: "text-sage-deep", soft: "bg-sage-leaf/40", label: "En croissance" },
-  orange: { ring: "stroke-honey", fill: "bg-honey", text: "text-honey", soft: "bg-honey/15", label: "À arroser" },
-  red: { ring: "stroke-rose", fill: "bg-rose", text: "text-rose", soft: "bg-rose/15", label: "Graine" },
+  green: { ring: "stroke-sage", fill: "bg-sage", text: "text-sage-deep", soft: "bg-sage-leaf/40", label: "En cours" },
+  orange: { ring: "stroke-honey", fill: "bg-honey", text: "text-honey", soft: "bg-honey/15", label: "À revoir" },
+  red: { ring: "stroke-rose", fill: "bg-rose", text: "text-rose", soft: "bg-rose/15", label: "À découvrir" },
 }
 
 const LEVEL_COPY = {
@@ -260,9 +260,9 @@ export default function DiagnosticResult({
           }`}
           data-testid="diagnostic-counts"
         >
-          <CountCard tone="green" label="En croissance" value={counts.green} delay={520} />
-          <CountCard tone="orange" label="À arroser" value={counts.orange} delay={620} />
-          <CountCard tone="red" label="Graines" value={counts.red} delay={720} />
+          <CountCard tone="green" label="En cours" value={counts.green} delay={520} />
+          <CountCard tone="orange" label="À revoir" value={counts.orange} delay={620} />
+          <CountCard tone="red" label="À découvrir" value={counts.red} delay={720} />
         </div>
 
         {years.length > 0 && (
@@ -290,7 +290,7 @@ export default function DiagnosticResult({
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
               <Icon name="target" className="text-sky-deep" />
-              <Heading level={4}>À arroser</Heading>
+              <Heading level={4}>À revoir</Heading>
             </div>
             <ul className="text-sm text-bark space-y-1 pl-6">
               {result.weaknesses.map((s) => <li key={s.skill_id}>• {s.label}</li>)}

@@ -1,15 +1,10 @@
 import { useContext } from "react"
 import { Handle, Position } from "@xyflow/react"
 import { SkillTreeHoverContext } from "../../lib/skillTreeHoverContext"
+import { SENTIER_LABEL } from "../../lib/skillStatus"
 import Plant from "./Plant"
 
-const STATE_LABEL = {
-  done: "Floraison",
-  in_progress: "En croissance",
-  wilted: "À arroser",
-  unlocked: "À commencer",
-  locked: "En sommeil",
-}
+const STATE_LABEL = SENTIER_LABEL
 
 function LockIcon() {
   return (
@@ -117,7 +112,7 @@ export default function SkillNode({ id, data }) {
       )}
       {isToday && sentierStatus !== "wilted" && (
         <span className="disc-mini" style={{ color: "#8a6a1f" }}>
-          · à arroser aujourd'hui ·
+          · à pratiquer aujourd'hui ·
         </span>
       )}
       {totalAttempts === 0 && sentierStatus === "unlocked" && !isToday && (

@@ -550,19 +550,22 @@ export default function SkillTreeScreen() {
 
 function StatusLegend() {
   const items = [
-    { label: "Floraison", color: "#E8C66A" },
-    { label: "En croissance", color: "#6FA274" },
-    { label: "À arroser", color: "#4F8BAC" },
-    { label: "En sommeil", color: "#A1AEA3" },
+    { status: "locked", mastery: 0, label: "À découvrir" },
+    { status: "in_progress", mastery: 0.1, label: "Découverte" },
+    { status: "in_progress", mastery: 0.55, label: "En cours" },
+    { status: "done", mastery: 1, label: "Acquis" },
+    { status: "wilted", mastery: 0, label: "À revoir" },
   ]
   return (
     <Card
-      className="hidden md:flex absolute top-4 left-4 z-10 flex-col gap-1.5 px-3 py-2.5"
+      className="hidden md:flex absolute top-4 left-4 z-10 flex-col gap-1 px-3 py-2"
       aria-label="Légende"
     >
-      {items.map(({ label, color }) => (
+      {items.map(({ status, mastery, label }) => (
         <div key={label} className="flex items-center gap-2 text-[11px] text-bark">
-          <span className="w-2.5 h-2.5 rounded-full" style={{ background: color }} />
+          <span className="w-6 h-6 flex items-center justify-center shrink-0">
+            <Plant status={status} mastery={mastery} size={22} />
+          </span>
           {label}
         </div>
       ))}
@@ -573,12 +576,12 @@ function StatusLegend() {
 const SKILL_XP_MAX = 30
 
 const STATUS_LABEL = {
-  mastered: "Maîtrisé",
-  learning_hard: "Presque fleuri",
-  learning_medium: "En croissance",
-  learning_easy: "Première pousse",
+  mastered: "Acquis",
+  learning_hard: "Presque acquis",
+  learning_medium: "En cours",
+  learning_easy: "Découverte",
   needs_review: "À revoir",
-  not_started: "À commencer",
+  not_started: "À découvrir",
 }
 
 const STATUS_DOT = {

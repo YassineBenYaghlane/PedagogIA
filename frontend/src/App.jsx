@@ -25,14 +25,14 @@ import "./App.css"
 function RequireAuth({ children }) {
   const { user, loading } = useAuthStore()
   const location = useLocation()
-  if (loading) return <div className="p-8 text-center">Chargement…</div>
+  if (loading && !user) return <div className="p-8 text-center">Chargement…</div>
   if (!user) return <Navigate to="/login" replace state={{ from: location }} />
   return children
 }
 
 function RootRoute() {
   const { user, loading } = useAuthStore()
-  if (loading) return <div className="p-8 text-center">Chargement…</div>
+  if (loading && !user) return <div className="p-8 text-center">Chargement…</div>
   return user ? <WelcomeScreen /> : <LandingScreen />
 }
 

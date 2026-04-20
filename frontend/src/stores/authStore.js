@@ -29,7 +29,8 @@ export const useAuthStore = create((set, get) => ({
   error: null,
 
   bootstrap: async () => {
-    set({ loading: true, error: null })
+    const hadUser = get().user !== null
+    set({ loading: !hadUser, error: null })
     try {
       await api.bootstrapCsrf()
       const user = await api.get("/auth/user/")

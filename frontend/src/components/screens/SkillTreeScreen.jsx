@@ -10,7 +10,7 @@ import {
   useReactFlow,
 } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
-import { useNavigate } from "react-router"
+import { useNavigate, useSearchParams } from "react-router"
 import { useQuery } from "@tanstack/react-query"
 import { api } from "../../api/client"
 import { useAuthStore } from "../../stores/authStore"
@@ -72,6 +72,30 @@ function pickFocusSkill(skills, stateById) {
   return best?.id ?? null
 }
 
+const FOCUS_BUCKET_STATUSES = {
+  not_started: ["not_started"],
+  learning_easy: ["learning_easy"],
+  in_progress: ["learning_medium", "learning_hard"],
+  mastered: ["mastered"],
+  needs_review: ["needs_review"],
+}
+
+function pickSkillForBucket(skills, stateById, bucket) {
+  const wanted = FOCUS_BUCKET_STATUSES[bucket]
+  if (!wanted) return null
+  const set = new Set(wanted)
+  for (const s of skills) {
+    const st = stateById.get(s.id)
+    if (st && set.has(st.status)) return s.id
+  }
+  if (set.has("not_started")) {
+    for (const s of skills) {
+      if (!stateById.get(s.id)) return s.id
+    }
+  }
+  return null
+}
+
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(
     typeof window !== "undefined" ? window.innerWidth < MOBILE_BREAKPOINT : false
@@ -104,10 +128,16 @@ function SkillTreeInner({ skills, skillTreeData, isLoading }) {
     return map
   }, [skillTreeData])
 
-  const focusId = useMemo(
-    () => (skills ? pickFocusSkill(skills, stateById) : null),
-    [skills, stateById]
-  )
+  const [searchParams] = useSearchParams()
+  const focusBucket = searchParams.get("focus")
+  const focusId = useMemo(() => {
+    if (!skills) return null
+    if (focusBucket) {
+      const bucketId = pickSkillForBucket(skills, stateById, focusBucket)
+      if (bucketId) return bucketId
+    }
+    return pickFocusSkill(skills, stateById)
+  }, [skills, stateById, focusBucket])
 
   const skillsById = useMemo(() => {
     const map = new Map()

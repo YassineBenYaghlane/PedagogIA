@@ -1,26 +1,16 @@
 import { useMemo } from "react"
 import { GRADES, GRADE_COLORS } from "../../lib/skillTreeLayout"
 import { levelDescriptions, levelLatin, levelVernacular } from "../../lib/constants"
+import { SENTIER_LABEL, SENTIER_DOT } from "../../lib/skillStatus"
 
-const STATE_LABEL = {
-  floraison: "Floraison",
-  croissance: "En croissance",
-  arroser: "À arroser",
-  sommeil: "En sommeil",
-}
-
-const STATE_COLOR = {
-  floraison: "#E8C66A",
-  croissance: "#6FA274",
-  arroser: "#4F8BAC",
-  sommeil: "#A1AEA3",
-}
+const STATE_LABEL = SENTIER_LABEL
+const STATE_COLOR = SENTIER_DOT
 
 const STATUS_TO_STATE = {
-  completed: "floraison",
-  in_progress: "croissance",
-  review: "arroser",
-  locked: "sommeil",
+  completed: "done",
+  in_progress: "in_progress",
+  review: "wilted",
+  locked: "locked",
 }
 
 function LockIcon({ className = "" }) {
@@ -89,7 +79,7 @@ export default function SkillListView({
             <ul className="space-y-1.5">
               {items.map((n) => {
                 const d = n.data
-                const state = STATUS_TO_STATE[d.status] ?? "sommeil"
+                const state = STATUS_TO_STATE[d.status] ?? "locked"
                 const pct = Math.round((d.masteryLevel ?? 0) * 100)
                 const attempts = d.totalAttempts ?? 0
                 const locked = !d.unlocked

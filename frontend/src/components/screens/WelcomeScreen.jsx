@@ -15,36 +15,96 @@ import XPBar from "../xp/XPBar"
 import StreakFlame from "../streak/StreakFlame"
 import DailyGoalProgress from "../streak/DailyGoalProgress"
 import BadgeGallery from "../badges/BadgeGallery"
+import Plant from "../ui/Plant"
 
-const STATUS_LABELS = {
-  not_started: "En sommeil",
-  in_progress: "En croissance",
-  mastered: "Floraison",
-  needs_review: "À arroser",
-}
+const MASTERY_BUCKETS = [
+  {
+    key: "not_started",
+    label: "À découvrir",
+    plant: { status: "locked", mastery: 0 },
+    tone: "text-stem",
+    focus: "not_started",
+    count: (s) => s.not_started ?? 0,
+  },
+  {
+    key: "learning_easy",
+    label: "Découverte",
+    plant: { status: "in_progress", mastery: 0.1 },
+    tone: "text-stem",
+    focus: "learning_easy",
+    count: (s) => s.learning_easy ?? 0,
+  },
+  {
+    key: "in_progress",
+    label: "En cours",
+    plant: { status: "in_progress", mastery: 0.55 },
+    tone: "text-sage-deep",
+    focus: "in_progress",
+    count: (s) => (s.learning_medium ?? 0) + (s.learning_hard ?? 0),
+  },
+  {
+    key: "mastered",
+    label: "Acquis",
+    plant: { status: "done", mastery: 1 },
+    tone: "text-stem",
+    focus: "mastered",
+    count: (s) => s.mastered ?? 0,
+  },
+  {
+    key: "needs_review",
+    label: "À revoir",
+    plant: { status: "wilted", mastery: 0 },
+    tone: "text-sky-deep",
+    focus: "needs_review",
+    count: (s) => s.needs_review ?? 0,
+  },
+]
 
-const STATUS_TONES = {
-  not_started: "text-twig",
-  in_progress: "text-sage-deep",
-  mastered: "text-honey",
-  needs_review: "text-sky-deep",
-}
-
-function MasterySummary({ summary }) {
+function MasterySummary({ summary, onFocus }) {
   if (!summary) return null
+  const total = MASTERY_BUCKETS.reduce((sum, b) => sum + b.count(summary), 0)
+  const started = total - (summary.not_started ?? 0)
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-      {Object.keys(STATUS_LABELS).map((k) => (
-        <Card key={k} className="p-4 text-center">
-          <div className={`font-mono text-3xl font-semibold ${STATUS_TONES[k]}`}>
-            {summary[k] ?? 0}
-          </div>
-          <div className="text-[11px] uppercase tracking-wider text-stem mt-1">
-            {STATUS_LABELS[k]}
-          </div>
-        </Card>
-      ))}
-    </div>
+    <section aria-labelledby="mastery-heading">
+      <div className="flex items-baseline justify-between mb-3">
+        <Heading level={4} id="mastery-heading">
+          Maîtrise
+        </Heading>
+        <span className="font-mono text-xs text-stem tabular-nums">
+          {started} / {total} commencé
+        </span>
+      </div>
+      <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
+        {MASTERY_BUCKETS.map(({ key, label, plant, tone, focus, count }) => {
+          const value = count(summary)
+          const interactive = value > 0
+          return (
+            <button
+              key={key}
+              type="button"
+              disabled={!interactive}
+              onClick={() => interactive && onFocus(focus)}
+              data-testid={`mastery-card-${key}`}
+              className={`bg-paper border border-sage/15 rounded-2xl p-3 flex flex-col items-center text-center transition-colors duration-200 ${
+                interactive
+                  ? "cursor-pointer hover:bg-sage-leaf/30 hover:border-sage/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-sage-deep"
+                  : "opacity-55 cursor-default"
+              }`}
+            >
+              <span className="h-12 flex items-end justify-center">
+                <Plant status={plant.status} mastery={plant.mastery} size={36} />
+              </span>
+              <span className={`font-mono text-2xl font-semibold mt-1 ${tone}`}>
+                {value}
+              </span>
+              <span className="text-[11px] uppercase tracking-wider text-stem mt-0.5">
+                {label}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+    </section>
   )
 }
 
@@ -103,7 +163,10 @@ export default function WelcomeScreen() {
         </Card>
 
         <div className="mb-6">
-          <MasterySummary summary={child.mastery_summary} />
+          <MasterySummary
+            summary={child.mastery_summary}
+            onFocus={(bucket) => navigate(`/skill-tree?focus=${bucket}`)}
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8">

@@ -8,6 +8,7 @@ import Icon from "../ui/Icon"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import EmptyState from "../ui/EmptyState"
+import Loader from "../ui/Loader"
 import { Heading } from "../ui/Heading"
 import { useAuthStore } from "../../stores/authStore"
 import {
@@ -185,7 +186,9 @@ export default function HistoryScreen() {
         )}
 
         {rows === null && !error && (
-          <div className="text-stem text-sm">Chargement…</div>
+          <div className="py-10">
+            <Loader message="Chargement de l’historique…" />
+          </div>
         )}
 
         {rows && rows.length === 0 && (

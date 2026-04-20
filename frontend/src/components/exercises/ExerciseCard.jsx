@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react"
 import Icon from "../ui/Icon"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
+import Loader from "../ui/Loader"
 import HintPanel from "./HintPanel"
 import FeedbackMessage from "./FeedbackMessage"
 import NumberInput from "./inputs/NumberInput"
@@ -47,8 +48,8 @@ export default function ExerciseCard({
 
   if (!exercise) {
     return (
-      <Card className="p-8 w-full max-w-md text-center">
-        <span className="italic text-stem">Chargement…</span>
+      <Card className="p-8 w-full max-w-md">
+        <Loader message="Chargement…" />
       </Card>
     )
   }

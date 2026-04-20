@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams, useSearchParams } from "react-router"
 import AppShell from "../layout/AppShell"
+import Loader from "../ui/Loader"
 import { diagnosticApi } from "../../api/diagnostic"
 import { useAuthStore } from "../../stores/authStore"
 import DiagnosticResult from "./DiagnosticResult"
@@ -48,9 +49,7 @@ export default function DiagnosticReviewScreen() {
   if (!result) {
     return (
       <AppShell surface="greenhouse">
-        <div className="flex-1 flex items-center justify-center p-6 text-stem">
-          Chargement du test de niveau…
-        </div>
+        <Loader message="Chargement du test de niveau…" size="lg" variant="page" />
       </AppShell>
     )
   }

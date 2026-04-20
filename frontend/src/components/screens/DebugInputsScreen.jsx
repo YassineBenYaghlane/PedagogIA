@@ -3,6 +3,7 @@ import { Link } from "react-router"
 import AppShell from "../layout/AppShell"
 import Page from "../layout/Page"
 import { api } from "../../api/client"
+import Loader from "../ui/Loader"
 import ExerciseCard from "../exercises/ExerciseCard"
 
 export default function DebugInputsScreen() {
@@ -51,7 +52,11 @@ export default function DebugInputsScreen() {
           </div>
         </div>
 
-        {loading && <p className="text-center text-stem">Chargement…</p>}
+        {loading && (
+          <div className="py-10">
+            <Loader message="Chargement…" />
+          </div>
+        )}
         {error && <p className="text-center text-rose">Erreur : {error}</p>}
 
         <div className="grid gap-6">

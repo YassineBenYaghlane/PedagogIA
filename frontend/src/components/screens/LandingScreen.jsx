@@ -4,7 +4,7 @@ import AppShell from "../layout/AppShell"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import Logo from "../ui/Logo"
-import { Heading, LatinLabel } from "../ui/Heading"
+import { Heading } from "../ui/Heading"
 
 const ROTATING_WORDS = [
   "sur mesure",
@@ -15,17 +15,14 @@ const ROTATING_WORDS = [
 
 const RITUAL = [
   {
-    latin: "Diagnosis",
     title: "On repère",
     body: "Quelques exercices suffisent à situer l'élève dans l'arbre des compétences.",
   },
   {
-    latin: "Exercitatio",
     title: "On arrose",
     body: "Des exercices choisis par l'IA pour la compétence qui en a besoin.",
   },
   {
-    latin: "Hortus liber",
     title: "On laisse pousser",
     body: "La pratique libre s'adapte, la mémoire s'entretient, la maîtrise vient.",
   },
@@ -113,10 +110,6 @@ function Hero({ onStart, onLogin }) {
         >
           <Logo size="lg" />
         </div>
-        <div className="hero-rise" style={{ animationDelay: "80ms" }}>
-          <LatinLabel>Hortus Mathematicus</LatinLabel>
-        </div>
-
         <Heading
           level={1}
           className="hero-rise mt-4 leading-[1.02] text-4xl sm:text-6xl md:text-7xl"
@@ -195,7 +188,6 @@ function Ritual() {
   return (
     <section className="relative mx-auto max-w-5xl px-6 py-20 sm:px-10 md:py-28">
       <div className="text-center space-y-2 mb-12">
-        <LatinLabel>Modus operandi</LatinLabel>
         <Heading level={2}>Un rituel en trois gestes</Heading>
         <p className="text-stem max-w-xl mx-auto">
           Chaque compétence est une plante. Chaque séance, un geste de jardinier.
@@ -208,15 +200,12 @@ function Ritual() {
             variant="specimen"
             className="p-6 space-y-3"
           >
-            <div className="flex items-center gap-3">
-              <span
-                aria-hidden="true"
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-sage-leaf text-sage-deep font-display text-sm"
-              >
-                {i + 1}
-              </span>
-              <LatinLabel>{step.latin}</LatinLabel>
-            </div>
+            <span
+              aria-hidden="true"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-sage-leaf text-sage-deep font-display text-sm"
+            >
+              {i + 1}
+            </span>
             <Heading level={4}>{step.title}</Heading>
             <p className="text-stem text-sm leading-relaxed">{step.body}</p>
           </Card>
@@ -230,7 +219,6 @@ function Closer({ onStart }) {
   return (
     <section className="relative mx-auto max-w-3xl px-6 pb-24 sm:px-10 text-center">
       <div className="specimen p-10 space-y-5">
-        <LatinLabel>Ad florem</LatinLabel>
         <Heading level={3}>Prêt à planter la première graine&nbsp;?</Heading>
         <p className="text-stem max-w-xl mx-auto">
           Crée un profil pour ton enfant et laisse le jardin s'occuper du reste.

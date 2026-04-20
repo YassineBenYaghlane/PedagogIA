@@ -9,15 +9,6 @@ export const levelDescriptions = {
   P6: "6ème primaire",
 }
 
-export const levelLatin = {
-  P1: "Sementes",
-  P2: "Germinatio",
-  P3: "Folia",
-  P4: "Flores",
-  P5: "Fructus",
-  P6: "Messis",
-}
-
 export const levelVernacular = {
   P1: "Semis",
   P2: "Pousses",

@@ -115,7 +115,6 @@ export default function DiagnosticScreen() {
 
       <ConfirmDialog
         open={confirmQuit}
-        latin="Hortum relinquere"
         title="Quitter le test ?"
         message="Tes réponses seront perdues si tu quittes avant la fin."
         confirmLabel="Quitter"

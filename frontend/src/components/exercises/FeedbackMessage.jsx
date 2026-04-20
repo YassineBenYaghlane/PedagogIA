@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import Icon from "../ui/Icon"
 import Button from "../ui/Button"
-import { LatinLabel } from "../ui/Heading"
 import { useFeedback } from "../../lib/feedback"
 
 function StrategyTabs({ strategies }) {
@@ -51,9 +50,8 @@ function ExplainSection({ feedback, explanation, explaining, onExplain }) {
   if (explanation) {
     return (
       <div className="mt-4" data-testid="explanation">
-        <LatinLabel className="block text-center">Hortulanus</LatinLabel>
         {explanation.message && (
-          <p className="text-sm text-bark text-center mt-1">{explanation.message}</p>
+          <p className="text-sm text-bark text-center">{explanation.message}</p>
         )}
         {explanation.next_skill_id && (
           <p className="text-xs text-stem text-center mt-2">
@@ -86,8 +84,7 @@ export default function FeedbackMessage({ feedback, explanation, explaining, onE
   if (neutral) {
     return (
       <div className="mt-6 rounded-xl p-5 bg-mist border border-bark/5 text-center">
-        <LatinLabel className="block">Responsum acceptum</LatinLabel>
-        <div className="font-display text-lg text-bark mt-1">{feedback.message}</div>
+        <div className="font-display text-lg text-bark">{feedback.message}</div>
       </div>
     )
   }
@@ -107,9 +104,8 @@ export default function FeedbackMessage({ feedback, explanation, explaining, onE
       >
         <Icon name={ok ? "check_circle" : "cancel"} size={32} fill />
       </div>
-      <LatinLabel className="block text-center">{ok ? "Floret" : "Folium lapsum"}</LatinLabel>
       <div
-        className={`font-display text-xl font-semibold text-center mt-1 ${
+        className={`font-display text-xl font-semibold text-center ${
           ok ? "text-sage-deep" : "text-bark"
         }`}
       >

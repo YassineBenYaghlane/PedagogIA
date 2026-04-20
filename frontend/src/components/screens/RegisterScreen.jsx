@@ -6,7 +6,7 @@ import AppShell from "../layout/AppShell"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import Input from "../ui/Input"
-import { Heading, LatinLabel } from "../ui/Heading"
+import { Heading } from "../ui/Heading"
 
 function scorePassword(pw) {
   if (!pw) return 0
@@ -67,10 +67,7 @@ export default function RegisterScreen() {
       <Card variant="tag" className="w-full max-w-md p-6 sm:p-8 space-y-5">
         <form onSubmit={onSubmit} data-testid="register-form" className="space-y-5">
           <div>
-            <LatinLabel>Novum hortum plantare</LatinLabel>
-            <Heading level={2} className="mt-1">
-              Créer un compte
-            </Heading>
+            <Heading level={2}>Créer un compte</Heading>
             <p className="text-sm text-stem mt-1">Plante ta première graine.</p>
           </div>
 

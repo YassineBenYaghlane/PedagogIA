@@ -27,7 +27,7 @@ export default function BadgeToast() {
     >
       <BadgeIcon icon={current.icon} tier={current.tier} size={48} />
       <div className="text-left">
-        <span className="latin text-[10px] uppercase tracking-wider">Novum signum</span>
+        <span className="text-[10px] uppercase tracking-wider text-stem">Nouveau badge</span>
         <div className="font-display font-semibold text-bark leading-tight">{current.label}</div>
         {current.description && (
           <div className="text-xs text-stem mt-0.5">{current.description}</div>

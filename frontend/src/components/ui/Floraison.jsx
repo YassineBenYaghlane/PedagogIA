@@ -1,8 +1,8 @@
 import { useEffect } from "react"
 import Button from "./Button"
-import { Heading, LatinLabel } from "./Heading"
+import { Heading } from "./Heading"
 
-export default function Floraison({ title = "Floraison", latin = "Florens", subtitle, onClose }) {
+export default function Floraison({ title = "Floraison", subtitle, onClose }) {
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") onClose?.()
@@ -46,8 +46,7 @@ export default function Floraison({ title = "Floraison", latin = "Florens", subt
             strokeLinecap="round"
           />
         </svg>
-        <LatinLabel className="mt-4 inline-block">{latin}</LatinLabel>
-        <Heading level={1} className="mt-2">
+        <Heading level={1} className="mt-4">
           {title}
         </Heading>
         {subtitle && <p className="text-stem mt-3">{subtitle}</p>}

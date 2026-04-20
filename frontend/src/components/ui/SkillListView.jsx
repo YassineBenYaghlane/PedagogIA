@@ -1,6 +1,6 @@
 import { useMemo } from "react"
 import { GRADES, GRADE_COLORS } from "../../lib/skillTreeLayout"
-import { levelDescriptions, levelLatin, levelVernacular } from "../../lib/constants"
+import { levelDescriptions, levelVernacular } from "../../lib/constants"
 import { SENTIER_LABEL, SENTIER_DOT } from "../../lib/skillStatus"
 
 const STATE_LABEL = SENTIER_LABEL
@@ -71,7 +71,6 @@ export default function SkillListView({
               >
                 {grade}
               </h2>
-              <span className="latin text-[11px]">{levelLatin[grade]}</span>
               <span className="text-[11px] text-stem ml-auto">
                 {levelDescriptions[grade]} · {levelVernacular[grade]}
               </span>
@@ -107,7 +106,7 @@ export default function SkillListView({
                           )}
                           <span className="truncate">{d.label}</span>
                         </span>
-                        <span className="block latin text-[10px] mt-0.5">
+                        <span className="block text-[11px] text-stem mt-0.5">
                           {d.family} · {STATE_LABEL[state]}
                           {attempts > 0 ? ` · ${pct}%` : ""}
                         </span>

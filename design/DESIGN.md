@@ -80,7 +80,7 @@ Ombres : `--shadow-leaf` · `--shadow-dew` · `--shadow-tag` · `--shadow-glassp
 
 Dans `frontend/src/components/ui/` — chaque composant sous 80 lignes :
 
-`Button` · `Card` · `Chip` · `Input` · `Heading` + `LatinLabel` · `Icon` (wrapper lucide-react) · `Pot` · `ProgressBar` · `SkillNode` · `Floraison`.
+`Button` · `Card` · `Chip` · `Input` · `Heading` · `Icon` (wrapper lucide-react) · `Pot` · `ProgressBar` · `SkillNode` · `Floraison`.
 
 Règle : Tailwind d'abord ; CSS custom seulement pour les effets (textures, ombres, tags à ficelle).
 

@@ -4,7 +4,7 @@ import Page from "../layout/Page"
 import TopBar from "../layout/TopBar"
 import { TopBarBack } from "../layout/TopBarActions"
 import Card from "../ui/Card"
-import { Heading, LatinLabel } from "../ui/Heading"
+import { Heading } from "../ui/Heading"
 import { useAuthStore } from "../../stores/authStore"
 import RankChip from "../xp/RankChip"
 import XPBar from "../xp/XPBar"
@@ -33,17 +33,10 @@ export default function ProfileScreen() {
       }
     >
       <Page maxWidth="lg" className="space-y-6">
-        <div className="flex justify-end">
-          <LatinLabel>Florilegium</LatinLabel>
-        </div>
-
         <Card className="p-6 md:p-8">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
-              <LatinLabel>Hortulanus</LatinLabel>
-              <Heading level={2} className="mt-1">
-                {child.display_name}
-              </Heading>
+              <Heading level={2}>{child.display_name}</Heading>
               <p className="text-stem mt-1">Niveau {child.grade}</p>
             </div>
             <RankChip rank={child.rank || "curieux"} />
@@ -65,10 +58,7 @@ export default function ProfileScreen() {
 
         <Card className="p-6 md:p-8">
           <div className="mb-4">
-            <LatinLabel>Flores pressi</LatinLabel>
-            <Heading level={3} className="mt-0.5">
-              Mon herbier
-            </Heading>
+            <Heading level={3}>Mon herbier</Heading>
           </div>
           <BadgeGallery earned={child.achievements || []} />
         </Card>

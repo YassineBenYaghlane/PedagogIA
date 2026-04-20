@@ -21,8 +21,7 @@ import Plant from "../ui/Plant"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import Input from "../ui/Input"
-import { LatinLabel } from "../ui/Heading"
-import { levelDescriptions, levelLatin, levelVernacular } from "../../lib/constants"
+import { levelDescriptions, levelVernacular } from "../../lib/constants"
 import { GRADES, buildGraph } from "../../lib/skillTreeLayout"
 import { SkillTreeHoverContext } from "../../lib/skillTreeHoverContext"
 
@@ -46,8 +45,7 @@ function LaneLabel({ data }) {
         style={{ borderLeft: `3px solid ${colors.border}`, width: 130, left: 16 }}
       >
         <div className="font-display font-semibold text-xl text-bark">{grade}</div>
-        <div className="latin text-[10px] mt-0.5">{levelLatin[grade]}</div>
-        <div className="text-[10px] text-stem leading-tight mt-1">
+        <div className="text-[11px] text-stem leading-tight mt-1">
           {levelVernacular[grade]}
         </div>
       </div>
@@ -380,7 +378,7 @@ function SkillTreeInner({ skills, skillTreeData, isLoading }) {
     return (
       <AppShell surface="plain">
         <div className="flex-1 flex items-center justify-center text-stem">
-          <span className="latin">Germinatio…</span>
+          <span className="italic">Chargement…</span>
         </div>
       </AppShell>
     )
@@ -397,7 +395,6 @@ function SkillTreeInner({ skills, skillTreeData, isLoading }) {
             ← Serre
           </a>
           <div className="hidden lg:block shrink-0 ml-1">
-            <LatinLabel>Hortus mathematicus</LatinLabel>
             <h1 className="font-display font-semibold text-lg text-bark leading-tight">
               Carte des espèces
             </h1>
@@ -677,7 +674,7 @@ function DetailPanel({ skill, state, skillsById, masteryById, onClose, onPractic
     >
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="latin text-[11px]">
+          <div className="text-[11px] text-stem uppercase tracking-wider">
             {levelDescriptions[skill.grade]} · {skill.grade}
           </div>
           <h2 className="font-display font-semibold text-lg md:text-xl text-bark leading-tight mt-0.5">

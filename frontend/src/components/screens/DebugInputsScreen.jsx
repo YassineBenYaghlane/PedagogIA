@@ -57,7 +57,7 @@ export default function DebugInputsScreen() {
         <div className="grid gap-6">
           {samples.map((s, i) => (
             <section key={`${s.input_type}-${i}`} className="flex flex-col items-center gap-2">
-              <div className="latin text-xs uppercase tracking-wide text-stem">
+              <div className="text-xs uppercase tracking-wide text-stem">
                 {s.input_type} · {s.skill_id} · difficulty {s.difficulty}
               </div>
               <ExerciseCard

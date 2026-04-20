@@ -8,7 +8,7 @@ import Button from "../ui/Button"
 import Card from "../ui/Card"
 import Chip from "../ui/Chip"
 import ProgressBar from "../ui/ProgressBar"
-import { Heading, LatinLabel } from "../ui/Heading"
+import { Heading } from "../ui/Heading"
 import ExerciseCard from "../exercises/ExerciseCard"
 import { useDrillStore } from "../../stores/drillStore"
 import { useAuthStore } from "../../stores/authStore"
@@ -19,8 +19,7 @@ function DrillResult({ summary, bestStreak, onBack }) {
     <AppShell surface="water">
       <div className="flex-1 flex flex-col items-center justify-center p-5 sm:p-6">
       <Card className="p-6 sm:p-8 md:p-10 max-w-md w-full text-center">
-        <LatinLabel>Exercitatio peracta</LatinLabel>
-        <Heading level={2} className="mt-1">Bravo !</Heading>
+        <Heading level={2}>Bravo !</Heading>
 
         <div className="grid grid-cols-3 gap-3 my-8" data-testid="drill-summary">
           <Card className="p-4">

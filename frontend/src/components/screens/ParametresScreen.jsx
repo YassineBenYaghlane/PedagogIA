@@ -5,7 +5,7 @@ import Button from "../ui/Button"
 import Card from "../ui/Card"
 import Icon from "../ui/Icon"
 import Input from "../ui/Input"
-import { Heading, LatinLabel } from "../ui/Heading"
+import { Heading } from "../ui/Heading"
 
 const GRADES = ["P1", "P2", "P3", "P4", "P5", "P6"]
 const SAVE_DELAY = 650
@@ -35,7 +35,7 @@ function StatusDot({ state }) {
 
 function AutosaveField({
   label,
-  latinHint,
+  hint,
   value,
   type = "text",
   placeholder,
@@ -91,7 +91,7 @@ function AutosaveField({
   return (
     <label className="block">
       <span className="flex items-center gap-2 text-sm">
-        <span className="latin normal-case text-stem">{latinHint}</span>
+        <span className="text-stem">{hint}</span>
         <StatusDot state={state} />
       </span>
       <Input
@@ -155,7 +155,7 @@ function PasswordDrawer() {
       >
         <form onSubmit={onSubmit} className="mt-4 space-y-3" data-testid="password-form">
           <label className="block">
-            <span className="latin normal-case text-stem text-sm">mot de passe actuel</span>
+            <span className="text-stem text-sm">mot de passe actuel</span>
             <Input
               type="password"
               value={cur}
@@ -166,7 +166,7 @@ function PasswordDrawer() {
             />
           </label>
           <label className="block">
-            <span className="latin normal-case text-stem text-sm">nouveau mot de passe</span>
+            <span className="text-stem text-sm">nouveau mot de passe</span>
             <Input
               type="password"
               value={next}
@@ -178,7 +178,7 @@ function PasswordDrawer() {
             />
           </label>
           <label className="block">
-            <span className="latin normal-case text-stem text-sm">confirmer</span>
+            <span className="text-stem text-sm">confirmer</span>
             <Input
               type="password"
               value={confirm}
@@ -248,14 +248,14 @@ function ChildRow({ child, index }) {
           <div className="flex-1 grid grid-cols-1 sm:grid-cols-[1fr_7rem] gap-3">
             <AutosaveField
               label="Nom"
-              latinHint="nomen"
+              hint="prénom"
               value={child.display_name}
               onSave={(v) => save({ display_name: v })}
               validate={(v) => (!v.trim() ? "Un prénom est requis." : null)}
               testid={`child-name-${child.id}`}
             />
             <label className="block">
-              <span className="latin normal-case text-stem text-sm">niveau</span>
+              <span className="text-stem text-sm">niveau</span>
               <Input
                 as="select"
                 value={child.grade}
@@ -421,28 +421,21 @@ export default function ParametresScreen() {
           >
             <Icon name="arrow_back" size={16} /> Retour
           </button>
-          <LatinLabel>Pavilio</LatinLabel>
         </header>
 
         <div className="mb-10">
-          <LatinLabel>Ratio & cura</LatinLabel>
-          <Heading level={2} className="mt-1">
-            Paramètres
-          </Heading>
+          <Heading level={2}>Paramètres</Heading>
           <p className="text-stem mt-2 text-sm">
             Ton compte, tes jardinières — tout se règle ici.
           </p>
         </div>
 
         <section className="mb-12" data-testid="section-account">
-          <div className="flex items-baseline gap-3 mb-4">
-            <Heading level={4}>Mon carnet</Heading>
-            <LatinLabel className="normal-case text-xs">hortulanus</LatinLabel>
-          </div>
+          <Heading level={4} className="mb-4">Mon carnet</Heading>
           <Card variant="tag" className="p-6 space-y-5">
             <AutosaveField
               label="Nom"
-              latinHint="nomen"
+              hint="prénom"
               value={user?.display_name || ""}
               onSave={(v) => updateUser({ display_name: v })}
               testid="account-display-name"
@@ -450,7 +443,7 @@ export default function ParametresScreen() {
             />
             <AutosaveField
               label="Email"
-              latinHint="courriel"
+              hint="courriel"
               type="email"
               value={user?.email || ""}
               onSave={(v) => updateUser({ email: v })}
@@ -464,10 +457,7 @@ export default function ParametresScreen() {
         </section>
 
         <section data-testid="section-children">
-          <div className="flex items-baseline gap-3 mb-4">
-            <Heading level={4}>Mes jardinières</Heading>
-            <LatinLabel className="normal-case text-xs">horti</LatinLabel>
-          </div>
+          <Heading level={4} className="mb-4">Mes jardinières</Heading>
           <div className="space-y-3">
             {children.map((c, i) => (
               <ChildRow key={c.id} child={c} index={i} />

@@ -4,7 +4,7 @@ import Icon from "../ui/Icon"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import Chip from "../ui/Chip"
-import { Heading, LatinLabel } from "../ui/Heading"
+import { Heading } from "../ui/Heading"
 import AppShell from "../layout/AppShell"
 import Page from "../layout/Page"
 import TopBar from "../layout/TopBar"
@@ -139,8 +139,7 @@ export default function WelcomeScreen() {
     >
       <Page maxWidth="xl">
         <header className="mb-8">
-          <LatinLabel>Hortus mathematicus</LatinLabel>
-          <Heading level={1} className="mt-1 text-balance">
+          <Heading level={1} className="text-balance">
             Bienvenue dans ta serre,{" "}
             <em className="text-sage-deep not-italic font-display italic">
               {child.display_name}
@@ -217,12 +216,7 @@ export default function WelcomeScreen() {
 
         <section className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <div>
-              <LatinLabel>Florilegium</LatinLabel>
-              <Heading level={4} className="mt-0.5">
-                Mon herbier
-              </Heading>
-            </div>
+            <Heading level={4}>Mon herbier</Heading>
             <button
               onClick={() => navigate("/profile")}
               className="text-xs font-semibold text-sage-deep hover:underline cursor-pointer"

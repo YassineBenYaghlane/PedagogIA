@@ -7,7 +7,7 @@ import { TopBarBack } from "../layout/TopBarActions"
 import Icon from "../ui/Icon"
 import Card from "../ui/Card"
 import Chip from "../ui/Chip"
-import { Heading, LatinLabel } from "../ui/Heading"
+import { Heading } from "../ui/Heading"
 import { useAuthStore } from "../../stores/authStore"
 import { fetchSession, fetchSessionAttempts } from "../../api/sessions"
 import { downloadDiagnosticPdf } from "../../api/history"
@@ -115,7 +115,7 @@ function AttemptRow({ attempt, index }) {
       {mcqOptions(attempt.exercise_params, attempt.student_answer, attempt.correct_answer)}
       <div className="grid grid-cols-2 gap-3 text-sm mt-3">
         <div>
-          <div className="latin text-[10px]">Réponse de l’élève</div>
+          <div className="text-[10px] text-stem uppercase tracking-wider">Réponse de l’élève</div>
           <div
             className={`font-mono tabular-nums ${ok ? "text-sage-deep" : "text-rose"}`}
             data-testid="student-answer"
@@ -124,7 +124,7 @@ function AttemptRow({ attempt, index }) {
           </div>
         </div>
         <div>
-          <div className="latin text-[10px]">Bonne réponse</div>
+          <div className="text-[10px] text-stem uppercase tracking-wider">Bonne réponse</div>
           <div className="font-mono tabular-nums text-bark">{attempt.correct_answer}</div>
         </div>
       </div>
@@ -228,8 +228,7 @@ export default function SessionReviewScreen() {
         <Card className="p-6 md:p-8">
         <div className="flex items-baseline justify-between gap-3 mb-5">
           <div>
-            <LatinLabel>Sessio</LatinLabel>
-            <Heading level={2} className="mt-1">
+            <Heading level={2}>
               {MODE_LABELS[session.mode] || session.mode}
             </Heading>
             <div className="text-sm text-stem mt-1 font-mono tabular-nums">
@@ -282,7 +281,7 @@ export default function SessionReviewScreen() {
         )}
 
         {attempts.length === 0 ? (
-          <p className="latin text-center py-8">Aucune question enregistrée.</p>
+          <p className="italic text-center py-8 text-stem">Aucune question enregistrée.</p>
         ) : (
           <div data-testid="attempts-list">
             {attempts.map((a, i) => (

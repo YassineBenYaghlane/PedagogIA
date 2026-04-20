@@ -21,6 +21,7 @@ import Plant from "../ui/Plant"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import Input from "../ui/Input"
+import Loader from "../ui/Loader"
 import { levelDescriptions, levelVernacular } from "../../lib/constants"
 import { GRADES, buildGraph } from "../../lib/skillTreeLayout"
 import { SkillTreeHoverContext } from "../../lib/skillTreeHoverContext"
@@ -377,9 +378,7 @@ function SkillTreeInner({ skills, skillTreeData, isLoading }) {
   if (isLoading) {
     return (
       <AppShell surface="plain">
-        <div className="flex-1 flex items-center justify-center text-stem">
-          <span className="italic">Chargement…</span>
-        </div>
+        <Loader message="Chargement de la carte…" size="lg" variant="page" />
       </AppShell>
     )
   }

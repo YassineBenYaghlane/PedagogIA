@@ -7,6 +7,7 @@ import { TopBarBack } from "../layout/TopBarActions"
 import Icon from "../ui/Icon"
 import Card from "../ui/Card"
 import Chip from "../ui/Chip"
+import Loader from "../ui/Loader"
 import { Heading } from "../ui/Heading"
 import { useAuthStore } from "../../stores/authStore"
 import { fetchSession, fetchSessionAttempts } from "../../api/sessions"
@@ -199,9 +200,7 @@ export default function SessionReviewScreen() {
   if (!session || !attempts) {
     return (
       <AppShell surface="greenhouse">
-        <div className="flex-1 flex items-center justify-center p-6 text-stem">
-          Chargement de la session…
-        </div>
+        <Loader message="Chargement de la session…" size="lg" variant="page" />
       </AppShell>
     )
   }

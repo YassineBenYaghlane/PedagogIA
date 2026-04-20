@@ -10,6 +10,7 @@ import Button from "../ui/Button"
 import Card from "../ui/Card"
 import Chip from "../ui/Chip"
 import EmptyState from "../ui/EmptyState"
+import Loader from "../ui/Loader"
 import ProgressBar from "../ui/ProgressBar"
 import { Heading } from "../ui/Heading"
 
@@ -208,7 +209,11 @@ export default function ParentDashboardScreen() {
           </p>
         </header>
 
-        {isLoading && <p className="italic text-center py-10 text-stem">Chargement du jardin…</p>}
+        {isLoading && (
+          <div className="py-10">
+            <Loader message="Chargement du jardin…" />
+          </div>
+        )}
         {error && (
           <Card variant="paper" className="p-6 text-rose">
             Impossible de charger les données ({error.message}).

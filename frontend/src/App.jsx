@@ -20,19 +20,28 @@ import SessionReviewScreen from "./components/screens/SessionReviewScreen"
 import ParentDashboardScreen from "./components/screens/ParentDashboardScreen"
 import ParametresScreen from "./components/screens/ParametresScreen"
 import BadgeToast from "./components/badges/BadgeToast"
+import Loader from "./components/ui/Loader"
 import "./App.css"
+
+function BootLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-chalk">
+      <Loader message="Chargement…" size="lg" />
+    </div>
+  )
+}
 
 function RequireAuth({ children }) {
   const { user, loading } = useAuthStore()
   const location = useLocation()
-  if (loading && !user) return <div className="p-8 text-center">Chargement…</div>
+  if (loading && !user) return <BootLoader />
   if (!user) return <Navigate to="/login" replace state={{ from: location }} />
   return children
 }
 
 function RootRoute() {
   const { user, loading } = useAuthStore()
-  if (loading && !user) return <div className="p-8 text-center">Chargement…</div>
+  if (loading && !user) return <BootLoader />
   return user ? <WelcomeScreen /> : <LandingScreen />
 }
 

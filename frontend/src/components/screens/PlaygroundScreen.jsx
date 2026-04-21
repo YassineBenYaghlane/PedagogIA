@@ -61,7 +61,7 @@ function TemplateRow({ template, selected, onClick }) {
   )
 }
 
-function Filters({ filters, setFilter, search, setSearch, total, shown }) {
+function Filters({ filters, setFilter, search, setSearch, skills, total, shown }) {
   return (
     <div className="flex flex-col gap-2">
       <Input
@@ -91,6 +91,14 @@ function Filters({ filters, setFilter, search, setSearch, total, shown }) {
           {DIFFICULTIES.map((d) => <option key={d} value={d}>{`diff ${d}`}</option>)}
         </Input>
       </div>
+      <Input
+        as="select"
+        value={filters.skillId}
+        onChange={(e) => setFilter("skillId", e.target.value)}
+      >
+        <option value="">Toutes compétences ({skills.length})</option>
+        {skills.map((s) => <option key={s} value={s}>{s}</option>)}
+      </Input>
       <div className="text-xs text-stem">{shown} / {total} templates</div>
     </div>
   )
@@ -203,7 +211,7 @@ export default function PlaygroundScreen() {
   const [loadingList, setLoadingList] = useState(true)
   const [listError, setListError] = useState(null)
 
-  const [filters, setFilters] = useState({ grade: "", inputType: "", difficulty: "" })
+  const [filters, setFilters] = useState({ grade: "", inputType: "", difficulty: "", skillId: "" })
   const [search, setSearch] = useState("")
 
   const [selectedId, setSelectedId] = useState(null)
@@ -224,7 +232,7 @@ export default function PlaygroundScreen() {
 
   const setFilter = (key, value) => setFilters((f) => ({ ...f, [key]: value }))
 
-  const filtered = useMemo(() => {
+  const scopedExceptSkill = useMemo(() => {
     const s = search.trim().toLowerCase()
     return templates.filter((t) => {
       if (filters.grade && !t.grades.includes(filters.grade)) return false
@@ -236,7 +244,24 @@ export default function PlaygroundScreen() {
       }
       return true
     })
-  }, [templates, filters, search])
+  }, [templates, filters.grade, filters.inputType, filters.difficulty, search])
+
+  const filtered = useMemo(() => {
+    if (!filters.skillId) return scopedExceptSkill
+    return scopedExceptSkill.filter((t) => t.skill_ids.includes(filters.skillId))
+  }, [scopedExceptSkill, filters.skillId])
+
+  const skills = useMemo(() => {
+    const set = new Set()
+    for (const t of scopedExceptSkill) for (const s of t.skill_ids) set.add(s)
+    return Array.from(set).sort()
+  }, [scopedExceptSkill])
+
+  useEffect(() => {
+    if (filters.skillId && !skills.includes(filters.skillId)) {
+      setFilters((f) => ({ ...f, skillId: "" }))
+    }
+  }, [skills, filters.skillId])
 
   const selected = useMemo(
     () => templates.find((t) => t.id === selectedId) || null,
@@ -296,6 +321,7 @@ export default function PlaygroundScreen() {
               setFilter={setFilter}
               search={search}
               setSearch={setSearch}
+              skills={skills}
               total={templates.length}
               shown={filtered.length}
             />

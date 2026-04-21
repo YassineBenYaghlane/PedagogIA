@@ -2,7 +2,7 @@ import { useContext } from "react"
 import { Handle, Position } from "@xyflow/react"
 import { SkillTreeHoverContext } from "../../lib/skillTreeHoverContext"
 import { SENTIER_LABEL } from "../../lib/skillStatus"
-import Plant from "./Plant"
+import AnimatedPlant from "./PlantAnimated"
 
 const STATE_LABEL = SENTIER_LABEL
 
@@ -75,7 +75,9 @@ export default function SkillNode({ id, data }) {
           ? "is-today"
           : ""
 
-  const plantSize = isToday ? 58 : 50
+  const plantWidth = isToday ? 76 : 66
+  const plantHeight = Math.round((plantWidth * 140) / 120)
+  const flourish = isToday || isHoverTarget
   const dim = sentierStatus === "locked" && totalAttempts === 0
 
   return (
@@ -93,7 +95,19 @@ export default function SkillNode({ id, data }) {
           className={`disc-body ${bodyModifier}`}
           style={{ width: "100%", height: "100%" }}
         >
-          <Plant status={sentierStatus} mastery={masteryLevel} size={plantSize} />
+          <div
+            className="flex items-center justify-center"
+            style={{ width: plantWidth, height: plantHeight }}
+          >
+            <AnimatedPlant
+              status={sentierStatus}
+              mastery={masteryLevel}
+              pot={false}
+              halo={false}
+              drops={flourish}
+              pollen={flourish}
+            />
+          </div>
           {isLocked && (
             <div
               className="absolute top-1 right-1 w-5 h-5 rounded-full bg-paper border border-sage/25 flex items-center justify-center text-stem"

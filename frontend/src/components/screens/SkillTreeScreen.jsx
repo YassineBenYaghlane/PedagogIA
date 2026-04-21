@@ -17,7 +17,7 @@ import { useAuthStore } from "../../stores/authStore"
 import { useSkillTree } from "../../hooks/useSkillTree"
 import AppShell from "../layout/AppShell"
 import SkillNode from "../ui/SkillNode"
-import Plant from "../ui/Plant"
+import AnimatedPlant, { PlantKeyframes } from "../ui/PlantAnimated"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import Input from "../ui/Input"
@@ -385,6 +385,7 @@ function SkillTreeInner({ skills, skillTreeData, isLoading }) {
 
   return (
     <AppShell surface="plain" className="overflow-hidden">
+      <PlantKeyframes />
       <header className="border-b border-sage/10 bg-paper">
         <div className="flex items-center gap-2 px-3 sm:px-4 md:px-6 py-3 min-w-0">
           <a
@@ -589,8 +590,18 @@ function StatusLegend() {
     >
       {items.map(({ status, mastery, label }) => (
         <div key={label} className="flex items-center gap-2 text-[11px] text-bark">
-          <span className="w-6 h-6 flex items-center justify-center shrink-0">
-            <Plant status={status} mastery={mastery} size={22} />
+          <span
+            className="flex items-center justify-center shrink-0"
+            style={{ width: 24, height: 28 }}
+          >
+            <AnimatedPlant
+              status={status}
+              mastery={mastery}
+              pot={false}
+              halo={false}
+              drops={false}
+              pollen={false}
+            />
           </span>
           {label}
         </div>
@@ -695,7 +706,19 @@ function DetailPanel({ skill, state, skillsById, masteryById, onClose, onPractic
           background: "linear-gradient(180deg, var(--color-mist) 0%, var(--color-sage-pale) 100%)",
         }}
       >
-        <Plant status={sentierStatus} mastery={state?.mastery_level ?? 0} size={64} />
+        <span
+          className="flex items-center justify-center"
+          style={{ width: 72, height: 84 }}
+        >
+          <AnimatedPlant
+            status={sentierStatus}
+            mastery={state?.mastery_level ?? 0}
+            pot={false}
+            halo={false}
+            drops
+            pollen
+          />
+        </span>
         <span className="inline-flex items-center gap-2 bg-bone px-3 py-1 rounded-full text-xs font-semibold text-bark border border-sage/15">
           <span
             className="w-2.5 h-2.5 rounded-full"

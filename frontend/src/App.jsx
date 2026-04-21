@@ -14,6 +14,8 @@ import DrillScreen from "./components/screens/DrillScreen"
 import ExamScreen from "./components/screens/ExamScreen"
 import ProfileScreen from "./components/screens/ProfileScreen"
 import DebugInputsScreen from "./components/screens/DebugInputsScreen"
+import DebugPlantsScreen from "./components/screens/DebugPlantsScreen"
+import NotFoundScreen from "./components/screens/NotFoundScreen"
 import HistoryScreen from "./components/screens/HistoryScreen"
 import DiagnosticReviewScreen from "./components/screens/DiagnosticReviewScreen"
 import SessionReviewScreen from "./components/screens/SessionReviewScreen"
@@ -79,6 +81,10 @@ export default function App() {
         {import.meta.env.VITE_ENVIRONMENT === "dev" && (
           <Route path="/debug/inputs" element={<RequireAuth><DebugInputsScreen /></RequireAuth>} />
         )}
+        {import.meta.env.VITE_ENVIRONMENT === "dev" && (
+          <Route path="/debug/plants" element={<RequireAuth><DebugPlantsScreen /></RequireAuth>} />
+        )}
+        <Route path="*" element={<NotFoundScreen />} />
       </Routes>
     </>
   )

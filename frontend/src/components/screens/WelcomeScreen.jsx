@@ -15,7 +15,7 @@ import XPBar from "../xp/XPBar"
 import StreakFlame from "../streak/StreakFlame"
 import DailyGoalProgress from "../streak/DailyGoalProgress"
 import BadgeGallery from "../badges/BadgeGallery"
-import Plant from "../ui/Plant"
+import AnimatedPlant, { PlantKeyframes } from "../ui/PlantAnimated"
 
 const MASTERY_BUCKETS = [
   {
@@ -91,8 +91,18 @@ function MasterySummary({ summary, onFocus }) {
                   : "opacity-55 cursor-default"
               }`}
             >
-              <span className="h-12 flex items-end justify-center">
-                <Plant status={plant.status} mastery={plant.mastery} size={36} />
+              <span
+                className="flex items-center justify-center"
+                style={{ width: 44, height: 52 }}
+              >
+                <AnimatedPlant
+                  status={plant.status}
+                  mastery={plant.mastery}
+                  pot={false}
+                  halo={false}
+                  drops={false}
+                  pollen={false}
+                />
               </span>
               <span className={`font-mono text-2xl font-semibold mt-1 ${tone}`}>
                 {value}
@@ -137,6 +147,7 @@ export default function WelcomeScreen() {
         />
       }
     >
+      <PlantKeyframes />
       <Page maxWidth="xl">
         <header className="mb-8">
           <Heading level={1} className="text-balance">

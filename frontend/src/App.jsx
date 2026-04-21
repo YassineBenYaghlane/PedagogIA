@@ -14,6 +14,7 @@ import DrillScreen from "./components/screens/DrillScreen"
 import ExamScreen from "./components/screens/ExamScreen"
 import ProfileScreen from "./components/screens/ProfileScreen"
 import DebugInputsScreen from "./components/screens/DebugInputsScreen"
+import PlaygroundScreen from "./components/screens/PlaygroundScreen"
 import HistoryScreen from "./components/screens/HistoryScreen"
 import DiagnosticReviewScreen from "./components/screens/DiagnosticReviewScreen"
 import SessionReviewScreen from "./components/screens/SessionReviewScreen"
@@ -77,7 +78,10 @@ export default function App() {
         <Route path="/history/diagnostic/:sessionId" element={<RequireAuth><DiagnosticReviewScreen /></RequireAuth>} />
         <Route path="/history/session/:sessionId" element={<RequireAuth><SessionReviewScreen /></RequireAuth>} />
         {import.meta.env.VITE_ENVIRONMENT === "dev" && (
-          <Route path="/debug/inputs" element={<RequireAuth><DebugInputsScreen /></RequireAuth>} />
+          <>
+            <Route path="/debug/inputs" element={<RequireAuth><DebugInputsScreen /></RequireAuth>} />
+            <Route path="/playground" element={<RequireAuth><PlaygroundScreen /></RequireAuth>} />
+          </>
         )}
       </Routes>
     </>

@@ -9,12 +9,23 @@ from .drill_views import start as drill_start
 from .exam_views import next_question as exam_next
 from .exam_views import result as exam_result
 from .exam_views import start as exam_start
+from .playground_views import playground_instantiate, playground_templates
 from .views import explain_attempt, generate, next_exercise, samples
 
 urlpatterns = [
     path("exercises/generate/", generate, name="exercises-generate"),
     path("exercises/next/", next_exercise, name="exercises-next"),
     path("exercises/samples/", samples, name="exercises-samples"),
+    path(
+        "exercises/playground/templates/",
+        playground_templates,
+        name="exercises-playground-templates",
+    ),
+    path(
+        "exercises/playground/instantiate/",
+        playground_instantiate,
+        name="exercises-playground-instantiate",
+    ),
     path("attempts/<uuid:attempt_id>/explain/", explain_attempt, name="attempts-explain"),
     path("diagnostic/start/", diagnostic_start, name="diagnostic-start"),
     path(

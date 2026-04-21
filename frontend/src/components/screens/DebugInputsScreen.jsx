@@ -46,6 +46,9 @@ export default function DebugInputsScreen() {
             <button onClick={load} className="navlink">
               Régénérer
             </button>
+            <Link to="/playground" className="navlink">
+              Atelier
+            </Link>
             <Link to="/" className="navlink">
               Retour
             </Link>

@@ -5,7 +5,6 @@ import environ
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 env = environ.Env(
-    DEBUG=(bool, False),
     DJANGO_SECRET_KEY=(str, "dev-insecure-change-me"),
     DATABASE_URL=(str, "postgres://ceb:ceb@localhost:5411/ceb"),
     CORS_ORIGINS=(list, ["http://localhost:5173"]),
@@ -22,7 +21,7 @@ env = environ.Env(
 environ.Env.read_env(BASE_DIR.parent / ".env")
 
 SECRET_KEY = env("DJANGO_SECRET_KEY")
-DEBUG = env("DEBUG")
+ENVIRONMENT = env.str("ENVIRONMENT", default="prod")
 ALLOWED_HOSTS = ["*"]
 
 APP_VERSION = env("APP_VERSION")

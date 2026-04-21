@@ -73,6 +73,7 @@ jobs:
             VITE_GOOGLE_OAUTH_CALLBACK_URL=https://${{ secrets.DOMAIN }}/auth/google/callback
             VITE_SENTRY_DSN=${{ secrets.VITE_SENTRY_DSN }}
             VITE_SENTRY_ENVIRONMENT=production
+            VITE_ENVIRONMENT=prod
 
   deploy:
     needs: build

@@ -76,7 +76,9 @@ export default function App() {
         <Route path="/history" element={<RequireAuth><HistoryScreen /></RequireAuth>} />
         <Route path="/history/diagnostic/:sessionId" element={<RequireAuth><DiagnosticReviewScreen /></RequireAuth>} />
         <Route path="/history/session/:sessionId" element={<RequireAuth><SessionReviewScreen /></RequireAuth>} />
-        <Route path="/debug/inputs" element={<RequireAuth><DebugInputsScreen /></RequireAuth>} />
+        {import.meta.env.VITE_ENVIRONMENT === "dev" && (
+          <Route path="/debug/inputs" element={<RequireAuth><DebugInputsScreen /></RequireAuth>} />
+        )}
       </Routes>
     </>
   )

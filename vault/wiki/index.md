@@ -62,6 +62,8 @@ Catalog of every wiki page. Updated on every ingest. Keep lines ≤150 chars.
 - [[concepts/release-process]] — every main merge = one human-chosen semver tag; baked into images, shown at /api/health/ and in footer
 - [[concepts/product-features]] — catalog of shipped features (modes, AI, progress, parent surface, ops) — 2026-04-18 snapshot
 - [[concepts/reward-system]] — two currencies (student XP + per-skill skill_xp), formulas, tier-gated selection, multi-skill weighting
+- [[concepts/templates-vs-curated-exercises]] — why PedagogIA stays parametric; curated items reserved for assessment-grade content
+- [[concepts/template-variant-count]] — per-template variant estimate, empirical sampling, what it does and doesn't measure
 
 ## Questions
 - [[questions/progression-arithmetique-p1-p6]] — year-by-year arithmetic progression table + skill-tree implications
@@ -69,3 +71,4 @@ Catalog of every wiki page. Updated on every ingest. Keep lines ≤150 chars.
 - [[questions/ingest-gap-ceb-2008-2018]] — état du dépouillement des 16 CEB : 8 profonds, 2 partiels, 6 placeholders — plan de priorisation
 - [[questions/frontend-ux-audit-2026-04-18]] — 56-finding punch list across 11 screens × 5 viewports; 4 P0 / 36 P1 / 16 P2 + native-app readiness
 - [[questions/devops-state-2026-04-18]] — current infra/devops state, what's live, what to tackle next; handoff page for the next devops agent
+- [[questions/exercise-quality-evaluation]] — three-layer plan (stats / structural / AI rubric) to measure exercise quality; "good" = aligned + calibrated

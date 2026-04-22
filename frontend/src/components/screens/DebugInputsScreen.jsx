@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
-import { Link } from "react-router"
 import AppShell from "../layout/AppShell"
 import Page from "../layout/Page"
+import TopBar from "../layout/TopBar"
+import { TopBarBack, TopBarButton } from "../layout/TopBarActions"
 import { api } from "../../api/client"
 import Loader from "../ui/Loader"
 import ExerciseCard from "../exercises/ExerciseCard"
@@ -36,21 +37,17 @@ export default function DebugInputsScreen() {
   }
 
   return (
-    <AppShell surface="plain">
+    <AppShell
+      surface="plain"
+      topBar={
+        <TopBar
+          leading={<TopBarBack to="/atelier" label="Atelier" />}
+          title="Types d'exercices"
+          trailing={<TopBarButton onClick={load} icon="refresh">Régénérer</TopBarButton>}
+        />
+      }
+    >
       <Page maxWidth="xl">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="font-display text-3xl font-semibold text-bark">
-            Debug — Types d'exercices
-          </h1>
-          <div className="flex gap-3">
-            <button onClick={load} className="navlink">
-              Régénérer
-            </button>
-            <Link to="/" className="navlink">
-              Retour
-            </Link>
-          </div>
-        </div>
 
         {loading && (
           <div className="py-10">

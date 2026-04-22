@@ -1,6 +1,7 @@
 import { useRef, useState } from "react"
 import { useNavigate } from "react-router"
 import { useAuthStore } from "../../stores/authStore"
+import { captureException, isClientError } from "../../lib/errors"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import Icon from "../ui/Icon"
@@ -71,6 +72,7 @@ function AutosaveField({
     } catch (err) {
       setState("error")
       setError(parseFieldError(err, label.toLowerCase()))
+      if (!isClientError(err)) captureException(err, { where: "AutosaveField.commit", label })
     }
   }
 
@@ -134,7 +136,10 @@ function PasswordDrawer() {
       if (data?.old_password) setError("Mot de passe actuel incorrect.")
       else if (data?.new_password2) setError(data.new_password2[0])
       else if (data?.new_password1) setError(data.new_password1[0])
-      else setError("Impossible de modifier le mot de passe.")
+      else {
+        setError("Impossible de modifier le mot de passe.")
+        if (!isClientError(err)) captureException(err, { where: "ParametresScreen.password" })
+      }
     }
   }
 
@@ -222,7 +227,8 @@ function ChildRow({ child, index }) {
     setRemoving(true)
     try {
       await removeChild(child.id)
-    } catch {
+    } catch (err) {
+      captureException(err, { where: "ChildRow.onDelete", childId: child.id })
       setRemoving(false)
       setConfirming(false)
     }

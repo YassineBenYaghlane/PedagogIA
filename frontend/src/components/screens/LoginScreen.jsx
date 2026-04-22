@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router"
 import { useAuthStore } from "../../stores/authStore"
 import { startGoogleLogin } from "../../lib/googleOAuth"
+import { captureException, isClientError } from "../../lib/errors"
 import AppShell from "../layout/AppShell"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
@@ -23,8 +24,9 @@ export default function LoginScreen() {
     try {
       await login(email, password)
       navigate("/children")
-    } catch {
+    } catch (err) {
       setError("Email ou mot de passe incorrect")
+      if (!isClientError(err)) captureException(err, { where: "LoginScreen.onSubmit" })
     } finally {
       setBusy(false)
     }

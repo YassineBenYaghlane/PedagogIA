@@ -2,13 +2,15 @@ import { create } from "zustand"
 import { api } from "../api/client"
 import { accountApi } from "../api/account"
 import { studentsApi } from "../api/students"
+import { captureException, isAuthError } from "../lib/errors"
 
 const STORAGE_KEY = "pedagogia.selectedChildId"
 
 const readSelected = () => {
   try {
     return typeof localStorage !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null
-  } catch {
+  } catch (err) {
+    captureException(err, { where: "authStore.readSelected" })
     return null
   }
 }
@@ -18,7 +20,9 @@ const writeSelected = (id) => {
     if (typeof localStorage === "undefined") return
     if (id) localStorage.setItem(STORAGE_KEY, id)
     else localStorage.removeItem(STORAGE_KEY)
-  } catch { /* ignore */ }
+  } catch (err) {
+    captureException(err, { where: "authStore.writeSelected" })
+  }
 }
 
 export const useAuthStore = create((set, get) => ({
@@ -44,9 +48,10 @@ export const useAuthStore = create((set, get) => ({
         loading: false
       })
     } catch (err) {
-      if (err.status === 401 || err.status === 403) {
+      if (isAuthError(err)) {
         set({ user: null, children: [], selectedChildId: null, loading: false })
       } else {
+        captureException(err, { where: "authStore.bootstrap" })
         set({ error: err.message, loading: false })
       }
     }
@@ -76,7 +81,11 @@ export const useAuthStore = create((set, get) => ({
   },
 
   logout: async () => {
-    try { await api.post("/auth/logout/") } catch { /* ignore */ }
+    try {
+      await api.post("/auth/logout/")
+    } catch (err) {
+      captureException(err, { where: "authStore.logout" })
+    }
     writeSelected(null)
     set({ user: null, children: [], selectedChildId: null })
   },

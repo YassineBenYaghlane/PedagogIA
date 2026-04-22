@@ -179,9 +179,15 @@ def _fill_blank_sequence(template: dict) -> dict[str, Any]:
     start_max = params.get("start_max", 20)
     step = params.get("step", 1)
     length = params.get("length", 5)
+    decimals = params.get("decimals", 0)
 
-    start = random.randint(start_min, start_max)
-    sequence = [start + i * step for i in range(length)]
+    if decimals > 0 or isinstance(step, float):
+        factor = 10 ** max(decimals, 1)
+        start_raw = random.randint(int(start_min * factor), int(start_max * factor)) / factor
+        sequence = [_clean_number(round(start_raw + i * step, 6)) for i in range(length)]
+    else:
+        start = random.randint(int(start_min), int(start_max))
+        sequence = [start + i * step for i in range(length)]
     gap_idx = random.randint(1, length - 2)
     answer = sequence[gap_idx]
     display = [_format_number(n) if i != gap_idx else "?" for i, n in enumerate(sequence)]
@@ -195,17 +201,34 @@ def _fill_blank_operand(template: dict) -> dict[str, Any]:
     params = template["params"]
     operation = template.get("operation", "add")
 
+    # Fast path: when result_min == result_max (fixed target), compute the
+    # complement directly to avoid high retry rates on complement-style prompts.
+    fixed_result = None
+    if (
+        params.get("result_min") is not None
+        and params.get("result_max") is not None
+        and params["result_min"] == params["result_max"]
+        and operation == "add"
+    ):
+        fixed_result = params["result_min"]
+
     for _ in range(MAX_RETRIES):
         a = _pick_value(params, "a")
-        b = _pick_value(params, "b")
-        result = _compute(operation, a, b)
+        if fixed_result is not None:
+            b = _clean_number(fixed_result - a)
+            if b < params.get("b_min", 0) or b > params.get("b_max", fixed_result):
+                continue
+            result = fixed_result
+        else:
+            b = _pick_value(params, "b")
+            result = _compute(operation, a, b)
 
-        if params.get("result_max") and result > params["result_max"]:
-            continue
-        if params.get("result_min") is not None and result < params["result_min"]:
-            continue
-        if params.get("result_non_negative") and result < 0:
-            continue
+            if params.get("result_max") and result > params["result_max"]:
+                continue
+            if params.get("result_min") is not None and result < params["result_min"]:
+                continue
+            if params.get("result_non_negative") and result < 0:
+                continue
 
         position = params.get("blank_position", "b")
         if position == "b":
@@ -269,7 +292,10 @@ def _generate_decomposition(template: dict) -> dict[str, Any]:
 def _decompose_number(n: int, places: list[str]) -> list[int]:
     """Decompose a number into place values."""
     place_values = {
+        "dizaines de milliards": 10_000_000_000,
         "milliards": 1_000_000_000,
+        "centaines de millions": 100_000_000,
+        "dizaines de millions": 10_000_000,
         "millions": 1_000_000,
         "centaines de mille": 100_000,
         "dizaines de mille": 10_000,
@@ -328,6 +354,15 @@ def _generate_mcq(template: dict) -> dict[str, Any]:
     b = _pick_value(params, "b")
     if operation == "subtract" and params.get("result_non_negative") and a < b:
         a, b = b, a
+    if operation == "divide" and params.get("exact_division"):
+        if b == 0:
+            b = 2
+        if params.get("fixed_a") and int(a) % int(b) != 0:
+            # pick next multiple
+            a = int(b) * max(1, int(a) // int(b))
+        if not params.get("fixed_a"):
+            a = int(a * b)
+            b = int(b)
     correct = _compute(operation, a, b)
 
     distractors: set[int | float] = set()
@@ -359,7 +394,14 @@ def _generate_point_on_line(template: dict) -> dict[str, Any]:
     lo = params["min"]
     hi = params["max"]
     step = params.get("step", 1)
-    target_values = list(range(lo, hi + 1, step))
+    if isinstance(step, float) or isinstance(lo, float) or isinstance(hi, float):
+        target_values: list = []
+        x = lo
+        while x <= hi + 1e-9:
+            target_values.append(_clean_number(round(x, 6)))
+            x += step
+    else:
+        target_values = list(range(int(lo), int(hi) + 1, int(step)))
     target = random.choice(target_values)
     prompt = template["prompt_template"].format(target=_format_number(target))
     return {
@@ -397,6 +439,26 @@ def _generate_drag_order(template: dict) -> dict[str, Any]:
         "prompt": prompt,
         "answer": correct_str,
         "params": {"items": items_str, "correct_order": correct_str, "direction": direction},
+    }
+
+
+@register("parity")
+def _generate_parity(template: dict) -> dict[str, Any]:
+    """Generate a pair/impair classification as an MCQ.
+
+    Params: a_min, a_max. Output has two options (pair, impair) and the
+    correct one as answer.
+    """
+    params = template["params"]
+    a = _pick_value(params, "a")
+    answer = "pair" if int(a) % 2 == 0 else "impair"
+    options = ["pair", "impair"]
+    random.shuffle(options)
+    prompt = template["prompt_template"].format(a=_format_number(a))
+    return {
+        "prompt": prompt,
+        "answer": answer,
+        "params": {"a": a, "options": options},
     }
 
 

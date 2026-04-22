@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { Routes, Route, useNavigate, Navigate, useLocation } from "react-router"
+import { Routes, Route, useNavigate, Navigate, useLocation, useParams } from "react-router"
 import { useAuthStore } from "./stores/authStore"
 import WelcomeScreen from "./components/screens/WelcomeScreen"
 import LandingScreen from "./components/screens/LandingScreen"
@@ -15,6 +15,8 @@ import ExamScreen from "./components/screens/ExamScreen"
 import ProfileScreen from "./components/screens/ProfileScreen"
 import DebugInputsScreen from "./components/screens/DebugInputsScreen"
 import DebugPlantsScreen from "./components/screens/DebugPlantsScreen"
+import AtelierScreen from "./components/screens/AtelierScreen"
+import AtelierSkillScreen from "./components/screens/AtelierSkillScreen"
 import NotFoundScreen from "./components/screens/NotFoundScreen"
 import HistoryScreen from "./components/screens/HistoryScreen"
 import DiagnosticReviewScreen from "./components/screens/DiagnosticReviewScreen"
@@ -45,6 +47,11 @@ function RootRoute() {
   const { user, loading } = useAuthStore()
   if (loading && !user) return <BootLoader />
   return user ? <WelcomeScreen /> : <LandingScreen />
+}
+
+function AtelierSkillScreenKeyed() {
+  const { skillId } = useParams()
+  return <AtelierSkillScreen key={skillId} />
 }
 
 export default function App() {
@@ -83,6 +90,15 @@ export default function App() {
         )}
         {import.meta.env.VITE_ENVIRONMENT === "dev" && (
           <Route path="/debug/plants" element={<RequireAuth><DebugPlantsScreen /></RequireAuth>} />
+        )}
+        {import.meta.env.VITE_ENVIRONMENT === "dev" && (
+          <Route path="/atelier" element={<RequireAuth><AtelierScreen /></RequireAuth>} />
+        )}
+        {import.meta.env.VITE_ENVIRONMENT === "dev" && (
+          <Route
+            path="/atelier/skill/:skillId"
+            element={<RequireAuth><AtelierSkillScreenKeyed /></RequireAuth>}
+          />
         )}
         <Route path="*" element={<NotFoundScreen />} />
       </Routes>

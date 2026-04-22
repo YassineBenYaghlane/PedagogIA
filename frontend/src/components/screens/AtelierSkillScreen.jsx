@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react"
-import { Link, useParams } from "react-router"
+import { useParams } from "react-router"
 import AppShell from "../layout/AppShell"
 import Page from "../layout/Page"
+import TopBar from "../layout/TopBar"
+import { TopBarBack } from "../layout/TopBarActions"
 import Loader from "../ui/Loader"
 import { atelierApi } from "../../api/atelier"
 
@@ -177,29 +179,29 @@ export default function AtelierSkillScreen() {
   }, [skillId])
 
   return (
-    <AppShell surface="plain">
+    <AppShell
+      surface="plain"
+      topBar={
+        <TopBar leading={<TopBarBack to="/atelier" label="Atelier" />} title="Compétence" />
+      }
+    >
       <Page maxWidth="3xl">
-        <div className="flex items-center justify-between mb-6">
-          <div className="min-w-0">
-            <Link to="/atelier" className="text-xs text-stem hover:text-bark">
-              ← Atelier
-            </Link>
-            <h1 className="font-display text-2xl md:text-3xl font-semibold text-bark mt-1 truncate">
-              {data?.skill?.label || skillId}
-            </h1>
-            <div className="mt-1 flex items-center gap-2 text-xs text-stem flex-wrap">
-              <span className="chip">{data?.skill?.grade || "—"}</span>
-              <code className="font-mono">{skillId}</code>
-              {data?.summary?.status && (
-                <span className="chip chip-sky">{data.summary.status}</span>
-              )}
-              {data?.summary?.avg_score != null && (
-                <span>· score moyen {data.summary.avg_score}</span>
-              )}
-              {data?.summary?.total_variants != null && (
-                <span>· {data.summary.total_variants} variantes</span>
-              )}
-            </div>
+        <div className="mb-6 min-w-0">
+          <h1 className="font-display text-2xl md:text-3xl font-semibold text-bark truncate">
+            {data?.skill?.label || skillId}
+          </h1>
+          <div className="mt-1 flex items-center gap-2 text-xs text-stem flex-wrap">
+            <span className="chip">{data?.skill?.grade || "—"}</span>
+            <code className="font-mono">{skillId}</code>
+            {data?.summary?.status && (
+              <span className="chip chip-sky">{data.summary.status}</span>
+            )}
+            {data?.summary?.avg_score != null && (
+              <span>· score moyen {data.summary.avg_score}</span>
+            )}
+            {data?.summary?.total_variants != null && (
+              <span>· {data.summary.total_variants} variantes</span>
+            )}
           </div>
         </div>
 

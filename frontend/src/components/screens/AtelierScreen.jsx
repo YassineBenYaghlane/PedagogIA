@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react"
-import { Link, useNavigate } from "react-router"
+import { useNavigate } from "react-router"
 import AppShell from "../layout/AppShell"
 import Page from "../layout/Page"
+import TopBar from "../layout/TopBar"
+import { TopBarBack, TopBarLink } from "../layout/TopBarActions"
 import Loader from "../ui/Loader"
 import { atelierApi } from "../../api/atelier"
 
@@ -130,26 +132,24 @@ export default function AtelierScreen() {
   }, [data])
 
   return (
-    <AppShell surface="plain">
+    <AppShell
+      surface="plain"
+      topBar={
+        <TopBar
+          leading={<TopBarBack to="/" label="Serre" />}
+          title="Atelier"
+          trailing={<TopBarLink to="/debug/inputs" icon="tune">Types d'inputs</TopBarLink>}
+        />
+      }
+    >
       <Page maxWidth="full">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="font-display text-3xl font-semibold text-bark">Atelier</h1>
-            <p className="text-sm text-stem mt-1">
-              Santé des templates par compétence (P1 → P6).
-              {data?.meta?.source === "live" && (
-                <span className="ml-2 chip chip-honey">données live (pas d'audit)</span>
-              )}
-            </p>
-          </div>
-          <div className="flex gap-3">
-            <Link to="/debug/inputs" className="navlink">
-              Types d'inputs
-            </Link>
-            <Link to="/" className="navlink">
-              Retour
-            </Link>
-          </div>
+        <div className="mb-6">
+          <p className="text-sm text-stem">
+            Santé des templates par compétence (P1 → P6).
+            {data?.meta?.source === "live" && (
+              <span className="ml-2 chip chip-honey">données live (pas d'audit)</span>
+            )}
+          </p>
         </div>
 
         {loading && (

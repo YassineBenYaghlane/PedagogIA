@@ -115,5 +115,12 @@ function checkAnswer(sample, raw) {
     const norm = (v) => String(v).trim().replace(",", ".")
     return { ok: norm(expected) === norm(raw), expected }
   }
+  if (t === "mcq_multi") {
+    const expected = Array.isArray(sample.answer) ? sample.answer : [sample.answer]
+    let picked = []
+    try { picked = JSON.parse(raw) } catch { /* ignore */ }
+    const same = (a, b) => a.length === b.length && a.every((v) => b.includes(v))
+    return { ok: same(expected, picked), expected }
+  }
   return { ok: String(sample.answer) === String(raw), expected: sample.answer }
 }

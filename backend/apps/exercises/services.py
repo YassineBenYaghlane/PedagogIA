@@ -12,6 +12,7 @@ from apps.students.services.xp import award_xp
 from src.services.exercise_gen import instantiate
 
 from .models import Attempt, ExerciseTemplate
+from .scoring import extract_error_tag
 from .validators import validate as validate_answer
 
 ANSWER_SALT = "pedagogia.exercise.answer"
@@ -69,6 +70,11 @@ def record_attempt(*, session, signature, student_answer) -> tuple[Attempt, dict
     correct_answer = payload["answer"]
     input_type = payload.get("input_type") or template.input_type
     is_correct = validate_answer(input_type, student_answer, correct_answer, payload["params"])
+    error_tag = (
+        None
+        if is_correct
+        else extract_error_tag(input_type, student_answer, correct_answer, payload["params"])
+    )
     sig_hash = _signature_hash(signature)
 
     n_skills = template.skill_weights.count() or 1
@@ -87,6 +93,7 @@ def record_attempt(*, session, signature, student_answer) -> tuple[Attempt, dict
                 is_correct=is_correct,
                 xp_awarded=xp_delta,
                 signature_hash=sig_hash,
+                error_tag=error_tag,
             )
         except IntegrityError as exc:
             raise DuplicateAttempt("signature already used") from exc

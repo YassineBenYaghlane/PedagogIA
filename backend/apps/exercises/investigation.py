@@ -60,7 +60,7 @@ def _get_client():
     return Anthropic(api_key=api_key)
 
 
-def _build_skill_context(skill: Skill) -> str:
+def _build_skill_context(skill: Skill, template=None) -> str:
     prereqs = list(skill.prerequisites.all())
     lines = [f"Compétence ciblée: {skill.id} — {skill.label} (niveau {skill.grade})"]
     if skill.description:
@@ -71,14 +71,25 @@ def _build_skill_context(skill: Skill) -> str:
             lines.append(f"  - {p.id}: {p.label}")
     else:
         lines.append("Prérequis: (aucun)")
+    if template is not None:
+        weights = list(template.skill_weights.select_related("skill").all())
+        if len(weights) > 1:
+            lines.append("Compétences sollicitées par l'exercice (poids):")
+            for link in weights:
+                lines.append(f"  - {link.skill_id} ({link.weight:.2f}) — {link.skill.label}")
     return "\n".join(lines)
 
 
 def _build_user_prompt(attempt: Attempt, mastery_summary: str) -> str:
+    error_tag_line = ""
+    error_tag = getattr(attempt, "error_tag", None)
+    if error_tag:
+        error_tag_line = f"Indice (étiquette d'erreur détectée): {error_tag}\n"
     return (
         f"Question posée: {attempt.exercise_params}\n"
         f"Réponse de l'élève: {attempt.student_answer}\n"
-        f"Réponse correcte: {attempt.correct_answer}\n\n"
+        f"Réponse correcte: {attempt.correct_answer}\n"
+        f"{error_tag_line}\n"
         f"État de maîtrise (élève):\n{mastery_summary}\n\n"
         "Analyse l'erreur et renvoie le JSON demandé."
     )
@@ -171,7 +182,10 @@ def investigate(attempt: Attempt) -> InvestigationResult:
     """Run AI root-cause investigation for a wrong attempt. Haiku → Sonnet escalation."""
     client = _get_client()
     skill = _investigation_skill(attempt)
-    skill_context = _build_skill_context(skill) if skill else "Compétence ciblée: (inconnue)"
+    template = getattr(attempt, "template", None)
+    skill_context = (
+        _build_skill_context(skill, template=template) if skill else "Compétence ciblée: (inconnue)"
+    )
     user_prompt = _build_user_prompt(attempt, _mastery_summary(attempt))
 
     primary = settings.INVESTIGATION_MODEL_PRIMARY

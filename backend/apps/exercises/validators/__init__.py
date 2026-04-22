@@ -1,11 +1,22 @@
 """Answer validators dispatched by input_type."""
 
-from . import decomposition, drag_order, mcq, number, point_on_line, symbol
+from . import (
+    binary_equality,
+    decomposition,
+    drag_order,
+    mcq,
+    mcq_multi,
+    number,
+    point_on_line,
+    symbol,
+)
 
 _REGISTRY = {
     "number": number.validate,
     "mcq": mcq.validate,
+    "mcq_multi": mcq_multi.validate,
     "symbol": symbol.validate,
+    "binary_equality": binary_equality.validate,
     "decomposition": decomposition.validate,
     "point_on_line": point_on_line.validate,
     "drag_order": drag_order.validate,

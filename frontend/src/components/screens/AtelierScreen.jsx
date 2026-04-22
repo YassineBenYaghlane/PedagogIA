@@ -89,6 +89,7 @@ export default function AtelierScreen() {
   const [filter, setFilter] = useState("all")
   const [typeFilter, setTypeFilter] = useState("all")
   const [difficultyFilter, setDifficultyFilter] = useState("all")
+  const [templateFilter, setTemplateFilter] = useState("")
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -119,13 +120,32 @@ export default function AtelierScreen() {
     return [...set].sort()
   }, [data])
 
+  const allTemplateIds = useMemo(() => {
+    const set = new Set()
+    for (const skill of Object.values(data?.skills || {})) {
+      for (const tpl of skill.templates || []) {
+        if (tpl.id) set.add(tpl.id)
+      }
+    }
+    return [...set].sort()
+  }, [data])
+
+  const templateQuery = templateFilter.trim().toLowerCase()
+
   const skillMatchesTemplates = (skill) => {
-    if (typeFilter === "all" && difficultyFilter === "all") return true
+    if (
+      typeFilter === "all"
+      && difficultyFilter === "all"
+      && templateQuery === ""
+    ) return true
     const templates = skill.templates || []
     if (!templates.length) return false
     return templates.some((tpl) => {
       if (typeFilter !== "all" && tpl.template_type !== typeFilter) return false
       if (difficultyFilter !== "all" && String(tpl.difficulty) !== difficultyFilter) return false
+      if (templateQuery !== "" && !String(tpl.id).toLowerCase().includes(templateQuery)) {
+        return false
+      }
       return true
     })
   }
@@ -145,7 +165,7 @@ export default function AtelierScreen() {
     }
     return out
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, filter, typeFilter, difficultyFilter])
+  }, [data, filter, typeFilter, difficultyFilter, templateQuery])
 
   const counts = useMemo(() => {
     const c = { total: 0, ok: 0, broken: 0, thin: 0, single_tier: 0, no_coverage: 0 }
@@ -161,11 +181,15 @@ export default function AtelierScreen() {
     [byGrade],
   )
   const filtersActive =
-    filter !== "all" || typeFilter !== "all" || difficultyFilter !== "all"
+    filter !== "all"
+    || typeFilter !== "all"
+    || difficultyFilter !== "all"
+    || templateQuery !== ""
   const resetFilters = () => {
     setFilter("all")
     setTypeFilter("all")
     setDifficultyFilter("all")
+    setTemplateFilter("")
   }
 
   return (
@@ -248,6 +272,22 @@ export default function AtelierScreen() {
                     <option value="2">2</option>
                     <option value="3">3</option>
                   </select>
+                </label>
+                <label className="flex items-center gap-2 text-xs text-stem">
+                  <span className="uppercase tracking-wider">Template</span>
+                  <input
+                    type="text"
+                    list="atelier-template-ids"
+                    value={templateFilter}
+                    onChange={(e) => setTemplateFilter(e.target.value)}
+                    placeholder="id ou fragment…"
+                    className="rounded-lg border border-bark/15 bg-bone px-3 py-1.5 font-mono text-xs text-bark w-64 focus:outline-none focus:ring-2 focus:ring-sage"
+                  />
+                  <datalist id="atelier-template-ids">
+                    {allTemplateIds.map((id) => (
+                      <option key={id} value={id} />
+                    ))}
+                  </datalist>
                 </label>
                 <span className="text-xs text-stem">
                   {visibleCount} / {counts.total} compétence{counts.total > 1 ? "s" : ""}

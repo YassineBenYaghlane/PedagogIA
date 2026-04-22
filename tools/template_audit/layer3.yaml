@@ -1,0 +1,241 @@
+summary:
+  reviewer: claude-opus-4-7
+  date: 2026-04-22
+  method: 'Read every template YAML, cross-referenced with skills.yaml + FWB référentiel
+
+    anchor in vault/wiki/concepts/champ-3-arithmetique. Scored alignment, age-fit,
+
+    clarity, distractor quality (MCQ only), ambiguity. Extracted systemic issues
+
+    below — per-template JSON is scored by script against these patterns.
+
+    '
+  status: 'All items tagged with `resolved: true` have been fixed in the YAML/generator
+
+    and no longer apply. `combine.py` skips resolved flags when scoring.
+
+    '
+critical_bugs:
+- id: num_pair_impair__fill_blank_1
+  skill_id: num_pair_impair
+  issue: 'Uses template.type=comparison with prompt "{a} … {b}", so student fills <,>,=.
+
+    Skill is "Reconnaitre si un nombre est pair ou impair" — comparison doesn''t
+
+    target pair/impair at all. The template is the wrong exercise type entirely.
+
+    '
+  fix: Replace with a dedicated classification exercise or MCQ asking "Is {a} pair or impair?"
+  resolved: true
+- id: num_decomposer_1__drag_order_1
+  skill_id: num_decomposer_1
+  issue: 'drag_order with item_min=1000, item_max=9999 — generates 4-digit integers to order.
+
+    Skill is "Décomposer 1 additivement en dixièmes (ex: 1 = 0,5 + 0,5)".
+
+    Integer ordering has no relation to decomposing 1.
+
+    '
+  fix: Replace with drag_order using fixed_items of decimal pairs/complements to 1.
+  resolved: true
+- id: num_compter_decimaux__fill_blank_1
+  skill_id: num_compter_decimaux
+  issue: 'mode=sequence with step=1 (integer). Skill explicitly requires counting by
+
+    0,1 / 0,2 / 0,5 / 0,25 / 0,125. Generated sequences like "0,1,2,3,4" are
+
+    integer counting, not decimal.
+
+    '
+  fix: Add decimal_step param to generator OR use fixed decimal step values.
+  resolved: true
+- id: num_compter_decimaux__point_on_line_1
+  skill_id: num_compter_decimaux
+  issue: Integer step on a line that should surface decimal positions.
+  fix: Use point_on_line with decimal step (requires generator update).
+  resolved: true
+- id: maitrise_calcul_mental__computation_1
+  skill_id: maitrise_calcul_mental
+  issue: 'Template type is missing_operator but input_type is "number". The answer is
+
+    an operator symbol (+, −, ×), so input_type should be "symbol".
+
+    '
+  fix: Change input_type to "symbol".
+  resolved: true
+- id: resolution_problemes__missing_operator_1
+  skill_id: resolution_problemes
+  issue: Same mismatch as above — input_type=number but answer is operator.
+  fix: Change input_type to "symbol".
+  resolved: true
+- id: num_lire_ecrire_milliard__decomposition_1
+  skill_id: num_lire_ecrire_milliard
+  issue: 'places list tops at "millions"; target_max=999_999_999 (just under 1 G).
+
+    Label says "jusqu''au milliard" — missing "milliards" place.
+
+    '
+  fix: Add "milliards" to places and extend target_max to 999_999_999_999.
+  resolved: true
+broken_constraints:
+- id: num_decomposer_100_cle__fill_blank_1
+  retry_rate: 0.53
+  issue: 'fixed_a=[10,20,25,30,40,50,60,70,75,80,90], b in [10,90], result must equal
+
+    exactly 100. Many fixed_a values (25, 75) have complements (75, 25) in
+
+    range but b is chosen independently; only ~47% of draws complete a+b=100.
+
+    '
+  fix: Make generator compute b = 100 - a directly for this pattern, or shift to a targeted generator.
+  resolved: true
+- id: num_decomposer_1__fill_blank_1
+  retry_rate: 0.61
+  issue: 'fixed_a list of decimals, b in [0,1] with decimals=2, result must equal 1.
+
+    39% of draws complete. Same family of issue.
+
+    '
+  fix: Generator should compute complement directly when result_min=result_max.
+  resolved: true
+- id: add_complements_10__fill_blank_1
+  retry_rate: 0.002
+  issue: Similar pattern but rate is low (a,b in 1-9, result=10 possible ~11% of pairs).
+  fix: Low priority — generator fix above also covers this.
+  resolved: true
+degenerate_heavy:
+- id: __mult_tables_pattern
+  pattern: All multiplication-table templates (mult_T2..T10, computation + MCQ)
+  issue: 'b in [1,10] so ~10% of draws have b=1 → "3 × 1 = ?" is trivial.
+
+    '
+  fix: Set b_min=2 and bump b_max to 12 to keep variety.
+  affected:
+  - mult_T2__computation_1
+  - mult_T2__mcq_1
+  - mult_T3__computation_1
+  - mult_T3__mcq_1
+  - mult_T4__computation_1
+  - mult_T4__mcq_1
+  - mult_T5__computation_1
+  - mult_T5__mcq_1
+  - mult_T6__computation_1
+  - mult_T6__mcq_1
+  - mult_T7__computation_1
+  - mult_T8__computation_1
+  - mult_T9__computation_1
+  - mult_T10__computation_1
+  resolved: true
+- id: soustr_moities_20__computation_1
+  issue: 'fixed_a includes 2, so "La moitié de 2 = 1" triggers divide_equal (a=b).
+
+    Pedagogically boring for a student practicing halving.
+
+    '
+  fix: Remove 2 from fixed_a.
+  resolved: true
+thin_variety_skills:
+- skill_id: soustr_sens
+  current_variants: 10
+  fix: Widen a_min/a_max to 1..9, b to 1..a. Add a second template with sequence/story.
+- skill_id: add_sens
+  current_variants: 25
+  fix: Widen to a in [1,9], b in [1,9]. Add a second difficulty-2 computation template.
+- skill_id: mult_sens
+  current_variants: 16
+  fix: Widen a,b to [2,9]. Add a visual/array template if possible.
+- skill_id: div_sens
+  current_variants: 16
+  fix: Widen a,b to [2,9]. Only exact divisions.
+- skill_id: div_vocabulaire
+  current_variants: 9
+  fix: Expand fixed_a from [4,6,8,10,12,14,16,18,20] to include 24, 30, 36, 40, 50, 100.
+- skill_id: cm_distributivite
+  current_variants: 45
+  fix: Widen a_min to 3, a_max to 9; b_min to 11, b_max to 29 (still mental-friendly).
+- skill_id: cm_mult_par_4_8
+  current_variants: 48
+  fix: Widen a_max from 25 to 50.
+- skill_id: cm_mult_par_5
+  current_variants: 49
+  fix: Widen a_max from 50 to 100.
+- skill_id: cm_mult_par_9
+  current_variants: 29
+  fix: Widen a_max from 30 to 100. Add difficulty 2 with a in [100, 500].
+- skill_id: cm_mult_par_11
+  current_variants: 29
+  fix: Widen a_max from 30 to 100.
+- skill_id: cm_mult_par_99
+  current_variants: 19
+  fix: Widen a_max to 50; optionally add difficulty 2 with bigger a.
+- skill_id: cm_mult_par_101
+  current_variants: 19
+  fix: Widen a_max to 50.
+- skill_id: cm_mult_par_100
+  current_variants: 19
+  fix: Widen a_max to 99.
+- skill_id: cm_mult_par_25
+  current_variants: 8
+  fix: Expand fixed_a to 12+ entries (multiples of 4 up to 400).
+- skill_id: cm_mult_par_025
+  current_variants: 8
+  fix: Same — multiples of 4 up to 400.
+- skill_id: cm_mult_par_250
+  current_variants: 6
+  fix: Expand fixed_a to more multiples of 4, up to 40.
+- skill_id: cm_mult_par_20
+  current_variants: 9
+  fix: Widen a_max to 50.
+- skill_id: cm_div_par_4
+  current_variants: 9
+  fix: Widen a range to [2, 50].
+- skill_id: cm_div_par_10
+  current_variants: 12
+  fix: Expand fixed_a to include more multiples of 10 (and hundreds).
+- skill_id: cm_div_par_50_25
+  current_variants: 38
+  fix: Widen result range (a_max) so dividends vary more.
+- skill_id: cm_div_par_5_8_100
+  current_variants: 57
+  fix: Already decent, but widen a_max (result range) to 50.
+- skill_id: mult_toutes_tables
+  current_variants: 81
+  fix: OK for difficulty 1 but add difficulty 2 with MCQ + harder ranges (a,b in 2-12).
+- skill_id: add_doubles_20
+  current_variants: 10
+  fix: Add double templates for 10-20 (doubles of 2-digit numbers are a P2 skill). Keep current for diff 1, add diff 2 for larger numbers.
+- skill_id: soustr_moities_20
+  current_variants: 10
+  fix: Already covered (remove a=2 degenerate).
+- skill_id: num_compter_decimaux
+  current_variants: 12 (split across 2 templates)
+  fix: Replace integer step with decimal step (generator update required).
+missing_tiers:
+  strategy: "For each single-tier skill with acceptable variety (>500 variants on the\nexisting template), add difficulty 2 variant with:\n  - wider parameter ranges, or\n  - MCQ form with smart distractors, or\n  - inverse operation (fill_blank at a instead of b, or missing_operator).\nFor skills with thin coverage (<100 variants), FIRST fix the base template,\nTHEN add a second tier.\n"
+mcq_notes: 'Current strategy: correct ± random delta in [-spread, spread], filter 0 and duplicates.
+
+  Pedagogically this produces reasonable "close miss" distractors but misses
+
+  structured misconceptions (neighbor-table for multiplication, place-value swaps
+
+  for larger numbers). A future upgrade could add `distractor_strategy: "neighbor_table"`
+
+  or "place_value_swap" — flagged as out-of-scope for this overnight pass.
+
+  '
+alignment_notes: 'All templates target valid skills from the skills.yaml tree, which itself is
+
+  derived from the 2022 référentiel. No off-curriculum exercises were found.
+
+  The arithmétique Champ-3 skill tree is well represented P1→P6; the referential
+
+  branches Champ 1 (géométrie), Champ 2 (grandeurs), Champ 4 (données) are
+
+  intentionally out of POC scope and have no templates — this is expected.
+
+  '
+typography_notes: 'Layer 2 found zero issues. All prompts respect French typography (space before
+
+  : ? ! ; and the minus-sign uses U+2212 "−" not ASCII "-"). Keep as-is.
+
+  '

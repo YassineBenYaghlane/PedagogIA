@@ -74,9 +74,25 @@
     operation: multiply
     params:
       fixed_a: [7]
-      b_min: 1
+      b_min: 2
       b_max: 10
     prompt_template: "7 × {b} = ?"
+    answer_key: result
+
+- id: mult_T7__mcq_1
+  skill_id: mult_T7
+  difficulty: 2
+  input_type: mcq
+  template:
+    type: mcq
+    operation: multiply
+    params:
+      fixed_a: [7]
+      b_min: 2
+      b_max: 10
+      num_options: 4
+      distractor_spread: 7
+    prompt_template: "{a} × {b} = ?"
     answer_key: result
 
 - id: mult_T8__computation_1
@@ -88,9 +104,25 @@
     operation: multiply
     params:
       fixed_a: [8]
-      b_min: 1
+      b_min: 2
       b_max: 10
     prompt_template: "8 × {b} = ?"
+    answer_key: result
+
+- id: mult_T8__mcq_1
+  skill_id: mult_T8
+  difficulty: 2
+  input_type: mcq
+  template:
+    type: mcq
+    operation: multiply
+    params:
+      fixed_a: [8]
+      b_min: 2
+      b_max: 10
+      num_options: 4
+      distractor_spread: 8
+    prompt_template: "{a} × {b} = ?"
     answer_key: result
 
 - id: mult_T9__computation_1
@@ -102,9 +134,25 @@
     operation: multiply
     params:
       fixed_a: [9]
-      b_min: 1
+      b_min: 2
       b_max: 10
     prompt_template: "9 × {b} = ?"
+    answer_key: result
+
+- id: mult_T9__mcq_1
+  skill_id: mult_T9
+  difficulty: 2
+  input_type: mcq
+  template:
+    type: mcq
+    operation: multiply
+    params:
+      fixed_a: [9]
+      b_min: 2
+      b_max: 10
+      num_options: 4
+      distractor_spread: 9
+    prompt_template: "{a} × {b} = ?"
     answer_key: result
 
 - id: mult_toutes_tables__computation_1
@@ -121,6 +169,39 @@
       b_max: 10
     prompt_template: "{a} × {b} = ?"
     answer_key: result
+
+- id: mult_toutes_tables__mcq_1
+  skill_id: mult_toutes_tables
+  difficulty: 2
+  input_type: mcq
+  template:
+    type: mcq
+    operation: multiply
+    params:
+      a_min: 2
+      a_max: 10
+      b_min: 2
+      b_max: 10
+      num_options: 4
+      distractor_spread: 9
+    prompt_template: "{a} × {b} = ?"
+    answer_key: result
+
+- id: mult_toutes_tables__fill_blank_1
+  skill_id: mult_toutes_tables
+  difficulty: 3
+  input_type: number
+  template:
+    type: fill_blank
+    operation: multiply
+    params:
+      a_min: 2
+      a_max: 10
+      b_min: 2
+      b_max: 10
+      blank_position: b
+    prompt_template: "{a} × ? = {result}"
+    answer_key: b
 
 # --- Division P4 ---
 
@@ -140,6 +221,24 @@
     prompt_template: "{a} ÷ {b} = ?"
     answer_key: result
 
+- id: div_par_1_chiffre__mcq_1
+  skill_id: div_par_1_chiffre
+  difficulty: 2
+  input_type: mcq
+  template:
+    type: mcq
+    operation: divide
+    params:
+      a_min: 2
+      a_max: 15
+      b_min: 2
+      b_max: 9
+      exact_division: true
+      num_options: 4
+      distractor_spread: 5
+    prompt_template: "{a} ÷ {b} = ?"
+    answer_key: result
+
 # --- Calcul écrit P4 ---
 
 - id: ce_multiplication__computation_1
@@ -151,6 +250,21 @@
     operation: multiply
     params:
       a_min: 10
+      a_max: 99
+      b_min: 2
+      b_max: 9
+    prompt_template: "Pose et calcule : {a} × {b} = ?"
+    answer_key: result
+
+- id: ce_multiplication__computation_2
+  skill_id: ce_multiplication
+  difficulty: 2
+  input_type: number
+  template:
+    type: computation
+    operation: multiply
+    params:
+      a_min: 100
       a_max: 999
       b_min: 2
       b_max: 9
@@ -168,11 +282,27 @@
     operation: multiply
     params:
       a_min: 2
-      a_max: 50
+      a_max: 100
       fixed_b: [5]
       b_min: 5
       b_max: 5
     prompt_template: "{a} × 5 = ?"
+    answer_key: result
+
+- id: cm_mult_par_5__computation_2
+  skill_id: cm_mult_par_5
+  difficulty: 2
+  input_type: number
+  template:
+    type: computation
+    operation: multiply
+    params:
+      a_min: 2
+      a_max: 50
+      fixed_b: [50]
+      b_min: 50
+      b_max: 50
+    prompt_template: "{a} × 50 = ?"
     answer_key: result
 
 - id: cm_mult_par_9__computation_1
@@ -184,10 +314,28 @@
     operation: multiply
     params:
       a_min: 2
-      a_max: 30
+      a_max: 100
       fixed_b: [9]
       b_min: 9
       b_max: 9
+    prompt_template: "{a} × 9 = ?"
+    answer_key: result
+
+- id: cm_mult_par_9__mcq_1
+  skill_id: cm_mult_par_9
+  difficulty: 2
+  input_type: mcq
+  template:
+    type: mcq
+    operation: multiply
+    params:
+      a_min: 2
+      a_max: 50
+      fixed_b: [9]
+      b_min: 9
+      b_max: 9
+      num_options: 4
+      distractor_spread: 10
     prompt_template: "{a} × 9 = ?"
     answer_key: result
 
@@ -200,10 +348,28 @@
     operation: multiply
     params:
       a_min: 2
-      a_max: 30
+      a_max: 99
       fixed_b: [11]
       b_min: 11
       b_max: 11
+    prompt_template: "{a} × 11 = ?"
+    answer_key: result
+
+- id: cm_mult_par_11__mcq_1
+  skill_id: cm_mult_par_11
+  difficulty: 2
+  input_type: mcq
+  template:
+    type: mcq
+    operation: multiply
+    params:
+      a_min: 2
+      a_max: 50
+      fixed_b: [11]
+      b_min: 11
+      b_max: 11
+      num_options: 4
+      distractor_spread: 12
     prompt_template: "{a} × 11 = ?"
     answer_key: result
 
@@ -216,7 +382,7 @@
     operation: divide
     params:
       a_min: 2
-      a_max: 20
+      a_max: 50
       b_min: 5
       b_max: 5
       fixed_b: [5, 8, 100]
@@ -242,6 +408,22 @@
     prompt_template: "{a} + {b} = ?"
     answer_key: result
 
+- id: add_decimaux_dixieme__computation_2
+  skill_id: add_decimaux_dixieme
+  difficulty: 2
+  input_type: number
+  template:
+    type: computation
+    operation: add
+    params:
+      a_min: 10
+      a_max: 99
+      b_min: 10
+      b_max: 99
+      decimals: 1
+    prompt_template: "{a} + {b} = ?"
+    answer_key: result
+
 - id: soustr_decimaux_dixieme__computation_1
   skill_id: soustr_decimaux_dixieme
   difficulty: 1
@@ -254,6 +436,23 @@
       a_max: 50
       b_min: 1
       b_max: 30
+      decimals: 1
+      result_non_negative: true
+    prompt_template: "{a} − {b} = ?"
+    answer_key: result
+
+- id: soustr_decimaux_dixieme__computation_2
+  skill_id: soustr_decimaux_dixieme
+  difficulty: 2
+  input_type: number
+  template:
+    type: computation
+    operation: subtract
+    params:
+      a_min: 10
+      a_max: 99
+      b_min: 1
+      b_max: 50
       decimals: 1
       result_non_negative: true
     prompt_template: "{a} − {b} = ?"
@@ -312,3 +511,52 @@
       direction: asc
     prompt_template: "Range du plus petit au plus grand"
     answer_key: order
+
+# --- #176 audit: tier-2 additions ---
+
+- id: num_decomposer_100000__decomposition_2
+  skill_id: num_decomposer_100000
+  difficulty: 2
+  input_type: decomposition
+  template:
+    type: decomposition
+    params:
+      target_min: 10000
+      target_max: 99999
+      places: ["dizaines de mille", "milliers", "centaines", "dizaines", "unités"]
+    prompt_template: "{n} = ?Dm ?M ?C ?D ?U"
+    answer_key: parts
+
+- id: num_decimaux_milliemes__comparison_2
+  skill_id: num_decimaux_milliemes
+  difficulty: 2
+  input_type: symbol
+  template:
+    type: comparison
+    params:
+      a_min: 1
+      a_max: 20
+      b_min: 1
+      b_max: 20
+      decimals: 3
+    prompt_template: "{a} … {b}"
+    answer_key: symbol
+
+- id: cm_div_par_5_8_100__mcq_1
+  skill_id: cm_div_par_5_8_100
+  difficulty: 2
+  input_type: mcq
+  template:
+    type: mcq
+    operation: divide
+    params:
+      a_min: 2
+      a_max: 30
+      b_min: 5
+      b_max: 5
+      fixed_b: [5, 8]
+      exact_division: true
+      num_options: 4
+      distractor_spread: 4
+    prompt_template: "{a} ÷ {b} = ?"
+    answer_key: result

@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Template audit — raw JSON data is regeneratable; only commit report + dashboard
+artifacts/audit/*.json
+
 # Playwright
 frontend/test-results/
 frontend/playwright-report/

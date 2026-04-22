@@ -49,6 +49,20 @@
     prompt_template: "Combien font {parts} ?"
     answer_key: target
 
+- id: num_lire_ecrire_20__comparison_1
+  skill_id: num_lire_ecrire_20
+  difficulty: 2
+  input_type: symbol
+  template:
+    type: comparison
+    params:
+      a_min: 1
+      a_max: 20
+      b_min: 1
+      b_max: 20
+    prompt_template: "{a} … {b}"
+    answer_key: symbol
+
 - id: num_dizaines_unites_20__decomposition_1
   skill_id: num_dizaines_unites_20
   difficulty: 1
@@ -78,7 +92,7 @@
     prompt_template: "{a} … {b}"
     answer_key: symbol
 
-- id: num_decomposer_20__decomposition_1
+- id: num_decomposer_20__fill_blank_1
   skill_id: num_decomposer_20
   difficulty: 1
   input_type: number
@@ -89,7 +103,7 @@
       a_min: 1
       a_max: 15
       b_min: 1
-      b_max: 15
+      b_max: 19
       result_max: 20
       blank_position: b
     prompt_template: "{a} + ? = {result}"
@@ -106,9 +120,26 @@
     operation: add
     params:
       a_min: 1
-      a_max: 5
+      a_max: 9
       b_min: 1
-      b_max: 5
+      b_max: 9
+    prompt_template: "{a} + {b} = ?"
+    answer_key: result
+
+- id: add_sens__mcq_1
+  skill_id: add_sens
+  difficulty: 2
+  input_type: mcq
+  template:
+    type: mcq
+    operation: add
+    params:
+      a_min: 2
+      a_max: 9
+      b_min: 2
+      b_max: 9
+      num_options: 4
+      distractor_spread: 3
     prompt_template: "{a} + {b} = ?"
     answer_key: result
 
@@ -180,6 +211,25 @@
     prompt_template: "{a} + {b} = ?"
     answer_key: result
 
+- id: add_avec_retenue_20__mcq_1
+  skill_id: add_avec_retenue_20
+  difficulty: 2
+  input_type: mcq
+  template:
+    type: mcq
+    operation: add
+    params:
+      a_min: 5
+      a_max: 15
+      b_min: 3
+      b_max: 12
+      requires_carry: true
+      result_max: 20
+      num_options: 4
+      distractor_spread: 4
+    prompt_template: "{a} + {b} = ?"
+    answer_key: result
+
 # --- Soustraction P1 ---
 
 - id: soustr_sens__computation_1
@@ -190,11 +240,29 @@
     type: computation
     operation: subtract
     params:
-      a_min: 2
-      a_max: 5
+      a_min: 3
+      a_max: 9
       b_min: 1
-      b_max: 4
+      b_max: 8
       result_non_negative: true
+    prompt_template: "{a} − {b} = ?"
+    answer_key: result
+
+- id: soustr_sens__mcq_1
+  skill_id: soustr_sens
+  difficulty: 2
+  input_type: mcq
+  template:
+    type: mcq
+    operation: subtract
+    params:
+      a_min: 4
+      a_max: 9
+      b_min: 1
+      b_max: 3
+      result_non_negative: true
+      num_options: 3
+      distractor_spread: 3
     prompt_template: "{a} − {b} = ?"
     answer_key: result
 
@@ -249,6 +317,23 @@
       blank_position: a
     prompt_template: "{b} + ? = {result}"
     answer_key: a
+
+- id: prop_commutativite_add__fill_blank_2
+  skill_id: prop_commutativite_add
+  difficulty: 2
+  input_type: number
+  template:
+    type: fill_blank
+    operation: add
+    params:
+      a_min: 3
+      a_max: 15
+      b_min: 3
+      b_max: 15
+      result_max: 20
+      blank_position: b
+    prompt_template: "? + {a} = {result}"
+    answer_key: b
 
 # --- #70 MCQ / Symbol / Decomposition additions ---
 
@@ -379,3 +464,74 @@
       places: ["dizaines", "unités"]
     prompt_template: "Écris {n} en dizaines et unités"
     answer_key: parts
+
+# --- #176 audit: tier-2 additions ---
+
+- id: add_faits_10__fill_blank_2
+  skill_id: add_faits_10
+  difficulty: 2
+  input_type: number
+  template:
+    type: fill_blank
+    operation: add
+    params:
+      a_min: 1
+      a_max: 9
+      b_min: 1
+      b_max: 9
+      result_max: 10
+      blank_position: a
+    prompt_template: "? + {b} = {result}"
+    answer_key: a
+
+- id: soustr_faits_10__mcq_2
+  skill_id: soustr_faits_10
+  difficulty: 2
+  input_type: mcq
+  template:
+    type: mcq
+    operation: subtract
+    params:
+      a_min: 5
+      a_max: 10
+      b_min: 1
+      b_max: 5
+      result_non_negative: true
+      num_options: 4
+      distractor_spread: 3
+    prompt_template: "{a} − {b} = ?"
+    answer_key: result
+
+- id: add_complements_10__mcq_1
+  skill_id: add_complements_10
+  difficulty: 2
+  input_type: mcq
+  template:
+    type: mcq
+    operation: add
+    params:
+      a_min: 1
+      a_max: 9
+      b_min: 1
+      b_max: 9
+      num_options: 4
+      distractor_spread: 3
+    prompt_template: "{a} + ? = 10. Combien vaut ? ?"
+    answer_key: result
+
+- id: num_decomposer_20__mcq_1
+  skill_id: num_decomposer_20
+  difficulty: 2
+  input_type: mcq
+  template:
+    type: mcq
+    operation: add
+    params:
+      a_min: 1
+      a_max: 15
+      b_min: 1
+      b_max: 15
+      num_options: 4
+      distractor_spread: 3
+    prompt_template: "{a} + {b} = ?"
+    answer_key: result

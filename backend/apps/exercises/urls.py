@@ -1,5 +1,6 @@
 from django.urls import path
 
+from .atelier_views import audit, skill_detail, template_preview
 from .diagnostic_views import next_question as diagnostic_next
 from .diagnostic_views import result as diagnostic_result
 from .diagnostic_views import start as diagnostic_start
@@ -15,6 +16,13 @@ urlpatterns = [
     path("exercises/generate/", generate, name="exercises-generate"),
     path("exercises/next/", next_exercise, name="exercises-next"),
     path("exercises/samples/", samples, name="exercises-samples"),
+    path("exercises/audit/", audit, name="exercises-audit"),
+    path("exercises/audit/skill/<str:skill_id>/", skill_detail, name="exercises-audit-skill"),
+    path(
+        "exercises/templates/<str:template_id>/preview/",
+        template_preview,
+        name="exercises-template-preview",
+    ),
     path("attempts/<uuid:attempt_id>/explain/", explain_attempt, name="attempts-explain"),
     path("diagnostic/start/", diagnostic_start, name="diagnostic-start"),
     path(

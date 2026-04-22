@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import { exercisesApi } from "../api/exercises"
 import { invalidateSkillTree } from "../lib/queryClient"
+import { captureException } from "../lib/errors"
 import { useAuthStore } from "./authStore"
 import { useBadgeStore } from "./badgeStore"
 
@@ -89,7 +90,11 @@ export const useSessionStore = create((set, get) => ({
   stop: async () => {
     const { sessionId } = get()
     if (sessionId) {
-      try { await exercisesApi.endSession(sessionId) } catch { /* ignore */ }
+      try {
+        await exercisesApi.endSession(sessionId)
+      } catch (err) {
+        captureException(err, { where: "sessionStore.stop", sessionId })
+      }
     }
     set({ ...INITIAL })
   },

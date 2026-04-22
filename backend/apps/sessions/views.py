@@ -6,7 +6,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from apps.common.permissions import IsOwner
 from apps.exercises.serializers import AttemptCreateSerializer, AttemptReadSerializer
-from apps.exercises.services import record_attempt
+from apps.exercises.services import DuplicateAttempt, record_attempt
 from apps.students.models import Student
 
 from .exports import build_diagnostic_pdf, build_session_pdf, session_summaries
@@ -66,6 +66,8 @@ class SessionViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         try:
             attempt, gamification = record_attempt(session=session, **serializer.validated_data)
+        except DuplicateAttempt:
+            return Response({"detail": "signature already used"}, status=409)
         except Exception as exc:
             return Response({"signature": str(exc)}, status=400)
         if session.mode == "drill":

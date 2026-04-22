@@ -63,6 +63,7 @@ class Attempt(models.Model):
     is_correct = models.BooleanField()
     xp_awarded = models.PositiveIntegerField(default=0)
     responded_at = models.DateTimeField(auto_now_add=True)
+    signature_hash = models.CharField(max_length=64, unique=True, null=True, blank=True)
 
     class Meta:
         ordering = ["-responded_at"]

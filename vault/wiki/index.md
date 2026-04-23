@@ -69,3 +69,4 @@ Catalog of every wiki page. Updated on every ingest. Keep lines ≤150 chars.
 - [[questions/ingest-gap-ceb-2008-2018]] — état du dépouillement des 16 CEB : 8 profonds, 2 partiels, 6 placeholders — plan de priorisation
 - [[questions/frontend-ux-audit-2026-04-18]] — 56-finding punch list across 11 screens × 5 viewports; 4 P0 / 36 P1 / 16 P2 + native-app readiness
 - [[questions/devops-state-2026-04-18]] — current infra/devops state, what's live, what to tackle next; handoff page for the next devops agent
+- [[questions/lacunes-audit-templates]] — 5 lacunes de l'audit de templates : couverture d3, satisfiabilité, compat answer↔input_type, visibilité Atelier, portage des templates CEB P1→P6

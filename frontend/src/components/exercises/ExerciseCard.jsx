@@ -7,7 +7,9 @@ import HintPanel from "./HintPanel"
 import FeedbackMessage from "./FeedbackMessage"
 import NumberInput from "./inputs/NumberInput"
 import McqInput from "./inputs/McqInput"
+import McqMultiInput from "./inputs/McqMultiInput"
 import SymbolInput from "./inputs/SymbolInput"
+import BinaryEqualityInput from "./inputs/BinaryEqualityInput"
 import DecompositionInput from "./inputs/DecompositionInput"
 import PointOnLineInput from "./inputs/PointOnLineInput"
 import DragOrderInput from "./inputs/DragOrderInput"
@@ -21,8 +23,12 @@ function renderInput(inputType, key, props) {
   switch (inputType) {
     case "mcq":
       return <McqInput key={key} {...props} />
+    case "mcq_multi":
+      return <McqMultiInput key={key} {...props} />
     case "symbol":
       return <SymbolInput key={key} {...props} />
+    case "binary_equality":
+      return <BinaryEqualityInput key={key} {...props} />
     case "decomposition":
       return <DecompositionInput key={key} {...props} />
     case "point_on_line":

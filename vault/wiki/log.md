@@ -131,3 +131,7 @@ Filed [[questions/exercise-quality-evaluation]] after a design discussion that s
 ## [2026-04-21] query | Recap of templates + quality-evaluation view
 
 User asked to be reminded of their view on exercise templates and quality evaluation. Read [[concepts/templates-vs-curated-exercises]], [[concepts/template-variant-count]], and [[questions/exercise-quality-evaluation]]; answered with a three-part recap (templates-only with curation reserved for assessment-grade items; "good" = aligned + calibrated; three-layer evaluation with Layer 1 deferred until users). No page changes — existing synthesis was complete.
+
+## [2026-04-23] note | Lacunes de l'audit de templates surfacées pendant la revue PR #186
+
+Filed [[questions/lacunes-audit-templates]] après revue manuelle du dashboard Atelier sur la branche CEB core-9 (PR #186). Cinq défauts que l'audit rate : couverture d3 très faible (7/110 skills), satisfiabilité non testée (templates à réponse inatteignable), incompatibilité `answer ↔ input_type` (bug `missing_operator` sur `resolution_problemes` P6 : boutons `<`/`=`/`>` pour une answer `÷`), templates CEB invisibles dans l'Atelier, et seeding P6-only alors que les probes CEB existent dès P2/P3. Contient une checklist de vérifications à ajouter à layer2/layer3. Croise [[questions/nouveaux-types-exercices-ceb]] et [[concepts/ceb-attendus-p6-arithmetique]]. Updated `index.md`.

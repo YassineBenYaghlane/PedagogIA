@@ -6,6 +6,7 @@ import { TopBarBack, TopBarButton } from "../layout/TopBarActions"
 import { api } from "../../api/client"
 import Loader from "../ui/Loader"
 import ExerciseCard from "../exercises/ExerciseCard"
+import { localValidate } from "../../lib/localValidate"
 
 export default function DebugInputsScreen() {
   const [samples, setSamples] = useState([])
@@ -32,7 +33,7 @@ export default function DebugInputsScreen() {
   }, [])
 
   const onSubmit = (idx, sample) => (answer) => {
-    const { ok, expected } = checkAnswer(sample, answer)
+    const { ok, expected } = localValidate(sample, answer)
     setSubmitted((s) => ({ ...s, [idx]: { answer, expected, ok } }))
   }
 
@@ -92,28 +93,3 @@ export default function DebugInputsScreen() {
   )
 }
 
-function checkAnswer(sample, raw) {
-  const t = sample.input_type
-  if (t === "decomposition") {
-    const expected = sample.params?.parts || {}
-    let submitted = {}
-    try { submitted = JSON.parse(raw) } catch { /* ignore */ }
-    const ok = Object.keys(expected).every(
-      (k) => Number(expected[k]) === Number(submitted?.[k] ?? 0),
-    )
-    return { ok, expected }
-  }
-  if (t === "drag_order") {
-    const expected = sample.params?.correct_order || sample.answer
-    let submitted = []
-    try { submitted = JSON.parse(raw) } catch { /* ignore */ }
-    const ok = JSON.stringify(expected) === JSON.stringify(submitted)
-    return { ok, expected }
-  }
-  if (t === "point_on_line" || t === "number") {
-    const expected = sample.answer
-    const norm = (v) => String(v).trim().replace(",", ".")
-    return { ok: norm(expected) === norm(raw), expected }
-  }
-  return { ok: String(sample.answer) === String(raw), expected: sample.answer }
-}

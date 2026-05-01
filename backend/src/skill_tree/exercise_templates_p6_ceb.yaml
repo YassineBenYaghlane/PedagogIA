@@ -1,0 +1,252 @@
+# Exercise templates — CEB core-9 (issue #110)
+# 8 families (13 sub-templates after splits). Weights sit within P5/P6 only
+# (these are CEB-level probes — lower-grade prerequisites are captured via the
+# DAG's prerequisite chain, not via template weights).
+
+# --- 1. equality_trap — piège commutativité / égalité mathématique -----------
+
+- id: ceb_equality_trap__default
+  skills:
+    - {id: maitrise_add_soustr, weight: 0.5}
+    - {id: maitrise_mult_div, weight: 0.5}
+  difficulty: 2
+  input_type: binary_equality
+  template:
+    type: equality_trap
+    params:
+      pairs:
+        - lhs: "{a} − {b}"
+          rhs: "{b} − {a}"
+          is_equal: false
+          error_tag: commutativite_soustraction
+          params: {a_min: 15, a_max: 120, b_min: 1, b_max: 14}
+        - lhs: "{a} + {b}"
+          rhs: "{b} + {a}"
+          is_equal: true
+          error_tag: null
+          params: {a_min: 15, a_max: 120, b_min: 1, b_max: 14}
+        - lhs: "{a} × {b}"
+          rhs: "{b} × {a}"
+          is_equal: true
+          error_tag: null
+          params: {a_min: 3, a_max: 30, b_min: 2, b_max: 12}
+        - lhs: "{a} ÷ {b}"
+          rhs: "{b} ÷ {a}"
+          is_equal: false
+          error_tag: commutativite_division
+          params: {a_min: 20, a_max: 100, b_min: 2, b_max: 10}
+        - lhs: "{a} − {b}"
+          rhs: "{a} + {b}"
+          is_equal: false
+          error_tag: confusion_signe
+          params: {a_min: 20, a_max: 150, b_min: 3, b_max: 20}
+    prompt_template: "Vrai ou faux : {lhs} = {rhs}"
+
+# --- 2. verification_pick — vérification par opération réciproque ------------
+
+- id: ceb_verification_pick__divide
+  skills:
+    - {id: maitrise_mult_div, weight: 1.0}
+  difficulty: 2
+  input_type: mcq
+  template:
+    type: verification_pick
+    operation: divide
+    params:
+      a_min: 40
+      a_max: 400
+      b_min: 2
+      b_max: 12
+      exact_division: true
+    prompt_template: "Quelle opération vérifie : {a} ÷ {b} = {result} ?"
+
+- id: ceb_verification_pick__multiply
+  skills:
+    - {id: maitrise_mult_div, weight: 1.0}
+  difficulty: 2
+  input_type: mcq
+  template:
+    type: verification_pick
+    operation: multiply
+    params:
+      a_min: 12
+      a_max: 80
+      b_min: 3
+      b_max: 15
+    prompt_template: "Quelle opération vérifie : {a} × {b} = {result} ?"
+
+- id: ceb_verification_pick__add
+  skills:
+    - {id: maitrise_add_soustr, weight: 1.0}
+  difficulty: 1
+  input_type: mcq
+  template:
+    type: verification_pick
+    operation: add
+    params:
+      a_min: 120
+      a_max: 900
+      b_min: 40
+      b_max: 400
+    prompt_template: "Quelle opération vérifie : {a} + {b} = {result} ?"
+
+- id: ceb_verification_pick__subtract
+  skills:
+    - {id: maitrise_add_soustr, weight: 1.0}
+  difficulty: 2
+  input_type: mcq
+  template:
+    type: verification_pick
+    operation: subtract
+    params:
+      a_min: 150
+      a_max: 900
+      b_min: 40
+      b_max: 400
+    prompt_template: "Quelle opération vérifie : {a} − {b} = {result} ?"
+
+# --- 3. operator_identity_fill — propriétés opératoires ---------------------
+
+- id: ceb_operator_identity__compensation
+  skills:
+    - {id: maitrise_calcul_mental, weight: 1.0}
+  difficulty: 2
+  input_type: number
+  template:
+    type: operator_identity_fill
+    params:
+      identity: compensation_soustraction
+      a_min: 450
+      a_max: 9800
+      b_min: 40
+      b_max: 400
+      round_to: 100
+    prompt_template: "Complète : {a} − {b} = {round_a} − ?"
+
+- id: ceb_operator_identity__inverse
+  skills:
+    - {id: maitrise_calcul_mental, weight: 1.0}
+  difficulty: 2
+  input_type: number
+  template:
+    type: operator_identity_fill
+    params:
+      identity: inverse_multiplicatif
+      a_min: 10
+      a_max: 900
+      divisors: [0.1, 0.5, 0.25]
+    prompt_template: "Complète : {a} ÷ {k} = {a} × ?"
+
+- id: ceb_operator_identity__distributivite
+  skills:
+    - {id: maitrise_calcul_mental, weight: 1.0}
+  difficulty: 2
+  input_type: number
+  template:
+    type: operator_identity_fill
+    params:
+      identity: distributivite_unitaire
+      n_min: 4
+      n_max: 19
+      b_min: 7
+      b_max: 80
+    prompt_template: "Complète : {n} × {b} = (? × {b}) − {b}"
+
+# --- 4. pick_equivalents — décompositions multiplicatives équivalentes ------
+
+- id: ceb_pick_equivalents__default
+  skills:
+    - {id: maitrise_calcul_mental, weight: 0.6}
+    - {id: maitrise_mult_div, weight: 0.4}
+  difficulty: 3
+  input_type: mcq_multi
+  template:
+    type: pick_equivalents
+    params:
+      a_min: 12
+      a_max: 25
+      c_min: 30
+      c_max: 70
+      splits: [5, 6, 7, 8, 9, 10, 12, 15]
+      wrong_delta: 10
+      min_required: 2
+    prompt_template: "Coche les décompositions égales à {a} × {c}."
+
+# --- 5. rang_decimal — numération décimale, rang, virgule -------------------
+
+- id: ceb_rang_decimal__rank_of_digit
+  skills:
+    - {id: num_lire_ecrire_milliard, weight: 1.0}
+  difficulty: 2
+  input_type: mcq
+  template:
+    type: rang_decimal
+    params:
+      mode: rank_of_digit
+      length: 6
+      decimals: 2
+      rangs:
+        - dizaines
+        - centaines
+        - milliers
+        - dizaines de mille
+        - centaines de mille
+        - dixièmes
+        - centièmes
+    prompt_template: "Dans {number}, que représente le chiffre {digit} ?"
+
+- id: ceb_rang_decimal__place_comma
+  skills:
+    - {id: num_lire_ecrire_milliard, weight: 1.0}
+  difficulty: 3
+  input_type: number
+  template:
+    type: rang_decimal
+    params:
+      mode: place_comma
+      length: 6
+      rangs:
+        - dizaines
+        - centaines
+        - milliers
+        - dixièmes
+        - centièmes
+    prompt_template: "Place la virgule dans {digits} pour que le chiffre {digit} occupe le rang des {rang}. Écris le résultat."
+
+# --- 7. inference_from_known — raisonnement à partir d'un fait connu --------
+
+- id: ceb_inference_from_known__default
+  skills:
+    - {id: maitrise_calcul_mental, weight: 0.5}
+    - {id: maitrise_mult_div, weight: 0.3}
+    - {id: mult_decimaux, weight: 0.2}
+  difficulty: 3
+  input_type: number
+  template:
+    type: inference_from_known
+    params:
+      a_min: 11
+      a_max: 29
+      b_min: 23
+      b_max: 78
+      inferences: [scale_0_1_a, double_a, plus_one_a, scale_10_a, scale_0_1_b]
+    prompt_template: "Sachant que {a} × {b} = {base}, combien font {new_a} × {new_b} ?"
+
+# --- 8. fix_false_equality — détecter l'égalité fausse ----------------------
+
+- id: ceb_fix_false_equality__default
+  skills:
+    - {id: maitrise_add_soustr, weight: 0.5}
+    - {id: maitrise_mult_div, weight: 0.5}
+  difficulty: 2
+  input_type: mcq
+  template:
+    type: fix_false_equality
+    params:
+      operations: [add, subtract, multiply]
+      a_min: 12
+      a_max: 80
+      b_min: 3
+      b_max: 15
+      num_true: 3
+    prompt_template: "Coche l'égalité fausse."

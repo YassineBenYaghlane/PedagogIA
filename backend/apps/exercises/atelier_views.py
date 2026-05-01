@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from collections import defaultdict
 from pathlib import Path
 
@@ -18,7 +19,15 @@ from src.services.exercise_gen import instantiate
 
 from .models import ExerciseTemplate
 
-AUDIT_PATH = Path(settings.BASE_DIR).parent / "artifacts/audit/combined.json"
+
+def _audit_dir() -> Path:
+    env = os.environ.get("AUDIT_ARTIFACTS_DIR")
+    if env:
+        return Path(env)
+    return Path(settings.BASE_DIR).parent / "artifacts"
+
+
+AUDIT_PATH = _audit_dir() / "audit/combined.json"
 
 
 def _require_dev(request) -> None:

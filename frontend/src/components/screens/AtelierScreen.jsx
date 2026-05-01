@@ -87,6 +87,9 @@ export default function AtelierScreen() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [filter, setFilter] = useState("all")
+  const [typeFilter, setTypeFilter] = useState("all")
+  const [difficultyFilter, setDifficultyFilter] = useState("all")
+  const [templateFilter, setTemplateFilter] = useState("")
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -107,6 +110,46 @@ export default function AtelierScreen() {
     }
   }, [])
 
+  const allTemplateTypes = useMemo(() => {
+    const set = new Set()
+    for (const skill of Object.values(data?.skills || {})) {
+      for (const tpl of skill.templates || []) {
+        if (tpl.template_type) set.add(tpl.template_type)
+      }
+    }
+    return [...set].sort()
+  }, [data])
+
+  const allTemplateIds = useMemo(() => {
+    const set = new Set()
+    for (const skill of Object.values(data?.skills || {})) {
+      for (const tpl of skill.templates || []) {
+        if (tpl.id) set.add(tpl.id)
+      }
+    }
+    return [...set].sort()
+  }, [data])
+
+  const templateQuery = templateFilter.trim().toLowerCase()
+
+  const skillMatchesTemplates = (skill) => {
+    if (
+      typeFilter === "all"
+      && difficultyFilter === "all"
+      && templateQuery === ""
+    ) return true
+    const templates = skill.templates || []
+    if (!templates.length) return false
+    return templates.some((tpl) => {
+      if (typeFilter !== "all" && tpl.template_type !== typeFilter) return false
+      if (difficultyFilter !== "all" && String(tpl.difficulty) !== difficultyFilter) return false
+      if (templateQuery !== "" && !String(tpl.id).toLowerCase().includes(templateQuery)) {
+        return false
+      }
+      return true
+    })
+  }
+
   const byGrade = useMemo(() => {
     if (!data) return {}
     const out = Object.fromEntries(GRADES.map((g) => [g, []]))
@@ -114,13 +157,15 @@ export default function AtelierScreen() {
       const grade = GRADES.includes(skill.grade) ? skill.grade : null
       if (!grade) continue
       if (filter !== "all" && skill.status !== filter) continue
+      if (!skillMatchesTemplates(skill)) continue
       out[grade].push(skill)
     }
     for (const g of GRADES) {
       out[g].sort((a, b) => a.label.localeCompare(b.label, "fr"))
     }
     return out
-  }, [data, filter])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, filter, typeFilter, difficultyFilter, templateQuery])
 
   const counts = useMemo(() => {
     const c = { total: 0, ok: 0, broken: 0, thin: 0, single_tier: 0, no_coverage: 0 }
@@ -130,6 +175,22 @@ export default function AtelierScreen() {
     }
     return c
   }, [data])
+
+  const visibleCount = useMemo(
+    () => Object.values(byGrade).reduce((n, arr) => n + arr.length, 0),
+    [byGrade],
+  )
+  const filtersActive =
+    filter !== "all"
+    || typeFilter !== "all"
+    || difficultyFilter !== "all"
+    || templateQuery !== ""
+  const resetFilters = () => {
+    setFilter("all")
+    setTypeFilter("all")
+    setDifficultyFilter("all")
+    setTemplateFilter("")
+  }
 
   return (
     <AppShell
@@ -170,17 +231,77 @@ export default function AtelierScreen() {
               <StatCard label="Sans couverture" value={counts.no_coverage} />
             </div>
 
-            <div className="flex flex-wrap gap-2 mb-4">
-              {FILTERS.map((f) => (
-                <button
-                  key={f.id}
-                  type="button"
-                  onClick={() => setFilter(f.id)}
-                  className={`pill ${filter === f.id ? "" : "pill-ghost"} px-3 py-1.5 text-xs`}
-                >
-                  {f.label}
-                </button>
-              ))}
+            <div className="flex flex-col gap-3 mb-4">
+              <div className="flex flex-wrap gap-2">
+                {FILTERS.map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setFilter(f.id)}
+                    className={`pill ${filter === f.id ? "" : "pill-ghost"} px-3 py-1.5 text-xs`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <label className="flex items-center gap-2 text-xs text-stem">
+                  <span className="uppercase tracking-wider">Type</span>
+                  <select
+                    value={typeFilter}
+                    onChange={(e) => setTypeFilter(e.target.value)}
+                    className="rounded-lg border border-bark/15 bg-bone px-3 py-1.5 font-mono text-xs text-bark focus:outline-none focus:ring-2 focus:ring-sage"
+                  >
+                    <option value="all">Tous</option>
+                    {allTemplateTypes.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="flex items-center gap-2 text-xs text-stem">
+                  <span className="uppercase tracking-wider">Difficulté</span>
+                  <select
+                    value={difficultyFilter}
+                    onChange={(e) => setDifficultyFilter(e.target.value)}
+                    className="rounded-lg border border-bark/15 bg-bone px-3 py-1.5 font-mono text-xs text-bark focus:outline-none focus:ring-2 focus:ring-sage"
+                  >
+                    <option value="all">Toutes</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                  </select>
+                </label>
+                <label className="flex items-center gap-2 text-xs text-stem">
+                  <span className="uppercase tracking-wider">Template</span>
+                  <input
+                    type="text"
+                    list="atelier-template-ids"
+                    value={templateFilter}
+                    onChange={(e) => setTemplateFilter(e.target.value)}
+                    placeholder="id ou fragment…"
+                    className="rounded-lg border border-bark/15 bg-bone px-3 py-1.5 font-mono text-xs text-bark w-64 focus:outline-none focus:ring-2 focus:ring-sage"
+                  />
+                  <datalist id="atelier-template-ids">
+                    {allTemplateIds.map((id) => (
+                      <option key={id} value={id} />
+                    ))}
+                  </datalist>
+                </label>
+                <span className="text-xs text-stem">
+                  {visibleCount} / {counts.total} compétence{counts.total > 1 ? "s" : ""}
+                </span>
+                {filtersActive && (
+                  <button
+                    type="button"
+                    onClick={resetFilters}
+                    className="pill pill-ghost px-3 py-1.5 text-xs"
+                  >
+                    Réinitialiser
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">

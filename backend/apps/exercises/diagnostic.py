@@ -92,7 +92,7 @@ class YearState:
 
 
 def _skill_of(attempt) -> "Skill | None":
-    """Resolve skill for an attempt — prefers explicit .skill (tests), else template."""
+    """Resolve canonical skill for an attempt — highest-weighted skill on the template."""
     skill = getattr(attempt, "skill", None)
     if skill is not None:
         return skill
@@ -100,6 +100,11 @@ def _skill_of(attempt) -> "Skill | None":
     if template is None:
         return None
     try:
+        link = (
+            template.skill_weights.select_related("skill").order_by("-weight", "skill_id").first()
+        )
+        if link is not None:
+            return link.skill
         return template.skills.first()
     except AttributeError:
         return None

@@ -5,7 +5,9 @@ import Page from "../layout/Page"
 import TopBar from "../layout/TopBar"
 import { TopBarBack } from "../layout/TopBarActions"
 import Loader from "../ui/Loader"
+import ExerciseCard from "../exercises/ExerciseCard"
 import { atelierApi } from "../../api/atelier"
+import { localValidate } from "../../lib/localValidate"
 
 function scoreTone(score) {
   if (score == null) return "text-stem"
@@ -20,14 +22,16 @@ function formatAnswer(answer) {
   return String(answer)
 }
 
-function TemplateRow({ tpl }) {
+function TemplateRow({ tpl, skill }) {
   const [preview, setPreview] = useState(null)
+  const [feedback, setFeedback] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
   const generate = async () => {
     setLoading(true)
     setError(null)
+    setFeedback(null)
     try {
       const p = await atelierApi.preview(tpl.id)
       setPreview(p)
@@ -36,6 +40,21 @@ function TemplateRow({ tpl }) {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleSubmit = (answer) => {
+    if (!preview || preview.error) return
+    const { ok, expected } = localValidate(preview, answer)
+    setFeedback({
+      is_correct: ok,
+      message: ok
+        ? "Réponse correcte."
+        : `Réponse attendue : ${formatAnswer(expected)}`,
+    })
+  }
+
+  const handleNext = () => {
+    generate()
   }
 
   const audit = tpl.score != null
@@ -99,7 +118,7 @@ function TemplateRow({ tpl }) {
           disabled={loading}
           className="pill pill-ghost px-3 py-1.5 text-xs"
         >
-          {loading ? "…" : "Générer"}
+          {loading ? "…" : preview ? "Regénérer" : "Générer"}
         </button>
         {tpl.sample_prompts?.length > 0 && !preview && !loading && (
           <span className="text-xs text-stem italic">
@@ -123,25 +142,34 @@ function TemplateRow({ tpl }) {
 
       {error && <p className="mt-3 text-xs text-rose">Erreur : {error}</p>}
 
-      {preview && (
-        <div className="mt-3 bg-chalk border border-bark/10 rounded-lg p-3">
-          {preview.error ? (
-            <div className="text-xs text-rose font-mono">{preview.error}</div>
-          ) : (
-            <>
-              <div className="text-sm text-bark">{preview.prompt}</div>
-              <div className="mt-2 text-xs text-sage-deep">
-                <span className="text-stem">réponse&nbsp;: </span>
-                <span className="font-mono">{formatAnswer(preview.answer)}</span>
-              </div>
-              <details className="mt-2">
-                <summary className="text-xs text-stem cursor-pointer">params</summary>
-                <pre className="mt-1 text-xs font-mono text-stem overflow-x-auto">
-                  {JSON.stringify(preview.params, null, 2)}
-                </pre>
-              </details>
-            </>
-          )}
+      {preview?.error && (
+        <div className="mt-3 bg-rose-soft border border-rose/30 rounded-lg p-3 text-xs text-rose font-mono">
+          {preview.error}
+        </div>
+      )}
+
+      {preview && !preview.error && (
+        <div className="mt-4 flex flex-col items-center">
+          <ExerciseCard
+            exercise={preview}
+            skill={skill}
+            grade={skill?.grade}
+            feedback={feedback}
+            onSubmit={handleSubmit}
+            onNext={handleNext}
+            busy={loading}
+            mode="diagnostic"
+          />
+          <details className="mt-3 w-full max-w-md">
+            <summary className="text-xs text-stem cursor-pointer">params &amp; réponse attendue</summary>
+            <div className="mt-2 text-xs text-stem">
+              <span>réponse&nbsp;: </span>
+              <span className="font-mono text-bark">{formatAnswer(preview.answer)}</span>
+            </div>
+            <pre className="mt-1 text-xs font-mono text-stem overflow-x-auto bg-mist/40 rounded p-2">
+              {JSON.stringify(preview.params, null, 2)}
+            </pre>
+          </details>
         </div>
       )}
     </article>
@@ -215,7 +243,7 @@ export default function AtelierSkillScreen() {
         {data && !loading && (
           <div className="grid gap-4">
             {data.templates.map((tpl) => (
-              <TemplateRow key={tpl.id} tpl={tpl} />
+              <TemplateRow key={tpl.id} tpl={tpl} skill={data.skill} />
             ))}
             {data.templates.length === 0 && (
               <div className="specimen p-6 text-center text-stem">

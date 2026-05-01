@@ -7,7 +7,9 @@ from apps.skills.models import Skill
 INPUT_TYPES = [
     ("number", "Number"),
     ("mcq", "MCQ"),
+    ("mcq_multi", "MCQ multi-correct"),
     ("symbol", "Symbol"),
+    ("binary_equality", "Binary equality"),
     ("decomposition", "Decomposition"),
     ("point_on_line", "Point on number line"),
     ("drag_order", "Drag to order"),
@@ -64,6 +66,7 @@ class Attempt(models.Model):
     xp_awarded = models.PositiveIntegerField(default=0)
     responded_at = models.DateTimeField(auto_now_add=True)
     signature_hash = models.CharField(max_length=64, unique=True, null=True, blank=True)
+    error_tag = models.CharField(max_length=60, null=True, blank=True)
 
     class Meta:
         ordering = ["-responded_at"]

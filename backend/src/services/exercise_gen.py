@@ -462,6 +462,9 @@ def _generate_parity(template: dict) -> dict[str, Any]:
     }
 
 
+# CEB core-9 generators are defined in exercise_gen_ceb.py; importing for registration.
+
+
 @register("missing_operator")
 def _generate_missing_operator(template: dict) -> dict[str, Any]:
     """Generate a ? b = c → find the operator."""
@@ -494,3 +497,7 @@ def _generate_missing_operator(template: dict) -> dict[str, Any]:
         return {"prompt": prompt, "answer": chosen_symbol, "params": params}
 
     raise RuntimeError(f"Could not satisfy constraints after {MAX_RETRIES} retries")
+
+
+# Register CEB core-9 generators (issue #110).
+from . import exercise_gen_ceb  # noqa: E402, F401

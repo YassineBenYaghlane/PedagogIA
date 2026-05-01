@@ -93,3 +93,26 @@ def test_drag_order_generator_shuffles_and_produces_sorted_answer():
 
 def test_unknown_input_type_falls_back_to_number_validator():
     assert validate("unknown_type", "42", 42, {})
+
+
+def test_binary_equality_validator_accepts_only_equality_symbols():
+    assert validate("binary_equality", "=", "=", {})
+    assert validate("binary_equality", "≠", "≠", {})
+    assert not validate("binary_equality", "=", "≠", {})
+    assert not validate("binary_equality", "<", "=", {})
+    assert not validate("binary_equality", "oui", "=", {})
+
+
+def test_mcq_multi_validator_all_or_nothing_by_default():
+    assert validate("mcq_multi", json.dumps(["A", "B"]), ["A", "B"], {})
+    assert not validate("mcq_multi", json.dumps(["A"]), ["A", "B"], {})
+    assert not validate("mcq_multi", json.dumps(["A", "B", "X"]), ["A", "B"], {})
+
+
+def test_mcq_multi_validator_respects_min_required():
+    assert validate("mcq_multi", json.dumps(["A"]), ["A", "B", "C"], {"min_required": 1})
+    assert not validate("mcq_multi", json.dumps(["X"]), ["A", "B", "C"], {"min_required": 1})
+
+
+def test_mcq_multi_validator_accepts_list_student_answer():
+    assert validate("mcq_multi", ["A", "B"], ["A", "B"], {})

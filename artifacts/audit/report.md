@@ -1,27 +1,21 @@
 # Template audit — 2026-04-22
 
-**Overview:** 247 templates across 110 skills, 136,685 total variants (sum over templates).
+**Overview:** 260 templates across 110 skills, 148,943 total variants (sum over templates).
 
 ## Executive summary
 
 | Metric | Value |
 |---|---|
-| Templates | 247 |
+| Templates | 260 |
 | Skills | 110 |
-| Total variants (sum) | 136,685 |
-| Average quality score | 95.9/100 |
+| Total variants (sum) | 148,943 |
+| Average quality score | 96.1/100 |
 | Templates below 60/100 | 0 |
-| Duplicate template IDs | 1 |
+| Duplicate template IDs | 0 |
 
 **Skill coverage status:**
 
 - ✅ OK: 110 skills
-
-## Duplicate template IDs
-
-These IDs appear more than once — `seed_templates` silently overwrites with the last occurrence:
-
-- `num_decimaux_milliemes__comparison_1` — exercise_templates_p4.yaml, exercise_templates_p5.yaml
 
 ## Templates needing attention (score < 60)
 

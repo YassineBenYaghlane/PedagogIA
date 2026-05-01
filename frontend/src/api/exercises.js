@@ -14,6 +14,6 @@ export const exercisesApi = {
     api.post("/sessions/", { student: studentId, mode }),
   endSession: (sessionId) =>
     api.patch(`/sessions/${sessionId}/`, { ended_at: new Date().toISOString() }),
-  explain: (attemptId) =>
-    api.post(`/attempts/${attemptId}/explain/`, {})
+  regenerateSignature: (signature) =>
+    api.post("/exercises/regenerate-signature/", { signature })
 }

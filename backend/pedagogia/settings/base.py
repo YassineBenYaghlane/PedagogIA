@@ -10,8 +10,8 @@ env = environ.Env(
     CORS_ORIGINS=(list, ["http://localhost:5173"]),
     CORS_ORIGINS_RAW=(str, ""),
     ANTHROPIC_API_KEY=(str, ""),
-    INVESTIGATION_MODEL_PRIMARY=(str, "claude-haiku-4-5-20251001"),
-    INVESTIGATION_MODEL_ESCALATION=(str, "claude-sonnet-4-6"),
+    TUTOR_MODEL_PRIMARY=(str, "claude-haiku-4-5-20251001"),
+    TUTOR_MODEL_ESCALATION=(str, "claude-sonnet-4-6"),
     GOOGLE_CLIENT_ID=(str, ""),
     GOOGLE_CLIENT_SECRET=(str, ""),
     GOOGLE_OAUTH_CALLBACK_URL=(str, "http://localhost:5173/auth/google/callback"),
@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "apps.exercises",
     "apps.students",
     "apps.sessions.apps.LearningSessionsConfig",
+    "apps.chat",
 ]
 
 MIDDLEWARE = [
@@ -190,8 +191,8 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
 
 ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY")
-INVESTIGATION_MODEL_PRIMARY = env("INVESTIGATION_MODEL_PRIMARY")
-INVESTIGATION_MODEL_ESCALATION = env("INVESTIGATION_MODEL_ESCALATION")
+TUTOR_MODEL_PRIMARY = env("TUTOR_MODEL_PRIMARY")
+TUTOR_MODEL_ESCALATION = env("TUTOR_MODEL_ESCALATION")
 
 TRUST_CLOUDFLARE_REAL_IP = env.bool("TRUST_CLOUDFLARE_REAL_IP", default=False)
 

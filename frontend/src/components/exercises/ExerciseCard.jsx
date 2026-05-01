@@ -3,7 +3,7 @@ import Icon from "../ui/Icon"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import Loader from "../ui/Loader"
-import HintPanel from "./HintPanel"
+import AskHelpButton from "./AskHelpButton"
 import FeedbackMessage from "./FeedbackMessage"
 import NumberInput from "./inputs/NumberInput"
 import McqInput from "./inputs/McqInput"
@@ -36,8 +36,8 @@ function renderInput(inputType, key, props) {
 }
 
 export default function ExerciseCard({
-  exercise, skill, grade, feedback, onSubmit, onNext, busy,
-  explanation, explaining, onExplain, mode,
+  exercise, skill, grade, feedback, onSubmit, onNext, onRetry, busy,
+  conversationId, openingChat, onOpenChat, onOpenChatForExercise, mode,
 }) {
   const examMode = mode === "exam"
   const nextRef = useRef(null)
@@ -69,9 +69,11 @@ export default function ExerciseCard({
         {prompt}
       </div>
 
-      {!feedback && mode !== "diagnostic" && !examMode && <HintPanel exercise={exercise} />}
+      {!feedback && !conversationId && mode !== "diagnostic" && !examMode && (
+        <AskHelpButton onClick={onOpenChatForExercise} busy={openingChat} />
+      )}
 
-      {!feedback &&
+      {!feedback && !conversationId &&
         renderInput(exercise.input_type, exercise.template_id, {
           exercise,
           grade,
@@ -79,18 +81,43 @@ export default function ExerciseCard({
           onSubmit,
         })}
 
+      {!feedback && conversationId && (
+        <p className="mt-2 text-xs text-stem italic" data-testid="chat-active-note">
+          On en parle avec le tuteur juste en dessous.
+        </p>
+      )}
+
       <FeedbackMessage
         feedback={feedback}
-        explanation={explanation}
-        explaining={explaining}
-        onExplain={onExplain}
+        conversationId={conversationId}
+        openingChat={openingChat}
+        onOpenChat={onOpenChat}
+        onRetry={onRetry}
+        onNext={onNext}
         neutral={examMode}
       />
 
-      {feedback && (
-        <Button ref={nextRef} onClick={onNext} size="lg" className="w-full mt-4">
-          Suivant <Icon name="arrow_forward" />
-        </Button>
+      {feedback && !conversationId && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
+          {!feedback.is_correct && onRetry && (
+            <Button
+              variant="ghost"
+              size="lg"
+              onClick={onRetry}
+              data-testid="exercise-retry"
+            >
+              <Icon name="refresh" /> Réessayer
+            </Button>
+          )}
+          <Button
+            ref={nextRef}
+            onClick={onNext}
+            size="lg"
+            className={!feedback.is_correct && onRetry ? "" : "sm:col-span-2"}
+          >
+            Suivant <Icon name="arrow_forward" />
+          </Button>
+        </div>
       )}
     </Card>
   )

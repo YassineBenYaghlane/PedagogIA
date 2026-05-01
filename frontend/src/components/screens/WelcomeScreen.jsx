@@ -8,7 +8,7 @@ import { Heading } from "../ui/Heading"
 import AppShell from "../layout/AppShell"
 import Page from "../layout/Page"
 import TopBar from "../layout/TopBar"
-import { TopBarButton } from "../layout/TopBarActions"
+import { TopBarButton, TopBarLink } from "../layout/TopBarActions"
 import { useAuthStore } from "../../stores/authStore"
 import RankChip from "../xp/RankChip"
 import XPBar from "../xp/XPBar"
@@ -140,9 +140,14 @@ export default function WelcomeScreen() {
       topBar={
         <TopBar
           trailing={
-            <TopBarButton onClick={handleLogout} icon="logout" data-testid="logout">
-              Déconnexion
-            </TopBarButton>
+            <>
+              <TopBarLink to="/children" icon="child_care" data-testid="switch-child">
+                Espace enfant
+              </TopBarLink>
+              <TopBarButton onClick={handleLogout} icon="logout" data-testid="logout">
+                Déconnexion
+              </TopBarButton>
+            </>
           }
         />
       }
@@ -223,6 +228,14 @@ export default function WelcomeScreen() {
           >
             <Icon name="history" /> Historique
           </Button>
+          <Button
+            data-testid="open-chat"
+            variant="ghost"
+            size="md"
+            onClick={() => navigate("/chat")}
+          >
+            <Icon name="chat_bubble" /> Pose ta question
+          </Button>
         </div>
 
         <section className="mb-6">
@@ -239,14 +252,8 @@ export default function WelcomeScreen() {
           <BadgeGallery earned={child.achievements || []} compact />
         </section>
 
-        <div className="flex items-center justify-between pt-6 border-t border-sage/10">
+        <div className="flex items-center pt-6 border-t border-sage/10">
           <Chip tone="sky">Saison · printemps</Chip>
-          <button
-            onClick={() => navigate("/children")}
-            className="text-stem hover:text-bark text-sm cursor-pointer"
-          >
-            Changer de carnet
-          </button>
         </div>
 
         {import.meta.env.VITE_APP_VERSION && (

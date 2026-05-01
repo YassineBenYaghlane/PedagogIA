@@ -55,8 +55,8 @@ def test_correct_answer_skips_api(monkeypatch):
 
 
 def test_haiku_high_confidence_no_escalation(fake_client, settings):
-    settings.INVESTIGATION_MODEL_PRIMARY = "haiku-x"
-    settings.INVESTIGATION_MODEL_ESCALATION = "sonnet-x"
+    settings.TUTOR_MODEL_PRIMARY = "haiku-x"
+    settings.TUTOR_MODEL_ESCALATION = "sonnet-x"
     fake_client.messages.create.return_value = _fake_response(
         {
             "feedback_text": "Tu as oublié la retenue.",
@@ -73,8 +73,8 @@ def test_haiku_high_confidence_no_escalation(fake_client, settings):
 
 
 def test_low_confidence_escalates_to_sonnet(fake_client, settings):
-    settings.INVESTIGATION_MODEL_PRIMARY = "haiku-x"
-    settings.INVESTIGATION_MODEL_ESCALATION = "sonnet-x"
+    settings.TUTOR_MODEL_PRIMARY = "haiku-x"
+    settings.TUTOR_MODEL_ESCALATION = "sonnet-x"
     fake_client.messages.create.side_effect = [
         _fake_response(
             {

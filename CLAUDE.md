@@ -155,7 +155,7 @@ Metaphor: a calm botanical greenhouse. Each skill is a plant, each session a car
   - *Diagnostic* — locates the student's current level on the tree
   - *Drill* — targeted practice on a chosen skill
   - *Free practice* — selection driven by mastery state + spaced repetition
-- **AI investigation:** on wrong answers, Claude API receives (question, answer, skill tree branch, mastery state) and reasons about which prerequisite to probe next. Primary model is Claude Haiku 4.5, escalation to Sonnet 4.6 (see `INVESTIGATION_MODEL_*` in settings). No manual error mappings.
+- **AI tutor:** conversational tutor (chat libre + in-exercice on wrong answers) backed by the Claude API. Receives `(message history, skill tree branch, mastery state)` and guides the student Socratically. Primary model Claude Haiku 4.5, escalation to Sonnet 4.6 (see `TUTOR_MODEL_*` in settings). No manual error mappings.
 - **Multi-strategy explanations:** several pedagogical angles (calcul posé, décomposition, etc.) picked per skill.
 - **Exercise templates:** JSONB with parameter ranges. Backend instantiates concrete exercises at runtime. New exercises = YAML edit + `seed_templates`.
 - **User / Student model:** `User` is the auth model (apps.accounts.User); students are profiles scoped to a user. All student-facing endpoints enforce ownership.

@@ -10,12 +10,17 @@ from .drill_views import start as drill_start
 from .exam_views import next_question as exam_next
 from .exam_views import result as exam_result
 from .exam_views import start as exam_start
-from .views import explain_attempt, generate, next_exercise, samples
+from .views import generate, next_exercise, regenerate_signature, samples
 
 urlpatterns = [
     path("exercises/generate/", generate, name="exercises-generate"),
     path("exercises/next/", next_exercise, name="exercises-next"),
     path("exercises/samples/", samples, name="exercises-samples"),
+    path(
+        "exercises/regenerate-signature/",
+        regenerate_signature,
+        name="exercises-regenerate-signature",
+    ),
     path("exercises/audit/", audit, name="exercises-audit"),
     path("exercises/audit/skill/<str:skill_id>/", skill_detail, name="exercises-audit-skill"),
     path(
@@ -23,7 +28,6 @@ urlpatterns = [
         template_preview,
         name="exercises-template-preview",
     ),
-    path("attempts/<uuid:attempt_id>/explain/", explain_attempt, name="attempts-explain"),
     path("diagnostic/start/", diagnostic_start, name="diagnostic-start"),
     path(
         "diagnostic/<uuid:session_id>/next/",

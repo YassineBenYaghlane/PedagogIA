@@ -4,6 +4,7 @@ import AppShell from "../layout/AppShell"
 import TopBar from "../layout/TopBar"
 import { TopBarBack } from "../layout/TopBarActions"
 import ExerciseCard from "../exercises/ExerciseCard"
+import ExerciseChatPane from "../exercises/ExerciseChatPane"
 import { useSessionStore } from "../../stores/sessionStore"
 import { useAuthStore } from "../../stores/authStore"
 
@@ -13,8 +14,10 @@ export default function ExerciseScreen() {
   const skillOverride = searchParams.get("skill") || null
   const { selectedChildId, children, bootstrap } = useAuthStore()
   const {
-    sessionId, lockedSkillId, current, feedback, explanation, explaining,
-    loading, error, start, submit, loadNext, stop, explain,
+    sessionId, lockedSkillId, current, feedback,
+    chatConversationId, openingChat,
+    loading, error, start, submit, loadNext, retry, stop,
+    openChat, openChatForExercise, closeChat,
   } = useSessionStore()
   const child = children.find((c) => c.id === selectedChildId)
 
@@ -57,19 +60,32 @@ export default function ExerciseScreen() {
           </div>
         )}
 
-        <ExerciseCard
-          key={current?.exercise?.signature || "loading"}
-          exercise={current?.exercise}
-          skill={current?.skill}
-          grade={child?.grade}
-          feedback={feedback}
-          explanation={explanation}
-          explaining={explaining}
-          onExplain={explain}
-          busy={loading}
-          onSubmit={submit}
-          onNext={loadNext}
-        />
+        <div className="w-full max-w-md flex flex-col items-stretch gap-4">
+          <ExerciseCard
+            key={current?.exercise?.signature || "loading"}
+            exercise={current?.exercise}
+            skill={current?.skill}
+            grade={child?.grade}
+            feedback={feedback}
+            conversationId={chatConversationId}
+            openingChat={openingChat}
+            onOpenChat={openChat}
+            onOpenChatForExercise={openChatForExercise}
+            onRetry={retry}
+            busy={loading}
+            onSubmit={submit}
+            onNext={() => loadNext()}
+          />
+          {chatConversationId && (
+            <div className="h-[60vh] min-h-[420px] max-h-[640px]">
+              <ExerciseChatPane
+                onClose={closeChat}
+                onRetry={feedback && !feedback.is_correct ? retry : null}
+                onNext={feedback ? () => loadNext() : null}
+              />
+            </div>
+          )}
+        </div>
       </div>
     </AppShell>
   )

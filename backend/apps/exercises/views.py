@@ -134,5 +134,3 @@ def samples(request):
             }
         )
     return Response(out)
-
-

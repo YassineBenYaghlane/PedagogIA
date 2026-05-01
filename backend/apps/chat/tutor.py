@@ -10,7 +10,7 @@ from apps.students.models import SKILL_XP_MAX, Student, StudentSkillState
 from apps.students.serializers import mastery_counts
 from apps.students.services.streaks import daily_progress
 
-from .models import KIND_EXERCICE, KIND_FREE, Conversation, Message
+from .models import KIND_EXERCICE, Conversation, Message
 
 logger = logging.getLogger(__name__)
 
@@ -130,8 +130,7 @@ def _profile_block(student: Student) -> str:
     profile_lines = [
         "Profil :",
         f"  - Rang : {student.rank} ({student.xp} XP)",
-        f"  - Série actuelle : {student.current_streak} jour(s) "
-        f"(record {student.best_streak})",
+        f"  - Série actuelle : {student.current_streak} jour(s) (record {student.best_streak})",
         f"  - Objectif du jour : {daily_done} / {student.daily_goal}",
     ]
 
@@ -226,9 +225,7 @@ def _system_blocks(conv: Conversation) -> list[dict]:
     """Build the system message with prompt-cached student/skill/attempt blocks."""
     student = conv.student
     blocks: list[dict] = [{"type": "text", "text": SYSTEM_PROMPT}]
-    blocks.append(
-        {"type": "text", "text": APP_CONTEXT, "cache_control": {"type": "ephemeral"}}
-    )
+    blocks.append({"type": "text", "text": APP_CONTEXT, "cache_control": {"type": "ephemeral"}})
     blocks.append({"type": "text", "text": _student_block(student)})
     blocks.append({"type": "text", "text": _profile_block(student)})
 

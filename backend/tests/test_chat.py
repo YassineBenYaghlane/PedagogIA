@@ -1,7 +1,7 @@
 import pytest
 
-from apps.chat.models import Conversation, Message
 from apps.chat import tutor
+from apps.chat.models import Conversation, Message
 from apps.students.models import Student
 
 
@@ -298,9 +298,7 @@ def test_open_for_attempt_marks_kind_exercice_with_anchors(monkeypatch, auth_cli
 @pytest.mark.django_db
 def test_create_conversation_defaults_to_free_kind(auth_client, user):
     student = _make_student(user)
-    res = auth_client.post(
-        f"/api/students/{student.id}/conversations/", format="json"
-    )
+    res = auth_client.post(f"/api/students/{student.id}/conversations/", format="json")
     assert res.status_code == 201
     assert res.json()["kind"] == "free"
 

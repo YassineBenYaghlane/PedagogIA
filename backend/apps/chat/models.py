@@ -24,9 +24,7 @@ class Conversation(models.Model):
     """One thread of student↔tutor messages. A student can have many."""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    student = models.ForeignKey(
-        Student, on_delete=models.CASCADE, related_name="conversations"
-    )
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="conversations")
     kind = models.CharField(max_length=16, choices=KIND_CHOICES, default=KIND_FREE)
     title = models.CharField(max_length=120, blank=True, default="")
     # Exercice-mode anchors — only set when kind=exercice.

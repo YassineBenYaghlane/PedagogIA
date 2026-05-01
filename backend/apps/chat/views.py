@@ -1,6 +1,7 @@
 import json
 import logging
 
+from django.core import signing
 from django.db.models import Count
 from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404
@@ -8,8 +9,6 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
-from django.core import signing
 
 from apps.exercises.models import Attempt, ExerciseTemplate
 from apps.exercises.services import ANSWER_SALT
@@ -37,9 +36,7 @@ def _student_owned(user, student_id) -> Student:
 
 
 def _conversation_owned(user, conversation_id) -> Conversation:
-    conv = get_object_or_404(
-        Conversation.objects.select_related("student"), id=conversation_id
-    )
+    conv = get_object_or_404(Conversation.objects.select_related("student"), id=conversation_id)
     if conv.student.user_id != user.id:
         raise PermissionDenied("not your conversation")
     return conv
@@ -105,9 +102,11 @@ def open_for_exercise(request):
         payload = signing.loads(signature, salt=ANSWER_SALT, max_age=60 * 60 * 6)
     except signing.BadSignature as exc:
         raise ValidationError({"signature": "invalid or expired"}) from exc
-    template = ExerciseTemplate.objects.prefetch_related("skills").filter(
-        id=payload.get("template_id")
-    ).first()
+    template = (
+        ExerciseTemplate.objects.prefetch_related("skills")
+        .filter(id=payload.get("template_id"))
+        .first()
+    )
     skill = template.skills.first() if template else None
     seed = open_for_exercise_message(
         student,
@@ -185,9 +184,7 @@ def _stream_assistant(conv: Conversation, student_msg) -> "iter[bytes]":
             yield (json.dumps({"type": "chunk", "text": piece}) + "\n").encode("utf-8")
     except Exception as exc:
         logger.exception("tutor stream failed for conv %s", conv.id)
-        yield (
-            json.dumps({"type": "error", "detail": str(exc)}) + "\n"
-        ).encode("utf-8")
+        yield (json.dumps({"type": "error", "detail": str(exc)}) + "\n").encode("utf-8")
         return
 
     full = "".join(chunks).strip()

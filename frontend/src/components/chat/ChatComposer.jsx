@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import Icon from "../ui/Icon"
+import StyletCanvas from "../ui/StyletCanvas"
 import { voiceApi } from "../../api/voice"
 import { TURN_STATES } from "../../lib/useConversationFlow"
 
@@ -27,6 +28,7 @@ export default function ChatComposer({
   const [voiceError, setVoiceError] = useState(null)
   const [scratchImage, setScratchImage] = useState(null)
   const [scratchError, setScratchError] = useState(null)
+  const [styletOpen, setStyletOpen] = useState(false)
   const recorderRef = useRef(null)
   const chunksRef = useRef([])
   const stopTimerRef = useRef(null)
@@ -65,6 +67,14 @@ export default function ChatComposer({
   const removeScratch = () => {
     setScratchImage(null)
     setScratchError(null)
+  }
+
+  const onStyletCommit = (blob) => {
+    if (!blob) return
+    const file = new File([blob], "brouillon-stylet.png", { type: "image/png" })
+    setScratchError(null)
+    setScratchImage(file)
+    setStyletOpen(false)
   }
   const onKey = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -201,6 +211,16 @@ export default function ChatComposer({
           >
             <Icon name="camera" size={18} />
           </button>
+          <button
+            type="button"
+            onClick={() => setStyletOpen(true)}
+            disabled={disabled}
+            aria-label="Esquisser au stylet"
+            data-testid="chat-stylet-button"
+            className="flex items-center justify-center w-10 h-10 rounded-xl border border-sage/20 bg-chalk text-sage-deep hover:bg-sage-leaf/30 transition-colors duration-200 ease-out cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Icon name="pen" size={18} />
+          </button>
           <textarea
             rows={1}
             value={value}
@@ -245,6 +265,23 @@ export default function ChatComposer({
         <p className="text-rose text-xs px-3 pb-2" data-testid="chat-voice-error">
           {voiceError}
         </p>
+      )}
+      {styletOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-bark/30 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Brouillon stylet"
+          data-testid="chat-stylet-modal"
+        >
+          <div className="bg-bone rounded-3xl shadow-xl w-full max-w-2xl h-[80vh] max-h-[640px] p-5 flex">
+            <StyletCanvas
+              onCommit={onStyletCommit}
+              onCancel={() => setStyletOpen(false)}
+              minHeight={300}
+            />
+          </div>
+        </div>
       )}
     </form>
   )

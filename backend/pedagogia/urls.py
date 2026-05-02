@@ -55,4 +55,6 @@ urlpatterns = [
     path("api/", include("apps.exercises.urls")),
     path("api/", include("apps.students.urls")),
     path("api/", include("apps.sessions.urls")),
+    path("api/", include("apps.chat.urls")),
+    path("api/", include("apps.voice.urls")),
 ]

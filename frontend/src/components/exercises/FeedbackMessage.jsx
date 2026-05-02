@@ -1,77 +1,45 @@
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import Icon from "../ui/Icon"
 import Button from "../ui/Button"
 import { useFeedback } from "../../lib/feedback"
 
-function StrategyTabs({ strategies }) {
-  const [active, setActive] = useState(0)
-  if (!strategies || strategies.length === 0) return null
-  const current = strategies[active]
-  return (
-    <div
-      className="mt-4 rounded-xl p-4 text-left bg-paper border border-bark/5"
-      data-testid="strategies"
-    >
-      <div className="flex flex-wrap gap-2 mb-3">
-        {strategies.map((s, i) => (
-          <button
-            key={s.name}
-            onClick={() => setActive(i)}
-            className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-colors cursor-pointer ${
-              i === active
-                ? "bg-sky-deep text-white"
-                : "bg-mist text-stem hover:bg-sage-pale/60"
-            }`}
-          >
-            {s.name}
-          </button>
-        ))}
-      </div>
-      <p className="text-sm text-bark">{current.explanation}</p>
-    </div>
-  )
-}
-
-function ExplainSection({ feedback, explanation, explaining, onExplain }) {
+function ExplainSection({ feedback, conversationId, openingChat, onOpenChat }) {
   if (!feedback?.can_explain) return null
 
-  if (explaining) {
+  if (openingChat) {
     return (
       <div
         className="mt-4 flex items-center justify-center gap-2 text-sm text-sky-deep"
         data-testid="explain-loading"
       >
         <Icon name="progress_activity" className="animate-spin" />
-        Le jardinier observe ta plante…
+        Le tuteur t'écoute…
       </div>
     )
   }
 
-  if (explanation) {
-    return (
-      <div className="mt-4" data-testid="explanation">
-        {explanation.message && (
-          <p className="text-sm text-bark text-center">{explanation.message}</p>
-        )}
-        {explanation.next_skill_id && (
-          <p className="text-xs text-stem text-center mt-2">
-            On va revoir :{" "}
-            <span className="font-mono text-bark">{explanation.next_skill_id}</span>
-          </p>
-        )}
-        <StrategyTabs strategies={explanation.strategies} />
-      </div>
-    )
-  }
+  if (conversationId) return null
 
   return (
-    <Button variant="ghost" size="sm" onClick={onExplain} className="mt-4 w-full" data-testid="explain-btn">
-      <Icon name="lightbulb" /> Expliquer mon erreur
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={onOpenChat}
+      className="mt-4 w-full"
+      data-testid="explain-btn"
+    >
+      <Icon name="chat_bubble" /> Demander de l'aide
     </Button>
   )
 }
 
-export default function FeedbackMessage({ feedback, explanation, explaining, onExplain, neutral }) {
+export default function FeedbackMessage({
+  feedback,
+  conversationId,
+  openingChat,
+  onOpenChat,
+  neutral
+}) {
   const ok = feedback?.is_correct
   const cues = useFeedback()
   useEffect(() => {
@@ -116,9 +84,9 @@ export default function FeedbackMessage({ feedback, explanation, explaining, onE
       )}
       <ExplainSection
         feedback={feedback}
-        explanation={explanation}
-        explaining={explaining}
-        onExplain={onExplain}
+        conversationId={conversationId}
+        openingChat={openingChat}
+        onOpenChat={onOpenChat}
       />
     </div>
   )

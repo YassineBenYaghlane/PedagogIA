@@ -12,10 +12,11 @@ from apps.students.models import Student, StudentSkillState
 from apps.students.services import NoSkillAvailable, difficulty_for_xp, pick_next_skill
 from src.services.exercise_gen import instantiate
 
-from .investigation import feedback_for
-from .models import INPUT_TYPES, Attempt, ExerciseTemplate
+from .models import INPUT_TYPES, ExerciseTemplate
 from .serializers import GeneratedExerciseSerializer
 from .services import ANSWER_SALT, generate_exercise
+
+SIGNATURE_MAX_AGE = 60 * 60 * 6
 
 
 def _difficulty_for_skill(student: Student, skill: Skill) -> int:
@@ -72,6 +73,26 @@ def next_exercise(request):
     )
 
 
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def regenerate_signature(request):
+    """Re-encode the same exercise (same template + params) with a fresh signature.
+
+    Lets the student retry the exact same question after a wrong attempt — the new
+    signature has a fresh timestamp, so its sha256 hash differs from the original
+    and the unique `signature_hash` constraint on Attempt no longer blocks resubmit.
+    """
+    sig = request.data.get("signature")
+    if not isinstance(sig, str) or not sig:
+        raise ValidationError({"signature": "required"})
+    try:
+        payload = signing.loads(sig, salt=ANSWER_SALT, max_age=SIGNATURE_MAX_AGE)
+    except signing.BadSignature as exc:
+        raise ValidationError({"signature": "invalid or expired"}) from exc
+    new_sig = signing.dumps(payload, salt=ANSWER_SALT)
+    return Response({"signature": new_sig})
+
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def samples(request):
@@ -113,17 +134,3 @@ def samples(request):
             }
         )
     return Response(out)
-
-
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def explain_attempt(request, attempt_id):
-    """On-demand AI investigation for a wrong attempt the user owns."""
-    attempt = get_object_or_404(
-        Attempt.objects.select_related("session__student", "template"),
-        id=attempt_id,
-        session__student__user=request.user,
-    )
-    if attempt.is_correct:
-        raise ValidationError({"detail": "explanation only available for wrong attempts"})
-    return Response(feedback_for(attempt))

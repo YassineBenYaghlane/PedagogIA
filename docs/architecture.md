@@ -124,7 +124,7 @@ accounts_user ──┐
 
 | Service | Purpose | Where configured |
 |---|---|---|
-| Anthropic Claude API | AI investigation on wrong answers | `ANTHROPIC_API_KEY`, `INVESTIGATION_MODEL_*` in `.env.prod` |
+| Anthropic Claude API | AI tutor (chat libre + in-exercice) | `ANTHROPIC_API_KEY`, `TUTOR_MODEL_*` in `.env.prod` |
 | Google OAuth | social login | `GOOGLE_CLIENT_ID/SECRET` in `.env.prod`, redirect URI must be authorized in Google Console |
 | Let's Encrypt | TLS certs | Caddy owns this, `CADDY_EMAIL` in `.env.prod` |
 | GHCR | container registry | public packages, no pull auth on the server |

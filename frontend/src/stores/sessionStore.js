@@ -1,9 +1,11 @@
 import { create } from "zustand"
 import { exercisesApi } from "../api/exercises"
+import { chatApi } from "../api/chat"
 import { invalidateSkillTree } from "../lib/queryClient"
 import { captureException } from "../lib/errors"
 import { useAuthStore } from "./authStore"
 import { useBadgeStore } from "./badgeStore"
+import { useChatStore } from "./chatStore"
 
 const INITIAL = {
   sessionId: null,
@@ -12,8 +14,9 @@ const INITIAL = {
   current: null,
   feedback: null,
   lastAttemptId: null,
-  explanation: null,
-  explaining: false,
+  chatConversationId: null,
+  chatNextSkillId: null,
+  openingChat: false,
   loading: false,
   error: null
 }
@@ -34,20 +37,47 @@ export const useSessionStore = create((set, get) => ({
     }
   },
 
-  loadNext: async () => {
-    const { studentId, explanation, lockedSkillId } = get()
+  loadNext: async (overrideSkillId = null) => {
+    const { studentId, chatNextSkillId, lockedSkillId } = get()
     if (!studentId) return
-    const override = lockedSkillId || explanation?.next_skill_id || null
+    const skill = overrideSkillId || lockedSkillId || chatNextSkillId || null
     set({
       loading: true,
       feedback: null,
       lastAttemptId: null,
-      explanation: null,
-      explaining: false
+      chatConversationId: null,
+      chatNextSkillId: null,
+      openingChat: false
     })
+    useChatStore.getState().reset()
     try {
-      const data = await exercisesApi.next(studentId, override)
+      const data = await exercisesApi.next(studentId, skill)
       set({ current: data, loading: false })
+    } catch (err) {
+      set({ error: err.message, loading: false })
+    }
+  },
+
+  retry: async () => {
+    const { current } = get()
+    const oldSig = current?.exercise?.signature
+    if (!oldSig) return
+    set({
+      loading: true,
+      feedback: null,
+      lastAttemptId: null,
+      chatConversationId: null,
+      chatNextSkillId: null,
+      openingChat: false,
+      error: null
+    })
+    useChatStore.getState().reset()
+    try {
+      const { signature } = await exercisesApi.regenerateSignature(oldSig)
+      set({
+        current: { ...current, exercise: { ...current.exercise, signature } },
+        loading: false
+      })
     } catch (err) {
       set({ error: err.message, loading: false })
     }
@@ -56,7 +86,12 @@ export const useSessionStore = create((set, get) => ({
   submit: async (answer) => {
     const { sessionId, current } = get()
     if (!sessionId || !current) return
-    set({ loading: true, explanation: null, explaining: false })
+    set({
+      loading: true,
+      chatConversationId: null,
+      chatNextSkillId: null,
+      openingChat: false
+    })
     try {
       const res = await exercisesApi.submit(sessionId, current.exercise.signature, answer)
       const { studentId } = get()
@@ -75,16 +110,47 @@ export const useSessionStore = create((set, get) => ({
     }
   },
 
-  explain: async () => {
-    const { lastAttemptId, explaining, explanation } = get()
-    if (!lastAttemptId || explaining || explanation) return
-    set({ explaining: true })
+  openChat: async () => {
+    const { lastAttemptId, openingChat, chatConversationId, studentId } = get()
+    if (!lastAttemptId || openingChat || chatConversationId) return
+    set({ openingChat: true })
     try {
-      const data = await exercisesApi.explain(lastAttemptId)
-      set({ explanation: data, explaining: false })
+      const { conversation_id, next_skill_id } = await chatApi.openForAttempt(lastAttemptId)
+      set({
+        chatConversationId: conversation_id,
+        chatNextSkillId: next_skill_id || null,
+        openingChat: false
+      })
+      const chat = useChatStore.getState()
+      if (studentId) chat.loadConversations(studentId)
+      await chat.selectConversation(conversation_id)
     } catch (err) {
-      set({ explaining: false, error: err.message })
+      set({ openingChat: false, error: err.message })
     }
+  },
+
+  openChatForExercise: async () => {
+    const { current, openingChat, chatConversationId, studentId } = get()
+    if (!current?.exercise?.signature || openingChat || chatConversationId || !studentId) return
+    set({ openingChat: true })
+    try {
+      const { conversation_id } = await chatApi.openForExercise({
+        studentId,
+        signature: current.exercise.signature,
+        prompt: current.exercise.prompt || ""
+      })
+      set({ chatConversationId: conversation_id, openingChat: false })
+      const chat = useChatStore.getState()
+      chat.loadConversations(studentId)
+      await chat.selectConversation(conversation_id)
+    } catch (err) {
+      set({ openingChat: false, error: err.message })
+    }
+  },
+
+  closeChat: () => {
+    set({ chatConversationId: null, chatNextSkillId: null })
+    useChatStore.getState().reset()
   },
 
   stop: async () => {
@@ -96,8 +162,12 @@ export const useSessionStore = create((set, get) => ({
         captureException(err, { where: "sessionStore.stop", sessionId })
       }
     }
+    useChatStore.getState().reset()
     set({ ...INITIAL })
   },
 
-  reset: () => set({ ...INITIAL })
+  reset: () => {
+    useChatStore.getState().reset()
+    set({ ...INITIAL })
+  }
 }))

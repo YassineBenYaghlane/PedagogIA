@@ -34,7 +34,7 @@ function formatDuration(seconds) {
   return `${m}m${s.toString().padStart(2, "0")}`
 }
 
-function StudentCard({ student, onOpenDetail }) {
+function StudentCard({ student, onOpenDetail, onOpenChat }) {
   const m = student.mastery_summary || {}
   const total =
     (m.not_started || 0) + (m.in_progress || 0) + (m.mastered || 0) + (m.needs_review || 0)
@@ -55,9 +55,14 @@ function StudentCard({ student, onOpenDetail }) {
             Niveau {student.grade}
           </span>
         </div>
-        <Button variant="ghost" onClick={() => onOpenDetail(student)}>
-          Voir en détail →
-        </Button>
+        <div className="flex flex-wrap gap-2 justify-end">
+          <Button variant="ghost" onClick={() => onOpenChat(student)}>
+            Conversations →
+          </Button>
+          <Button variant="ghost" onClick={() => onOpenDetail(student)}>
+            Voir en détail →
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
@@ -170,6 +175,10 @@ export default function ParentDashboardScreen() {
     navigate("/history?from=parent")
   }
 
+  const onOpenChat = (student) => {
+    navigate(`/dashboard/chat/${student.id}`)
+  }
+
   const students = data?.students || []
 
   return (
@@ -180,7 +189,7 @@ export default function ParentDashboardScreen() {
           trailing={
             <>
               <TopBarLink to="/children" icon="child_care" data-testid="go-child-mode">
-                Mode enfant
+                Espace enfant
               </TopBarLink>
               <TopBarButton onClick={logout} icon="logout" data-testid="logout">
                 Déconnexion
@@ -225,9 +234,9 @@ export default function ParentDashboardScreen() {
             <EmptyState
               icon="sprout"
               title="Aucun profil pour le moment"
-              body="Ajoute un carnet depuis le mode enfant."
+              body="Ajoute un carnet depuis l'espace enfant."
               cta={{
-                label: "Aller au mode enfant",
+                label: "Aller à l'espace enfant",
                 onClick: () => navigate("/children"),
               }}
             />
@@ -239,7 +248,12 @@ export default function ParentDashboardScreen() {
           data-testid="parent-students-list"
         >
           {students.map((s) => (
-            <StudentCard key={s.id} student={s} onOpenDetail={onOpenDetail} />
+            <StudentCard
+              key={s.id}
+              student={s}
+              onOpenDetail={onOpenDetail}
+              onOpenChat={onOpenChat}
+            />
           ))}
         </div>
       </Page>

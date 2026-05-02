@@ -22,7 +22,7 @@ All four are backed by `apps/sessions` with `Session.mode ∈ {training, diagnos
 
 ## AI & pedagogy
 
-- **AI investigation on wrong answer** — on an incorrect attempt, Claude receives `(question, student answer, skill-tree branch, mastery state)` and reasons about which prerequisite to probe next. Primary model Claude Haiku 4.5; escalation to Sonnet 4.6 via `INVESTIGATION_MODEL_*` settings. No hard-coded error mappings. Natural home for [[concepts/resolution-problemes-math]].
+- **AI tutor (chat libre + in-exercice)** — `apps/chat` exposes a single lifelong `Conversation` per `Student`. Two entry points: from the home (`/chat`) for free questions, and from `ExerciseCard` on a wrong attempt (`POST /api/attempts/<id>/open-chat/`) where the conversation is seeded with a Socratic opener and a `next_skill_id` derived from the legacy `apps/exercises/investigation` engine. Replies stream NDJSON (`POST /api/conversations/<id>/messages/send/`). System prompt enforces French, age-6–12 vocabulary, Socratic stance, and rejects off-school / sensitive topics. Primary model Claude Haiku 4.5, escalation to Sonnet 4.6 (`TUTOR_MODEL_*`). Parents read the log at `/dashboard/chat/<student-id>` (read-only, scoped to owned children). Natural home for [[concepts/resolution-problemes-math]].
 - **Multi-strategy explanations / hints** — each skill can expose several pedagogical angles (calcul posé, décomposition, …). Delivered through `apps/exercises` + frontend `lib/hints`.
 - **Exercise templates** — parameterized JSONB rows in `ExerciseTemplate`, authored in `backend/src/skill_tree/exercise_templates_p{1..6}.yaml`, instantiated at runtime. New exercises = YAML edit + `seed_templates`. Being refactored to M2M with weights (#117).
 

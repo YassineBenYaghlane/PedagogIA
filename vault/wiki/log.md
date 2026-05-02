@@ -131,3 +131,7 @@ Filed [[questions/exercise-quality-evaluation]] after a design discussion that s
 ## [2026-04-21] query | Recap of templates + quality-evaluation view
 
 User asked to be reminded of their view on exercise templates and quality evaluation. Read [[concepts/templates-vs-curated-exercises]], [[concepts/template-variant-count]], and [[questions/exercise-quality-evaluation]]; answered with a three-part recap (templates-only with curation reserved for assessment-grade items; "good" = aligned + calibrated; three-layer evaluation with Layer 1 deferred until users). No page changes — existing synthesis was complete.
+
+## [2026-05-01] refactor | AI investigation → conversational tutor
+
+Replaced the one-shot `feedback_for(attempt)` flow with a persistent conversational tutor (`apps/chat`). Single lifelong `Conversation` per `Student`; two entry points (free chat at `/chat`, in-exercice via `POST /api/attempts/<id>/open-chat/` which seeds the chat with a Socratic opener and surfaces `next_skill_id` from the legacy investigation engine). Replies stream NDJSON. Renamed `INVESTIGATION_MODEL_*` settings → `TUTOR_MODEL_*`. Parents read the log read-only at `/dashboard/chat/<student-id>`. Updated [[concepts/product-features]] (replaced "AI investigation on wrong answer" bullet by the tutor entry). Tracked as [#192](https://github.com/YassineBenYaghlane/PedagogIA/issues/192).

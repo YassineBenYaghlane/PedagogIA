@@ -23,6 +23,8 @@ import DiagnosticReviewScreen from "./components/screens/DiagnosticReviewScreen"
 import SessionReviewScreen from "./components/screens/SessionReviewScreen"
 import ParentDashboardScreen from "./components/screens/ParentDashboardScreen"
 import ParametresScreen from "./components/screens/ParametresScreen"
+import ChatScreen from "./components/screens/ChatScreen"
+import ParentChatScreen from "./components/screens/ParentChatScreen"
 import BadgeToast from "./components/badges/BadgeToast"
 import Loader from "./components/ui/Loader"
 import "./App.css"
@@ -82,6 +84,11 @@ export default function App() {
         <Route path="/exam" element={<RequireAuth><ExamScreen /></RequireAuth>} />
         <Route path="/skill-tree" element={<RequireAuth><SkillTreeScreen /></RequireAuth>} />
         <Route path="/profile" element={<RequireAuth><ProfileScreen /></RequireAuth>} />
+        <Route path="/chat" element={<RequireAuth><ChatScreen /></RequireAuth>} />
+        <Route
+          path="/dashboard/chat/:studentId"
+          element={<RequireAuth><ParentChatScreen /></RequireAuth>}
+        />
         <Route path="/history" element={<RequireAuth><HistoryScreen /></RequireAuth>} />
         <Route path="/history/diagnostic/:sessionId" element={<RequireAuth><DiagnosticReviewScreen /></RequireAuth>} />
         <Route path="/history/session/:sessionId" element={<RequireAuth><SessionReviewScreen /></RequireAuth>} />

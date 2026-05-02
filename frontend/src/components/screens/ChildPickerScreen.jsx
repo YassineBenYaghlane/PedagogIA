@@ -45,7 +45,6 @@ export default function ChildPickerScreen() {
     navigate("/")
   }
 
-  const single = children.length === 1
   return (
     <AppShell
       surface="greenhouse"
@@ -68,7 +67,7 @@ export default function ChildPickerScreen() {
       }
     >
       <Page maxWidth="2xl">
-        <header className="mb-10">
+        <header className="mb-10 text-center">
           <Heading level={2} className="text-balance">
             Bonjour,{" "}
             <em className="text-sage-deep not-italic font-display italic">
@@ -80,11 +79,7 @@ export default function ChildPickerScreen() {
 
         <section
           data-testid="children-list"
-          className={
-            single
-              ? "flex flex-wrap justify-center gap-6 mb-10"
-              : "grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 mb-10"
-          }
+          className="flex flex-wrap justify-center gap-6 mb-10"
         >
           {children.map((c) => (
             <button
@@ -115,7 +110,7 @@ export default function ChildPickerScreen() {
           )}
         </section>
 
-        <Card variant="tag" className="p-6 max-w-xl" data-testid="add-child-form">
+        <Card variant="tag" className="p-6 max-w-xl mx-auto" data-testid="add-child-form">
           <form onSubmit={onAdd} className="space-y-4">
             <Heading level={4}>Ajouter un profil</Heading>
             <div className="flex flex-col sm:flex-row gap-3">

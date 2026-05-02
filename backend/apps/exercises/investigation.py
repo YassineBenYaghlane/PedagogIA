@@ -174,8 +174,8 @@ def investigate(attempt: Attempt) -> InvestigationResult:
     skill_context = _build_skill_context(skill) if skill else "Compétence ciblée: (inconnue)"
     user_prompt = _build_user_prompt(attempt, _mastery_summary(attempt))
 
-    primary = settings.INVESTIGATION_MODEL_PRIMARY
-    escalation = settings.INVESTIGATION_MODEL_ESCALATION
+    primary = settings.TUTOR_MODEL_PRIMARY
+    escalation = settings.TUTOR_MODEL_ESCALATION
 
     parsed = _call_model(client, primary, skill_context, user_prompt)
     used_model = primary

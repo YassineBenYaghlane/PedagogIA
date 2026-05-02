@@ -120,7 +120,6 @@ export function useConversationFlow({ enabled, voice, messages, streamingText, o
       enabled,
       sending,
       streamingLen: streamingText?.length || 0,
-      turn,
       lastRole: last?.role,
       lastId: last?.id,
       lastSpoken: lastSpokenIdRef.current
@@ -128,7 +127,6 @@ export function useConversationFlow({ enabled, voice, messages, streamingText, o
     if (!enabled || streamingText || sending) return
     if (!last || last.role !== "assistant") return
     if (lastSpokenIdRef.current === last.id) return
-    if (turn !== TURN_IDLE) return
     lastSpokenIdRef.current = last.id
 
     let aborted = false
@@ -175,7 +173,7 @@ export function useConversationFlow({ enabled, voice, messages, streamingText, o
     return () => {
       aborted = true
     }
-  }, [enabled, messages, streamingText, sending, voice, turn, startListening, ensureContext, stopSource])
+  }, [enabled, messages, streamingText, sending, voice, startListening, ensureContext, stopSource])
 
   return { turn, cancel, unlockAudio }
 }

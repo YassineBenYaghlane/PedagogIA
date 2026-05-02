@@ -49,18 +49,6 @@ export function useConversationFlow({ enabled, voice, messages, streamingText, o
     setTurn(TURN_IDLE)
   }, [stopMedia])
 
-  useEffect(() => {
-    if (!enabled) {
-      stopMedia()
-      return undefined
-    }
-    cancelledRef.current = false
-    const list = messagesRef.current
-    const lastAssistant = [...list].reverse().find((m) => m.role === "assistant")
-    lastSpokenIdRef.current = lastAssistant?.id ?? null
-    return () => stopMedia()
-  }, [enabled, stopMedia])
-
   const startListening = useCallback(async () => {
     if (cancelledRef.current || !enabled) return
     setTurn(TURN_LISTENING)
@@ -88,6 +76,22 @@ export function useConversationFlow({ enabled, voice, messages, streamingText, o
       }
     })
   }, [enabled, onSend])
+
+  useEffect(() => {
+    if (!enabled) {
+      stopMedia()
+      return undefined
+    }
+    cancelledRef.current = false
+    const list = messagesRef.current
+    const lastAssistant = [...list].reverse().find((m) => m.role === "assistant")
+    lastSpokenIdRef.current = lastAssistant?.id ?? null
+    const t = setTimeout(() => startListening(), 0)
+    return () => {
+      clearTimeout(t)
+      stopMedia()
+    }
+  }, [enabled, stopMedia, startListening])
 
   useEffect(() => {
     if (!enabled || streamingText || sending) return

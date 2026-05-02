@@ -1,6 +1,7 @@
 import {
   ArrowLeft,
   ArrowRight,
+  AudioLines,
   Award,
   BabyIcon,
   BookOpen,
@@ -53,6 +54,7 @@ const ICONS = {
   add: Plus,
   arrow_back: ArrowLeft,
   arrow_forward: ArrowRight,
+  audio_lines: AudioLines,
   account_tree: GitBranch,
   assignment: ClipboardList,
   backspace: Delete,

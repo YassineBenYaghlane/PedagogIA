@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import ChatBubble from "./ChatBubble"
 import ChatComposer from "./ChatComposer"
-import ConversationModeToggle from "./ConversationModeToggle"
 import TurnIndicator from "./TurnIndicator"
 import Loader from "../ui/Loader"
 import Icon from "../ui/Icon"
@@ -96,28 +95,18 @@ export default function ChatPanel({
     if (el) el.scrollTop = el.scrollHeight
   }, [messages, streamingText, turn])
 
-  const showPerBubblePlay = !conversationMode
-
   const handleToggleConversation = () => {
-    if (conversationMode) cancel()
-    setConversationMode((v) => !v)
+    if (conversationMode) {
+      cancel()
+      setConversationMode(false)
+    } else {
+      setConversationMode(true)
+    }
   }
-
-  const toggleSlot = !readOnly ? (
-    <ConversationModeToggle active={conversationMode} onToggle={handleToggleConversation} />
-  ) : null
-
-  const headerSlot =
-    toggleSlot || headerExtra ? (
-      <div className="flex items-center gap-2">
-        {toggleSlot}
-        {headerExtra}
-      </div>
-    ) : null
 
   return (
     <div className="flex flex-col h-full bg-chalk rounded-2xl border border-sage/15 shadow-sm overflow-hidden">
-      <PaneHeader title={title} onClose={onClose} extra={headerSlot} />
+      <PaneHeader title={title} onClose={onClose} extra={headerExtra} />
       <ExerciceActions onRetry={onRetry} onNext={onNext} />
       {loading ? (
         <div className="flex-1 flex items-center justify-center py-10">
@@ -138,7 +127,7 @@ export default function ChatPanel({
             <ChatBubble
               key={m.id}
               role={m.role}
-              voice={showPerBubblePlay ? voice : undefined}
+              voice={conversationMode ? undefined : voice}
               text={m.content}
             >
               {m.content}
@@ -156,7 +145,7 @@ export default function ChatPanel({
           )}
         </div>
       )}
-      {conversationMode && turn !== TURN_STATES.IDLE && (
+      {conversationMode && (
         <TurnIndicator
           turn={turn}
           onCancel={() => {
@@ -168,13 +157,12 @@ export default function ChatPanel({
       {!readOnly && (
         <ChatComposer
           onSend={onSend}
-          disabled={sending || (conversationMode && turn !== TURN_STATES.IDLE)}
+          disabled={sending}
+          conversationMode={conversationMode}
+          conversationTurn={turn}
+          onToggleConversation={handleToggleConversation}
           placeholder={
-            conversationMode && turn === TURN_STATES.LISTENING
-              ? "Parle, je t'écoute…"
-              : sending
-                ? "Le tuteur réfléchit…"
-                : "Pose ta question…"
+            sending ? "Le tuteur réfléchit…" : "Pose ta question…"
           }
         />
       )}

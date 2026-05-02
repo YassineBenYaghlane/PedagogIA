@@ -1,8 +1,11 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import ChatBubble from "./ChatBubble"
 import ChatComposer from "./ChatComposer"
+import ConversationModeToggle from "./ConversationModeToggle"
+import TurnIndicator from "./TurnIndicator"
 import Loader from "../ui/Loader"
 import Icon from "../ui/Icon"
+import { useConversationFlow, TURN_STATES } from "../../lib/useConversationFlow"
 
 function PaneHeader({ title, onClose, extra }) {
   if (!title && !onClose && !extra) return null
@@ -77,14 +80,44 @@ export default function ChatPanel({
   headerExtra
 }) {
   const scrollerRef = useRef(null)
+  const [conversationMode, setConversationMode] = useState(false)
+
+  const { turn, cancel } = useConversationFlow({
+    enabled: conversationMode && !readOnly,
+    voice,
+    messages,
+    streamingText,
+    sending,
+    onSend
+  })
+
   useEffect(() => {
     const el = scrollerRef.current
     if (el) el.scrollTop = el.scrollHeight
-  }, [messages, streamingText])
+  }, [messages, streamingText, turn])
+
+  const showPerBubblePlay = !conversationMode
+
+  const handleToggleConversation = () => {
+    if (conversationMode) cancel()
+    setConversationMode((v) => !v)
+  }
+
+  const toggleSlot = !readOnly ? (
+    <ConversationModeToggle active={conversationMode} onToggle={handleToggleConversation} />
+  ) : null
+
+  const headerSlot =
+    toggleSlot || headerExtra ? (
+      <div className="flex items-center gap-2">
+        {toggleSlot}
+        {headerExtra}
+      </div>
+    ) : null
 
   return (
     <div className="flex flex-col h-full bg-chalk rounded-2xl border border-sage/15 shadow-sm overflow-hidden">
-      <PaneHeader title={title} onClose={onClose} extra={headerExtra} />
+      <PaneHeader title={title} onClose={onClose} extra={headerSlot} />
       <ExerciceActions onRetry={onRetry} onNext={onNext} />
       {loading ? (
         <div className="flex-1 flex items-center justify-center py-10">
@@ -102,7 +135,12 @@ export default function ChatPanel({
             </p>
           )}
           {messages.map((m) => (
-            <ChatBubble key={m.id} role={m.role} voice={voice} text={m.content}>
+            <ChatBubble
+              key={m.id}
+              role={m.role}
+              voice={showPerBubblePlay ? voice : undefined}
+              text={m.content}
+            >
               {m.content}
             </ChatBubble>
           ))}
@@ -118,13 +156,30 @@ export default function ChatPanel({
           )}
         </div>
       )}
+      {conversationMode && turn !== TURN_STATES.IDLE && (
+        <TurnIndicator
+          turn={turn}
+          onCancel={() => {
+            cancel()
+            setConversationMode(false)
+          }}
+        />
+      )}
       {!readOnly && (
         <ChatComposer
           onSend={onSend}
-          disabled={sending}
-          placeholder={sending ? "Le tuteur réfléchit…" : "Pose ta question…"}
+          disabled={sending || (conversationMode && turn !== TURN_STATES.IDLE)}
+          placeholder={
+            conversationMode && turn === TURN_STATES.LISTENING
+              ? "Parle, je t'écoute…"
+              : sending
+                ? "Le tuteur réfléchit…"
+                : "Pose ta question…"
+          }
         />
       )}
     </div>
   )
 }
+
+export { TURN_STATES }

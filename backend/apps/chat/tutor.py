@@ -17,6 +17,8 @@ logger = logging.getLogger(__name__)
 MAX_HISTORY = 40
 STREAM_MAX_TOKENS = 600
 
+SPEECH_SENTINEL = "<<<SPEECH>>>"
+
 APP_CONTEXT = (
     "L'application :\n"
     "- Tu vis dans CollegIA, une application web d'apprentissage adaptatif des "
@@ -49,26 +51,41 @@ SYSTEM_PROMPT = (
     "- Le prénom et le niveau scolaire de l'élève sont fournis dans le bloc « Élève » "
     "ci-dessous. Tu peux les utiliser librement (par exemple t'adresser à lui par son "
     "prénom). Si l'élève te demande son prénom ou son niveau, tu réponds simplement.\n"
-    "- En revanche, tu ne demandes jamais d'autres informations personnelles à l'élève "
-    "(nom de famille, adresse, téléphone, école, mot de passe).\n\n"
+    "- Tu ne demandes jamais d'autres informations personnelles (nom de famille, "
+    "adresse, téléphone, école, mot de passe).\n\n"
     "Règles strictes :\n"
     "- Tu réponds en français, dans un vocabulaire adapté à l'âge de l'élève.\n"
-    "- Tu adoptes une approche Socratique : tu poses des questions, tu décomposes, "
-    "tu donnes des indices — tu ne donnes jamais la réponse complète d'un seul coup.\n"
+    "- Approche Socratique : tu poses une question, tu décomposes, tu donnes un indice — "
+    "tu ne donnes jamais la réponse complète d'un seul coup.\n"
     "- Si l'élève sort du scolaire (jeux, vie privée, sujets sensibles, contenu adulte), "
-    "tu recadres poliment : « Je suis ton tuteur scolaire, je t'aide pour tes "
-    "apprentissages. Si tu as une question sur tes leçons, vas-y ! »\n"
-    "- Tu refuses tout contenu inapproprié (violence, sexualité, drogues, etc.) et tu "
-    "invites à en parler à un adulte de confiance si besoin.\n"
-    "- Tes messages sont courts (2 à 4 phrases en général) pour ne pas écraser l'élève.\n\n"
+    "tu recadres en une phrase : « Je suis ton tuteur scolaire. Si tu as une question "
+    "sur tes leçons, vas-y ! »\n"
+    "- Tu refuses tout contenu inapproprié et invites à en parler à un adulte de "
+    "confiance si besoin.\n\n"
+    "Brièveté (TRÈS IMPORTANT) :\n"
+    "- 1 à 3 phrases courtes par défaut. Une seule idée par message.\n"
+    "- Pas d'introduction du genre « Bonne question ! », « Super, regardons… » — tu "
+    "vas droit au but.\n"
+    "- Pas de listes à puces sauf si l'élève demande explicitement plusieurs choix. "
+    "Une question par tour.\n\n"
     "Format de réponse :\n"
-    "- Texte brut uniquement. Pas de markdown : pas d'astérisques pour mettre en gras "
-    "(`**texte**`) ni en italique (`*texte*`), pas de `#` pour les titres, pas de blocs "
-    "de code à backticks. Si tu veux insister sur un mot, tu peux le mettre EN MAJUSCULES "
-    "ou entre « guillemets ».\n"
-    "- Pas d'emojis ni de pictogrammes (😊, ✨, 👉, etc.). L'interface est sobre, "
-    "l'émoji détonne.\n"
-    "- Pour des listes courtes, utilise des tirets `-` en début de ligne. C'est tout."
+    "- Texte brut uniquement. Pas de markdown (`**gras**`, `*italique*`, `#`, "
+    "backticks). Pour insister sur un mot, MAJUSCULES ou « guillemets ».\n"
+    "- Pas d'emojis ni de pictogrammes (😊, ✨, 👉, etc.). L'interface est sobre.\n\n"
+    "Format obligatoire pour la synthèse vocale :\n"
+    f"- Termine TOUTES tes réponses par une ligne contenant exactement {SPEECH_SENTINEL}, "
+    "puis une deuxième version de ta réponse réécrite pour être lue à voix haute en "
+    "français.\n"
+    "- Dans cette version vocale : remplace les symboles mathématiques par des mots "
+    "(« / » et « ÷ » → « divisé par », « × » et « * » → « fois », « = » → « égale », "
+    "« + » → « plus », « - » entre deux nombres → « moins »). Les fractions usuelles "
+    "deviennent leur forme parlée (« 1/2 » → « un demi », « 1/3 » → « un tiers », "
+    "« 1/4 » → « un quart »). Les nombres décimaux à virgule restent tels quels (« 3,14 » "
+    "se lit naturellement en français).\n"
+    "- Tout le reste (prénom, ponctuation, formulations) reste identique. Si la réponse "
+    "ne contient aucun symbole, tu peux recopier le même texte après le marqueur.\n"
+    f"- Le marqueur {SPEECH_SENTINEL} et la version vocale ne doivent JAMAIS apparaître "
+    "à l'écran de l'élève — ils servent uniquement au moteur de synthèse vocale."
 )
 
 MODE_BLOCK_FREE = (
@@ -265,10 +282,14 @@ def _history_messages(conversation: Conversation) -> list[dict]:
     return out
 
 
-def stream_reply(conversation: Conversation) -> Iterable[str]:
-    """Yield text chunks from the tutor for the latest student message in `conversation`.
+def stream_reply(conversation: Conversation) -> Iterable[tuple[str, str]]:
+    """Stream the tutor's reply as typed events.
 
-    The caller is responsible for having already persisted the student's message.
+    Yields ("chunk", text) for each display fragment as it arrives, and finally
+    ("speech", text) once with the full TTS-friendly rewrite (text after the
+    SPEECH_SENTINEL). Display chunks never include the sentinel or anything that
+    follows it. Caller is responsible for having already persisted the student's
+    message.
     """
     client = _get_client()
     system = _system_blocks(conversation)
@@ -277,6 +298,12 @@ def stream_reply(conversation: Conversation) -> Iterable[str]:
         return
 
     model = settings.TUTOR_MODEL_PRIMARY
+    pre_buffer = ""
+    yielded_pos = 0
+    speech_buffer = ""
+    saw_sentinel = False
+    lookahead = len(SPEECH_SENTINEL)
+
     with client.messages.stream(
         model=model,
         max_tokens=STREAM_MAX_TOKENS,
@@ -284,7 +311,28 @@ def stream_reply(conversation: Conversation) -> Iterable[str]:
         messages=history,
     ) as stream:
         for text in stream.text_stream:
-            yield text
+            if saw_sentinel:
+                speech_buffer += text
+                continue
+            pre_buffer += text
+            idx = pre_buffer.find(SPEECH_SENTINEL)
+            if idx >= 0:
+                if idx > yielded_pos:
+                    yield ("chunk", pre_buffer[yielded_pos:idx])
+                speech_buffer = pre_buffer[idx + lookahead :]
+                saw_sentinel = True
+                continue
+            safe_end = len(pre_buffer) - lookahead
+            if safe_end > yielded_pos:
+                yield ("chunk", pre_buffer[yielded_pos:safe_end])
+                yielded_pos = safe_end
+
+    if not saw_sentinel and yielded_pos < len(pre_buffer):
+        yield ("chunk", pre_buffer[yielded_pos:])
+    # Some Claude turns echo the sentinel at the end ("close the marker"); strip
+    # any occurrences before emitting so the TTS doesn't spell them out.
+    speech_clean = speech_buffer.replace(SPEECH_SENTINEL, "").strip()
+    yield ("speech", speech_clean)
 
 
 def open_for_exercise_message(

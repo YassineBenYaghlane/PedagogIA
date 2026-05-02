@@ -13,6 +13,7 @@ class MessageSerializer(serializers.ModelSerializer):
             "id",
             "role",
             "content",
+            "speech",
             "created_at",
             "model",
             "context_attempt_id",

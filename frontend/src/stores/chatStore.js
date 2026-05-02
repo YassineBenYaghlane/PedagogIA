@@ -99,7 +99,7 @@ export const useChatStore = create((set, get) => ({
       await chatApi.streamMessage(currentId, content, {
         onChunk: (text) =>
           set((s) => ({ streamingText: s.streamingText + text })),
-        onDone: ({ message_id, model }) => {
+        onDone: ({ message_id, model, speech }) => {
           set((s) => ({
             messages: [
               ...s.messages,
@@ -107,6 +107,7 @@ export const useChatStore = create((set, get) => ({
                 id: message_id,
                 role: "assistant",
                 content: s.streamingText,
+                speech: speech || "",
                 model,
                 created_at: new Date().toISOString()
               }

@@ -126,9 +126,10 @@ def test_send_message_streams_persists_and_titles(monkeypatch, auth_client, user
     conv = Conversation.objects.create(student=student)
 
     def fake_stream(_conv, **_):
-        yield "Bonjour"
-        yield " ! "
-        yield "Comment tu fais ?"
+        yield ("chunk", "Bonjour")
+        yield ("chunk", " ! ")
+        yield ("chunk", "Comment tu fais ?")
+        yield ("speech", "Bonjour ! Comment tu fais ?")
 
     monkeypatch.setattr("apps.chat.views.stream_reply", fake_stream)
 
@@ -142,12 +143,17 @@ def test_send_message_streams_persists_and_titles(monkeypatch, auth_client, user
     lines = [line for line in body.split("\n") if line]
     assert lines[0].startswith('{"type": "chunk"')
     assert lines[-1].startswith('{"type": "done"')
+    import json as _json
+
+    done = _json.loads(lines[-1])
+    assert done["speech"] == "Bonjour ! Comment tu fais ?"
 
     msgs = list(conv.messages.order_by("created_at"))
     assert len(msgs) == 2
     assert msgs[0].role == "student"
     assert msgs[0].content == "j'ai bloqué sur 7+8"
     assert msgs[1].content == "Bonjour ! Comment tu fais ?"
+    assert msgs[1].speech == "Bonjour ! Comment tu fais ?"
 
     conv.refresh_from_db()
     assert conv.title == "j'ai bloqué sur 7+8"
@@ -256,6 +262,131 @@ def test_system_prompt_includes_safety_guards():
     assert "scolaire" in p
     assert "informations personnelles" in p
     assert "français" in p.lower()
+
+
+def test_system_prompt_demands_speech_sentinel():
+    """The structured-TTS contract is documented in the system prompt itself."""
+    p = tutor.SYSTEM_PROMPT
+    assert tutor.SPEECH_SENTINEL in p
+    assert "divisé par" in p
+    assert "égale" in p
+
+
+def _fake_stream(chunks):
+    """Build a fake Anthropic stream context manager that yields the given chunks."""
+
+    class _CM:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+        @property
+        def text_stream(self):
+            return iter(chunks)
+
+    return _CM()
+
+
+@pytest.mark.django_db
+def test_stream_reply_separates_display_and_speech(monkeypatch, user):
+    student = _make_student(user)
+    conv = Conversation.objects.create(student=student)
+    conv.messages.create(role="student", content="combien font 16 / 8 ?")
+
+    fake_chunks = [
+        "Réfléchis : ",
+        "16 / 8 = ?",
+        f"\n{tutor.SPEECH_SENTINEL}\n",
+        "Réfléchis : seize divisé par huit égale ?",
+    ]
+
+    class _Client:
+        class messages:
+            @staticmethod
+            def stream(**_):
+                return _fake_stream(fake_chunks)
+
+    monkeypatch.setattr(tutor, "_get_client", lambda: _Client)
+    events = list(tutor.stream_reply(conv))
+    chunks = [text for kind, text in events if kind == "chunk"]
+    speech = [text for kind, text in events if kind == "speech"]
+    display = "".join(chunks)
+    assert tutor.SPEECH_SENTINEL not in display
+    assert "16 / 8" in display
+    assert speech == ["Réfléchis : seize divisé par huit égale ?"]
+
+
+@pytest.mark.django_db
+def test_stream_reply_handles_split_sentinel(monkeypatch, user):
+    """Sentinel can be split across token boundaries — must still be detected."""
+    student = _make_student(user)
+    conv = Conversation.objects.create(student=student)
+    conv.messages.create(role="student", content="x")
+
+    s = tutor.SPEECH_SENTINEL
+    fake_chunks = ["Bonjour ! ", s[:4], s[4:], " parlé"]
+
+    class _Client:
+        class messages:
+            @staticmethod
+            def stream(**_):
+                return _fake_stream(fake_chunks)
+
+    monkeypatch.setattr(tutor, "_get_client", lambda: _Client)
+    events = list(tutor.stream_reply(conv))
+    display = "".join(t for k, t in events if k == "chunk")
+    speech = next(t for k, t in events if k == "speech")
+    assert s not in display
+    assert display.strip() == "Bonjour !"
+    assert speech == "parlé"
+
+
+@pytest.mark.django_db
+def test_stream_reply_strips_trailing_sentinel_echo(monkeypatch, user):
+    """Some model turns echo the sentinel after the speech version — strip it."""
+    student = _make_student(user)
+    conv = Conversation.objects.create(student=student)
+    conv.messages.create(role="student", content="x")
+
+    s = tutor.SPEECH_SENTINEL
+    fake_chunks = ["Calcul : ", "16 / 8.", f"\n{s}\n", "Calcul : seize divisé par huit.", f"\n{s}"]
+
+    class _Client:
+        class messages:
+            @staticmethod
+            def stream(**_):
+                return _fake_stream(fake_chunks)
+
+    monkeypatch.setattr(tutor, "_get_client", lambda: _Client)
+    events = list(tutor.stream_reply(conv))
+    speech = next(t for k, t in events if k == "speech")
+    assert s not in speech
+    assert speech == "Calcul : seize divisé par huit."
+
+
+@pytest.mark.django_db
+def test_stream_reply_falls_back_when_sentinel_missing(monkeypatch, user):
+    """If the model forgets the sentinel, display gets the full text and speech is empty."""
+    student = _make_student(user)
+    conv = Conversation.objects.create(student=student)
+    conv.messages.create(role="student", content="x")
+
+    fake_chunks = ["Salut ", "petit", " explorateur."]
+
+    class _Client:
+        class messages:
+            @staticmethod
+            def stream(**_):
+                return _fake_stream(fake_chunks)
+
+    monkeypatch.setattr(tutor, "_get_client", lambda: _Client)
+    events = list(tutor.stream_reply(conv))
+    display = "".join(t for k, t in events if k == "chunk")
+    speech = next(t for k, t in events if k == "speech")
+    assert display == "Salut petit explorateur."
+    assert speech == ""
 
 
 def test_app_context_names_collegia():

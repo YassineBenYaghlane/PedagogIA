@@ -177,11 +177,15 @@ def _stream_assistant(conv: Conversation, student_msg) -> "iter[bytes]":
     from django.conf import settings as dj_settings
 
     chunks: list[str] = []
+    speech_text = ""
     model_used = dj_settings.TUTOR_MODEL_PRIMARY
     try:
-        for piece in stream_reply(conv):
-            chunks.append(piece)
-            yield (json.dumps({"type": "chunk", "text": piece}) + "\n").encode("utf-8")
+        for kind, text in stream_reply(conv):
+            if kind == "chunk":
+                chunks.append(text)
+                yield (json.dumps({"type": "chunk", "text": text}) + "\n").encode("utf-8")
+            elif kind == "speech":
+                speech_text = text
     except Exception as exc:
         logger.exception("tutor stream failed for conv %s", conv.id)
         yield (json.dumps({"type": "error", "detail": str(exc)}) + "\n").encode("utf-8")
@@ -193,6 +197,7 @@ def _stream_assistant(conv: Conversation, student_msg) -> "iter[bytes]":
     assistant_msg = conv.messages.create(
         role="assistant",
         content=full,
+        speech=speech_text,
         model=model_used,
     )
     yield (
@@ -201,6 +206,7 @@ def _stream_assistant(conv: Conversation, student_msg) -> "iter[bytes]":
                 "type": "done",
                 "message_id": str(assistant_msg.id),
                 "model": model_used,
+                "speech": speech_text,
             }
         )
         + "\n"

@@ -69,6 +69,11 @@ class Message(models.Model):
     # For assistant messages: which model produced this turn.
     model = models.CharField(max_length=64, blank=True, default="")
 
+    # For assistant messages: the same reply rewritten with math symbols spelled
+    # out for TTS (e.g. "16 / 8 = 2" → "seize divisé par huit égale deux").
+    # Empty string means "no separate speech form, use content as-is".
+    speech = models.TextField(blank=True, default="")
+
     class Meta:
         ordering = ["created_at"]
         indexes = [models.Index(fields=["conversation", "created_at"])]

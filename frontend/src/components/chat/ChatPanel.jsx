@@ -133,6 +133,7 @@ export default function ChatPanel({
               role={m.role}
               voice={conversationMode ? undefined : voice}
               text={m.content}
+              speech={m.speech}
             >
               {m.content}
             </ChatBubble>

@@ -77,14 +77,15 @@ function PlayButton({ text, voice }) {
   )
 }
 
-export default function ChatBubble({ role, children, streaming = false, voice, text }) {
+export default function ChatBubble({ role, children, streaming = false, voice, text, speech }) {
   const isStudent = role === "student"
   const containerCls = isStudent ? "flex flex-col items-end" : "flex flex-col items-start"
   const bubbleCls = isStudent
     ? "bg-sage-leaf/60 border border-sage/25 text-bark"
     : "bg-sky-soft/70 border border-sky/30 text-bark"
   const showPlay = !isStudent && !streaming && voice && (text || typeof children === "string")
-  const speakable = text || (typeof children === "string" ? children : null)
+  const speakable =
+    speech || text || (typeof children === "string" ? children : null)
   return (
     <div className={containerCls}>
       <div

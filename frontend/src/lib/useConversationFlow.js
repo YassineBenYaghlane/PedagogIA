@@ -125,7 +125,8 @@ export function useConversationFlow({ enabled, voice, messages, streamingText, o
     const speakAndListen = async () => {
       setTurn(TURN_BOT)
       try {
-        const blob = await voiceApi.tts(last.content, voice || "female")
+        const ttsText = last.speech || last.content
+        const blob = await voiceApi.tts(ttsText, voice || "female")
         if (aborted || cancelledRef.current) return
         const ctx = ensureContext()
         if (ctx.state === "suspended") await ctx.resume()

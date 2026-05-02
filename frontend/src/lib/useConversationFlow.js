@@ -115,8 +115,17 @@ export function useConversationFlow({ enabled, voice, messages, streamingText, o
   }, [enabled, stopMedia, startListening])
 
   useEffect(() => {
-    if (!enabled || streamingText || sending) return
     const last = messages[messages.length - 1]
+    console.log("[conv-flow] tick", {
+      enabled,
+      sending,
+      streamingLen: streamingText?.length || 0,
+      turn,
+      lastRole: last?.role,
+      lastId: last?.id,
+      lastSpoken: lastSpokenIdRef.current
+    })
+    if (!enabled || streamingText || sending) return
     if (!last || last.role !== "assistant") return
     if (lastSpokenIdRef.current === last.id) return
     if (turn !== TURN_IDLE) return
@@ -124,23 +133,29 @@ export function useConversationFlow({ enabled, voice, messages, streamingText, o
 
     let aborted = false
     const speakAndListen = async () => {
+      console.log("[conv-flow] speakAndListen → fetching tts", { len: last.content.length, voice })
       setTurn(TURN_BOT)
       try {
         const blob = await voiceApi.tts(last.content, voice || "female")
+        console.log("[conv-flow] tts blob received", { size: blob.size, type: blob.type })
         if (aborted || cancelledRef.current) return
         const ctx = ensureContext()
         if (ctx.state === "suspended") {
+          console.log("[conv-flow] resuming suspended audio context")
           await ctx.resume()
         }
+        console.log("[conv-flow] context state", ctx.state)
         const arrayBuffer = await blob.arrayBuffer()
         if (aborted || cancelledRef.current) return
         const audioBuffer = await ctx.decodeAudioData(arrayBuffer)
+        console.log("[conv-flow] decoded buffer", { duration: audioBuffer.duration })
         if (aborted || cancelledRef.current) return
         stopSource()
         const source = ctx.createBufferSource()
         source.buffer = audioBuffer
         source.connect(ctx.destination)
         source.onended = () => {
+          console.log("[conv-flow] playback ended")
           if (currentSourceRef.current === source) currentSourceRef.current = null
           if (cancelledRef.current || !enabled) {
             setTurn(TURN_IDLE)
@@ -150,7 +165,9 @@ export function useConversationFlow({ enabled, voice, messages, streamingText, o
         }
         currentSourceRef.current = source
         source.start()
-      } catch {
+        console.log("[conv-flow] source.start() called")
+      } catch (err) {
+        console.error("[conv-flow] speakAndListen failed", err)
         setTurn(TURN_IDLE)
       }
     }

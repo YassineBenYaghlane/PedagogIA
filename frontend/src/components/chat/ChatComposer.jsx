@@ -155,10 +155,9 @@ export default function ChatComposer({
             <button
               type="button"
               onClick={onToggleConversation}
-              disabled={disabled}
               aria-label="Mode conversation"
               data-testid="chat-conversation-toggle"
-              className="flex items-center justify-center w-10 h-10 rounded-xl border border-sage/25 bg-chalk text-sage-deep hover:bg-sage-leaf/30 transition-colors duration-200 ease-out cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-deep/40"
+              className="flex items-center justify-center w-10 h-10 rounded-xl border border-sage/25 bg-chalk text-sage-deep hover:bg-sage-leaf/30 transition-colors duration-200 ease-out cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-deep/40"
             >
               <Icon name="audio_lines" size={18} />
             </button>

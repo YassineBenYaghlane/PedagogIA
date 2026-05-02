@@ -12,6 +12,11 @@ env = environ.Env(
     ANTHROPIC_API_KEY=(str, ""),
     TUTOR_MODEL_PRIMARY=(str, "claude-haiku-4-5-20251001"),
     TUTOR_MODEL_ESCALATION=(str, "claude-sonnet-4-6"),
+    ELEVENLABS_API_KEY=(str, ""),
+    ELEVENLABS_FEMALE_VOICE_ID=(str, ""),
+    ELEVENLABS_MALE_VOICE_ID=(str, ""),
+    ELEVENLABS_TTS_MODEL=(str, "eleven_multilingual_v2"),
+    ELEVENLABS_STT_MODEL=(str, "scribe_v1"),
     GOOGLE_CLIENT_ID=(str, ""),
     GOOGLE_CLIENT_SECRET=(str, ""),
     GOOGLE_OAUTH_CALLBACK_URL=(str, "http://localhost:5173/auth/google/callback"),
@@ -50,6 +55,7 @@ INSTALLED_APPS = [
     "apps.students",
     "apps.sessions.apps.LearningSessionsConfig",
     "apps.chat",
+    "apps.voice",
 ]
 
 MIDDLEWARE = [
@@ -193,6 +199,12 @@ CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
 ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY")
 TUTOR_MODEL_PRIMARY = env("TUTOR_MODEL_PRIMARY")
 TUTOR_MODEL_ESCALATION = env("TUTOR_MODEL_ESCALATION")
+
+ELEVENLABS_API_KEY = env("ELEVENLABS_API_KEY")
+ELEVENLABS_FEMALE_VOICE_ID = env("ELEVENLABS_FEMALE_VOICE_ID")
+ELEVENLABS_MALE_VOICE_ID = env("ELEVENLABS_MALE_VOICE_ID")
+ELEVENLABS_TTS_MODEL = env("ELEVENLABS_TTS_MODEL")
+ELEVENLABS_STT_MODEL = env("ELEVENLABS_STT_MODEL")
 
 TRUST_CLOUDFLARE_REAL_IP = env.bool("TRUST_CLOUDFLARE_REAL_IP", default=False)
 

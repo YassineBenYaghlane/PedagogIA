@@ -137,6 +137,7 @@ export default function ParentChatScreen() {
                   error={active.error}
                   readOnly
                   emptyHint="Aucun message dans cette conversation."
+                  voice={child?.tutor_voice || "female"}
                 />
               ) : (
                 <div className="h-full flex items-center justify-center text-sm text-stem text-center px-4 bg-chalk rounded-2xl border border-sage/15">

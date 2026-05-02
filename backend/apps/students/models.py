@@ -17,6 +17,13 @@ GRADE_CHOICES = [
 ]
 GRADE_VALUES = [g for g, _ in GRADE_CHOICES]
 
+VOICE_FEMALE = "female"
+VOICE_MALE = "male"
+TUTOR_VOICE_CHOICES = [
+    (VOICE_FEMALE, "Voix féminine"),
+    (VOICE_MALE, "Voix masculine"),
+]
+
 SKILL_XP_MAX = 30.0
 REVIEW_STALE_DAYS = 30
 REVIEW_XP_CEILING = 20.0
@@ -37,6 +44,7 @@ class Student(models.Model):
     best_streak = models.PositiveIntegerField(default=0)
     last_activity_date = models.DateField(null=True, blank=True)
     daily_goal = models.PositiveSmallIntegerField(default=5)
+    tutor_voice = models.CharField(max_length=8, choices=TUTOR_VOICE_CHOICES, default=VOICE_FEMALE)
 
     class Meta:
         ordering = ["display_name"]

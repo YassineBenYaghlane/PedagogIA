@@ -5,6 +5,7 @@ import TopBar from "../layout/TopBar"
 import { TopBarBack } from "../layout/TopBarActions"
 import ChatPanel from "../chat/ChatPanel"
 import ConversationList from "../chat/ConversationList"
+import VoiceToggle from "../chat/VoiceToggle"
 import { useAuthStore } from "../../stores/authStore"
 import { useChatStore } from "../../stores/chatStore"
 
@@ -74,6 +75,8 @@ export default function ChatScreen() {
               error={error}
               onSend={send}
               emptyHint="Pose ta question, on commence."
+              voice={child?.tutor_voice || "female"}
+              headerExtra={child ? <VoiceToggle child={child} /> : null}
             />
           ) : (
             <div className="h-full flex items-center justify-center text-sm text-stem text-center px-4 bg-chalk rounded-2xl border border-sage/15">

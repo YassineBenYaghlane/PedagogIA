@@ -4,25 +4,28 @@ import ChatComposer from "./ChatComposer"
 import Loader from "../ui/Loader"
 import Icon from "../ui/Icon"
 
-function PaneHeader({ title, onClose }) {
-  if (!title && !onClose) return null
+function PaneHeader({ title, onClose, extra }) {
+  if (!title && !onClose && !extra) return null
   return (
     <header className="flex items-center justify-between px-4 py-2.5 border-b border-sage/15 bg-mist/50">
       <div className="flex items-center gap-2 text-sage-deep">
         {title && <Icon name="forum" size={16} />}
         {title && <span className="font-display text-sm">{title}</span>}
       </div>
-      {onClose && (
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Fermer le chat"
-          data-testid="chat-close"
-          className="w-8 h-8 -mr-1 rounded-lg flex items-center justify-center text-stem hover:text-bark hover:bg-sage-leaf/30 transition-colors duration-200 cursor-pointer"
-        >
-          <Icon name="close" size={18} />
-        </button>
-      )}
+      <div className="flex items-center gap-2">
+        {extra}
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fermer le chat"
+            data-testid="chat-close"
+            className="w-8 h-8 -mr-1 rounded-lg flex items-center justify-center text-stem hover:text-bark hover:bg-sage-leaf/30 transition-colors duration-200 cursor-pointer"
+          >
+            <Icon name="close" size={18} />
+          </button>
+        )}
+      </div>
     </header>
   )
 }
@@ -69,7 +72,9 @@ export default function ChatPanel({
   title,
   onClose,
   readOnly = false,
-  emptyHint
+  emptyHint,
+  voice,
+  headerExtra
 }) {
   const scrollerRef = useRef(null)
   useEffect(() => {
@@ -79,7 +84,7 @@ export default function ChatPanel({
 
   return (
     <div className="flex flex-col h-full bg-chalk rounded-2xl border border-sage/15 shadow-sm overflow-hidden">
-      <PaneHeader title={title} onClose={onClose} />
+      <PaneHeader title={title} onClose={onClose} extra={headerExtra} />
       <ExerciceActions onRetry={onRetry} onNext={onNext} />
       {loading ? (
         <div className="flex-1 flex items-center justify-center py-10">
@@ -97,7 +102,7 @@ export default function ChatPanel({
             </p>
           )}
           {messages.map((m) => (
-            <ChatBubble key={m.id} role={m.role}>
+            <ChatBubble key={m.id} role={m.role} voice={voice} text={m.content}>
               {m.content}
             </ChatBubble>
           ))}

@@ -35,9 +35,7 @@ def test_tts_validates_inputs(auth_client, user):
     )
     assert res.status_code == 400
     # missing student_id
-    res = auth_client.post(
-        "/api/voice/tts/", data={"text": "Bonjour"}, format="json"
-    )
+    res = auth_client.post("/api/voice/tts/", data={"text": "Bonjour"}, format="json")
     assert res.status_code == 400
 
 

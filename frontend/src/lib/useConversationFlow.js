@@ -7,6 +7,12 @@ const TURN_BOT = "bot"
 const TURN_LISTENING = "listening"
 const TURN_TRANSCRIBING = "transcribing"
 
+// A minimal silent WAV used to "unlock" the HTMLAudioElement during the
+// toggle gesture. Once an element has played a real source, subsequent
+// .play() calls on the same element are exempt from the autoplay policy.
+const SILENT_AUDIO_SRC =
+  "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA="
+
 export const TURN_STATES = {
   IDLE: TURN_IDLE,
   BOT: TURN_BOT,
@@ -30,16 +36,11 @@ export function useConversationFlow({ enabled, voice, messages, streamingText, o
 
   const unlockAudio = useCallback(() => {
     const audio = ensureAudio()
-    audio.muted = true
+    audio.muted = false
+    audio.src = SILENT_AUDIO_SRC
     const promise = audio.play()
     if (promise && typeof promise.catch === "function") {
-      promise.catch(() => {}).finally(() => {
-        audio.pause()
-        audio.muted = false
-      })
-    } else {
-      audio.pause()
-      audio.muted = false
+      promise.catch(() => {})
     }
   }, [ensureAudio])
 

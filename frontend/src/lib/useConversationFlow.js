@@ -16,22 +16,42 @@ export const TURN_STATES = {
 
 export function useConversationFlow({ enabled, voice, messages, streamingText, onSend, sending }) {
   const [turn, setTurn] = useState(TURN_IDLE)
-  const audioRef = useRef(null)
+  const audioElRef = useRef(null)
   const audioUrlRef = useRef(null)
   const captureRef = useRef(null)
   const lastSpokenIdRef = useRef(null)
   const messagesRef = useRef(messages)
   const cancelledRef = useRef(false)
 
+  const ensureAudio = useCallback(() => {
+    if (!audioElRef.current) audioElRef.current = new Audio()
+    return audioElRef.current
+  }, [])
+
+  const unlockAudio = useCallback(() => {
+    const audio = ensureAudio()
+    audio.muted = true
+    const promise = audio.play()
+    if (promise && typeof promise.catch === "function") {
+      promise.catch(() => {}).finally(() => {
+        audio.pause()
+        audio.muted = false
+      })
+    } else {
+      audio.pause()
+      audio.muted = false
+    }
+  }, [ensureAudio])
+
   useEffect(() => {
     messagesRef.current = messages
   }, [messages])
 
   const stopMedia = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current.onended = null
-      audioRef.current = null
+    const audio = audioElRef.current
+    if (audio) {
+      audio.pause()
+      audio.onended = null
     }
     if (audioUrlRef.current) {
       URL.revokeObjectURL(audioUrlRef.current)
@@ -107,16 +127,17 @@ export function useConversationFlow({ enabled, voice, messages, streamingText, o
       try {
         const blob = await voiceApi.tts(last.content, voice || "female")
         if (aborted || cancelledRef.current) return
+        const audio = ensureAudio()
+        if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current)
         const url = URL.createObjectURL(blob)
         audioUrlRef.current = url
-        const audio = new Audio(url)
-        audioRef.current = audio
+        audio.src = url
+        audio.muted = false
         audio.onended = () => {
           if (audioUrlRef.current === url) {
             URL.revokeObjectURL(url)
             audioUrlRef.current = null
           }
-          audioRef.current = null
           if (cancelledRef.current || !enabled) {
             setTurn(TURN_IDLE)
             return
@@ -132,7 +153,7 @@ export function useConversationFlow({ enabled, voice, messages, streamingText, o
     return () => {
       aborted = true
     }
-  }, [enabled, messages, streamingText, sending, voice, turn, startListening])
+  }, [enabled, messages, streamingText, sending, voice, turn, startListening, ensureAudio])
 
-  return { turn, cancel }
+  return { turn, cancel, unlockAudio }
 }

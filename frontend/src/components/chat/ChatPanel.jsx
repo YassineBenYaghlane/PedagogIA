@@ -81,7 +81,7 @@ export default function ChatPanel({
   const scrollerRef = useRef(null)
   const [conversationMode, setConversationMode] = useState(false)
 
-  const { turn, cancel } = useConversationFlow({
+  const { turn, cancel, unlockAudio } = useConversationFlow({
     enabled: conversationMode && !readOnly,
     voice,
     messages,
@@ -99,9 +99,13 @@ export default function ChatPanel({
     if (conversationMode) {
       cancel()
       setConversationMode(false)
-    } else {
-      setConversationMode(true)
+      return
     }
+    // Prime the audio element inside this user gesture so subsequent
+    // .play() calls (after the bot reply streams in) aren't blocked by
+    // the browser autoplay policy.
+    unlockAudio()
+    setConversationMode(true)
   }
 
   return (

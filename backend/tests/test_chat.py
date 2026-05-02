@@ -389,6 +389,87 @@ def test_stream_reply_falls_back_when_sentinel_missing(monkeypatch, user):
     assert speech == ""
 
 
+@pytest.mark.django_db
+def test_stream_reply_attaches_scratch_image_to_last_user_turn(monkeypatch, user):
+    """When scratch_image is provided, the last user message becomes multimodal."""
+    student = _make_student(user)
+    conv = Conversation.objects.create(student=student)
+    conv.messages.create(role="student", content="regarde mon brouillon")
+
+    captured = {}
+
+    class _Client:
+        class messages:
+            @staticmethod
+            def stream(**kwargs):
+                captured.update(kwargs)
+                return _fake_stream(["ok", f"\n{tutor.SPEECH_SENTINEL}\n", "ok"])
+
+    monkeypatch.setattr(tutor, "_get_client", lambda: _Client)
+    raw = b"\x89PNG\r\n\x1a\nfake-png-bytes"
+    list(tutor.stream_reply(conv, scratch_image={"data": raw, "media_type": "image/png"}))
+
+    messages = captured.get("messages") or []
+    assert messages and messages[-1]["role"] == "user"
+    content = messages[-1]["content"]
+    assert isinstance(content, list)
+    image_blocks = [b for b in content if b.get("type") == "image"]
+    assert len(image_blocks) == 1
+    src = image_blocks[0]["source"]
+    assert src["media_type"] == "image/png"
+    import base64 as _b64
+    assert _b64.b64decode(src["data"]) == raw
+    text_blocks = [b for b in content if b.get("type") == "text"]
+    assert text_blocks and "brouillon" in text_blocks[0]["text"]
+
+
+@pytest.mark.django_db
+def test_send_message_with_image_forwards_scratch_to_stream(monkeypatch, auth_client, user):
+    student = _make_student(user)
+    conv = Conversation.objects.create(student=student)
+
+    seen = {}
+
+    def fake_stream(_conv, *, scratch_image=None):
+        seen["scratch_image"] = scratch_image
+        yield ("chunk", "ok")
+        yield ("speech", "ok")
+
+    monkeypatch.setattr("apps.chat.views.stream_reply", fake_stream)
+
+    import io as _io
+    img = _io.BytesIO(b"\x89PNG\r\n\x1a\nfake-bytes")
+    img.name = "brouillon.png"
+    res = auth_client.post(
+        f"/api/conversations/{conv.id}/messages/send/",
+        data={"content": "regarde", "scratch_image": img},
+        format="multipart",
+    )
+    assert res.status_code == 200
+    b"".join(res.streaming_content)
+    payload = seen.get("scratch_image")
+    assert payload is not None
+    assert payload["data"] == b"\x89PNG\r\n\x1a\nfake-bytes"
+    assert payload["media_type"].startswith("image/")
+
+
+@pytest.mark.django_db
+def test_send_message_rejects_oversize_image(auth_client, user):
+    student = _make_student(user)
+    conv = Conversation.objects.create(student=student)
+
+    import io as _io
+    huge = _io.BytesIO(b"\x89PNG\r\n\x1a\n" + b"\x00" * (5 * 1024 * 1024))
+    huge.name = "huge.png"
+    res = auth_client.post(
+        f"/api/conversations/{conv.id}/messages/send/",
+        data={"content": "regarde", "scratch_image": huge},
+        format="multipart",
+    )
+    assert res.status_code == 400
+    assert "scratch_image" in res.json()
+
+
 def test_app_context_names_collegia():
     """The bot must know the app name and core concepts to avoid hallucinating."""
     ctx = tutor.APP_CONTEXT

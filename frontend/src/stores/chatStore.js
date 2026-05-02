@@ -80,7 +80,7 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  async send(content) {
+  async send(content, scratchImage = null) {
     const { currentId, sending, studentId } = get()
     if (!currentId || sending || !content.trim()) return
     const studentMsg = {
@@ -97,6 +97,7 @@ export const useChatStore = create((set, get) => ({
     }))
     try {
       await chatApi.streamMessage(currentId, content, {
+        scratchImage,
         onChunk: (text) =>
           set((s) => ({ streamingText: s.streamingText + text })),
         onDone: ({ message_id, model, speech }) => {

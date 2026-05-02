@@ -1,3 +1,4 @@
+import base64
 import logging
 from collections.abc import Iterable
 
@@ -286,20 +287,47 @@ def _history_messages(conversation: Conversation) -> list[dict]:
     return out
 
 
-def stream_reply(conversation: Conversation) -> Iterable[tuple[str, str]]:
+def _attach_image_to_last_user(history: list[dict], scratch_image: dict) -> None:
+    """Promote the last user message to multimodal so Claude sees the brouillon."""
+    if not history or history[-1].get("role") != "user":
+        return
+    text = history[-1].get("content") or ""
+    encoded = base64.b64encode(scratch_image["data"]).decode("ascii")
+    history[-1] = {
+        "role": "user",
+        "content": [
+            {"type": "text", "text": text or "(brouillon joint)"},
+            {
+                "type": "image",
+                "source": {
+                    "type": "base64",
+                    "media_type": scratch_image["media_type"],
+                    "data": encoded,
+                },
+            },
+        ],
+    }
+
+
+def stream_reply(
+    conversation: Conversation, scratch_image: dict | None = None
+) -> Iterable[tuple[str, str]]:
     """Stream the tutor's reply as typed events.
 
     Yields ("chunk", text) for each display fragment as it arrives, and finally
     ("speech", text) once with the full TTS-friendly rewrite (text after the
     SPEECH_SENTINEL). Display chunks never include the sentinel or anything that
     follows it. Caller is responsible for having already persisted the student's
-    message.
+    message. When `scratch_image` is provided, it is attached to the last user
+    turn as a multimodal content block (single-shot — not persisted in history).
     """
     client = _get_client()
     system = _system_blocks(conversation)
     history = _history_messages(conversation)
     if not history:
         return
+    if scratch_image is not None:
+        _attach_image_to_last_user(history, scratch_image)
 
     model = settings.TUTOR_MODEL_PRIMARY
     pre_buffer = ""

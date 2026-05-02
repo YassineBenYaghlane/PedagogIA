@@ -21,6 +21,7 @@ export default function ExerciseChatPane({ onClose, onRetry, onNext }) {
         onNext={onNext}
         emptyHint="Le tuteur va te poser une question."
         voice={child?.tutor_voice || "female"}
+        studentId={selectedChildId}
       />
     </div>
   )

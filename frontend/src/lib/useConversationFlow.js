@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react"
-import { voiceApi } from "../api/voice"
+import { voiceApi, VoiceQuotaError } from "../api/voice"
 import { startVoiceCapture } from "./vad"
 
 const TURN_IDLE = "idle"
@@ -14,7 +14,17 @@ export const TURN_STATES = {
   TRANSCRIBING: TURN_TRANSCRIBING
 }
 
-export function useConversationFlow({ enabled, voice, messages, streamingText, onSend, sending }) {
+export function useConversationFlow({
+  enabled,
+  voice,
+  messages,
+  streamingText,
+  onSend,
+  sending,
+  studentId,
+  onUsage,
+  onQuotaExceeded
+}) {
   const [turn, setTurn] = useState(TURN_IDLE)
   const audioContextRef = useRef(null)
   const currentSourceRef = useRef(null)
@@ -126,7 +136,12 @@ export function useConversationFlow({ enabled, voice, messages, streamingText, o
       setTurn(TURN_BOT)
       try {
         const ttsText = last.speech || last.content
-        const blob = await voiceApi.tts(ttsText, voice || "female")
+        const { blob, used, cap } = await voiceApi.tts(
+          ttsText,
+          voice || "female",
+          studentId
+        )
+        if (used && cap) onUsage?.({ used, cap })
         if (aborted || cancelledRef.current) return
         const ctx = ensureContext()
         if (ctx.state === "suspended") await ctx.resume()
@@ -148,7 +163,10 @@ export function useConversationFlow({ enabled, voice, messages, streamingText, o
         }
         currentSourceRef.current = source
         source.start()
-      } catch {
+      } catch (err) {
+        if (err instanceof VoiceQuotaError) {
+          onQuotaExceeded?.({ used: err.used, cap: err.cap })
+        }
         setTurn(TURN_IDLE)
       }
     }
@@ -156,7 +174,19 @@ export function useConversationFlow({ enabled, voice, messages, streamingText, o
     return () => {
       aborted = true
     }
-  }, [enabled, messages, streamingText, sending, voice, startListening, ensureContext, stopSource])
+  }, [
+    enabled,
+    messages,
+    streamingText,
+    sending,
+    voice,
+    studentId,
+    onUsage,
+    onQuotaExceeded,
+    startListening,
+    ensureContext,
+    stopSource
+  ])
 
   return { turn, cancel, unlockAudio }
 }

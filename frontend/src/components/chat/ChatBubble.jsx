@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react"
 import Icon from "../ui/Icon"
-import { voiceApi } from "../../api/voice"
+import { voiceApi, VoiceQuotaError } from "../../api/voice"
 
-function PlayButton({ text, voice }) {
+function PlayButton({ text, voice, studentId, onUsage, onQuotaExceeded }) {
   const [state, setState] = useState("idle") // idle | loading | playing
   const audioRef = useRef(null)
   const urlRef = useRef(null)
@@ -42,7 +42,8 @@ function PlayButton({ text, voice }) {
     }
     try {
       setState("loading")
-      const blob = await voiceApi.tts(text, voice)
+      const { blob, used, cap } = await voiceApi.tts(text, voice, studentId)
+      if (used && cap) onUsage?.({ used, cap })
       const url = URL.createObjectURL(blob)
       urlRef.current = url
       const audio = new Audio(url)
@@ -51,7 +52,10 @@ function PlayButton({ text, voice }) {
       audioRef.current = audio
       await audio.play()
       setState("playing")
-    } catch {
+    } catch (err) {
+      if (err instanceof VoiceQuotaError) {
+        onQuotaExceeded?.({ used: err.used, cap: err.cap })
+      }
       setState("idle")
     }
   }
@@ -77,13 +81,24 @@ function PlayButton({ text, voice }) {
   )
 }
 
-export default function ChatBubble({ role, children, streaming = false, voice, text, speech }) {
+export default function ChatBubble({
+  role,
+  children,
+  streaming = false,
+  voice,
+  text,
+  speech,
+  studentId,
+  onUsage,
+  onQuotaExceeded
+}) {
   const isStudent = role === "student"
   const containerCls = isStudent ? "flex flex-col items-end" : "flex flex-col items-start"
   const bubbleCls = isStudent
     ? "bg-sage-leaf/60 border border-sage/25 text-bark"
     : "bg-sky-soft/70 border border-sky/30 text-bark"
-  const showPlay = !isStudent && !streaming && voice && (text || typeof children === "string")
+  const showPlay =
+    !isStudent && !streaming && voice && studentId && (text || typeof children === "string")
   const speakable =
     speech || text || (typeof children === "string" ? children : null)
   return (
@@ -96,7 +111,15 @@ export default function ChatBubble({ role, children, streaming = false, voice, t
           <span className="inline-block ml-1 w-1.5 h-3.5 align-middle bg-sky-deep/60 animate-pulse rounded-sm" />
         )}
       </div>
-      {showPlay && speakable && <PlayButton text={speakable} voice={voice} />}
+      {showPlay && speakable && (
+        <PlayButton
+          text={speakable}
+          voice={voice}
+          studentId={studentId}
+          onUsage={onUsage}
+          onQuotaExceeded={onQuotaExceeded}
+        />
+      )}
     </div>
   )
 }

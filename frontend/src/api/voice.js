@@ -12,16 +12,32 @@ function csrfHeaders(extra = {}) {
   return headers
 }
 
+export class VoiceQuotaError extends Error {
+  constructor(used, cap) {
+    super("voice quota exceeded")
+    this.name = "VoiceQuotaError"
+    this.used = used
+    this.cap = cap
+  }
+}
+
 export const voiceApi = {
-  async tts(text, voice = "female") {
+  async tts(text, voice = "female", studentId) {
     const res = await fetch("/api/voice/tts/", {
       method: "POST",
       credentials: "include",
       headers: csrfHeaders({ "Content-Type": "application/json" }),
-      body: JSON.stringify({ text, voice })
+      body: JSON.stringify({ text, voice, student_id: studentId })
     })
+    if (res.status === 429) {
+      const data = await res.json().catch(() => ({}))
+      throw new VoiceQuotaError(data.used ?? 0, data.cap ?? 0)
+    }
     if (!res.ok) throw new Error(`tts HTTP ${res.status}`)
-    return res.blob()
+    const blob = await res.blob()
+    const used = parseInt(res.headers.get("X-Voice-Chars-Used") || "0", 10)
+    const cap = parseInt(res.headers.get("X-Voice-Chars-Cap") || "0", 10)
+    return { blob, used, cap }
   },
 
   async stt(blob) {
@@ -36,5 +52,13 @@ export const voiceApi = {
     if (!res.ok) throw new Error(`stt HTTP ${res.status}`)
     const data = await res.json()
     return data.text || ""
+  },
+
+  async usage(studentId) {
+    const res = await fetch(`/api/voice/usage/${studentId}/`, {
+      credentials: "include"
+    })
+    if (!res.ok) throw new Error(`usage HTTP ${res.status}`)
+    return res.json()
   }
 }

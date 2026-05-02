@@ -1,10 +1,12 @@
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import ChatBubble from "./ChatBubble"
 import ChatComposer from "./ChatComposer"
 import TurnIndicator from "./TurnIndicator"
+import VoiceQuotaBanner from "./VoiceQuotaBanner"
 import Loader from "../ui/Loader"
 import Icon from "../ui/Icon"
 import { useConversationFlow, TURN_STATES } from "../../lib/useConversationFlow"
+import { voiceApi } from "../../api/voice"
 
 function PaneHeader({ title, onClose, extra }) {
   if (!title && !onClose && !extra) return null
@@ -76,10 +78,18 @@ export default function ChatPanel({
   readOnly = false,
   emptyHint,
   voice,
-  headerExtra
+  headerExtra,
+  studentId
 }) {
   const scrollerRef = useRef(null)
   const [conversationMode, setConversationMode] = useState(false)
+  const [voiceUsage, setVoiceUsage] = useState(null)
+
+  const handleUsage = useCallback((u) => setVoiceUsage(u), [])
+  const handleQuotaExceeded = useCallback(({ cap }) => {
+    setVoiceUsage({ used: cap, cap })
+    setConversationMode(false)
+  }, [])
 
   const { turn, cancel, unlockAudio } = useConversationFlow({
     enabled: conversationMode && !readOnly,
@@ -87,8 +97,25 @@ export default function ChatPanel({
     messages,
     streamingText,
     sending,
-    onSend
+    onSend,
+    studentId,
+    onUsage: handleUsage,
+    onQuotaExceeded: handleQuotaExceeded
   })
+
+  useEffect(() => {
+    if (!studentId || readOnly) return
+    let cancelled = false
+    voiceApi
+      .usage(studentId)
+      .then((u) => {
+        if (!cancelled) setVoiceUsage({ used: u.used, cap: u.cap })
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [studentId, readOnly])
 
   useEffect(() => {
     const el = scrollerRef.current
@@ -134,6 +161,9 @@ export default function ChatPanel({
               voice={conversationMode ? undefined : voice}
               text={m.content}
               speech={m.speech}
+              studentId={studentId}
+              onUsage={handleUsage}
+              onQuotaExceeded={handleQuotaExceeded}
             >
               {m.content}
             </ChatBubble>
@@ -149,6 +179,9 @@ export default function ChatPanel({
             </p>
           )}
         </div>
+      )}
+      {!readOnly && voiceUsage && (
+        <VoiceQuotaBanner used={voiceUsage.used} cap={voiceUsage.cap} />
       )}
       {conversationMode && (
         <TurnIndicator

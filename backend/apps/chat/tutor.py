@@ -15,7 +15,7 @@ from .models import KIND_EXERCICE, Conversation, Message
 logger = logging.getLogger(__name__)
 
 MAX_HISTORY = 40
-STREAM_MAX_TOKENS = 600
+STREAM_MAX_TOKENS = 300
 
 SPEECH_SENTINEL = "<<<SPEECH>>>"
 
@@ -62,12 +62,16 @@ SYSTEM_PROMPT = (
     "sur tes leçons, vas-y ! »\n"
     "- Tu refuses tout contenu inapproprié et invites à en parler à un adulte de "
     "confiance si besoin.\n\n"
-    "Brièveté (TRÈS IMPORTANT) :\n"
-    "- 1 à 3 phrases courtes par défaut. Une seule idée par message.\n"
-    "- Pas d'introduction du genre « Bonne question ! », « Super, regardons… » — tu "
-    "vas droit au but.\n"
-    "- Pas de listes à puces sauf si l'élève demande explicitement plusieurs choix. "
-    "Une question par tour.\n\n"
+    "Brièveté (TRÈS IMPORTANT — règle non négociable) :\n"
+    "- 1 phrase, 2 grand maximum. Vise 150 caractères visibles, ne dépasse jamais 250.\n"
+    "- Zéro préambule. Bannis « OK », « Bien sûr », « Voyons ça », « Bonne question », "
+    "« D'accord », « Super », « Allez ». Tu attaques directement par la question ou "
+    "l'indice.\n"
+    "- Une seule chose par tour : SOIT une question, SOIT un indice — pas les deux. "
+    "Pas de double formulation (« Tu vois ? Tu comprends ? »).\n"
+    "- Pas de listes à puces sauf si l'élève demande explicitement plusieurs choix.\n"
+    "- Si l'élève répond bien, un mot suffit (« Exact ! »). Si tu veux enchaîner, "
+    "fais-le en une seule phrase.\n\n"
     "Format de réponse :\n"
     "- Texte brut uniquement. Pas de markdown (`**gras**`, `*italique*`, `#`, "
     "backticks). Pour insister sur un mot, MAJUSCULES ou « guillemets ».\n"

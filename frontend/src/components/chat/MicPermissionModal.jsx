@@ -54,20 +54,21 @@ function getRecoverySteps(family) {
     case "android_chrome":
     case "android_firefox":
       return [
-        "Touche le **cadenas** à gauche de la barre d'adresse",
+        "Touche l'icône à gauche de l'URL (**cadenas** ou **réglages**)",
         "Choisis **Autorisations**",
         "Active **Microphone**",
         "Recharge la page"
       ]
     case "safari":
       return [
-        "Ouvre **Safari → Réglages → Sites web → Microphone**",
+        "Ouvre le menu **Safari → Réglages → Sites web**",
+        "Clique sur **Microphone** dans la colonne de gauche",
         "Trouve **collegia.be** et choisis **Autoriser**",
         "Recharge la page"
       ]
     case "firefox":
       return [
-        "Clique sur le **cadenas** à gauche de la barre d'adresse",
+        "Clique sur le **cadenas** à gauche de l'URL",
         "À côté de « Utiliser le microphone », clique sur la **croix** pour effacer le blocage",
         "Recharge la page et réautorise"
       ]
@@ -75,8 +76,9 @@ function getRecoverySteps(family) {
     case "edge":
     default:
       return [
-        "Clique sur le **cadenas** à gauche de la barre d'adresse",
-        "Trouve **Microphone** et choisis **Autoriser**",
+        "Clique sur l'icône à gauche de l'URL — un **bouton réglages** (trois curseurs) sur Chrome récent, sinon un **cadenas**",
+        "Choisis **Paramètres du site** (ou **Autorisations**)",
+        "Mets **Microphone** sur **Autoriser**",
         "Recharge la page"
       ]
   }

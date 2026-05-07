@@ -17,6 +17,7 @@ import { useChatStore } from "../../stores/chatStore"
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl
 
 const RENDER_SCALE = 1.5
+const SIDEBYSIDE_MIN_WIDTH = 1280
 
 export default function AtelierPdfReader({ source }) {
   const [doc, setDoc] = useState(null)
@@ -24,19 +25,21 @@ export default function AtelierPdfReader({ source }) {
   const [loadError, setLoadError] = useState(null)
   const [pageNumber, setPageNumber] = useState(1)
   const [pageRendered, setPageRendered] = useState(false)
+  const [pageSize, setPageSize] = useState({ width: 0, height: 0 })
   const [feedback, setFeedback] = useState(null)
   const [feedbackLoading, setFeedbackLoading] = useState(false)
   const [feedbackError, setFeedbackError] = useState(null)
   const [openingChat, setOpeningChat] = useState(false)
   const [chatError, setChatError] = useState(null)
   const [strokeColor, setStrokeColor] = useState(DEFAULT_COLOR)
+  const [chatDrawerOpen, setChatDrawerOpen] = useState(false)
   const pdfCanvasRef = useRef(null)
   const styletRef = useRef(null)
   const renderTaskRef = useRef(null)
   const { selectedChildId, children } = useAuthStore()
   const child = children.find((c) => c.id === selectedChildId)
   const chat = useChatStore()
-  const chatOpen = !!chat.currentId
+  const chatActive = !!chat.currentId
   const voice = child?.tutor_voice || "female"
 
   useEffect(() => {
@@ -81,10 +84,13 @@ export default function AtelierPdfReader({ source }) {
       }
       const viewport = page.getViewport({ scale: RENDER_SCALE })
       const dpr = window.devicePixelRatio || 1
+      const cssW = Math.floor(viewport.width)
+      const cssH = Math.floor(viewport.height)
       canvas.width = Math.floor(viewport.width * dpr)
       canvas.height = Math.floor(viewport.height * dpr)
-      canvas.style.width = `${Math.floor(viewport.width)}px`
-      canvas.style.height = `${Math.floor(viewport.height)}px`
+      canvas.style.width = `${cssW}px`
+      canvas.style.height = `${cssH}px`
+      setPageSize({ width: cssW, height: cssH })
       const ctx = canvas.getContext("2d")
       ctx.setTransform(1, 0, 0, 1, 0, 0)
       ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -139,6 +145,7 @@ export default function AtelierPdfReader({ source }) {
         const store = useChatStore.getState()
         await store.loadConversations(selectedChildId)
         await store.selectConversation(res.conversation_id)
+        setChatDrawerOpen(true)
       } catch (err) {
         setChatError(err?.data?.detail || err?.message || "Impossible d'ouvrir le chat")
       } finally {
@@ -165,7 +172,7 @@ export default function AtelierPdfReader({ source }) {
       setFeedback(res.feedback)
       const isWide =
         typeof window !== "undefined" &&
-        window.matchMedia("(min-width: 1024px)").matches
+        window.matchMedia(`(min-width: ${SIDEBYSIDE_MIN_WIDTH}px)`).matches
       if (isWide) {
         await openChatForFeedback(res.feedback)
       }
@@ -176,8 +183,12 @@ export default function AtelierPdfReader({ source }) {
     }
   }
 
-  const closeChat = useCallback(() => {
+  const closeSidePanel = useCallback(() => {
     useChatStore.getState().selectConversation(null)
+  }, [])
+
+  const closeDrawer = useCallback(() => {
+    setChatDrawerOpen(false)
   }, [])
 
   useEffect(() => {
@@ -202,9 +213,25 @@ export default function AtelierPdfReader({ source }) {
   const totalPages = doc?.numPages || 0
   const canPrev = pageNumber > 1 && !feedbackLoading
   const canNext = pageNumber < totalPages && !feedbackLoading
+  const chatPanelEmptyHint = feedback
+    ? "Pose une question sur la correction."
+    : "Corrige une page ou pose une question au tuteur."
+
+  const chatPanelProps = {
+    title: "Avec le tuteur",
+    messages: chat.messages,
+    streamingText: chat.streamingText,
+    sending: chat.sending,
+    loading: chat.loadingConversation,
+    error: chat.error,
+    onSend: handleChatSend,
+    emptyHint: chatPanelEmptyHint,
+    voice,
+    studentId: selectedChildId,
+  }
 
   return (
-    <div className="flex-1 flex flex-col px-4 sm:px-6 pt-3 pb-6 gap-3 w-full mx-auto max-w-5xl lg:max-w-[1400px]">
+    <div className="flex-1 flex flex-col px-4 sm:px-6 pt-3 pb-6 gap-3 w-full mx-auto max-w-[1600px]">
       {loading && (
         <div className="self-center">
           <Loader message="Chargement du sujet…" />
@@ -244,118 +271,149 @@ export default function AtelierPdfReader({ source }) {
                 Suivante <Icon name="arrow_forward" />
               </Button>
             </div>
-            <ColorPicker color={strokeColor} onSelect={setStrokeColor} />
-            <Button
-              onClick={submitPage}
-              disabled={!pageRendered || feedbackLoading}
-              data-testid="pdf-correct"
-              size="sm"
-              className="min-w-[180px] justify-center"
-            >
-              {feedbackLoading ? (
-                <>
-                  <Icon name="progress_activity" className="animate-spin" /> Correction…
-                </>
-              ) : (
-                <>
-                  <Icon name="check_circle" /> Corriger cette page
-                </>
-              )}
-            </Button>
+            <div className="flex items-center gap-3">
+              <ColorPicker color={strokeColor} onSelect={setStrokeColor} />
+              <button
+                type="button"
+                onClick={() => setChatDrawerOpen(true)}
+                data-testid="pdf-open-tutor"
+                className="xl:hidden inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-sky-deep bg-sky-soft/55 border border-sky/35 hover:bg-sky-soft hover:border-sky/55 transition-colors cursor-pointer relative"
+                aria-label="Ouvrir le tuteur"
+              >
+                <Icon name="forum" size={14} />
+                <span>Tuteur</span>
+                {chatActive && (
+                  <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-sage shadow-[0_0_0_2px_var(--color-chalk)]" />
+                )}
+              </button>
+              <Button
+                onClick={submitPage}
+                disabled={!pageRendered || feedbackLoading}
+                data-testid="pdf-correct"
+                size="sm"
+                className="min-w-[180px] justify-center"
+              >
+                {feedbackLoading ? (
+                  <>
+                    <Icon name="progress_activity" className="animate-spin" /> Correction…
+                  </>
+                ) : (
+                  <>
+                    <Icon name="check_circle" /> Corriger cette page
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-4 w-full items-start">
-            <div className="w-full lg:flex-1 lg:min-w-0 flex flex-col items-center gap-4">
-              <div className="relative inline-block max-w-full overflow-auto rounded-2xl border border-sage/20 shadow-inner bg-bone">
-                <canvas
-                  ref={pdfCanvasRef}
-                  data-testid="pdf-page-canvas"
-                  className="block"
-                />
-                {pageRendered && (
-                  <StyletCanvas
-                    ref={styletRef}
-                    background="transparent"
-                    toolbar="minimal"
-                    minHeight={0}
-                    color={strokeColor}
-                    onColorChange={setStrokeColor}
-                    data-testid="pdf-stylet-overlay"
+          <div className="flex flex-col xl:flex-row gap-4 w-full items-start">
+            <div className="w-full xl:flex-1 xl:min-w-0 flex flex-col gap-4">
+              <div className="overflow-x-auto -mx-4 sm:-mx-6 px-4 sm:px-6 pb-1">
+                <div
+                  className="relative rounded-2xl border border-sage/20 shadow-[var(--shadow-leaf)] bg-bone mx-auto"
+                  style={
+                    pageSize.width
+                      ? { width: pageSize.width, height: pageSize.height }
+                      : undefined
+                  }
+                  data-testid="pdf-page-frame"
+                >
+                  <canvas
+                    ref={pdfCanvasRef}
+                    data-testid="pdf-page-canvas"
+                    className="block"
                   />
-                )}
+                  {pageRendered && (
+                    <StyletCanvas
+                      ref={styletRef}
+                      background="transparent"
+                      toolbar="minimal"
+                      minHeight={0}
+                      color={strokeColor}
+                      onColorChange={setStrokeColor}
+                      data-testid="pdf-stylet-overlay"
+                    />
+                  )}
+                </div>
               </div>
 
               {feedbackError && (
-              <div className="text-rose px-3 py-2 rounded-lg bg-rose-soft/60 w-full" role="alert">
-                {feedbackError}
-              </div>
-            )}
-
-            {feedback && !feedbackLoading && !chatOpen && (
-              <div
-                className="bg-sky-soft/60 border border-sky/30 rounded-2xl px-4 py-3 w-full text-bark"
-                data-testid="pdf-feedback"
-              >
-                <RichText className="rich-text text-sm leading-relaxed" html={feedback} />
-                <div className="flex items-center gap-4 mt-2 -mb-1">
-                  {selectedChildId && (
-                    <PlayButton
-                      text={feedback}
-                      voice={voice}
-                      studentId={selectedChildId}
-                    />
-                  )}
-                  <button
-                    type="button"
-                    onClick={openChatForFeedback}
-                    disabled={openingChat || !selectedChildId}
-                    data-testid="pdf-open-chat"
-                    className="mt-1.5 inline-flex items-center gap-1 text-xs text-sky-deep hover:text-bark transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    <Icon
-                      name={openingChat ? "progress_activity" : "forum"}
-                      size={14}
-                      className={openingChat ? "animate-spin" : ""}
-                    />
-                    <span>{openingChat ? "Ouverture…" : "En discuter avec le tuteur"}</span>
-                  </button>
+                <div className="text-rose px-3 py-2 rounded-lg bg-rose-soft/60 w-full" role="alert">
+                  {feedbackError}
                 </div>
-              </div>
-            )}
+              )}
 
-            {chatError && (
-              <div className="text-rose px-3 py-2 rounded-lg bg-rose-soft/60 w-full" role="alert">
-                {chatError}
-              </div>
-            )}
-          </div>
+              {feedback && !feedbackLoading && !chatActive && (
+                <div
+                  className="bg-sky-soft/60 border border-sky/30 rounded-2xl px-4 py-3 w-full text-bark"
+                  data-testid="pdf-feedback"
+                >
+                  <RichText className="rich-text text-sm leading-relaxed" html={feedback} />
+                  <div className="flex items-center gap-4 mt-2 -mb-1">
+                    {selectedChildId && (
+                      <PlayButton
+                        text={feedback}
+                        voice={voice}
+                        studentId={selectedChildId}
+                      />
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => openChatForFeedback()}
+                      disabled={openingChat || !selectedChildId}
+                      data-testid="pdf-open-chat"
+                      className="mt-1.5 inline-flex items-center gap-1 text-xs text-sky-deep hover:text-bark transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      <Icon
+                        name={openingChat ? "progress_activity" : "forum"}
+                        size={14}
+                        className={openingChat ? "animate-spin" : ""}
+                      />
+                      <span>{openingChat ? "Ouverture…" : "En discuter avec le tuteur"}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
 
-          <div
-            className={`w-full h-[480px] sm:h-[560px] rounded-2xl overflow-hidden lg:w-[420px] lg:flex-shrink-0 lg:h-[calc(100dvh_-_160px)] lg:sticky lg:top-[140px] lg:self-start ${
-              chatOpen ? "block" : "hidden"
-            } lg:block`}
-            data-testid="pdf-chat-pane"
-          >
-            <ChatPanel
-              title="Avec le tuteur"
-              onClose={chatOpen ? closeChat : undefined}
-              messages={chat.messages}
-              streamingText={chat.streamingText}
-              sending={chat.sending}
-              loading={chat.loadingConversation}
-              error={chat.error}
-              onSend={handleChatSend}
-              emptyHint={
-                feedback
-                  ? "Pose une question sur la correction."
-                  : "Corrige une page ou pose une question au tuteur."
-              }
-              voice={voice}
-              studentId={selectedChildId}
-            />
-          </div>
+              {chatError && (
+                <div className="text-rose px-3 py-2 rounded-lg bg-rose-soft/60 w-full" role="alert">
+                  {chatError}
+                </div>
+              )}
+            </div>
+
+            <aside
+              className="hidden xl:block xl:w-[420px] xl:flex-shrink-0 xl:h-[calc(100dvh_-_160px)] xl:sticky xl:top-[140px] xl:self-start rounded-2xl overflow-hidden border border-sage/15 bg-bone shadow-[var(--shadow-leaf)]"
+              data-testid="pdf-chat-pane"
+            >
+              <ChatPanel
+                {...chatPanelProps}
+                onClose={chatActive ? closeSidePanel : undefined}
+              />
+            </aside>
           </div>
         </>
+      )}
+
+      {chatDrawerOpen && (
+        <div className="xl:hidden fixed inset-0 z-50" data-testid="pdf-chat-drawer">
+          <button
+            type="button"
+            aria-label="Fermer le tuteur"
+            onClick={closeDrawer}
+            className="jardin-veil absolute inset-0 bg-bark/25 backdrop-blur-[2px] cursor-pointer"
+          />
+          <aside
+            role="dialog"
+            aria-label="Tuteur"
+            className="jardin-drawer absolute top-0 right-0 bottom-0 w-full sm:w-[420px] bg-bone border-l border-sage/15 shadow-[0_30px_60px_-30px_rgba(43,58,46,0.45)] flex flex-col"
+          >
+            <ChatPanel
+              {...chatPanelProps}
+              onClose={closeDrawer}
+            />
+          </aside>
+        </div>
       )}
     </div>
   )

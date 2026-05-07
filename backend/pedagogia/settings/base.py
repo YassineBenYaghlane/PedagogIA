@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "apps.sessions.apps.LearningSessionsConfig",
     "apps.chat",
     "apps.voice",
+    "apps.atelier_pdf",
 ]
 
 MIDDLEWARE = [

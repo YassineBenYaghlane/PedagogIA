@@ -221,6 +221,14 @@ export default function WelcomeScreen() {
             <Icon name="assignment" /> Examen
           </Button>
           <Button
+            data-testid="start-pdf"
+            variant="ghost"
+            size="md"
+            onClick={() => navigate("/pdf")}
+          >
+            <Icon name="description" /> Atelier PDF
+          </Button>
+          <Button
             data-testid="open-history"
             variant="ghost"
             size="md"

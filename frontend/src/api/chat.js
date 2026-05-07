@@ -31,15 +31,24 @@ export const chatApi = {
       prompt: prompt || ""
     }),
 
-  async streamMessage(conversationId, content, { onChunk, onDone, onError, signal } = {}) {
-    const headers = { "Content-Type": "application/json" }
+  async streamMessage(conversationId, content, { scratchImage = null, onChunk, onDone, onError, signal } = {}) {
+    const headers = {}
     const token = readCookie(CSRF_COOKIE)
     if (token) headers["X-CSRFToken"] = token
+    let body
+    if (scratchImage) {
+      body = new FormData()
+      body.append("content", content)
+      body.append("scratch_image", scratchImage)
+    } else {
+      headers["Content-Type"] = "application/json"
+      body = JSON.stringify({ content })
+    }
     const res = await fetch(`/api/conversations/${conversationId}/messages/send/`, {
       method: "POST",
       credentials: "include",
       headers,
-      body: JSON.stringify({ content }),
+      body,
       signal
     })
     if (!res.ok) {

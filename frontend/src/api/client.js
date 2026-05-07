@@ -7,7 +7,8 @@ function readCookie(name) {
 }
 
 async function request(path, { method = "GET", body, headers = {} } = {}) {
-  const finalHeaders = { "Content-Type": "application/json", ...headers }
+  const isForm = typeof FormData !== "undefined" && body instanceof FormData
+  const finalHeaders = isForm ? { ...headers } : { "Content-Type": "application/json", ...headers }
   const m = method.toUpperCase()
   if (UNSAFE.has(m)) {
     const token = readCookie(CSRF_COOKIE)
@@ -17,7 +18,7 @@ async function request(path, { method = "GET", body, headers = {} } = {}) {
     method: m,
     credentials: "include",
     headers: finalHeaders,
-    body: body !== undefined ? JSON.stringify(body) : undefined
+    body: body === undefined ? undefined : isForm ? body : JSON.stringify(body)
   })
   if (res.status === 401) {
     window.dispatchEvent(new CustomEvent("auth:unauthorized"))

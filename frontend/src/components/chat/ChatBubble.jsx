@@ -1,8 +1,15 @@
 import { useEffect, useRef, useState } from "react"
 import Icon from "../ui/Icon"
 import { voiceApi, VoiceQuotaError } from "../../api/voice"
+import RichText from "../../lib/RichText"
 
-function PlayButton({ text, voice, studentId, onUsage, onQuotaExceeded }) {
+function stripHtml(s) {
+  if (!s) return s
+  return s.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()
+}
+
+export function PlayButton({ text, voice, studentId, onUsage, onQuotaExceeded }) {
+  const speakable = stripHtml(text)
   const [state, setState] = useState("idle") // idle | loading | playing
   const audioRef = useRef(null)
   const urlRef = useRef(null)
@@ -42,7 +49,7 @@ function PlayButton({ text, voice, studentId, onUsage, onQuotaExceeded }) {
     }
     try {
       setState("loading")
-      const { blob, used, cap } = await voiceApi.tts(text, voice, studentId)
+      const { blob, used, cap } = await voiceApi.tts(speakable, voice, studentId)
       if (used && cap) onUsage?.({ used, cap })
       const url = URL.createObjectURL(blob)
       urlRef.current = url
@@ -104,9 +111,15 @@ export default function ChatBubble({
   return (
     <div className={containerCls}>
       <div
-        className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${bubbleCls}`}
+        className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+          isStudent ? "whitespace-pre-wrap" : ""
+        } ${bubbleCls}`}
       >
-        {children}
+        {!isStudent && typeof children === "string" ? (
+          <RichText className="rich-text" html={children} />
+        ) : (
+          children
+        )}
         {streaming && (
           <span className="inline-block ml-1 w-1.5 h-3.5 align-middle bg-sky-deep/60 animate-pulse rounded-sm" />
         )}

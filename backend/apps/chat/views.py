@@ -27,6 +27,9 @@ logger = logging.getLogger(__name__)
 DEFAULT_TITLE_FALLBACK = "Nouvelle conversation"
 TITLE_MAX = 120
 
+SCRATCH_IMAGE_MAX_BYTES = 4 * 1024 * 1024
+SCRATCH_IMAGE_ALLOWED = {"image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"}
+
 
 def _student_owned(user, student_id) -> Student:
     student = get_object_or_404(Student, id=student_id)
@@ -148,19 +151,42 @@ def open_for_attempt(request, attempt_id):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def send_message(request, conversation_id):
-    """Append a student message, then stream the tutor's reply as NDJSON."""
+    """Append a student message, then stream the tutor's reply as NDJSON.
+
+    An optional `scratch_image` upload (multipart) is forwarded to the model as
+    a one-shot image content block on the new user turn. The image is consumed
+    by the LLM call and never persisted — replays of the conversation see only
+    the text content.
+    """
     conv = _conversation_owned(request.user, conversation_id)
     content = (request.data.get("content") or "").strip()
     if not content:
         raise ValidationError({"content": "required"})
 
+    scratch_image = _read_scratch_image(request)
+
     student_msg = conv.messages.create(role="student", content=content)
     _maybe_set_title_from(conv, content)
     return StreamingHttpResponse(
-        _stream_assistant(conv, student_msg),
+        _stream_assistant(conv, student_msg, scratch_image=scratch_image),
         content_type="application/x-ndjson",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
+
+
+def _read_scratch_image(request) -> dict | None:
+    upload = request.FILES.get("scratch_image")
+    if upload is None:
+        return None
+    if upload.size > SCRATCH_IMAGE_MAX_BYTES:
+        raise ValidationError({"scratch_image": "image trop lourde (max 4 Mo)"})
+    media_type = (getattr(upload, "content_type", "") or "").lower()
+    if media_type and media_type not in SCRATCH_IMAGE_ALLOWED:
+        raise ValidationError({"scratch_image": "format d'image non supporté"})
+    return {
+        "data": upload.read(),
+        "media_type": media_type or "image/jpeg",
+    }
 
 
 def _maybe_set_title_from(conv: Conversation, content: str) -> None:
@@ -173,14 +199,14 @@ def _maybe_set_title_from(conv: Conversation, content: str) -> None:
         conv.save(update_fields=["title", "updated_at"])
 
 
-def _stream_assistant(conv: Conversation, student_msg) -> "iter[bytes]":
+def _stream_assistant(conv: Conversation, student_msg, scratch_image=None) -> "iter[bytes]":
     from django.conf import settings as dj_settings
 
     chunks: list[str] = []
     speech_text = ""
     model_used = dj_settings.TUTOR_MODEL_PRIMARY
     try:
-        for kind, text in stream_reply(conv):
+        for kind, text in stream_reply(conv, scratch_image=scratch_image):
             if kind == "chunk":
                 chunks.append(text)
                 yield (json.dumps({"type": "chunk", "text": text}) + "\n").encode("utf-8")

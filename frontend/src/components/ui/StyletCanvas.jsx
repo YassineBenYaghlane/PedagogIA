@@ -53,9 +53,13 @@ const StyletCanvas = forwardRef(function StyletCanvas(
     commitLabel = "Joindre",
     cancelLabel = "Annuler",
     minHeight = 320,
+    toolbar = "full",
   },
   ref,
 ) {
+  const showHeader = toolbar === "full"
+  const showActions = toolbar === "full"
+  const showOverlayClear = toolbar === "minimal"
   const containerRef = useRef(null)
   const canvasRef = useRef(null)
   const strokesRef = useRef([])
@@ -171,7 +175,7 @@ const StyletCanvas = forwardRef(function StyletCanvas(
 
   return (
     <div className="flex flex-col gap-3 w-full h-full">
-      {title && (
+      {showHeader && title && (
         <div className="flex items-center justify-between">
           <h3 className="font-display text-sm text-bark">{title}</h3>
           <button
@@ -188,7 +192,7 @@ const StyletCanvas = forwardRef(function StyletCanvas(
       )}
       <div
         ref={containerRef}
-        className="flex-1 rounded-2xl border border-sage/20 overflow-hidden bg-chalk shadow-inner"
+        className="relative flex-1 rounded-2xl border border-sage/20 overflow-hidden bg-chalk shadow-inner"
         style={{ minHeight, touchAction: "none" }}
       >
         <canvas
@@ -201,8 +205,19 @@ const StyletCanvas = forwardRef(function StyletCanvas(
           onPointerCancel={onPointerCancel}
           onPointerLeave={onPointerLeave}
         />
+        {showOverlayClear && hasContent && (
+          <button
+            type="button"
+            onClick={clear}
+            data-testid="stylet-clear"
+            className="absolute top-2 right-2 inline-flex items-center gap-1 text-xs text-stem hover:text-bark bg-bone/80 backdrop-blur-sm px-2 py-1 rounded-lg border border-sage/15 transition-colors cursor-pointer"
+          >
+            <Icon name="refresh" size={12} />
+            Effacer
+          </button>
+        )}
       </div>
-      {(onCommit || onCancel) && (
+      {showActions && (onCommit || onCancel) && (
         <div className="flex gap-2 justify-end">
           {onCancel && (
             <Button variant="ghost" onClick={onCancel} data-testid="stylet-cancel">

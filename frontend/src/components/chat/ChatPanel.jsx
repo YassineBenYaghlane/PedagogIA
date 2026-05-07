@@ -79,7 +79,8 @@ export default function ChatPanel({
   emptyHint,
   voice,
   headerExtra,
-  studentId
+  studentId,
+  initialScratchImage = null
 }) {
   const scrollerRef = useRef(null)
   const [conversationMode, setConversationMode] = useState(false)
@@ -202,6 +203,7 @@ export default function ChatPanel({
           placeholder={
             sending ? "Le tuteur réfléchit…" : "Pose ta question…"
           }
+          initialScratchImage={initialScratchImage}
         />
       )}
     </div>

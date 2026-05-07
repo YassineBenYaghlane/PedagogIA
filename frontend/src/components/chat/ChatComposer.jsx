@@ -20,13 +20,14 @@ export default function ChatComposer({
   placeholder,
   conversationMode = false,
   conversationTurn = TURN_STATES.IDLE,
-  onToggleConversation
+  onToggleConversation,
+  initialScratchImage = null
 }) {
   const [value, setValue] = useState("")
   const [recording, setRecording] = useState(false)
   const [transcribing, setTranscribing] = useState(false)
   const [voiceError, setVoiceError] = useState(null)
-  const [scratchImage, setScratchImage] = useState(null)
+  const [scratchImage, setScratchImage] = useState(initialScratchImage)
   const [scratchError, setScratchError] = useState(null)
   const [styletOpen, setStyletOpen] = useState(false)
   const recorderRef = useRef(null)

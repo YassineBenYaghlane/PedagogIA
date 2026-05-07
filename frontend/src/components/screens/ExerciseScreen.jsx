@@ -1,10 +1,11 @@
-import { useEffect } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useNavigate, useSearchParams } from "react-router"
 import AppShell from "../layout/AppShell"
 import TopBar from "../layout/TopBar"
 import { TopBarBack } from "../layout/TopBarActions"
 import ExerciseCard from "../exercises/ExerciseCard"
 import ExerciseChatPane from "../exercises/ExerciseChatPane"
+import StyletCanvas from "../ui/StyletCanvas"
 import { useSessionStore } from "../../stores/sessionStore"
 import { useAuthStore } from "../../stores/authStore"
 
@@ -20,6 +21,24 @@ export default function ExerciseScreen() {
     openChat, openChatForExercise, closeChat,
   } = useSessionStore()
   const child = children.find((c) => c.id === selectedChildId)
+  const canvasRef = useRef(null)
+  const [pendingScratchImage, setPendingScratchImage] = useState(null)
+
+  const captureCanvas = async () => {
+    const blob = await canvasRef.current?.exportBlob?.()
+    if (!blob) return null
+    return new File([blob], "brouillon-stylet.png", { type: "image/png" })
+  }
+  const handleOpenChat = async () => {
+    const file = await captureCanvas()
+    setPendingScratchImage(file)
+    await openChat()
+  }
+  const handleOpenChatForExercise = async () => {
+    const file = await captureCanvas()
+    setPendingScratchImage(file)
+    await openChatForExercise()
+  }
 
   useEffect(() => {
     if (!selectedChildId) {
@@ -69,19 +88,31 @@ export default function ExerciseScreen() {
             feedback={feedback}
             conversationId={chatConversationId}
             openingChat={openingChat}
-            onOpenChat={openChat}
-            onOpenChatForExercise={openChatForExercise}
+            onOpenChat={handleOpenChat}
+            onOpenChatForExercise={handleOpenChatForExercise}
             onRetry={retry}
             busy={loading}
             onSubmit={submit}
             onNext={() => loadNext()}
           />
+          {current?.exercise && !chatConversationId && (
+            <div className="h-[200px] sm:h-[240px]">
+              <StyletCanvas
+                ref={canvasRef}
+                key={current.exercise.signature}
+                toolbar="minimal"
+                title={null}
+                minHeight={180}
+              />
+            </div>
+          )}
           {chatConversationId && (
             <div className="h-[60vh] min-h-[420px] max-h-[640px]">
               <ExerciseChatPane
                 onClose={closeChat}
                 onRetry={feedback && !feedback.is_correct ? retry : null}
                 onNext={feedback ? () => loadNext() : null}
+                initialScratchImage={pendingScratchImage}
               />
             </div>
           )}

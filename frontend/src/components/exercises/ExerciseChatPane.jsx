@@ -2,7 +2,7 @@ import ChatPanel from "../chat/ChatPanel"
 import { useChatStore } from "../../stores/chatStore"
 import { useAuthStore } from "../../stores/authStore"
 
-export default function ExerciseChatPane({ onClose, onRetry, onNext }) {
+export default function ExerciseChatPane({ onClose, onRetry, onNext, initialScratchImage = null }) {
   const chat = useChatStore()
   const { selectedChildId, children } = useAuthStore()
   const child = children.find((c) => c.id === selectedChildId)
@@ -22,6 +22,7 @@ export default function ExerciseChatPane({ onClose, onRetry, onNext }) {
         emptyHint="Le tuteur va te poser une question."
         voice={child?.tutor_voice || "female"}
         studentId={selectedChildId}
+        initialScratchImage={initialScratchImage}
       />
     </div>
   )

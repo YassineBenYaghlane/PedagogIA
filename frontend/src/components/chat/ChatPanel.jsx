@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import ChatBubble from "./ChatBubble"
 import ChatComposer from "./ChatComposer"
+import MicPermissionModal from "./MicPermissionModal"
 import TurnIndicator from "./TurnIndicator"
 import VoiceQuotaBanner from "./VoiceQuotaBanner"
 import Loader from "../ui/Loader"
@@ -85,10 +86,15 @@ export default function ChatPanel({
   const scrollerRef = useRef(null)
   const [conversationMode, setConversationMode] = useState(false)
   const [voiceUsage, setVoiceUsage] = useState(null)
+  const [micErrorCode, setMicErrorCode] = useState(null)
 
   const handleUsage = useCallback((u) => setVoiceUsage(u), [])
   const handleQuotaExceeded = useCallback(({ cap }) => {
     setVoiceUsage({ used: cap, cap })
+    setConversationMode(false)
+  }, [])
+  const handleMicError = useCallback((code) => {
+    setMicErrorCode(code)
     setConversationMode(false)
   }, [])
 
@@ -101,7 +107,8 @@ export default function ChatPanel({
     onSend,
     studentId,
     onUsage: handleUsage,
-    onQuotaExceeded: handleQuotaExceeded
+    onQuotaExceeded: handleQuotaExceeded,
+    onMicError: handleMicError
   })
 
   useEffect(() => {
@@ -206,6 +213,16 @@ export default function ChatPanel({
           initialScratchImage={initialScratchImage}
         />
       )}
+      <MicPermissionModal
+        open={Boolean(micErrorCode)}
+        code={micErrorCode}
+        onClose={() => setMicErrorCode(null)}
+        onRetry={() => {
+          setMicErrorCode(null)
+          unlockAudio()
+          setConversationMode(true)
+        }}
+      />
     </div>
   )
 }

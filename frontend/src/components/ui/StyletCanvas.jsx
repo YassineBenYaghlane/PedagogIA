@@ -5,6 +5,7 @@ import { PALETTE, DEFAULT_COLOR } from "../../lib/styletPalette"
 
 const STROKE_BASE_WIDTH = 2.5
 const STROKE_PRESSURE_GAIN = 4
+const ERASE_WIDTH_FACTOR = 5
 
 const BACKGROUNDS = {
   paper: "#f6f8f3",
@@ -39,9 +40,10 @@ function paintBackground(ctx, w, h, background) {
   ctx.fillRect(0, 0, w, h)
 }
 
-function strokeWidthFor(pressure) {
+function strokeWidthFor(pressure, erase = false) {
   const p = typeof pressure === "number" && pressure > 0 ? pressure : 0.5
-  return STROKE_BASE_WIDTH + p * STROKE_PRESSURE_GAIN
+  const w = STROKE_BASE_WIDTH + p * STROKE_PRESSURE_GAIN
+  return erase ? w * ERASE_WIDTH_FACTOR : w
 }
 
 const StyletCanvas = forwardRef(function StyletCanvas(
@@ -56,25 +58,35 @@ const StyletCanvas = forwardRef(function StyletCanvas(
     toolbar = "full",
     color: controlledColor,
     onColorChange,
+    eraser: controlledEraser,
+    onEraserChange,
+    overlayActions = true,
+    onStateChange,
     "data-testid": dataTestid,
   },
   ref,
 ) {
   const showHeader = toolbar === "full"
   const showActions = toolbar === "full"
-  const showOverlayClear = toolbar === "minimal"
+  const showOverlayClear = toolbar === "minimal" && overlayActions
   const overlayMode = toolbar === "minimal" && background === "transparent"
   const colorIsControlled = controlledColor !== undefined
+  const eraserIsControlled = controlledEraser !== undefined
   const containerRef = useRef(null)
   const canvasRef = useRef(null)
   const strokesRef = useRef([])
+  const historyRef = useRef([])
   const currentRef = useRef(null)
   const activePenRef = useRef(null)
   const sizeRef = useRef({ cssW: 0, cssH: 0 })
   const [hasContent, setHasContent] = useState(false)
+  const [canUndo, setCanUndo] = useState(false)
   const [internalColor, setInternalColor] = useState(DEFAULT_COLOR)
+  const [internalEraser, setInternalEraser] = useState(false)
   const color = colorIsControlled ? controlledColor : internalColor
   const setColor = onColorChange || setInternalColor
+  const eraser = eraserIsControlled ? controlledEraser : internalEraser
+  const setEraser = onEraserChange || setInternalEraser
 
   const redraw = useCallback(() => {
     const canvas = canvasRef.current
@@ -84,10 +96,11 @@ const StyletCanvas = forwardRef(function StyletCanvas(
     paintBackground(ctx, cssW, cssH, background)
     ctx.lineCap = "round"
     ctx.lineJoin = "round"
+    const bgColor = BACKGROUNDS[background]
     for (const stroke of strokesRef.current) {
-      drawStroke(ctx, stroke)
+      drawStroke(ctx, stroke, bgColor)
     }
-    if (currentRef.current) drawStroke(ctx, currentRef.current)
+    if (currentRef.current) drawStroke(ctx, currentRef.current, bgColor)
   }, [background])
 
   useEffect(() => {
@@ -122,7 +135,9 @@ const StyletCanvas = forwardRef(function StyletCanvas(
     if (t === "pen") activePenRef.current = event.pointerId
     canvasRef.current.setPointerCapture?.(event.pointerId)
     event.preventDefault()
-    currentRef.current = { color, points: [localPoint(event)] }
+    currentRef.current = eraser
+      ? { mode: "erase", points: [localPoint(event)] }
+      : { color, points: [localPoint(event)] }
     redraw()
   }
   const onPointerMove = (event) => {
@@ -140,8 +155,10 @@ const StyletCanvas = forwardRef(function StyletCanvas(
       activePenRef.current = null
     }
     if (stroke && stroke.points.length > 0) {
-      strokesRef.current.push(stroke)
+      historyRef.current.push(strokesRef.current.slice())
+      strokesRef.current = [...strokesRef.current, stroke]
       setHasContent(true)
+      setCanUndo(true)
     }
     redraw()
   }
@@ -152,9 +169,29 @@ const StyletCanvas = forwardRef(function StyletCanvas(
   }
 
   const clear = useCallback(() => {
+    if (strokesRef.current.length === 0) return
+    historyRef.current.push(strokesRef.current.slice())
     strokesRef.current = []
     currentRef.current = null
     setHasContent(false)
+    setCanUndo(true)
+    redraw()
+  }, [redraw])
+
+  const undo = useCallback(() => {
+    if (historyRef.current.length === 0) return
+    strokesRef.current = historyRef.current.pop()
+    setHasContent(strokesRef.current.length > 0)
+    setCanUndo(historyRef.current.length > 0)
+    redraw()
+  }, [redraw])
+
+  const reset = useCallback(() => {
+    strokesRef.current = []
+    currentRef.current = null
+    historyRef.current = []
+    setHasContent(false)
+    setCanUndo(false)
     redraw()
   }, [redraw])
 
@@ -171,9 +208,15 @@ const StyletCanvas = forwardRef(function StyletCanvas(
     [hasContent],
   )
 
-  useImperativeHandle(ref, () => ({ clear, exportBlob, hasContent: () => hasContent }), [
-    clear, exportBlob, hasContent,
-  ])
+  useImperativeHandle(
+    ref,
+    () => ({ clear, undo, reset, exportBlob, hasContent: () => hasContent }),
+    [clear, undo, reset, exportBlob, hasContent],
+  )
+
+  useEffect(() => {
+    onStateChange?.({ hasContent, canUndo })
+  }, [hasContent, canUndo, onStateChange])
 
   const commit = async () => {
     const blob = await exportBlob()
@@ -193,7 +236,22 @@ const StyletCanvas = forwardRef(function StyletCanvas(
         <div className="flex items-center justify-between gap-3">
           <h3 className="font-display text-sm text-bark">{title}</h3>
           <div className="flex items-center gap-3">
-            <ColorPicker color={color} onSelect={setColor} />
+            <ColorPicker
+              color={color}
+              onSelect={setColor}
+              eraser={eraser}
+              onEraserChange={setEraser}
+            />
+            <button
+              type="button"
+              onClick={undo}
+              disabled={!hasContent}
+              data-testid="stylet-undo"
+              className="inline-flex items-center gap-1 text-xs text-stem hover:text-bark transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            >
+              <Icon name="undo" size={14} />
+              Annuler
+            </button>
             <button
               type="button"
               onClick={clear}
@@ -202,7 +260,7 @@ const StyletCanvas = forwardRef(function StyletCanvas(
               className="inline-flex items-center gap-1 text-xs text-stem hover:text-bark transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               <Icon name="refresh" size={14} />
-              Effacer
+              Tout effacer
             </button>
           </div>
         </div>
@@ -242,19 +300,35 @@ const StyletCanvas = forwardRef(function StyletCanvas(
             className="absolute top-2 left-2 bg-bone/80 backdrop-blur-sm rounded-lg border border-sage/15 px-2 py-1"
             style={{ touchAction: "auto" }}
           >
-            <ColorPicker color={color} onSelect={setColor} />
+            <ColorPicker
+              color={color}
+              onSelect={setColor}
+              eraser={eraser}
+              onEraserChange={setEraser}
+            />
           </div>
         )}
         {showOverlayClear && hasContent && (
-          <button
-            type="button"
-            onClick={clear}
-            data-testid="stylet-clear"
-            className="absolute top-2 right-2 inline-flex items-center gap-1 text-xs text-stem hover:text-bark bg-bone/80 backdrop-blur-sm px-2 py-1 rounded-lg border border-sage/15 transition-colors cursor-pointer"
-          >
-            <Icon name="refresh" size={12} />
-            Effacer
-          </button>
+          <div className="absolute top-2 right-2 flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={undo}
+              data-testid="stylet-undo"
+              className="inline-flex items-center gap-1 text-xs text-stem hover:text-bark bg-bone/80 backdrop-blur-sm px-2 py-1 rounded-lg border border-sage/15 transition-colors cursor-pointer"
+            >
+              <Icon name="undo" size={12} />
+              Annuler
+            </button>
+            <button
+              type="button"
+              onClick={clear}
+              data-testid="stylet-clear"
+              className="inline-flex items-center gap-1 text-xs text-stem hover:text-bark bg-bone/80 backdrop-blur-sm px-2 py-1 rounded-lg border border-sage/15 transition-colors cursor-pointer"
+            >
+              <Icon name="refresh" size={12} />
+              Tout effacer
+            </button>
+          </div>
         )}
       </div>
       {showActions && (onCommit || onCancel) && (
@@ -275,39 +349,58 @@ const StyletCanvas = forwardRef(function StyletCanvas(
   )
 })
 
-function drawStroke(ctx, stroke) {
+function drawStroke(ctx, stroke, bgColor) {
   if (!stroke || !stroke.points || stroke.points.length === 0) return
-  ctx.strokeStyle = stroke.color
-  ctx.fillStyle = stroke.color
+  const erase = stroke.mode === "erase"
+  if (erase) {
+    if (bgColor) {
+      ctx.globalCompositeOperation = "source-over"
+      ctx.strokeStyle = bgColor
+      ctx.fillStyle = bgColor
+    } else {
+      ctx.globalCompositeOperation = "destination-out"
+      ctx.strokeStyle = "#000"
+      ctx.fillStyle = "#000"
+    }
+  } else {
+    ctx.globalCompositeOperation = "source-over"
+    ctx.strokeStyle = stroke.color
+    ctx.fillStyle = stroke.color
+  }
   const points = stroke.points
   if (points.length === 1) {
     const p = points[0]
     ctx.beginPath()
-    ctx.arc(p.x, p.y, strokeWidthFor(p.pressure) / 2, 0, Math.PI * 2)
+    ctx.arc(p.x, p.y, strokeWidthFor(p.pressure, erase) / 2, 0, Math.PI * 2)
     ctx.fill()
-    return
+  } else {
+    for (let i = 1; i < points.length; i++) {
+      const a = points[i - 1]
+      const b = points[i]
+      ctx.lineWidth = strokeWidthFor((a.pressure + b.pressure) / 2, erase)
+      ctx.beginPath()
+      ctx.moveTo(a.x, a.y)
+      ctx.lineTo(b.x, b.y)
+      ctx.stroke()
+    }
   }
-  for (let i = 1; i < points.length; i++) {
-    const a = points[i - 1]
-    const b = points[i]
-    ctx.lineWidth = strokeWidthFor((a.pressure + b.pressure) / 2)
-    ctx.beginPath()
-    ctx.moveTo(a.x, a.y)
-    ctx.lineTo(b.x, b.y)
-    ctx.stroke()
-  }
+  ctx.globalCompositeOperation = "source-over"
 }
 
-export function ColorPicker({ color, onSelect, className = "" }) {
+export function ColorPicker({ color, onSelect, eraser, onEraserChange, className = "" }) {
+  const showEraser = onEraserChange !== undefined
   return (
     <div className={`flex items-center gap-1.5 ${className}`} data-testid="stylet-colors">
       {PALETTE.map((c) => {
-        const active = c.value === color
+        const active = !eraser && c.value === color
         return (
           <button
             key={c.id}
             type="button"
-            onClick={() => onSelect(c.value)}
+            onClick={() => {
+              if (showEraser) onEraserChange(false)
+              onSelect(c.value)
+            }}
             data-testid={`stylet-color-${c.id}`}
             aria-label={c.label}
             aria-pressed={active}
@@ -318,6 +411,26 @@ export function ColorPicker({ color, onSelect, className = "" }) {
           />
         )
       })}
+      {showEraser && (
+        <>
+          <span aria-hidden className="h-4 w-px bg-sage/25 mx-0.5" />
+          <button
+            type="button"
+            onClick={() => onEraserChange(!eraser)}
+            data-testid="stylet-eraser"
+            aria-label="Gomme"
+            aria-pressed={!!eraser}
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium cursor-pointer transition-colors border text-sage-deep ${
+              eraser
+                ? "bg-sage-leaf/55 border-sage-deep shadow-[inset_0_1px_0_rgba(255,255,255,0.55),0_1px_0_rgba(43,58,46,0.06)]"
+                : "bg-bone border-sage/35 hover:border-sage hover:bg-sage-leaf/25"
+            }`}
+          >
+            <Icon name="eraser" size={13} />
+            <span>Gomme</span>
+          </button>
+        </>
+      )}
     </div>
   )
 }

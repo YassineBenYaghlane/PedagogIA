@@ -75,6 +75,34 @@ textarea {
   }
 }
 
+@keyframes jardin-slide-in-right {
+  from {
+    transform: translate3d(8%, 0, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes jardin-veil-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.jardin-drawer {
+  animation: jardin-slide-in-right 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.jardin-veil {
+  animation: jardin-veil-in 200ms ease-out both;
+}
+
 /* Tutor-rendered HTML — sanitized output from the LLM (chat bubbles + atelier
    PDF feedback). Stays in the JARDIN palette, no flashy color. */
 .rich-text > * + * {

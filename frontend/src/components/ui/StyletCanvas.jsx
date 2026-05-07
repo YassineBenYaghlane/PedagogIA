@@ -224,7 +224,13 @@ const StyletCanvas = forwardRef(function StyletCanvas(
           ref={canvasRef}
           data-testid="stylet-canvas"
           className="block w-full h-full"
-          style={{ background: "transparent" }}
+          style={{
+            background: "transparent",
+            touchAction: "none",
+            WebkitUserSelect: "none",
+            userSelect: "none",
+            WebkitTouchCallout: "none",
+          }}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}

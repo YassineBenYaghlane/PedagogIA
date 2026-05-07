@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import Icon from "../ui/Icon"
 import StyletCanvas from "../ui/StyletCanvas"
+import MicPermissionModal from "./MicPermissionModal"
 import { voiceApi } from "../../api/voice"
 import { TURN_STATES } from "../../lib/useConversationFlow"
+import { requestMicrophone } from "../../lib/microphone"
 
 const MAX_RECORDING_MS = 30_000
 const SCRATCH_MAX_BYTES = 4 * 1024 * 1024
@@ -27,6 +29,7 @@ export default function ChatComposer({
   const [recording, setRecording] = useState(false)
   const [transcribing, setTranscribing] = useState(false)
   const [voiceError, setVoiceError] = useState(null)
+  const [micErrorCode, setMicErrorCode] = useState(null)
   const [scratchImage, setScratchImage] = useState(initialScratchImage)
   const [scratchError, setScratchError] = useState(null)
   const [styletOpen, setStyletOpen] = useState(false)
@@ -86,42 +89,40 @@ export default function ChatComposer({
 
   const startRecording = async () => {
     setVoiceError(null)
-    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
-      setVoiceError("Micro indisponible sur ce navigateur")
+    setMicErrorCode(null)
+    const result = await requestMicrophone({ audio: true })
+    if (!result.ok) {
+      setMicErrorCode(result.code)
       return
     }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      const recorder = new MediaRecorder(stream)
-      chunksRef.current = []
-      recorder.ondataavailable = (ev) => {
-        if (ev.data && ev.data.size > 0) chunksRef.current.push(ev.data)
-      }
-      recorder.onstop = async () => {
-        stream.getTracks().forEach((t) => t.stop())
-        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" })
-        chunksRef.current = []
-        if (blob.size === 0) {
-          setTranscribing(false)
-          return
-        }
-        try {
-          setTranscribing(true)
-          const text = await voiceApi.stt(blob)
-          if (text) setValue((v) => (v ? `${v} ${text}` : text))
-        } catch {
-          setVoiceError("Transcription impossible")
-        } finally {
-          setTranscribing(false)
-        }
-      }
-      recorderRef.current = recorder
-      recorder.start()
-      setRecording(true)
-      stopTimerRef.current = setTimeout(() => stopRecording(), MAX_RECORDING_MS)
-    } catch {
-      setVoiceError("Accès micro refusé")
+    const { stream } = result
+    const recorder = new MediaRecorder(stream)
+    chunksRef.current = []
+    recorder.ondataavailable = (ev) => {
+      if (ev.data && ev.data.size > 0) chunksRef.current.push(ev.data)
     }
+    recorder.onstop = async () => {
+      stream.getTracks().forEach((t) => t.stop())
+      const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" })
+      chunksRef.current = []
+      if (blob.size === 0) {
+        setTranscribing(false)
+        return
+      }
+      try {
+        setTranscribing(true)
+        const text = await voiceApi.stt(blob)
+        if (text) setValue((v) => (v ? `${v} ${text}` : text))
+      } catch {
+        setVoiceError("Transcription impossible")
+      } finally {
+        setTranscribing(false)
+      }
+    }
+    recorderRef.current = recorder
+    recorder.start()
+    setRecording(true)
+    stopTimerRef.current = setTimeout(() => stopRecording(), MAX_RECORDING_MS)
   }
 
   const stopRecording = () => {
@@ -284,6 +285,15 @@ export default function ChatComposer({
           </div>
         </div>
       )}
+      <MicPermissionModal
+        open={Boolean(micErrorCode)}
+        code={micErrorCode}
+        onClose={() => setMicErrorCode(null)}
+        onRetry={() => {
+          setMicErrorCode(null)
+          startRecording()
+        }}
+      />
     </form>
   )
 }

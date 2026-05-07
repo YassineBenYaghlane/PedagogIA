@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { voiceApi, VoiceQuotaError } from "../api/voice"
 import { startVoiceCapture } from "./vad"
+import { getMicPermissionState, MIC_ERROR_CODES } from "./microphone"
 
 const TURN_IDLE = "idle"
 const TURN_BOT = "bot"
@@ -23,7 +24,8 @@ export function useConversationFlow({
   sending,
   studentId,
   onUsage,
-  onQuotaExceeded
+  onQuotaExceeded,
+  onMicError
 }) {
   const [turn, setTurn] = useState(TURN_IDLE)
   const audioContextRef = useRef(null)
@@ -82,6 +84,12 @@ export function useConversationFlow({
 
   const startListening = useCallback(async () => {
     if (cancelledRef.current || !enabled) return
+    const state = await getMicPermissionState()
+    if (state === "denied") {
+      onMicError?.(MIC_ERROR_CODES.PERMISSION_DENIED)
+      setTurn(TURN_IDLE)
+      return
+    }
     setTurn(TURN_LISTENING)
     captureRef.current = await startVoiceCapture({
       onResult: async (blob) => {
@@ -101,12 +109,13 @@ export function useConversationFlow({
           setTurn(TURN_IDLE)
         }
       },
-      onError: () => {
+      onError: ({ code } = {}) => {
         captureRef.current = null
         setTurn(TURN_IDLE)
+        if (code) onMicError?.(code)
       }
     })
-  }, [enabled, onSend])
+  }, [enabled, onSend, onMicError])
 
   useEffect(() => {
     if (!enabled) {

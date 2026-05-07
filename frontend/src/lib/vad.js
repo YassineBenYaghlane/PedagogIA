@@ -1,3 +1,5 @@
+import { requestMicrophone } from "./microphone"
+
 const SPEECH_RMS = 0.025
 const MIN_SPEECH_MS = 350
 const SILENCE_MS = 1200
@@ -40,8 +42,14 @@ export async function startVoiceCapture({ onLevel, onResult, onError } = {}) {
     onResult?.(blob ?? new Blob(chunks, { type: "audio/webm" }))
   }
 
+  const result = await requestMicrophone({ audio: true })
+  if (!result.ok) {
+    onError?.({ code: result.code, error: result.error })
+    return { stop: () => {} }
+  }
+  stream = result.stream
+
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ audio: true })
     ctx = new (window.AudioContext || window.webkitAudioContext)()
     const source = ctx.createMediaStreamSource(stream)
     analyser = ctx.createAnalyser()
@@ -82,7 +90,7 @@ export async function startVoiceCapture({ onLevel, onResult, onError } = {}) {
     requestAnimationFrame(tick)
   } catch (err) {
     cleanup()
-    onError?.(err)
+    onError?.({ code: "unknown", error: err })
     return { stop: () => {} }
   }
 

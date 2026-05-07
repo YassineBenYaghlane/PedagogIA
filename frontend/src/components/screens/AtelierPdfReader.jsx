@@ -8,16 +8,17 @@ import StyletCanvas, { ColorPicker } from "../ui/StyletCanvas"
 import AtelierPdfPageJump from "./AtelierPdfPageJump"
 import { DEFAULT_COLOR } from "../../lib/styletPalette"
 import ChatPanel from "../chat/ChatPanel"
-import { PlayButton } from "../chat/ChatBubble"
 import { atelierPdfApi } from "../../api/atelierPdf"
-import RichText from "../../lib/RichText"
 import { useAuthStore } from "../../stores/authStore"
 import { useChatStore } from "../../stores/chatStore"
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl
 
 const RENDER_SCALE = 1.5
-const SIDEBYSIDE_MIN_WIDTH = 1280
+const TOOL_DOT_BASE =
+  "h-5 w-5 rounded-full flex items-center justify-center cursor-pointer transition-all border text-sage-deep disabled:opacity-30 disabled:cursor-not-allowed"
+const TOOL_DOT_IDLE = "bg-bone border-sage/40 hover:border-sage hover:bg-sage-leaf/35 enabled:hover:scale-110"
+const TOOL_DOT_ACTIVE = "bg-sage-leaf/65 border-sage-deep ring-2 ring-offset-1 ring-bark/40 scale-110"
 
 export default function AtelierPdfReader({ source }) {
   const [doc, setDoc] = useState(null)
@@ -26,13 +27,22 @@ export default function AtelierPdfReader({ source }) {
   const [pageNumber, setPageNumber] = useState(1)
   const [pageRendered, setPageRendered] = useState(false)
   const [pageSize, setPageSize] = useState({ width: 0, height: 0 })
-  const [feedback, setFeedback] = useState(null)
   const [feedbackLoading, setFeedbackLoading] = useState(false)
   const [feedbackError, setFeedbackError] = useState(null)
-  const [openingChat, setOpeningChat] = useState(false)
   const [chatError, setChatError] = useState(null)
-  const [strokeColor, setStrokeColor] = useState(DEFAULT_COLOR)
+  const [strokeColor, setStrokeColorRaw] = useState(DEFAULT_COLOR)
+  const [eraseMode, setEraseMode] = useState(false)
+  const [hasInk, setHasInk] = useState(false)
+  const [canUndo, setCanUndo] = useState(false)
   const [chatDrawerOpen, setChatDrawerOpen] = useState(false)
+  const setStrokeColor = useCallback((c) => {
+    setEraseMode(false)
+    setStrokeColorRaw(c)
+  }, [])
+  const handleStyletState = useCallback((s) => {
+    setHasInk(s.hasContent)
+    setCanUndo(s.canUndo)
+  }, [])
   const pdfCanvasRef = useRef(null)
   const styletRef = useRef(null)
   const renderTaskRef = useRef(null)
@@ -69,11 +79,10 @@ export default function AtelierPdfReader({ source }) {
     if (!doc) return
     let cancelled = false
     setPageRendered(false)
-    setFeedback(null)
     setFeedbackError(null)
     setChatError(null)
     useChatStore.getState().selectConversation(null)
-    styletRef.current?.clear?.()
+    styletRef.current?.reset?.()
 
     doc.getPage(pageNumber).then(async (page) => {
       if (cancelled) return
@@ -131,34 +140,25 @@ export default function AtelierPdfReader({ source }) {
 
   const openChatForFeedback = useCallback(
     async (feedbackText) => {
-      const text = feedbackText ?? feedback
-      if (!text || !selectedChildId) return
-      setChatError(null)
-      setOpeningChat(true)
-      try {
-        const res = await atelierPdfApi.openChat({
-          studentId: selectedChildId,
-          feedback: text,
-          docTitle: source.title,
-          pageNumber
-        })
-        const store = useChatStore.getState()
-        await store.loadConversations(selectedChildId)
-        await store.selectConversation(res.conversation_id)
-        setChatDrawerOpen(true)
-      } catch (err) {
-        setChatError(err?.data?.detail || err?.message || "Impossible d'ouvrir le chat")
-      } finally {
-        setOpeningChat(false)
-      }
+      if (!feedbackText || !selectedChildId) return
+      const res = await atelierPdfApi.openChat({
+        studentId: selectedChildId,
+        feedback: feedbackText,
+        docTitle: source.title,
+        pageNumber
+      })
+      const store = useChatStore.getState()
+      await store.loadConversations(selectedChildId)
+      await store.selectConversation(res.conversation_id)
+      setChatDrawerOpen(true)
     },
-    [feedback, selectedChildId, source.title, pageNumber]
+    [selectedChildId, source.title, pageNumber]
   )
 
   const submitPage = async () => {
     setFeedbackError(null)
+    setChatError(null)
     setFeedbackLoading(true)
-    setFeedback(null)
     useChatStore.getState().selectConversation(null)
     try {
       const blob = await flattenPage()
@@ -169,12 +169,10 @@ export default function AtelierPdfReader({ source }) {
         docTitle: source.title,
         pageNumber
       })
-      setFeedback(res.feedback)
-      const isWide =
-        typeof window !== "undefined" &&
-        window.matchMedia(`(min-width: ${SIDEBYSIDE_MIN_WIDTH}px)`).matches
-      if (isWide) {
+      try {
         await openChatForFeedback(res.feedback)
+      } catch (err) {
+        setChatError(err?.data?.detail || err?.message || "Impossible d'ouvrir le chat")
       }
     } catch (err) {
       setFeedbackError(err?.data?.detail || err?.message || "Erreur de correction")
@@ -213,9 +211,6 @@ export default function AtelierPdfReader({ source }) {
   const totalPages = doc?.numPages || 0
   const canPrev = pageNumber > 1 && !feedbackLoading
   const canNext = pageNumber < totalPages && !feedbackLoading
-  const chatPanelEmptyHint = feedback
-    ? "Pose une question sur la correction."
-    : "Corrige une page ou pose une question au tuteur."
 
   const chatPanelProps = {
     title: "Avec le tuteur",
@@ -225,7 +220,7 @@ export default function AtelierPdfReader({ source }) {
     loading: chat.loadingConversation,
     error: chat.error,
     onSend: handleChatSend,
-    emptyHint: chatPanelEmptyHint,
+    emptyHint: "Corrige une page ou pose une question au tuteur.",
     voice,
     studentId: selectedChildId,
   }
@@ -245,8 +240,8 @@ export default function AtelierPdfReader({ source }) {
 
       {doc && (
         <>
-          <div className="sticky top-[64px] z-20 -mx-4 sm:-mx-6 px-4 sm:px-6 py-2 bg-chalk/85 backdrop-blur border-b border-sage/10 flex flex-wrap items-center justify-between gap-3 w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)]">
-            <div className="flex items-center gap-3">
+          <div className="sticky top-[64px] z-20 -mx-4 sm:-mx-6 px-4 sm:px-6 py-2 bg-chalk/85 backdrop-blur border-b border-sage/10 grid grid-cols-[1fr_auto_1fr] items-center gap-3 w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)]">
+            <div className="flex items-center gap-3 justify-self-start">
               <Button
                 variant="ghost"
                 size="sm"
@@ -271,21 +266,61 @@ export default function AtelierPdfReader({ source }) {
                 Suivante <Icon name="arrow_forward" />
               </Button>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 justify-self-center">
               <ColorPicker color={strokeColor} onSelect={setStrokeColor} />
+              <span aria-hidden className="h-4 w-px bg-sage/25 mx-0.5" />
               <button
                 type="button"
+                onClick={() => setEraseMode((v) => !v)}
+                data-testid="pdf-eraser"
+                aria-label="Gomme"
+                title="Gomme"
+                aria-pressed={eraseMode}
+                className={`${TOOL_DOT_BASE} ${eraseMode ? TOOL_DOT_ACTIVE : TOOL_DOT_IDLE}`}
+              >
+                <Icon name="eraser" size={14} />
+              </button>
+              <button
+                type="button"
+                onClick={() => styletRef.current?.undo?.()}
+                disabled={!canUndo}
+                data-testid="pdf-undo"
+                aria-label="Annuler"
+                title="Annuler"
+                className={`${TOOL_DOT_BASE} ${TOOL_DOT_IDLE}`}
+              >
+                <Icon name="undo" size={14} />
+              </button>
+              <button
+                type="button"
+                onClick={() => styletRef.current?.clear?.()}
+                disabled={!hasInk}
+                data-testid="pdf-clear"
+                aria-label="Tout effacer"
+                title="Tout effacer"
+                className={`${TOOL_DOT_BASE} ${TOOL_DOT_IDLE}`}
+              >
+                <Icon name="delete" size={14} />
+              </button>
+            </div>
+            <div className="flex items-center gap-3 justify-self-end">
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setChatDrawerOpen(true)}
                 data-testid="pdf-open-tutor"
-                className="xl:hidden inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-sky-deep bg-sky-soft/55 border border-sky/35 hover:bg-sky-soft hover:border-sky/55 transition-colors cursor-pointer relative"
+                className="xl:hidden relative"
                 aria-label="Ouvrir le tuteur"
               >
-                <Icon name="forum" size={14} />
-                <span>Tuteur</span>
+                <Icon name="forum" />
+                Tuteur
                 {chatActive && (
-                  <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-sage shadow-[0_0_0_2px_var(--color-chalk)]" />
+                  <span
+                    aria-hidden
+                    className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-sage-deep shadow-[0_0_0_2px_var(--color-chalk)]"
+                  />
                 )}
-              </button>
+              </Button>
               <Button
                 onClick={submitPage}
                 disabled={!pageRendered || feedbackLoading}
@@ -331,6 +366,10 @@ export default function AtelierPdfReader({ source }) {
                       minHeight={0}
                       color={strokeColor}
                       onColorChange={setStrokeColor}
+                      eraser={eraseMode}
+                      onEraserChange={setEraseMode}
+                      overlayActions={false}
+                      onStateChange={handleStyletState}
                       data-testid="pdf-stylet-overlay"
                     />
                   )}
@@ -340,38 +379,6 @@ export default function AtelierPdfReader({ source }) {
               {feedbackError && (
                 <div className="text-rose px-3 py-2 rounded-lg bg-rose-soft/60 w-full" role="alert">
                   {feedbackError}
-                </div>
-              )}
-
-              {feedback && !feedbackLoading && !chatActive && (
-                <div
-                  className="bg-sky-soft/60 border border-sky/30 rounded-2xl px-4 py-3 w-full text-bark"
-                  data-testid="pdf-feedback"
-                >
-                  <RichText className="rich-text text-sm leading-relaxed" html={feedback} />
-                  <div className="flex items-center gap-4 mt-2 -mb-1">
-                    {selectedChildId && (
-                      <PlayButton
-                        text={feedback}
-                        voice={voice}
-                        studentId={selectedChildId}
-                      />
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => openChatForFeedback()}
-                      disabled={openingChat || !selectedChildId}
-                      data-testid="pdf-open-chat"
-                      className="mt-1.5 inline-flex items-center gap-1 text-xs text-sky-deep hover:text-bark transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                    >
-                      <Icon
-                        name={openingChat ? "progress_activity" : "forum"}
-                        size={14}
-                        className={openingChat ? "animate-spin" : ""}
-                      />
-                      <span>{openingChat ? "Ouverture…" : "En discuter avec le tuteur"}</span>
-                    </button>
-                  </div>
                 </div>
               )}
 

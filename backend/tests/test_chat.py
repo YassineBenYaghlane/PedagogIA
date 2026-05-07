@@ -418,6 +418,7 @@ def test_stream_reply_attaches_scratch_image_to_last_user_turn(monkeypatch, user
     src = image_blocks[0]["source"]
     assert src["media_type"] == "image/png"
     import base64 as _b64
+
     assert _b64.b64decode(src["data"]) == raw
     text_blocks = [b for b in content if b.get("type") == "text"]
     assert text_blocks and "brouillon" in text_blocks[0]["text"]
@@ -438,6 +439,7 @@ def test_send_message_with_image_forwards_scratch_to_stream(monkeypatch, auth_cl
     monkeypatch.setattr("apps.chat.views.stream_reply", fake_stream)
 
     import io as _io
+
     img = _io.BytesIO(b"\x89PNG\r\n\x1a\nfake-bytes")
     img.name = "brouillon.png"
     res = auth_client.post(
@@ -459,6 +461,7 @@ def test_send_message_rejects_oversize_image(auth_client, user):
     conv = Conversation.objects.create(student=student)
 
     import io as _io
+
     huge = _io.BytesIO(b"\x89PNG\r\n\x1a\n" + b"\x00" * (5 * 1024 * 1024))
     huge.name = "huge.png"
     res = auth_client.post(

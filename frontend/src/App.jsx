@@ -17,6 +17,7 @@ import DebugInputsScreen from "./components/screens/DebugInputsScreen"
 import DebugPlantsScreen from "./components/screens/DebugPlantsScreen"
 import AtelierScreen from "./components/screens/AtelierScreen"
 import AtelierSkillScreen from "./components/screens/AtelierSkillScreen"
+import AtelierPdfScreen from "./components/screens/AtelierPdfScreen"
 import NotFoundScreen from "./components/screens/NotFoundScreen"
 import HistoryScreen from "./components/screens/HistoryScreen"
 import DiagnosticReviewScreen from "./components/screens/DiagnosticReviewScreen"
@@ -82,6 +83,7 @@ export default function App() {
         <Route path="/diagnostic" element={<RequireAuth><DiagnosticScreen /></RequireAuth>} />
         <Route path="/drill" element={<RequireAuth><DrillScreen /></RequireAuth>} />
         <Route path="/exam" element={<RequireAuth><ExamScreen /></RequireAuth>} />
+        <Route path="/pdf" element={<RequireAuth><AtelierPdfScreen /></RequireAuth>} />
         <Route path="/skill-tree" element={<RequireAuth><SkillTreeScreen /></RequireAuth>} />
         <Route path="/profile" element={<RequireAuth><ProfileScreen /></RequireAuth>} />
         <Route path="/chat" element={<RequireAuth><ChatScreen /></RequireAuth>} />

@@ -57,4 +57,5 @@ urlpatterns = [
     path("api/", include("apps.sessions.urls")),
     path("api/", include("apps.chat.urls")),
     path("api/", include("apps.voice.urls")),
+    path("api/", include("apps.atelier_pdf.urls")),
 ]

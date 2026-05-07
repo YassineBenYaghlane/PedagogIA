@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useImperativeHandle, useRef, useState, forwardRef } from "react"
 import Button from "./Button"
 import Icon from "./Icon"
+import { PALETTE, DEFAULT_COLOR } from "../../lib/styletPalette"
 
-const STROKE_COLOR = "#2b3a2e"
 const STROKE_BASE_WIDTH = 2.5
 const STROKE_PRESSURE_GAIN = 4
 
@@ -54,12 +54,17 @@ const StyletCanvas = forwardRef(function StyletCanvas(
     cancelLabel = "Annuler",
     minHeight = 320,
     toolbar = "full",
+    color: controlledColor,
+    onColorChange,
+    "data-testid": dataTestid,
   },
   ref,
 ) {
   const showHeader = toolbar === "full"
   const showActions = toolbar === "full"
   const showOverlayClear = toolbar === "minimal"
+  const overlayMode = toolbar === "minimal" && background === "transparent"
+  const colorIsControlled = controlledColor !== undefined
   const containerRef = useRef(null)
   const canvasRef = useRef(null)
   const strokesRef = useRef([])
@@ -67,6 +72,9 @@ const StyletCanvas = forwardRef(function StyletCanvas(
   const activePenRef = useRef(null)
   const sizeRef = useRef({ cssW: 0, cssH: 0 })
   const [hasContent, setHasContent] = useState(false)
+  const [internalColor, setInternalColor] = useState(DEFAULT_COLOR)
+  const color = colorIsControlled ? controlledColor : internalColor
+  const setColor = onColorChange || setInternalColor
 
   const redraw = useCallback(() => {
     const canvas = canvasRef.current
@@ -76,7 +84,6 @@ const StyletCanvas = forwardRef(function StyletCanvas(
     paintBackground(ctx, cssW, cssH, background)
     ctx.lineCap = "round"
     ctx.lineJoin = "round"
-    ctx.strokeStyle = STROKE_COLOR
     for (const stroke of strokesRef.current) {
       drawStroke(ctx, stroke)
     }
@@ -115,7 +122,7 @@ const StyletCanvas = forwardRef(function StyletCanvas(
     if (t === "pen") activePenRef.current = event.pointerId
     canvasRef.current.setPointerCapture?.(event.pointerId)
     event.preventDefault()
-    currentRef.current = [localPoint(event)]
+    currentRef.current = { color, points: [localPoint(event)] }
     redraw()
   }
   const onPointerMove = (event) => {
@@ -123,7 +130,7 @@ const StyletCanvas = forwardRef(function StyletCanvas(
     if (!stroke) return
     if (event.pointerType === "touch" && activePenRef.current !== null) return
     const events = event.getCoalescedEvents?.() || [event]
-    for (const e of events) stroke.push(localPoint(e))
+    for (const e of events) stroke.points.push(localPoint(e))
     redraw()
   }
   const finishStroke = (event) => {
@@ -132,7 +139,7 @@ const StyletCanvas = forwardRef(function StyletCanvas(
     if (event.pointerType === "pen" && activePenRef.current === event.pointerId) {
       activePenRef.current = null
     }
-    if (stroke && stroke.length > 0) {
+    if (stroke && stroke.points.length > 0) {
       strokesRef.current.push(stroke)
       setHasContent(true)
     }
@@ -174,37 +181,64 @@ const StyletCanvas = forwardRef(function StyletCanvas(
   }
 
   return (
-    <div className="flex flex-col gap-3 w-full h-full">
+    <div
+      data-testid={dataTestid}
+      className={
+        overlayMode
+          ? "absolute inset-0"
+          : "flex flex-col gap-3 w-full h-full"
+      }
+    >
       {showHeader && title && (
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <h3 className="font-display text-sm text-bark">{title}</h3>
-          <button
-            type="button"
-            onClick={clear}
-            disabled={!hasContent}
-            data-testid="stylet-clear"
-            className="inline-flex items-center gap-1 text-xs text-stem hover:text-bark transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-          >
-            <Icon name="refresh" size={14} />
-            Effacer
-          </button>
+          <div className="flex items-center gap-3">
+            <ColorPicker color={color} onSelect={setColor} />
+            <button
+              type="button"
+              onClick={clear}
+              disabled={!hasContent}
+              data-testid="stylet-clear"
+              className="inline-flex items-center gap-1 text-xs text-stem hover:text-bark transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            >
+              <Icon name="refresh" size={14} />
+              Effacer
+            </button>
+          </div>
         </div>
       )}
       <div
         ref={containerRef}
-        className="relative flex-1 rounded-2xl border border-sage/20 overflow-hidden bg-chalk shadow-inner"
+        className={
+          overlayMode
+            ? "absolute inset-0 overflow-hidden"
+            : `relative flex-1 overflow-hidden ${
+                background === "transparent"
+                  ? ""
+                  : "rounded-2xl border border-sage/20 bg-chalk shadow-inner"
+              }`
+        }
         style={{ minHeight, touchAction: "none" }}
       >
         <canvas
           ref={canvasRef}
           data-testid="stylet-canvas"
           className="block w-full h-full"
+          style={{ background: "transparent" }}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerCancel}
           onPointerLeave={onPointerLeave}
         />
+        {showOverlayClear && !colorIsControlled && (
+          <div
+            className="absolute top-2 left-2 bg-bone/80 backdrop-blur-sm rounded-lg border border-sage/15 px-2 py-1"
+            style={{ touchAction: "auto" }}
+          >
+            <ColorPicker color={color} onSelect={setColor} />
+          </div>
+        )}
         {showOverlayClear && hasContent && (
           <button
             type="button"
@@ -236,24 +270,50 @@ const StyletCanvas = forwardRef(function StyletCanvas(
 })
 
 function drawStroke(ctx, stroke) {
-  if (!stroke || stroke.length === 0) return
-  if (stroke.length === 1) {
-    const p = stroke[0]
+  if (!stroke || !stroke.points || stroke.points.length === 0) return
+  ctx.strokeStyle = stroke.color
+  ctx.fillStyle = stroke.color
+  const points = stroke.points
+  if (points.length === 1) {
+    const p = points[0]
     ctx.beginPath()
-    ctx.fillStyle = STROKE_COLOR
     ctx.arc(p.x, p.y, strokeWidthFor(p.pressure) / 2, 0, Math.PI * 2)
     ctx.fill()
     return
   }
-  for (let i = 1; i < stroke.length; i++) {
-    const a = stroke[i - 1]
-    const b = stroke[i]
+  for (let i = 1; i < points.length; i++) {
+    const a = points[i - 1]
+    const b = points[i]
     ctx.lineWidth = strokeWidthFor((a.pressure + b.pressure) / 2)
     ctx.beginPath()
     ctx.moveTo(a.x, a.y)
     ctx.lineTo(b.x, b.y)
     ctx.stroke()
   }
+}
+
+export function ColorPicker({ color, onSelect, className = "" }) {
+  return (
+    <div className={`flex items-center gap-1.5 ${className}`} data-testid="stylet-colors">
+      {PALETTE.map((c) => {
+        const active = c.value === color
+        return (
+          <button
+            key={c.id}
+            type="button"
+            onClick={() => onSelect(c.value)}
+            data-testid={`stylet-color-${c.id}`}
+            aria-label={c.label}
+            aria-pressed={active}
+            className={`h-5 w-5 rounded-full transition-transform cursor-pointer ${
+              active ? "ring-2 ring-offset-1 ring-bark/40 scale-110" : "hover:scale-110"
+            }`}
+            style={{ backgroundColor: c.swatch || c.value }}
+          />
+        )
+      })}
+    </div>
+  )
 }
 
 export default StyletCanvas

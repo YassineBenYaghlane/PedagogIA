@@ -78,6 +78,7 @@ const StyletCanvas = forwardRef(function StyletCanvas(
   const historyRef = useRef([])
   const currentRef = useRef(null)
   const activePenRef = useRef(null)
+  const penLockUntilRef = useRef(0)
   const sizeRef = useRef({ cssW: 0, cssH: 0 })
   const [hasContent, setHasContent] = useState(false)
   const [canUndo, setCanUndo] = useState(false)
@@ -118,6 +119,14 @@ const StyletCanvas = forwardRef(function StyletCanvas(
     return () => ro.disconnect()
   }, [redraw])
 
+  useEffect(() => {
+    const block = (e) => {
+      if (Date.now() < penLockUntilRef.current && e.cancelable) e.preventDefault()
+    }
+    document.addEventListener("touchmove", block, { passive: false })
+    return () => document.removeEventListener("touchmove", block)
+  }, [])
+
   const localPoint = (event) => {
     const canvas = canvasRef.current
     const rect = canvas.getBoundingClientRect()
@@ -132,7 +141,10 @@ const StyletCanvas = forwardRef(function StyletCanvas(
   const onPointerDown = (event) => {
     const t = event.pointerType
     if (t === "touch" && activePenRef.current !== null) return
-    if (t === "pen") activePenRef.current = event.pointerId
+    if (t === "pen") {
+      activePenRef.current = event.pointerId
+      penLockUntilRef.current = Number.POSITIVE_INFINITY
+    }
     canvasRef.current.setPointerCapture?.(event.pointerId)
     event.preventDefault()
     currentRef.current = eraser
@@ -153,6 +165,7 @@ const StyletCanvas = forwardRef(function StyletCanvas(
     currentRef.current = null
     if (event.pointerType === "pen" && activePenRef.current === event.pointerId) {
       activePenRef.current = null
+      penLockUntilRef.current = Date.now() + 350
     }
     if (stroke && stroke.points.length > 0) {
       historyRef.current.push(strokesRef.current.slice())

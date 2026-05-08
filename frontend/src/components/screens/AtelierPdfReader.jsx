@@ -346,11 +346,15 @@ export default function AtelierPdfReader({ source }) {
               <div className="overflow-x-auto -mx-4 sm:-mx-6 px-4 sm:px-6 pb-1">
                 <div
                   className="relative rounded-2xl border border-sage/20 shadow-[var(--shadow-leaf)] bg-bone mx-auto"
-                  style={
-                    pageSize.width
+                  style={{
+                    ...(pageSize.width
                       ? { width: pageSize.width, height: pageSize.height }
-                      : undefined
-                  }
+                      : {}),
+                    touchAction: "none",
+                    WebkitUserSelect: "none",
+                    userSelect: "none",
+                    WebkitTouchCallout: "none",
+                  }}
                   data-testid="pdf-page-frame"
                 >
                   <canvas

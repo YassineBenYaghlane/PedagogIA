@@ -23,6 +23,18 @@ class UserRegisterSerializer(RegisterSerializer):
     username = None
     display_name = serializers.CharField(required=False, allow_blank=True, max_length=100)
 
+    def validate_email(self, email):
+        email = super().validate_email(email)
+        # Belt-and-suspenders: allauth's pre-flight duplicate check looks at the
+        # EmailAddress table first, but social-OAuth users can end up with an
+        # unverified EmailAddress row that the check skips — leaving a duplicate
+        # to surface as a 500 from the Postgres UNIQUE constraint. Catch it here.
+        if User.objects.filter(email__iexact=email).exists():
+            raise serializers.ValidationError(
+                "A user is already registered with this e-mail address."
+            )
+        return email
+
     def get_cleaned_data(self):
         data = super().get_cleaned_data()
         data["display_name"] = self.validated_data.get("display_name", "")

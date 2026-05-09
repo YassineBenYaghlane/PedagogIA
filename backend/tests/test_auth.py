@@ -117,9 +117,7 @@ def test_resend_verification_email_issues_a_fresh_link():
     assert len(mail.outbox) == 2
 
     new_key = _verify_url_from_outbox()
-    res = APIClient().post(
-        "/api/auth/registration/verify-email/", {"key": new_key}, format="json"
-    )
+    res = APIClient().post("/api/auth/registration/verify-email/", {"key": new_key}, format="json")
     assert res.status_code == 200, res.content
 
 
@@ -133,9 +131,7 @@ def test_grandfathered_user_can_log_in_without_verification(django_user_model):
     user = django_user_model.objects.create_user(
         email="legacy@example.com", password="SuperStrong!23"
     )
-    EmailAddress.objects.create(
-        user=user, email=user.email, verified=True, primary=True
-    )
+    EmailAddress.objects.create(user=user, email=user.email, verified=True, primary=True)
 
     res = APIClient().post(
         "/api/auth/login/",

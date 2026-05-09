@@ -49,3 +49,8 @@ __pycache__/
 .claude/worktrees/
 .claude/settings.local.json
 backend/staticfiles/
+
+# Local-only briefs and demo exports (kept at repo root, not versioned)
+/DESIGN.md
+/PRODUCT.md
+/CollegIA-*.pdf

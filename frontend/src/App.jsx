@@ -8,6 +8,7 @@ import SkillTreeScreen from "./components/screens/SkillTreeScreen"
 import LoginScreen from "./components/screens/LoginScreen"
 import RegisterScreen from "./components/screens/RegisterScreen"
 import GoogleCallbackScreen from "./components/screens/GoogleCallbackScreen"
+import VerifyEmailScreen from "./components/screens/VerifyEmailScreen"
 import ChildPickerScreen from "./components/screens/ChildPickerScreen"
 import DiagnosticScreen from "./components/screens/DiagnosticScreen"
 import DrillScreen from "./components/screens/DrillScreen"
@@ -75,6 +76,7 @@ export default function App() {
         <Route path="/login" element={<LoginScreen />} />
         <Route path="/register" element={<RegisterScreen />} />
         <Route path="/auth/google/callback" element={<GoogleCallbackScreen />} />
+        <Route path="/auth/verify/:key" element={<VerifyEmailScreen />} />
         <Route path="/children" element={<RequireAuth><ChildPickerScreen /></RequireAuth>} />
         <Route path="/dashboard" element={<RequireAuth><ParentDashboardScreen /></RequireAuth>} />
         <Route path="/parametres" element={<RequireAuth><ParametresScreen /></RequireAuth>} />

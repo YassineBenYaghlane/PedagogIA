@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test"
+import { completeSignup } from "./helpers/signup"
 
 const VIEWPORTS = [
   { name: "phone", width: 375, height: 812 },
@@ -6,7 +7,7 @@ const VIEWPORTS = [
   { name: "desktop", width: 1440, height: 900 },
 ]
 
-async function signUpAndPickChild(page) {
+async function signUpAndPickChild(page, request) {
   const email = `tree-mobile-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`
   await page.goto("/register")
   await page.getByTestId("register-name").fill("Camille")
@@ -14,6 +15,7 @@ async function signUpAndPickChild(page) {
   await page.getByTestId("register-password").fill("SuperStrong!23")
   await page.getByTestId("register-password-confirm").fill("SuperStrong!23")
   await page.getByTestId("register-submit").click()
+  await completeSignup(page, request, email, "SuperStrong!23")
   await expect(page).toHaveURL(/\/children/)
 
   await page.getByTestId("child-name").fill("Noé")
@@ -29,9 +31,10 @@ async function signUpAndPickChild(page) {
 for (const vp of VIEWPORTS) {
   test(`skill tree has no horizontal overflow and header fits at ${vp.name} (${vp.width}px)`, async ({
     page,
+    request,
   }) => {
     await page.setViewportSize({ width: vp.width, height: vp.height })
-    await signUpAndPickChild(page)
+    await signUpAndPickChild(page, request)
 
     await page.goto("/skill-tree")
     await expect(page.getByRole("heading", { name: /carte des espèces/i })).toBeVisible()

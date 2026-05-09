@@ -22,6 +22,7 @@ env = environ.Env(
     GOOGLE_CLIENT_SECRET=(str, ""),
     GOOGLE_OAUTH_CALLBACK_URL=(str, "http://localhost:5173/auth/google/callback"),
     APP_VERSION=(str, "dev"),
+    RESEND_API_KEY=(str, ""),
 )
 
 environ.Env.read_env(BASE_DIR.parent / ".env")
@@ -78,7 +79,7 @@ ROOT_URLCONF = "pedagogia.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -104,8 +105,12 @@ AUTHENTICATION_BACKENDS = [
 
 ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
-ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+ACCOUNT_EMAIL_SUBJECT_PREFIX = ""
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_ADAPTER = "apps.accounts.adapters.AccountAdapter"
+SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -210,6 +215,28 @@ ELEVENLABS_STT_MODEL = env("ELEVENLABS_STT_MODEL")
 TTS_MONTHLY_CHAR_CAP_PER_STUDENT = env("TTS_MONTHLY_CHAR_CAP_PER_STUDENT")
 
 TRUST_CLOUDFLARE_REAL_IP = env.bool("TRUST_CLOUDFLARE_REAL_IP", default=False)
+
+# The first allowed origin is treated as the canonical frontend — used to
+# build the email-verification link sent to users at signup. If you ever add a
+# staging origin, append it; never prepend it ahead of the prod URL.
+FRONTEND_URL = CORS_ALLOWED_ORIGINS[0].rstrip("/")
+
+# Email — Resend SMTP. With no API key the backend falls back to console so
+# local dev prints emails to logs instead of trying to authenticate.
+RESEND_API_KEY = env("RESEND_API_KEY")
+EMAIL_BACKEND = (
+    "django.core.mail.backends.smtp.EmailBackend"
+    if RESEND_API_KEY
+    else "django.core.mail.backends.console.EmailBackend"
+)
+EMAIL_HOST = "smtp.resend.com"
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_USE_TLS = False
+EMAIL_HOST_USER = "resend"
+EMAIL_HOST_PASSWORD = RESEND_API_KEY
+DEFAULT_FROM_EMAIL = "CollegIA <noreply@send.collegia.be>"
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"

@@ -9,6 +9,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from apps.accounts.views import (
+    DevLatestVerificationKeyView,
     GoogleLogin,
     ThrottledLoginView,
     ThrottledPasswordResetView,
@@ -59,3 +60,12 @@ urlpatterns = [
     path("api/", include("apps.voice.urls")),
     path("api/", include("apps.atelier_pdf.urls")),
 ]
+
+if settings.DEBUG:
+    urlpatterns.append(
+        path(
+            "api/auth/dev/latest-verification-key/",
+            DevLatestVerificationKeyView.as_view(),
+            name="dev_latest_verification_key",
+        ),
+    )

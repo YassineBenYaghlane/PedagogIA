@@ -1,10 +1,11 @@
 import { test, expect } from "@playwright/test"
 import { mkdirSync } from "node:fs"
+import { completeSignup } from "./helpers/signup"
 
 const SHOTS = "e2e/screenshots"
 mkdirSync(SHOTS, { recursive: true })
 
-test("atelier pdf: navigate, draw on a page, request correction → flattened PNG hits the API", async ({ page }) => {
+test("atelier pdf: navigate, draw on a page, request correction → flattened PNG hits the API", async ({ page, request }) => {
   const email = `e2e-pdf-${Date.now()}@example.com`
   const password = "SuperStrong!23"
 
@@ -14,6 +15,7 @@ test("atelier pdf: navigate, draw on a page, request correction → flattened PN
   await page.getByTestId("register-password").fill(password)
   await page.getByTestId("register-password-confirm").fill(password)
   await page.getByTestId("register-submit").click()
+  await completeSignup(page, request, email, password)
   await expect(page).toHaveURL(/\/children/)
 
   await page.getByTestId("child-name").fill("Léo")

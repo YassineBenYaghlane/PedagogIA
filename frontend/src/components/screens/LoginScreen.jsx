@@ -3,11 +3,18 @@ import { Link, useNavigate } from "react-router"
 import { useAuthStore } from "../../stores/authStore"
 import { startGoogleLogin } from "../../lib/googleOAuth"
 import { captureException, isClientError } from "../../lib/errors"
+import { accountApi } from "../../api/account"
 import AppShell from "../layout/AppShell"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import Input from "../ui/Input"
 import { Heading } from "../ui/Heading"
+
+function isEmailNotVerifiedError(err) {
+  const msgs = err?.data?.non_field_errors
+  if (!Array.isArray(msgs)) return false
+  return msgs.some((m) => /not verified|non vérifi/i.test(m))
+}
 
 export default function LoginScreen() {
   const login = useAuthStore((s) => s.login)
@@ -15,20 +22,42 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState(null)
+  const [needsVerification, setNeedsVerification] = useState(false)
+  const [resending, setResending] = useState(false)
+  const [resent, setResent] = useState(false)
   const [busy, setBusy] = useState(false)
 
   const onSubmit = async (e) => {
     e.preventDefault()
     setBusy(true)
     setError(null)
+    setNeedsVerification(false)
+    setResent(false)
     try {
       await login(email, password)
       navigate("/children")
     } catch (err) {
-      setError("Email ou mot de passe incorrect")
-      if (!isClientError(err)) captureException(err, { where: "LoginScreen.onSubmit" })
+      if (isEmailNotVerifiedError(err)) {
+        setNeedsVerification(true)
+      } else {
+        setError("Email ou mot de passe incorrect")
+        if (!isClientError(err)) captureException(err, { where: "LoginScreen.onSubmit" })
+      }
     } finally {
       setBusy(false)
+    }
+  }
+
+  const onResend = async () => {
+    setResending(true)
+    try {
+      await accountApi.resendVerificationEmail(email)
+    } catch {
+      // swallow — surface a generic confirmation either way to avoid leaking
+      // whether the email is registered
+    } finally {
+      setResent(true)
+      setResending(false)
     }
   }
 
@@ -78,6 +107,30 @@ export default function LoginScreen() {
               >
                 {error}
               </p>
+            )}
+
+            {needsVerification && (
+              <div
+                className="text-sm text-bark px-3 py-3 rounded-lg bg-sky/30 space-y-2"
+                data-testid="login-needs-verification"
+                role="alert"
+                aria-live="polite"
+              >
+                <p>
+                  Ton adresse email n'a pas encore été confirmée. Clique sur le lien
+                  qu'on t'a envoyé, ou demande un nouveau lien.
+                </p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={onResend}
+                  disabled={resending || resent}
+                  className="w-full"
+                  data-testid="login-resend-verification"
+                >
+                  {resent ? "Lien renvoyé ✓" : resending ? "Envoi…" : "Renvoyer le lien"}
+                </Button>
+              </div>
             )}
 
           <Button type="submit" disabled={busy} className="w-full" data-testid="login-submit">

@@ -1,11 +1,12 @@
 import { test, expect } from "@playwright/test"
 import { mkdirSync, writeFileSync, rmSync } from "node:fs"
 import { execSync } from "node:child_process"
+import { completeSignup } from "./helpers/signup"
 
 const SHOTS = "e2e/screenshots"
 mkdirSync(SHOTS, { recursive: true })
 
-test("skill tree page renders for a logged-in student", async ({ page }) => {
+test("skill tree page renders for a logged-in student", async ({ page, request }) => {
   const email = `tree-${Date.now()}@example.com`
 
   await page.goto("/register")
@@ -14,6 +15,7 @@ test("skill tree page renders for a logged-in student", async ({ page }) => {
   await page.getByTestId("register-password").fill("SuperStrong!23")
   await page.getByTestId("register-password-confirm").fill("SuperStrong!23")
   await page.getByTestId("register-submit").click()
+  await completeSignup(page, request, email, "SuperStrong!23")
   await expect(page).toHaveURL(/\/children/)
 
   await page.getByTestId("child-name").fill("Noé")

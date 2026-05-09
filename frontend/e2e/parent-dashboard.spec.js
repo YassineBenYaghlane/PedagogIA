@@ -1,10 +1,11 @@
 import { test, expect } from "@playwright/test"
 import { mkdirSync } from "node:fs"
+import { completeSignup } from "./helpers/signup"
 
 const SHOTS = "e2e/screenshots"
 mkdirSync(SHOTS, { recursive: true })
 
-test("parent can open /dashboard and see their children", async ({ page }) => {
+test("parent can open /dashboard and see their children", async ({ page, request }) => {
   const email = `e2e-dash-${Date.now()}@example.com`
 
   await page.goto("/register")
@@ -13,6 +14,7 @@ test("parent can open /dashboard and see their children", async ({ page }) => {
   await page.getByTestId("register-password").fill("SuperStrong!23")
   await page.getByTestId("register-password-confirm").fill("SuperStrong!23")
   await page.getByTestId("register-submit").click()
+  await completeSignup(page, request, email, "SuperStrong!23")
   await expect(page).toHaveURL(/\/children/)
 
   await page.getByTestId("child-name").fill("Léo")

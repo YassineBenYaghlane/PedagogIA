@@ -22,15 +22,7 @@ env = environ.Env(
     GOOGLE_CLIENT_SECRET=(str, ""),
     GOOGLE_OAUTH_CALLBACK_URL=(str, "http://localhost:5173/auth/google/callback"),
     APP_VERSION=(str, "dev"),
-    FRONTEND_URL=(str, "http://localhost:5173"),
-    EMAIL_BACKEND=(str, "django.core.mail.backends.console.EmailBackend"),
-    EMAIL_HOST=(str, ""),
-    EMAIL_PORT=(int, 587),
-    EMAIL_HOST_USER=(str, ""),
-    EMAIL_HOST_PASSWORD=(str, ""),
-    EMAIL_USE_TLS=(bool, True),
-    EMAIL_USE_SSL=(bool, False),
-    DEFAULT_FROM_EMAIL=(str, "CollegIA <noreply@collegia.be>"),
+    RESEND_API_KEY=(str, ""),
 )
 
 environ.Env.read_env(BASE_DIR.parent / ".env")
@@ -224,16 +216,26 @@ TTS_MONTHLY_CHAR_CAP_PER_STUDENT = env("TTS_MONTHLY_CHAR_CAP_PER_STUDENT")
 
 TRUST_CLOUDFLARE_REAL_IP = env.bool("TRUST_CLOUDFLARE_REAL_IP", default=False)
 
-FRONTEND_URL = env("FRONTEND_URL").rstrip("/")
+# The first allowed origin is treated as the canonical frontend — used to
+# build the email-verification link sent to users at signup. If you ever add a
+# staging origin, append it; never prepend it ahead of the prod URL.
+FRONTEND_URL = CORS_ALLOWED_ORIGINS[0].rstrip("/")
 
-EMAIL_BACKEND = env("EMAIL_BACKEND")
-EMAIL_HOST = env("EMAIL_HOST")
-EMAIL_PORT = env("EMAIL_PORT")
-EMAIL_HOST_USER = env("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
-EMAIL_USE_TLS = env("EMAIL_USE_TLS")
-EMAIL_USE_SSL = env("EMAIL_USE_SSL")
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+# Email — Resend SMTP. With no API key the backend falls back to console so
+# local dev prints emails to logs instead of trying to authenticate.
+RESEND_API_KEY = env("RESEND_API_KEY")
+EMAIL_BACKEND = (
+    "django.core.mail.backends.smtp.EmailBackend"
+    if RESEND_API_KEY
+    else "django.core.mail.backends.console.EmailBackend"
+)
+EMAIL_HOST = "smtp.resend.com"
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_USE_TLS = False
+EMAIL_HOST_USER = "resend"
+EMAIL_HOST_PASSWORD = RESEND_API_KEY
+DEFAULT_FROM_EMAIL = "CollegIA <noreply@collegia.be>"
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 SESSION_COOKIE_HTTPONLY = True

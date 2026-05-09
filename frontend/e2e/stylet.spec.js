@@ -1,10 +1,11 @@
 import { test, expect } from "@playwright/test"
 import { mkdirSync } from "node:fs"
+import { completeSignup } from "./helpers/signup"
 
 const SHOTS = "e2e/screenshots"
 mkdirSync(SHOTS, { recursive: true })
 
-test("stylet canvas: draw a brouillon, attach it, send → image is in the multipart request", async ({ page }) => {
+test("stylet canvas: draw a brouillon, attach it, send → image is in the multipart request", async ({ page, request }) => {
   const email = `e2e-stylet-${Date.now()}@example.com`
   const password = "SuperStrong!23"
 
@@ -14,6 +15,7 @@ test("stylet canvas: draw a brouillon, attach it, send → image is in the multi
   await page.getByTestId("register-password").fill(password)
   await page.getByTestId("register-password-confirm").fill(password)
   await page.getByTestId("register-submit").click()
+  await completeSignup(page, request, email, password)
   await expect(page).toHaveURL(/\/children/)
 
   await page.getByTestId("child-name").fill("Léo")

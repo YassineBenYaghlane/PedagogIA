@@ -1,0 +1,9 @@
+{% load account %}Bonjour{% if user.display_name %} {{ user.display_name }}{% endif %},
+
+Bienvenue sur CollegIA. Pour activer ton compte, clique sur le lien ci-dessous :
+
+{{ activate_url }}
+
+Ce lien est valable 3 jours. Si tu n'es pas à l'origine de cette inscription, tu peux ignorer ce message.
+
+— L'équipe CollegIA

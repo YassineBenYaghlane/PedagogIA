@@ -71,7 +71,6 @@ export const useAuthStore = create((set, get) => ({
       password2: password,
       display_name: displayName || ""
     })
-    await get().bootstrap()
   },
 
   googleLogin: async (code) => {

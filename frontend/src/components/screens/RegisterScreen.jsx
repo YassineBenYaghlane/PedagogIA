@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react"
-import { Link, useNavigate } from "react-router"
+import { Link } from "react-router"
 import { useAuthStore } from "../../stores/authStore"
 import { startGoogleLogin } from "../../lib/googleOAuth"
+import { accountApi } from "../../api/account"
 import AppShell from "../layout/AppShell"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
@@ -27,15 +28,30 @@ const STRENGTH = [
   { label: "Solide", tone: "bg-sage-deep text-sage-deep" },
 ]
 
+function describeRegisterError(err) {
+  if (!err) return "Création impossible. Réessaie."
+  const data = err.data || {}
+  if (data.email?.length) {
+    const msg = data.email[0]
+    if (/already/i.test(msg)) return "Cet email est déjà utilisé."
+    return msg
+  }
+  if (data.password1?.length) return data.password1[0]
+  if (data.non_field_errors?.length) return data.non_field_errors[0]
+  return "Création impossible. Réessaie."
+}
+
 export default function RegisterScreen() {
   const register = useAuthStore((s) => s.register)
-  const navigate = useNavigate()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirm, setConfirm] = useState("")
   const [displayName, setDisplayName] = useState("")
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [resending, setResending] = useState(false)
+  const [resent, setResent] = useState(false)
 
   const score = useMemo(() => scorePassword(password), [password])
   const mismatch = confirm.length > 0 && confirm !== password
@@ -50,16 +66,67 @@ export default function RegisterScreen() {
     setError(null)
     try {
       await register(email, password, displayName)
-      navigate("/children")
+      setSubmitted(true)
     } catch (err) {
-      const msg = err.data ? JSON.stringify(err.data) : err.message
-      setError(msg)
+      setError(describeRegisterError(err))
     } finally {
       setBusy(false)
     }
   }
 
+  const onResend = async () => {
+    setResending(true)
+    try {
+      await accountApi.resendVerificationEmail(email)
+      setResent(true)
+    } catch {
+      setResent(true)
+    } finally {
+      setResending(false)
+    }
+  }
+
   const strength = STRENGTH[score]
+
+  if (submitted) {
+    return (
+      <AppShell surface="greenhouse">
+        <div className="flex-1 flex items-center justify-center p-5 sm:p-6">
+          <Card
+            variant="tag"
+            className="w-full max-w-md p-6 sm:p-8 space-y-5"
+            data-testid="register-confirmation"
+          >
+            <div>
+              <Heading level={2}>Vérifie ta boîte mail</Heading>
+              <p className="text-sm text-stem mt-2">
+                On t'a envoyé un email à <span className="font-semibold text-bark">{email}</span>.
+                Clique sur le lien à l'intérieur pour activer ton compte.
+              </p>
+            </div>
+            <p className="text-xs text-stem">
+              Pas reçu ? Regarde dans tes spams, ou demande un nouveau lien.
+            </p>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={onResend}
+              disabled={resending || resent}
+              className="w-full"
+              data-testid="register-resend"
+            >
+              {resent ? "Lien renvoyé ✓" : resending ? "Envoi…" : "Renvoyer le lien"}
+            </Button>
+            <p className="text-sm text-center text-stem">
+              <Link to="/login" className="text-sage-deep font-semibold hover:underline">
+                Retour à la connexion
+              </Link>
+            </p>
+          </Card>
+        </div>
+      </AppShell>
+    )
+  }
 
   return (
     <AppShell surface="greenhouse">

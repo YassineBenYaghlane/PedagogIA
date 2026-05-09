@@ -1,0 +1,9 @@
+{% load account %}Bonjour{% if user.display_name %} {{ user.display_name }}{% endif %},
+
+Voici un nouveau lien pour confirmer ton adresse email sur CollegIA :
+
+{{ activate_url }}
+
+Ce lien est valable 3 jours.
+
+— L'équipe CollegIA

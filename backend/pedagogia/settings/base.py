@@ -22,6 +22,15 @@ env = environ.Env(
     GOOGLE_CLIENT_SECRET=(str, ""),
     GOOGLE_OAUTH_CALLBACK_URL=(str, "http://localhost:5173/auth/google/callback"),
     APP_VERSION=(str, "dev"),
+    FRONTEND_URL=(str, "http://localhost:5173"),
+    EMAIL_BACKEND=(str, "django.core.mail.backends.console.EmailBackend"),
+    EMAIL_HOST=(str, ""),
+    EMAIL_PORT=(int, 587),
+    EMAIL_HOST_USER=(str, ""),
+    EMAIL_HOST_PASSWORD=(str, ""),
+    EMAIL_USE_TLS=(bool, True),
+    EMAIL_USE_SSL=(bool, False),
+    DEFAULT_FROM_EMAIL=(str, "CollegIA <noreply@collegia.be>"),
 )
 
 environ.Env.read_env(BASE_DIR.parent / ".env")
@@ -78,7 +87,7 @@ ROOT_URLCONF = "pedagogia.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -104,8 +113,12 @@ AUTHENTICATION_BACKENDS = [
 
 ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
-ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+ACCOUNT_EMAIL_SUBJECT_PREFIX = ""
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_ADAPTER = "apps.accounts.adapters.AccountAdapter"
+SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -210,6 +223,18 @@ ELEVENLABS_STT_MODEL = env("ELEVENLABS_STT_MODEL")
 TTS_MONTHLY_CHAR_CAP_PER_STUDENT = env("TTS_MONTHLY_CHAR_CAP_PER_STUDENT")
 
 TRUST_CLOUDFLARE_REAL_IP = env.bool("TRUST_CLOUDFLARE_REAL_IP", default=False)
+
+FRONTEND_URL = env("FRONTEND_URL").rstrip("/")
+
+EMAIL_BACKEND = env("EMAIL_BACKEND")
+EMAIL_HOST = env("EMAIL_HOST")
+EMAIL_PORT = env("EMAIL_PORT")
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = env("EMAIL_USE_TLS")
+EMAIL_USE_SSL = env("EMAIL_USE_SSL")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"

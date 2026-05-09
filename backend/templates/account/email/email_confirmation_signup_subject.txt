@@ -1,0 +1,3 @@
+{% load account %}{% spaceless %}
+Confirme ton adresse email — CollegIA
+{% endspaceless %}

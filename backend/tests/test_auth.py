@@ -122,6 +122,29 @@ def test_resend_verification_email_issues_a_fresh_link():
 
 
 @pytest.mark.django_db
+def test_register_duplicate_email_returns_400_not_500(django_user_model):
+    """OAuth-created users can have an unverified EmailAddress row that
+    allauth's pre-flight duplicate check skips — without this guard the
+    duplicate hits the UNIQUE constraint at INSERT and surfaces as a 500."""
+    django_user_model.objects.create_user(email="taken@example.com", password="pw12345!")
+
+    res = APIClient().post(
+        "/api/auth/registration/",
+        {
+            "email": "taken@example.com",
+            "password1": "SuperStrong!23",
+            "password2": "SuperStrong!23",
+            "display_name": "Dup",
+        },
+        format="json",
+    )
+    assert res.status_code == 400, res.content
+    body = res.json()
+    assert "email" in body
+    assert "already" in body["email"][0].lower()
+
+
+@pytest.mark.django_db
 def test_grandfathered_user_can_log_in_without_verification(django_user_model):
     """The 0002 migration runs on the test DB, but it's a one-shot data migration
     and pytest-django creates users post-migration via create_user. Replicate the

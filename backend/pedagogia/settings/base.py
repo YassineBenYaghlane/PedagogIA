@@ -223,6 +223,8 @@ FRONTEND_URL = CORS_ALLOWED_ORIGINS[0].rstrip("/")
 
 # Email — Resend SMTP. With no API key the backend falls back to console so
 # local dev prints emails to logs instead of trying to authenticate.
+# Port 587 (STARTTLS) instead of 465 (SSL) because Hetzner blocks outbound
+# 465 by default — 587 is open and is Resend's recommended primary anyway.
 RESEND_API_KEY = env("RESEND_API_KEY")
 EMAIL_BACKEND = (
     "django.core.mail.backends.smtp.EmailBackend"
@@ -230,11 +232,12 @@ EMAIL_BACKEND = (
     else "django.core.mail.backends.console.EmailBackend"
 )
 EMAIL_HOST = "smtp.resend.com"
-EMAIL_PORT = 465
-EMAIL_USE_SSL = True
-EMAIL_USE_TLS = False
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
 EMAIL_HOST_USER = "resend"
 EMAIL_HOST_PASSWORD = RESEND_API_KEY
+EMAIL_TIMEOUT = 10
 DEFAULT_FROM_EMAIL = "CollegIA <noreply@send.collegia.be>"
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
